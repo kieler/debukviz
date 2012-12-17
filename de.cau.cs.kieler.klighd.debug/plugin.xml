@@ -2,9 +2,15 @@
 <?eclipse version="3.4"?>
 <plugin>
    <extension
+         point="org.eclipse.ui.startup">
+      <startup
+            class="de.cau.cs.kieler.klighd.debug.KlighdDebugPlugin">
+      </startup>
+   </extension>
+   <extension
          point="de.cau.cs.kieler.klighd.modelTransformations">
       <transformation
-            class="de.cau.cs.kieler.klighd.debug.EcoreDiagramSynthesis"
+            class="de.cau.cs.kieler.klighd.transformations.GuiceBasedTransformationFactory:de.cau.cs.kieler.klighd.debug.ecore.EcoreDiagramSynthesis"
             id="de.cau.cs.kieler.klighd.debug.transformation1">
       </transformation>
    </extension>
