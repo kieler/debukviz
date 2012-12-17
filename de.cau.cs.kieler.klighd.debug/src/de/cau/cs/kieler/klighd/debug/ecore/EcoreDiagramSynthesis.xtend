@@ -13,8 +13,9 @@ import de.cau.cs.kieler.kiml.util.KimlUtil
 import de.cau.cs.kieler.klighd.TransformationContext
 import de.cau.cs.kieler.klighd.transformations.AbstractTransformation
 import javax.inject.Inject
+import org.eclipse.debug.core.model.IVariable
 
-class EcoreDiagramSynthesis extends AbstractTransformation<Object, KNode> {
+class EcoreDiagramSynthesis extends AbstractTransformation<IVariable, KNode> {
 	
 	@Inject
 	extension KNodeExtensions
@@ -36,16 +37,16 @@ class EcoreDiagramSynthesis extends AbstractTransformation<Object, KNode> {
     /**
      * {@inheritDoc}
      */
-	override KNode transform(Object choice, TransformationContext<Object, KNode> transformationContext) {
+	override KNode transform(IVariable choice, TransformationContext<IVariable, KNode> transformationContext) {
 	    use(transformationContext);
 		
 		val in = KimlUtil::createInitializedNode
 		
-		in.addLayoutParam(LayoutOptions::ALGORITHM, "de.cau.cs.kieler.kiml.ogdf.planarization");
-		in.addLayoutParam(LayoutOptions::SPACING, 75f);
-		in.addLayoutParam(LayoutOptions::DIRECTION, Direction::UP);
+		val node = KimlUtil::createInitializedNode
 		
-        in.data += renderingFactory.createKRectangle()    		
+        node.data += renderingFactory.createKRectangle()    		
+		in.children.add(node)
+		
 		return in
 	}
 	
