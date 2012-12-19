@@ -42,17 +42,9 @@ class LGraphDiagramSynthesis extends AbstractTransformation<LGraph, KNode> {
         use(transformationContext);
 		
         return KimlUtil::createInitializedNode => [
-            it.addLayoutParam(LayoutOptions::ALGORITHM, "de.cau.cs.kieler.kiml.ogdf.planarization");
-            it.addLayoutParam(LayoutOptions::SPACING, 75f);
-            
-    
-
             choice.forEach[]
 		    val containedNodes = choice.layerlessNodes;
 		    choice.layers.forEach[containedNodes.addAll(nodes)];
 		]
 	}
-	
-	def create
-	
 }

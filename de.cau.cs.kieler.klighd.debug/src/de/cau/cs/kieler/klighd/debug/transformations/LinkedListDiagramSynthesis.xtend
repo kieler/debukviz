@@ -42,9 +42,6 @@ class LinkedListDiagramSynthesis<E> extends AbstractTransformation<LinkedList<E>
     override KNode transform(LinkedList<E> choice, TransformationContext<LinkedList<E>, KNode> transformationContext) {
         use(transformationContext)
         
-        val erster = choice.first
-        erster.
-        
         return KimlUtil::createInitializedNode => [
             it.addLayoutParam(LayoutOptions::ALGORITHM, "de.cau.cs.kieler.kiml.ogdf.planarization")
             it.addLayoutParam(LayoutOptions::SPACING, 75f)
