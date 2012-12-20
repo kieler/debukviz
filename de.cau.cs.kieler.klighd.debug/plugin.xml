@@ -10,7 +10,7 @@
    <extension
          point="de.cau.cs.kieler.klighd.modelTransformations">
       <transformation
-            class="de.cau.cs.kieler.klighd.debug.transformation.KlighdDebugTransformation1"
+            class="de.cau.cs.kieler.klighd.transformations.GuiceBasedTransformationFactory:de.cau.cs.kieler.klighd.debug.transformation.KlighdDebugTransformation"
             id="de.cau.cs.kieler.klighd.debug.transformation1">
       </transformation>
    </extension>

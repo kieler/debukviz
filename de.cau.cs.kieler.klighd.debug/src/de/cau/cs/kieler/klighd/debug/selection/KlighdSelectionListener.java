@@ -1,6 +1,5 @@
 package de.cau.cs.kieler.klighd.debug.selection;
 
-import java.math.BigInteger;
 import java.util.LinkedList;
 
 import org.eclipse.debug.core.DebugException;
@@ -48,13 +47,16 @@ public class KlighdSelectionListener implements ISelectionListener {
 			StructuredSelection treeSelection = (StructuredSelection) selection;
 			if (treeSelection.getFirstElement() instanceof IVariable) {
 				IVariable var = (IVariable) treeSelection.getFirstElement();
-				
-				// LinkedList<Integer> list = new LinkedList<Integer>(); try {
-				// getLinkedList(list, getValue(var, "header"));
-				// System.out.println(list); } catch (DebugException e) {
-				// //TODO Auto-generated catch block
-				// e.printStackTrace(); }
-				 
+
+				/*LinkedList<Integer> list = new LinkedList<Integer>();
+				try {
+					getLinkedList(list, getValue(var, "header"));
+					System.out.println(list);
+				} catch (DebugException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}*/
+
 				try {
 					System.out.println(var.getReferenceTypeName());
 				} catch (DebugException e) {
