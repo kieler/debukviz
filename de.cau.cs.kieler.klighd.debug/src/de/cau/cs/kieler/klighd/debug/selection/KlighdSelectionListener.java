@@ -57,8 +57,38 @@ public class KlighdSelectionListener implements ISelectionListener {
 					view.getContextViewer().getCurrentViewContext()
 							.setSourceWorkbenchPart(part);
 				}
+				try {
+					System.out.println("----------------");
+					System.out.println("IVariable:");
+					System.out.println(var.getName());
+					System.out.println(var.getReferenceTypeName());
+					System.out.println(var.getValue());
+				} catch (DebugException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				
+				try {
+					IValue value = var.getValue();
+					System.out.println("----------------");
+					System.out.println("IValue:");
+					System.out.println("getClass: " + value.getClass());
+					System.out.println("getDebugTarget: " + value.getDebugTarget());
+					System.out.println("getLaunch: " + value.getLaunch());
+					System.out.println("getReferenceTypeName: " + value.getReferenceTypeName());
+					System.out.println("getValueString: " + value.getValueString());
+					System.out.println("getVariables: " + value.getVariables());
+					IVariable[] vars = value.getVariables();
+					for (IVariable item : vars) {
+						IValue value2 = item.getValue();
+						System.out.println("name: " + item.getName());
+						System.out.println("valueString: " + value2.getValueString());
+					}
+				} catch (DebugException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
 			}
-
 		}
 	}
 
