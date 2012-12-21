@@ -45,12 +45,11 @@ class LinkedList_IVarToKNode extends AbstractTransformation<IVariable, KNode> {
      */
     override KNode transform(IVariable choice, TransformationContext<IVariable, KNode> transformationContext) {
         use(transformationContext)
-
+        
         return KimlUtil::createInitializedNode => [
-            it.addLayoutParam(LayoutOptions::ALGORITHM, "de.cau.cs.kieler.kiml.ogdf.planarization")
-            it.addLayoutParam(LayoutOptions::SPACING, 75f)
+            setOuterLayout(it)
             
-        	if (choice.referenceTypeName.matches("java.util.LinkedList<.+>")) {
+        	if (isCorrectType(choice)) {
         		it.createHeaderNode(choice)
         		var i = getVariableByName(choice, "size").getValue.valueString
                 it.createChildNode(getVariableByName(choice, "header"), Integer::parseInt(i))
@@ -78,9 +77,30 @@ class LinkedList_IVarToKNode extends AbstractTransformation<IVariable, KNode> {
     		]
     	]
     }
+        
+    /**
+     * Sets the base layout for the generated node containing the visualization for the given element
+     * 
+     * @param outerNode the KNode containing the visualization of the given element 
+     */
+    def setOuterLayout(KNode outerNode) {
+    	outerNode.addLayoutParam(LayoutOptions::ALGORITHM, "de.cau.cs.kieler.kiml.ogdf.planarization")
+        outerNode.addLayoutParam(LayoutOptions::SPACING, 75f)
+    }
     
-    
+    /**
+     * Checks if the given IVariable is the representation of an element of the correct type
+     * 
+     * @param choice The IVariable to check
+     * @return the boolean result of the check
+     */
+    def isCorrectType(IVariable choice) {
+    	return choice.referenceTypeName.matches("java.util.LinkedList<.+>")
+    }
             
+    /**
+     * Creates a 
+     */
     def createChildNode(KNode rootNode, IVariable parent, int recursions){
         if (recursions > 0) {
         	var node0 = getVariableByName(parent, "next")
@@ -139,7 +159,7 @@ class LinkedList_IVarToKNode extends AbstractTransformation<IVariable, KNode> {
 	
 	def getVariableByName(IVariable iVariable, String field) {
 		for (iVar : iVariable.getValue.getVariables()) {
-			println(iVariable.getName() + " :" +  iVar.getName())
+//			println(iVariable.getName() + " :" +  iVar.getName())
 			if (iVar.getName().equals(field))
 				return iVar;
 		}

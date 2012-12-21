@@ -59,10 +59,10 @@ public class KlighdSelectionListener implements ISelectionListener {
 				}
 				try {
 					System.out.println("----------------");
+					System.out.println("----------------");
 					System.out.println("IVariable:");
-					System.out.println(var.getName());
-					System.out.println(var.getReferenceTypeName());
-					System.out.println(var.getValue());
+					System.out.println("Name: " + var.getName());
+					System.out.println("RefType: " + var.getReferenceTypeName());
 				} catch (DebugException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -72,17 +72,22 @@ public class KlighdSelectionListener implements ISelectionListener {
 					IValue value = var.getValue();
 					System.out.println("----------------");
 					System.out.println("IValue:");
-					System.out.println("getClass: " + value.getClass());
-					System.out.println("getDebugTarget: " + value.getDebugTarget());
-					System.out.println("getLaunch: " + value.getLaunch());
-					System.out.println("getReferenceTypeName: " + value.getReferenceTypeName());
-					System.out.println("getValueString: " + value.getValueString());
-					System.out.println("getVariables: " + value.getVariables());
+//					System.out.println("getClass: " + value.getClass());
+//					System.out.println("getDebugTarget: " + value.getDebugTarget());
+//					System.out.println("getLaunch: " + value.getLaunch());
+					System.out.println("RefType: " + value.getReferenceTypeName());
+					System.out.println("ValueString: " + value.getValueString());
+
 					IVariable[] vars = value.getVariables();
+					int i = 0;
 					for (IVariable item : vars) {
+						System.out.println();
+						System.out.println("Variable " + i);
+						System.out.println("IVariable name: " + item.getName());
+						System.out.println("IVariable RefType: " + item.getReferenceTypeName());
 						IValue value2 = item.getValue();
-						System.out.println("name: " + item.getName());
-						System.out.println("valueString: " + value2.getValueString());
+						System.out.println("IValue valueString: " + value2.getValueString());
+						System.out.println("IValue RefType: " + value2.getReferenceTypeName());
 					}
 				} catch (DebugException e1) {
 					// TODO Auto-generated catch block
