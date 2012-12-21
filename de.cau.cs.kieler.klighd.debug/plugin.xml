@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?eclipse version="3.4"?>
 <plugin>
+   <extension-point id="de.cau.cs.kieler.klighd.debug" name="KLighD Debug Visualization" schema="schema/de.cau.cs.kieler.klighd.debug.exsd"/>
    <extension
          point="org.eclipse.ui.startup">
       <startup
