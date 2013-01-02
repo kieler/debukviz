@@ -13,15 +13,15 @@ import org.eclipse.ui.PlatformUI;
 import de.cau.cs.kieler.klighd.views.DiagramViewManager;
 import de.cau.cs.kieler.klighd.views.DiagramViewPart;
 
-public class KlighdSelectionListener implements ISelectionListener {
+public class TIT_KlighdSelectionListener implements ISelectionListener {
 
 	// Singleton implementation of selection listener
-	private final static KlighdSelectionListener INSTANCE = new KlighdSelectionListener();
+	private final static TIT_KlighdSelectionListener INSTANCE = new TIT_KlighdSelectionListener();
 
-	private KlighdSelectionListener() {
+	private TIT_KlighdSelectionListener() {
 	}
 
-	public static KlighdSelectionListener getInstance() {
+	public static TIT_KlighdSelectionListener getInstance() {
 		return INSTANCE;
 	}
 
@@ -29,7 +29,7 @@ public class KlighdSelectionListener implements ISelectionListener {
 	 * Register selection to selection service
 	 */
 	public void register() {
-		final KlighdSelectionListener sl = this;
+		final TIT_KlighdSelectionListener sl = this;
 		PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
 			public void run() {
 				ISelectionService selectionService = PlatformUI.getWorkbench()

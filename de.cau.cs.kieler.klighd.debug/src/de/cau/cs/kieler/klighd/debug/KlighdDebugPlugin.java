@@ -4,7 +4,7 @@ import org.eclipse.ui.IStartup;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 
-import de.cau.cs.kieler.klighd.debug.selection.KlighdSelectionListener;
+import de.cau.cs.kieler.klighd.debug.selection.TIT_KlighdSelectionListener;
 
 /**
  * The activator class controls the plug-in life cycle
@@ -53,7 +53,7 @@ public class KlighdDebugPlugin extends AbstractUIPlugin implements IStartup{
     }
 
 	public void earlyStartup() {
-		KlighdSelectionListener.getInstance().register();
+		TIT_KlighdSelectionListener.getInstance().register();
 	}
 
 }
