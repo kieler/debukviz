@@ -17,11 +17,9 @@ import de.cau.cs.kieler.klighd.debug.visualization.AbstractDebugTransformation
 import de.cau.cs.kieler.klighd.transformations.AbstractTransformation
 import java.util.LinkedList
 import javax.inject.Inject
-import com.google.inject.Guice;
 import org.eclipse.debug.core.model.IVariable
 
 import static de.cau.cs.kieler.klighd.debug.transformations.KlighdDebugTransformation.*
-import com.google.inject.Module
 
 class KlighdDebugTransformation extends AbstractTransformation<IVariable, KNode> {
 	
@@ -45,11 +43,8 @@ class KlighdDebugTransformation extends AbstractTransformation<IVariable, KNode>
 	override KNode transform(IVariable choice, TransformationContext<IVariable, KNode> transformationContext) {
 	    use(transformationContext)
 	    val AbstractDebugTransformation transformation = KlighdDebugExtension::INSTANCE.getTransformation(choice.referenceTypeName);
-	    if (transformation != null) {
-
-            return transformation?.transform(choice,transformationContext) 
-	    }
-	    
+	    if (transformation != null) 
+            return transformation.transform(choice,transformationContext) 
 	    else    	    	    
     		return KimlUtil::createInitializedNode() => [
     		    it.addLayoutParam(LayoutOptions::ALGORITHM, "de.cau.cs.kieler.klay.layered");

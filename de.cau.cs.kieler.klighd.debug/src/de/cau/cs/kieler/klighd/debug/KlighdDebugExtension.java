@@ -6,20 +6,9 @@ import java.util.Map;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.Platform;
-import org.eclipse.emf.ecore.resource.ResourceSet;
-import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
 import org.eclipse.ui.statushandlers.StatusManager;
 
-import com.google.inject.Binder;
-import com.google.inject.Guice;
-import com.google.inject.Module;
-import com.google.inject.TypeLiteral;
-
-import de.cau.cs.kieler.core.krendering.extensions.ViewSynthesisShared;
 import de.cau.cs.kieler.klighd.debug.visualization.AbstractDebugTransformation;
-import de.cau.cs.kieler.klighd.debug.visualization.IKlighdDebug;
-import de.cau.cs.kieler.klighd.transformations.AbstractTransformation;
-import de.cau.cs.kieler.klighd.transformations.ReinitializingTransformationProxy.ViewSynthesisScope;
 
 /**
  * Class that gathers extension data from the '...' extension point and publishes this data using

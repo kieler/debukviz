@@ -9,14 +9,11 @@ import de.cau.cs.kieler.core.krendering.extensions.KRenderingExtensions
 import de.cau.cs.kieler.core.util.Pair
 import de.cau.cs.kieler.kiml.options.LayoutOptions
 import de.cau.cs.kieler.kiml.util.KimlUtil
+import de.cau.cs.kieler.klighd.TransformationContext
 import de.cau.cs.kieler.klighd.debug.visualization.AbstractDebugTransformation
-import java.util.LinkedList
-import javax.inject.Inject
-import org.eclipse.debug.core.DebugException
 import org.eclipse.debug.core.model.IVariable
 
 import static de.cau.cs.kieler.klighd.debug.transformations.LinkedList_IVarToKNode.*
-import de.cau.cs.kieler.klighd.TransformationContext
 
 class LinkedList_IVarToKNode extends AbstractDebugTransformation {
     
@@ -31,17 +28,14 @@ class LinkedList_IVarToKNode extends AbstractDebugTransformation {
     /**
      * {@inheritDoc}
      */
-    override transform(IVariable variable, TransformationContext<IVariable, KNode> transformationContext) {
-        use(transformationContext)
+    override transform(IVariable variable,TransformationContext<IVariable,KNode> transformationContext) {
+        use(transformationContext);
         return KimlUtil::createInitializedNode() => [
             it.addLayoutParam(LayoutOptions::ALGORITHM, "de.cau.cs.kieler.kiml.ogdf.planarization")
             it.addLayoutParam(LayoutOptions::SPACING, 75f)
-            
-        	if (isCorrectType(variable)) {
-        		it.createHeaderNode(variable)
-        		var i = getValue(variable, "size").valueString
-                it.createChildNode(getVariableByName(variable, "header"), Integer::parseInt(i))
-       	}
+      		it.createHeaderNode(variable)
+       		var i = getValue(variable, "size").valueString
+            it.createChildNode(getVariableByName(variable, "header"), Integer::parseInt(i))
         ]
     }
  
@@ -64,16 +58,6 @@ class LinkedList_IVarToKNode extends AbstractDebugTransformation {
             	]
     		]
     	]
-    }
-    
-    /**
-     * Checks if the given IVariable is the representation of an element of the correct type
-     * 
-     * @param choice The IVariable to check
-     * @return the boolean result of the check
-     */
-    def isCorrectType(IVariable choice) {
-    	return choice.referenceTypeName.matches("java.util.LinkedList<.+>")
     }
             
     /**
@@ -111,20 +95,5 @@ class LinkedList_IVarToKNode extends AbstractDebugTransformation {
                 it.setLineWidth(2)
             ]
         ]
-    }
-   
-    
-	def getLinkedList(LinkedList<Integer> list, IVariable header) throws DebugException {
-		var next = getVariableByName(header, "next");
-		println(next.getReferenceTypeName());
-		// Get element field
-		var elements = getValue(next, "element").getVariables();
-		if (elements.size != 0) {
-			// Get element value
-			var elementValue = elements.get(11).getValue();
-
-			list.add(Integer::parseInt(elementValue.getValueString()));
-			getLinkedList(list, next);
-		}
-	}  
+    }   
 }
