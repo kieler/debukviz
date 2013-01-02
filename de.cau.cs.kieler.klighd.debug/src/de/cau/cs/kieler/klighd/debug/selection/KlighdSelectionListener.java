@@ -88,6 +88,7 @@ public class KlighdSelectionListener implements ISelectionListener {
 						IValue value2 = item.getValue();
 						System.out.println("IValue valueString: " + value2.getValueString());
 						System.out.println("IValue RefType: " + value2.getReferenceTypeName());
+						i++;
 					}
 				} catch (DebugException e1) {
 					// TODO Auto-generated catch block
