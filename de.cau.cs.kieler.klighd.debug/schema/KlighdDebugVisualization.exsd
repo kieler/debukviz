@@ -3,7 +3,7 @@
 <schema targetNamespace="de.cau.cs.kieler.klighd.debug" xmlns="http://www.w3.org/2001/XMLSchema">
 <annotation>
       <appinfo>
-         <meta.schema plugin="de.cau.cs.kieler.klighd.debug" id="de.cau.cs.kieler.klighd.debug" name="KLighD Debug Visualization"/>
+         <meta.schema plugin="de.cau.cs.kieler.klighd.debug" id="de.cau.cs.kieler.klighd.debugVisualization" name="KlighD Debug Visualization"/>
       </appinfo>
       <documentation>
          [Enter description of this extension point.]
@@ -17,6 +17,9 @@
          </appinfo>
       </annotation>
       <complexType>
+         <sequence>
+            <element ref="visualization" minOccurs="1" maxOccurs="unbounded"/>
+         </sequence>
          <attribute name="point" type="string" use="required">
             <annotation>
                <documentation>
@@ -44,7 +47,7 @@
       </complexType>
    </element>
 
-   <element name="information">
+   <element name="visualization">
       <complexType>
          <attribute name="transformation" type="string" use="required">
             <annotation>
@@ -52,7 +55,7 @@
                   
                </documentation>
                <appinfo>
-                  <meta.attribute kind="java" basedOn=":de.cau.cs.kieler.klighd.debug.information.IKlighdDebug"/>
+                  <meta.attribute kind="java" basedOn="de.cau.cs.kieler.klighd.debug.transformation.AbstractDebugTransformation:"/>
                </appinfo>
             </annotation>
          </attribute>
@@ -66,7 +69,7 @@
                </appinfo>
             </annotation>
          </attribute>
-         <attribute name="plugin" type="string">
+         <attribute name="package" type="string">
             <annotation>
                <documentation>
                   

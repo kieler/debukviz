@@ -5,60 +5,48 @@ import de.cau.cs.kieler.core.krendering.KRenderingFactory
 import de.cau.cs.kieler.core.krendering.extensions.KColorExtensions
 import de.cau.cs.kieler.core.krendering.extensions.KEdgeExtensions
 import de.cau.cs.kieler.core.krendering.extensions.KNodeExtensions
-import de.cau.cs.kieler.core.krendering.extensions.KPolylineExtensions
 import de.cau.cs.kieler.core.krendering.extensions.KRenderingExtensions
 import de.cau.cs.kieler.core.util.Pair
+import de.cau.cs.kieler.kiml.options.LayoutOptions
 import de.cau.cs.kieler.kiml.util.KimlUtil
-import de.cau.cs.kieler.klighd.TransformationContext
-import de.cau.cs.kieler.klighd.transformations.AbstractTransformation
+import de.cau.cs.kieler.klighd.debug.visualization.AbstractDebugTransformation
 import java.util.LinkedList
 import javax.inject.Inject
-
-import static de.cau.cs.kieler.klighd.debug.transformations.LinkedListDiagramSynthesis.*
-import de.cau.cs.kieler.kiml.options.LayoutOptions
-import org.eclipse.debug.core.model.IVariable
 import org.eclipse.debug.core.DebugException
-import org.eclipse.debug.core.model.IValue
+import org.eclipse.debug.core.model.IVariable
 
-class LinkedList_IVarToKNode extends AbstractTransformation<IVariable, KNode> {
-        
-    @Inject
-    extension KNodeExtensions
+import static de.cau.cs.kieler.klighd.debug.transformations.LinkedList_IVarToKNode.*
+import de.cau.cs.kieler.klighd.TransformationContext
+
+class LinkedList_IVarToKNode extends AbstractDebugTransformation {
     
-    @Inject
-    extension KEdgeExtensions
-    
-    @Inject
-    extension KRenderingExtensions
-    
-    @Inject
-    extension KPolylineExtensions
-    
-    @Inject
-    extension KColorExtensions
+    extension KNodeExtensions kNodeExtensions = new KNodeExtensions();
+    extension KEdgeExtensions kEdgeExtensions = new KEdgeExtensions();
+    extension KRenderingExtensions kRenderingExtensions = new KRenderingExtensions();
+    extension KColorExtensions kColorExtensions = new KColorExtensions();
     
  
     private static val KRenderingFactory renderingFactory = KRenderingFactory::eINSTANCE
-
+    
     /**
      * {@inheritDoc}
      */
-    override KNode transform(IVariable choice, TransformationContext<IVariable, KNode> transformationContext) {
+    override transform(IVariable variable, TransformationContext<IVariable, KNode> transformationContext) {
         use(transformationContext)
-        
-        return KimlUtil::createInitializedNode => [
-            setOuterLayout(it)
+        return KimlUtil::createInitializedNode() => [
+            it.addLayoutParam(LayoutOptions::ALGORITHM, "de.cau.cs.kieler.kiml.ogdf.planarization")
+            it.addLayoutParam(LayoutOptions::SPACING, 75f)
             
-        	if (isCorrectType(choice)) {
-        		it.createHeaderNode(choice)
-        		var i = getVariableByName(choice, "size").getValue.valueString
-                it.createChildNode(getVariableByName(choice, "header"), Integer::parseInt(i))
+        	if (isCorrectType(variable)) {
+        		it.createHeaderNode(variable)
+        		var i = getValue(variable, "size").valueString
+                it.createChildNode(getVariableByName(variable, "header"), Integer::parseInt(i))
        	}
         ]
     }
  
-  	def createHeaderNode(KNode rootNode, IVariable iVar) {
-    	var IVariable header = getVariableByName(iVar, "header")
+  	def createHeaderNode(KNode rootNode, IVariable variable) {
+    	var IVariable header = getVariableByName(variable, "header")
     	rootNode.children += header.createNode().putToLookUpWith(header) => [
     		it.setNodeSize(120,80)
     		it.data += renderingFactory.createKRectangle() => [
@@ -66,26 +54,16 @@ class LinkedList_IVarToKNode extends AbstractTransformation<IVariable, KNode> {
     			it.setBackgroundColor("lemon".color)
     			it.ChildPlacement = renderingFactory.createKGridPlacement()
     			it.children += renderingFactory.createKText() => [
-                	it.setText(iVar.name)
+                	it.setText(variable.name)
             	]
     			it.children += renderingFactory.createKText() => [
-                	it.setText("Type: " + iVar.getReferenceTypeName)
+                	it.setText("Type: " + variable.getReferenceTypeName)
             	]
     			it.children += renderingFactory.createKText() => [
-                	it.setText("size: " + getVariableByName(iVar, "size").getValue.valueString)
+                	it.setText("size: " + getVariableByName(variable, "size").getValue.valueString)
             	]
     		]
     	]
-    }
-        
-    /**
-     * Sets the base layout for the generated node containing the visualization for the given element
-     * 
-     * @param outerNode the KNode containing the visualization of the given element 
-     */
-    def setOuterLayout(KNode outerNode) {
-    	outerNode.addLayoutParam(LayoutOptions::ALGORITHM, "de.cau.cs.kieler.kiml.ogdf.planarization")
-        outerNode.addLayoutParam(LayoutOptions::SPACING, 75f)
     }
     
     /**
@@ -137,10 +115,10 @@ class LinkedList_IVarToKNode extends AbstractTransformation<IVariable, KNode> {
    
     
 	def getLinkedList(LinkedList<Integer> list, IVariable header) throws DebugException {
-		var next = getValue(header, "next");
+		var next = getVariableByName(header, "next");
 		println(next.getReferenceTypeName());
 		// Get element field
-		var elements = getValue(next, "element").getValue().getVariables();
+		var elements = getValue(next, "element").getVariables();
 		if (elements.size != 0) {
 			// Get element value
 			var elementValue = elements.get(11).getValue();
@@ -148,21 +126,5 @@ class LinkedList_IVarToKNode extends AbstractTransformation<IVariable, KNode> {
 			list.add(Integer::parseInt(elementValue.getValueString()));
 			getLinkedList(list, next);
 		}
-	}
-
-	def getValue(IVariable variable, String field) throws DebugException {
-		for (vari : variable.getValue().getVariables())
-			if (vari.getName().equals(field))
-				return vari;
-		return null;
-	}
-	
-	def getVariableByName(IVariable iVariable, String field) {
-		for (iVar : iVariable.getValue.getVariables()) {
-//			println(iVariable.getName() + " :" +  iVar.getName())
-			if (iVar.getName().equals(field))
-				return iVar;
-		}
-		return null;
-	}
+	}  
 }

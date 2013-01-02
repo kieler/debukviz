@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?eclipse version="3.4"?>
 <plugin>
-   <extension-point id="de.cau.cs.kieler.klighd.debug" name="KLighD Debug Visualization" schema="schema/de.cau.cs.kieler.klighd.debug.exsd"/>
+   <extension-point id="de.cau.cs.kieler.klighd.debugVisualization" name="KlighD Debug Visualization" schema="schema/KlighdDebugVisualization.exsd"/>
    <extension
          point="org.eclipse.ui.startup">
       <startup
@@ -11,9 +11,16 @@
    <extension
          point="de.cau.cs.kieler.klighd.modelTransformations">
       <transformation
-            class="de.cau.cs.kieler.klighd.transformations.GuiceBasedTransformationFactory:de.cau.cs.kieler.klighd.debug.KlighdDebugTransformation"
+            class="de.cau.cs.kieler.klighd.transformations.GuiceBasedTransformationFactory:de.cau.cs.kieler.klighd.debug.transformations.KlighdDebugTransformation"
             id="de.cau.cs.kieler.klighd.debug.transformation">
       </transformation>
+   </extension>
+   <extension
+         point="de.cau.cs.kieler.klighd.debugVisualization">
+      <visualization
+            class="java.util.LinkedList"
+            transformation="de.cau.cs.kieler.klighd.debug.transformations.LinkedList_IVarToKNode">
+      </visualization>
    </extension>
 
 </plugin>

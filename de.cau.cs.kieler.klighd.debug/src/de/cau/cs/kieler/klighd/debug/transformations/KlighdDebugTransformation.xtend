@@ -1,4 +1,4 @@
-package de.cau.cs.kieler.klighd.debug.transformation
+package de.cau.cs.kieler.klighd.debug.transformations
 
 import de.cau.cs.kieler.core.kgraph.KNode
 import de.cau.cs.kieler.core.krendering.KRenderingFactory
@@ -12,16 +12,20 @@ import de.cau.cs.kieler.kiml.options.Direction
 import de.cau.cs.kieler.kiml.options.LayoutOptions
 import de.cau.cs.kieler.kiml.util.KimlUtil
 import de.cau.cs.kieler.klighd.TransformationContext
+import de.cau.cs.kieler.klighd.debug.KlighdDebugExtension
+import de.cau.cs.kieler.klighd.debug.visualization.AbstractDebugTransformation
 import de.cau.cs.kieler.klighd.transformations.AbstractTransformation
 import java.util.LinkedList
 import javax.inject.Inject
+import com.google.inject.Guice;
 import org.eclipse.debug.core.model.IVariable
 
-import static de.cau.cs.kieler.klighd.debug.transformation.KlighdDebugTransformation.*
+import static de.cau.cs.kieler.klighd.debug.transformations.KlighdDebugTransformation.*
+import com.google.inject.Module
 
 class KlighdDebugTransformation extends AbstractTransformation<IVariable, KNode> {
 	
-	@Inject
+    @Inject
     extension KNodeExtensions
     
    	@Inject
@@ -34,28 +38,33 @@ class KlighdDebugTransformation extends AbstractTransformation<IVariable, KNode>
     extension KPolylineExtensions
 	
     private static val KRenderingFactory renderingFactory = KRenderingFactory::eINSTANCE
-
+    
     /**
      * {@inheritDoc}
      */
 	override KNode transform(IVariable choice, TransformationContext<IVariable, KNode> transformationContext) {
+	    use(transformationContext)
+	    val AbstractDebugTransformation transformation = KlighdDebugExtension::INSTANCE.getTransformation(choice.referenceTypeName);
+	    if (transformation != null) {
+
+            return transformation?.transform(choice,transformationContext) 
+	    }
 	    
-	        	    	    
-		return KimlUtil::createInitializedNode() => [
-		    it.addLayoutParam(LayoutOptions::ALGORITHM, "de.cau.cs.kieler.klay.layered");
-            it.addLayoutParam(LayoutOptions::SPACING, 75f);
-            it.addLayoutParam(LayoutOptions::DIRECTION, Direction::UP);
-            it.children += it.transformation(choice,transformationContext)
-	    ]
+	    else    	    	    
+    		return KimlUtil::createInitializedNode() => [
+    		    it.addLayoutParam(LayoutOptions::ALGORITHM, "de.cau.cs.kieler.klay.layered");
+                it.addLayoutParam(LayoutOptions::SPACING, 75f);
+                it.addLayoutParam(LayoutOptions::DIRECTION, Direction::UP);
+                it.children += it.transformation(choice)
+    	    ]
 	}
 	
-	def KNode transformation(KNode node, IVariable choice, TransformationContext<IVariable, KNode> transformationContext) {
-		use(transformationContext);
+	def KNode transformation(KNode node, IVariable choice) {
 		if (choice.referenceTypeName.matches(".+\\[\\]")) {
 	        // Array
 	        	val result = node.createValueNode(choice,getTypeText(choice.referenceTypeName))
 	        	choice.value.variables.forEach[IVariable variable |
-	        		node.children += node.transformation(variable,transformationContext)
+	        		node.children += node.transformation(variable)
 	        		createEdge(choice, variable)
 	        	]
 	        	return result
@@ -107,6 +116,5 @@ class KlighdDebugTransformation extends AbstractTransformation<IVariable, KNode>
 				it.text = type
 			]
 		]
-	}
-	
+	}	
 }
