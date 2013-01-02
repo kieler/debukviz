@@ -15,8 +15,10 @@ import org.eclipse.debug.core.model.IVariable
 
 import static de.cau.cs.kieler.klighd.debug.transformations.LGraphDiagramSynthesis.*
 import de.cau.cs.kieler.klay.layered.graph.LGraph
+import de.cau.cs.kieler.klighd.debug.visualization.AbstractDebugTransformation
+import de.cau.cs.kieler.klighd.debug.visualization.AbstractDebugTransformation
 
-class LGraphDiagramSynthesis extends AbstractTransformation<LGraph, KNode> {
+class LGraphDiagramSynthesis extends AbstractDebugTransformation<LGraph, KNode> {
     
     @Inject
     extension KNodeExtensions
@@ -47,4 +49,9 @@ class LGraphDiagramSynthesis extends AbstractTransformation<LGraph, KNode> {
 		    choice.layers.forEach[containedNodes.addAll(nodes)];
 		]
 	}
+
+	override transform(IVariable model, TransformationContext<IVariable,KNode> transformationContext) {
+		throw new UnsupportedOperationException("Auto-generated function stub")
+	}
+	
 }
