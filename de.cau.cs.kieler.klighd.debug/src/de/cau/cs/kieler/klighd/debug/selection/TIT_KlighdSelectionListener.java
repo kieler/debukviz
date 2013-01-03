@@ -60,7 +60,7 @@ public class TIT_KlighdSelectionListener implements ISelectionListener {
 				try {
 					System.out.println("----------------");
 					System.out.println("----------------");
-					System.out.println("IVariable:");
+					System.out.println("IVariable:" + var);
 					System.out.println("Name: " + var.getName());
 					System.out.println("RefType: " + var.getReferenceTypeName());
 				} catch (DebugException e) {
@@ -75,6 +75,7 @@ public class TIT_KlighdSelectionListener implements ISelectionListener {
 //					System.out.println("getClass: " + value.getClass());
 //					System.out.println("getDebugTarget: " + value.getDebugTarget());
 //					System.out.println("getLaunch: " + value.getLaunch());
+					System.out.println("Object: " + System.identityHashCode(value));
 					System.out.println("RefType: " + value.getReferenceTypeName());
 					System.out.println("ValueString: " + value.getValueString());
 

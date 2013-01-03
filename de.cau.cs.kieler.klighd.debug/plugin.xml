@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?eclipse version="3.4"?>
 <plugin>
+   <extension-point id="de.cau.cs.kieler.klighd.debugVisualization" name="KlighD Debug Visualization" schema="schema/KlighdDebugVisualization.exsd"/>
    <extension
          point="org.eclipse.ui.startup">
       <startup
@@ -10,33 +11,16 @@
    <extension
          point="de.cau.cs.kieler.klighd.modelTransformations">
       <transformation
-            class="de.cau.cs.kieler.klighd.transformations.GuiceBasedTransformationFactory:de.cau.cs.kieler.klighd.debug.transformations.LinkedListDiagramSynthesis"
-            id="de.cau.cs.kieler.klighd.debug.transformation2">
-      </transformation>
-      <transformation
-            class="de.cau.cs.kieler.klighd.transformations.GuiceBasedTransformationFactory:de.cau.cs.kieler.klighd.debug.transformations.LinkedList_IVarToKNode"
-            id="de.cau.cs.kieler.klighd.debug.linkedList_IVar">
+            class="de.cau.cs.kieler.klighd.transformations.GuiceBasedTransformationFactory:de.cau.cs.kieler.klighd.debug.transformations.KlighdDebugTransformation"
+            id="de.cau.cs.kieler.klighd.debug.transformation">
       </transformation>
    </extension>
    <extension
-         point="org.eclipse.ui.menus">
-      <menuContribution
-            allPopups="false"
-            locationURI="toolbar:org.eclipse.ui.main.toolbar?after=additions">
-         <command
-               commandId="de.cau.cs.kieler.klighd.debug.command1"
-               label="test"
-               style="push">
-         </command>
-      </menuContribution>
-   </extension>
-   <extension
-         point="org.eclipse.ui.commands">
-      <command
-            defaultHandler="de.cau.cs.kieler.klighd.debug.testHandler"
-            id="de.cau.cs.kieler.klighd.debug.command1"
-            name="name">
-      </command>
+         point="de.cau.cs.kieler.klighd.debugVisualization">
+      <visualization
+            class="java.util.LinkedList"
+            transformation="de.cau.cs.kieler.klighd.debug.transformations.LinkedList_IVarToKNode">
+      </visualization>
    </extension>
 
 </plugin>

@@ -20,7 +20,7 @@ import org.eclipse.debug.core.model.IVariable
 import org.eclipse.debug.core.DebugException
 import org.eclipse.debug.core.model.IValue
 
-class LinkedList_IVarToKNode extends AbstractTransformation<IVariable, KNode> {
+class TIT_LinkedList_IVarToKNode extends AbstractTransformation<IVariable, KNode> {
         
     @Inject
     extension KNodeExtensions
