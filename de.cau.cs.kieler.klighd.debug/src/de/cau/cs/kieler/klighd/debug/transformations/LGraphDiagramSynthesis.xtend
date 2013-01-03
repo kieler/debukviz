@@ -18,40 +18,65 @@ import de.cau.cs.kieler.klay.layered.graph.LGraph
 import de.cau.cs.kieler.klighd.debug.visualization.AbstractDebugTransformation
 import de.cau.cs.kieler.klighd.debug.visualization.AbstractDebugTransformation
 
-class LGraphDiagramSynthesis extends AbstractDebugTransformation<LGraph, KNode> {
-    
-    @Inject
-    extension KNodeExtensions
-    
-    @Inject
-    extension KEdgeExtensions
-    
-    @Inject
-    extension KRenderingExtensions
-    
-    @Inject
-    extension KPolylineExtensions
-    
-    @Inject
-    extension KColorExtensions
+class LGraphDiagramSynthesis extends AbstractDebugTransformation {
+	
+    extension KNodeExtensions = new KNodeExtensions()
+    extension KEdgeExtensions = new KEdgeExtensions()
+    extension KRenderingExtensions = new KRenderingExtensions()
+    extension KPolylineExtensions = new KPolylineExtensions()
+    extension KColorExtensions = new KColorExtensions()
     
     private static val KRenderingFactory renderingFactory = KRenderingFactory::eINSTANCE
 
     /**
      * {@inheritDoc}
      */
-    override KNode transform(LGraph choice, TransformationContext<LGraph, KNode> transformationContext) {
-        use(transformationContext);
-		
-        return KimlUtil::createInitializedNode => [
-            choice.forEach[]
-		    val containedNodes = choice.layerlessNodes;
-		    choice.layers.forEach[containedNodes.addAll(nodes)];
-		]
-	}
+	override transform(IVariable variable,TransformationContext<IVariable,KNode> transformationContext) {
+		use(transformationContext);
+        return KimlUtil::createInitializedNode() => [
+            it.addLayoutParam(LayoutOptions::ALGORITHM, "de.cau.cs.kieler.kiml.ogdf.planarization")
+            it.addLayoutParam(LayoutOptions::SPACING, 75f)
 
-	override transform(IVariable model, TransformationContext<IVariable,KNode> transformationContext) {
-		throw new UnsupportedOperationException("Auto-generated function stub")
+      		it.createHeaderNode(variable)
+      		it.createLayerlessNodes(variable.getVariableByName("layerlessNodes"))
+      		it.createLayeredNodes(variable.getVariableByName("layers"))
+        ]
+
 	}
 	
+	def createHeaderNode(KNode rootNode, IVariable variable) {
+		rootNode.children += variable.createNode().putToLookUpWith(variable) => [
+//    		it.setNodeSize(120,80)
+    		it.data += renderingFactory.createKRectangle() => [
+    			it.setLineWidth(4)
+    			it.setBackgroundColor("lemon".color)
+    			it.ChildPlacement = renderingFactory.createKGridPlacement()
+    			
+    			it.children += renderingFactory.createKText() => [
+//    				it.setText("Size: " + variable.getVariableByName("size").getVariableByName("x").getVal)
+    				it.setText("size: " + variable.getVariableByName("size").getVal)
+            	]
+    			
+    			it.children += renderingFactory.createKText() => [
+                	it.setText("insets: " + variable.getVariableByName("insets").getVal)
+            	]
+    			
+    			it.children += renderingFactory.createKText() => [
+                	it.setText("offset: " + variable.getVariableByName("offset").getVal)
+            	]
+            ]
+		]
+	}
+	
+	def createLayerlessNodes(KNode rootNode, IVariable variable) {
+		rootNode.children += variable.createNode().putToLookUpWith(variable)
+	}
+	
+	def createLayeredNodes(KNode rootNode, IVariable variable) {
+		rootNode.children += variable.createNode().putToLookUpWith(variable)
+	}
+	
+	def getVal(IVariable variable) {
+		variable.getValue.getValueString
+	}
 }

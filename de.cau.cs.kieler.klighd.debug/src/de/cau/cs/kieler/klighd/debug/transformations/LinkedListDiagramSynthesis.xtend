@@ -8,6 +8,7 @@ import de.cau.cs.kieler.core.krendering.extensions.KNodeExtensions
 import de.cau.cs.kieler.core.krendering.extensions.KPolylineExtensions
 import de.cau.cs.kieler.core.krendering.extensions.KRenderingExtensions
 import de.cau.cs.kieler.core.util.Pair
+import de.cau.cs.kieler.kiml.options.LayoutOptions
 import de.cau.cs.kieler.kiml.util.KimlUtil
 import de.cau.cs.kieler.klighd.TransformationContext
 import de.cau.cs.kieler.klighd.transformations.AbstractTransformation
@@ -15,7 +16,6 @@ import java.util.LinkedList
 import javax.inject.Inject
 
 import static de.cau.cs.kieler.klighd.debug.transformations.LinkedListDiagramSynthesis.*
-import de.cau.cs.kieler.kiml.options.LayoutOptions
 
 class LinkedListDiagramSynthesis<E> extends AbstractTransformation<LinkedList<E>, KNode> {
         

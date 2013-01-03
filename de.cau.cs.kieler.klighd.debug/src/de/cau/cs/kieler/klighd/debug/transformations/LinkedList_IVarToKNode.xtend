@@ -10,10 +10,10 @@ import de.cau.cs.kieler.core.util.Pair
 import de.cau.cs.kieler.kiml.options.LayoutOptions
 import de.cau.cs.kieler.kiml.util.KimlUtil
 import de.cau.cs.kieler.klighd.TransformationContext
-import de.cau.cs.kieler.klighd.debug.visualization.AbstractDebugTransformation
 import org.eclipse.debug.core.model.IVariable
 
 import static de.cau.cs.kieler.klighd.debug.transformations.LinkedList_IVarToKNode.*
+import de.cau.cs.kieler.klighd.debug.visualization.AbstractDebugTransformation
 
 class LinkedList_IVarToKNode extends AbstractDebugTransformation {
     
