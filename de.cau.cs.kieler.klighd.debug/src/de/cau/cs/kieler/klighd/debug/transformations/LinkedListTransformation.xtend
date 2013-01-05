@@ -13,10 +13,11 @@ import de.cau.cs.kieler.klighd.TransformationContext
 import de.cau.cs.kieler.klighd.debug.visualization.AbstractDebugTransformation
 import org.eclipse.debug.core.model.IVariable
 
-import static de.cau.cs.kieler.klighd.debug.transformations.LinkedList_IVarToKNode.*
+import static de.cau.cs.kieler.klighd.debug.transformations.LinkedListTransformation.*
 
-class LinkedList_IVarToKNode extends AbstractDebugTransformation {
-    
+
+class LinkedListTransformation extends AbstractDebugTransformation {
+        
     extension KNodeExtensions kNodeExtensions = new KNodeExtensions();
     extension KEdgeExtensions kEdgeExtensions = new KEdgeExtensions();
     extension KRenderingExtensions kRenderingExtensions = new KRenderingExtensions();
