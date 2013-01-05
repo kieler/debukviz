@@ -55,7 +55,7 @@
                   
                </documentation>
                <appinfo>
-                  <meta.attribute kind="java" basedOn="de.cau.cs.kieler.klighd.debug.transformation.AbstractDebugTransformation:"/>
+                  <meta.attribute kind="java" basedOn="de.cau.cs.kieler.klighd.debug.visualization.AbstractDebugTransformation:"/>
                </appinfo>
             </annotation>
          </attribute>

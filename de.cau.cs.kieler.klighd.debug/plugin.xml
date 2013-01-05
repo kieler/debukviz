@@ -19,7 +19,7 @@
          point="de.cau.cs.kieler.klighd.debugVisualization">
       <visualization
             class="java.util.LinkedList"
-            transformation="de.cau.cs.kieler.klighd.debug.transformations.LinkedList_IVarToKNode">
+            transformation="de.cau.cs.kieler.klighd.debug.transformations.LinkedListTransformation">
       </visualization>
    </extension>
 

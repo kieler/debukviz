@@ -22,7 +22,7 @@ import org.eclipse.debug.core.model.IVariable
 import static de.cau.cs.kieler.klighd.debug.transformations.KlighdDebugTransformation.*
 
 class KlighdDebugTransformation extends AbstractTransformation<IVariable, KNode> {
-        	
+
     @Inject
     extension KNodeExtensions
     
