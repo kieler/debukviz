@@ -91,25 +91,48 @@ class LGraphDiagramSynthesis extends AbstractKNodeTransformation {
 		rootNode.children += variable.createNode().putToLookUpWith(variable)
 	}
 	
+	/**
+	 * Create a representation of a LNode
+	 * @param rootNode The KNode this node is placed into
+     * @param variable The IVariable containing the data for this LNode
+	 */
 	def createNode(KNode rootNode, IVariable variable) {
+        // Get the nodeType
+        val nodeType = variable.getVariableByName("propertyMap").getKeyFromHashMap("NODE_TYPE")
+        // Get the ports
+        val ports = variable.getVariableByName("ports").linkedList
+        // Get the labels
+        val labels = variable.getVariableByName("labels").linkedList
+        
 	    rootNode.children += variable.createNode().putToLookUpWith(variable) => [
 //            it.setNodeSize(120,80)
 
-            it.data += renderingFactory.createKRectangle() => [
-                it.setLineWidth(4)
-                it.setBackgroundColor("lemon".color)
-                it.ChildPlacement = renderingFactory.createKGridPlacement()
+            /*
+             * Normal nodes. (If nodeType is null, the default type is taken, which is "NORMAL")
+             *  - show their name (if set) or their node ID
+             *  - are represented by an rectangle  
+             */ 
+            if (nodeType == null || nodeType.getValueByName("name") == "NORMAL" ) {
+                it.data += renderingFactory.createKRectangle() => [
+                    it.setLineWidth(2)
+    //                it.setBackgroundColor("lemon".color)
+                    it.ChildPlacement = renderingFactory.createKGridPlacement()
+                    
+                    // Name of the node is the first label
+                    it.children += renderingFactory.createKText() => [
+                        it.setText("hashCode: " + variable.getValueByName("hashCode"))
+                    ]
+                ]
+            }
+            
+            /*
+             * Dummy nodes.
+             *  - show their name (if set) or their node ID
+             *  - are represented by an ellipses  
+             */ 
+            else {
                 
-                it.children += renderingFactory.createKText() => [
-                    it.setText("hashCode: " + variable.getValueByName("hashCode"))
-                ]
-                it.children += renderingFactory.createKText() => [
-                    it.setText("Type: " + iVar.getReferenceTypeName)
-                ]
-                it.children += renderingFactory.createKText() => [
-                    it.setText("size: " + getVariableByName(iVar, "size").getValue.valueString)
-                ]
-            ]	        
+            }
 	    ]
 	}
 }
