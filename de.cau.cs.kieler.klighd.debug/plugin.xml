@@ -21,6 +21,11 @@
             class="java.util.LinkedList"
             transformation="de.cau.cs.kieler.klighd.debug.transformations.LinkedList_IVarToKNode">
       </visualization>
+      <visualization
+            class="de.cau.cs.kieler.klay.layered.graph.LGraph"
+            package="de.cau.cs.kieler.klay.layered.graph"
+            transformation="de.cau.cs.kieler.klighd.debug.transformations.LGraphDiagramSynthesis">
+      </visualization>
    </extension>
 
 </plugin>

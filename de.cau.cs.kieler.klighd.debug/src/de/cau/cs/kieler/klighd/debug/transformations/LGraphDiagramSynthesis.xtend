@@ -17,14 +17,15 @@ import static de.cau.cs.kieler.klighd.debug.transformations.LGraphDiagramSynthes
 import de.cau.cs.kieler.klay.layered.graph.LGraph
 import de.cau.cs.kieler.klighd.debug.visualization.AbstractDebugTransformation
 import de.cau.cs.kieler.klighd.debug.visualization.AbstractDebugTransformation
+import de.cau.cs.kieler.kiml.options.LayoutOptions
 
-class LGraphDiagramSynthesis extends AbstractDebugTransformation {
+class LGraphDiagramSynthesis extends AbstractKNodeTransformation {
 	
-    extension KNodeExtensions = new KNodeExtensions()
-    extension KEdgeExtensions = new KEdgeExtensions()
-    extension KRenderingExtensions = new KRenderingExtensions()
-    extension KPolylineExtensions = new KPolylineExtensions()
-    extension KColorExtensions = new KColorExtensions()
+    extension KNodeExtensions kNodeExtensions = new KNodeExtensions()
+    extension KEdgeExtensions kEdgeExtensions = new KEdgeExtensions()
+    extension KRenderingExtensions kRenderingExtensions = new KRenderingExtensions()
+    extension KColorExtensions kColorExtensions = new KColorExtensions()
+    
     
     private static val KRenderingFactory renderingFactory = KRenderingFactory::eINSTANCE
 
@@ -36,7 +37,6 @@ class LGraphDiagramSynthesis extends AbstractDebugTransformation {
         return KimlUtil::createInitializedNode() => [
             it.addLayoutParam(LayoutOptions::ALGORITHM, "de.cau.cs.kieler.kiml.ogdf.planarization")
             it.addLayoutParam(LayoutOptions::SPACING, 75f)
-
       		it.createHeaderNode(variable)
       		it.createLayerlessNodes(variable.getVariableByName("layerlessNodes"))
       		it.createLayeredNodes(variable.getVariableByName("layers"))
@@ -48,21 +48,36 @@ class LGraphDiagramSynthesis extends AbstractDebugTransformation {
 		rootNode.children += variable.createNode().putToLookUpWith(variable) => [
 //    		it.setNodeSize(120,80)
     		it.data += renderingFactory.createKRectangle() => [
-    			it.setLineWidth(4)
-    			it.setBackgroundColor("lemon".color)
+    			it.lineWidth = 4
+    			it.backgroundColor = "lemon".color
     			it.ChildPlacement = renderingFactory.createKGridPlacement()
     			
+                it.children += renderingFactory.createKText() => [
+                    it.setText("name: " + variable.name)
+                ]
+                
+                it.children += renderingFactory.createKText() => [
+                    it.setText("hashCode: " + variable.getValueByName("hashCode"))
+                ]
+    			
     			it.children += renderingFactory.createKText() => [
-//    				it.setText("Size: " + variable.getVariableByName("size").getVariableByName("x").getVal)
-    				it.setText("size: " + variable.getVariableByName("size").getVal)
+    				it.setText("size (x,y): (" + variable.getValueByName("size.x") + ", " 
+    				                           + variable.getValueByName("size.y") + ")" 
+                    )
             	]
     			
     			it.children += renderingFactory.createKText() => [
-                	it.setText("insets: " + variable.getVariableByName("insets").getVal)
+                	it.setText("insets (t,r,b,l): (" + variable.getValueByName("insets.top") + ", "
+                	                                 + variable.getValueByName("insets.right") + ", "
+                	                                 + variable.getValueByName("insets.bottom") + ", "
+                	                                 + variable.getValueByName("insets.left") + ")"
+                	)
             	]
     			
     			it.children += renderingFactory.createKText() => [
-                	it.setText("offset: " + variable.getVariableByName("offset").getVal)
+                	it.setText("offset (x,y): (" + variable.getValueByName("offset.x") + ", "
+                	                             + variable.getValueByName("offset.y") + ")"
+                	)
             	]
             ]
 		]
@@ -76,7 +91,25 @@ class LGraphDiagramSynthesis extends AbstractDebugTransformation {
 		rootNode.children += variable.createNode().putToLookUpWith(variable)
 	}
 	
-	def getVal(IVariable variable) {
-		variable.getValue.getValueString
+	def createNode(KNode rootNode, IVariable variable) {
+	    rootNode.children += variable.createNode().putToLookUpWith(variable) => [
+//            it.setNodeSize(120,80)
+
+            it.data += renderingFactory.createKRectangle() => [
+                it.setLineWidth(4)
+                it.setBackgroundColor("lemon".color)
+                it.ChildPlacement = renderingFactory.createKGridPlacement()
+                
+                it.children += renderingFactory.createKText() => [
+                    it.setText("hashCode: " + variable.getValueByName("hashCode"))
+                ]
+                it.children += renderingFactory.createKText() => [
+                    it.setText("Type: " + iVar.getReferenceTypeName)
+                ]
+                it.children += renderingFactory.createKText() => [
+                    it.setText("size: " + getVariableByName(iVar, "size").getValue.valueString)
+                ]
+            ]	        
+	    ]
 	}
 }
