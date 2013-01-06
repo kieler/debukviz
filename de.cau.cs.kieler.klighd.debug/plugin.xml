@@ -21,6 +21,26 @@
             class="java.util.LinkedList"
             transformation="de.cau.cs.kieler.klighd.debug.transformations.LinkedListTransformation">
       </visualization>
+      <visualization
+            class="java.util.HashMap"
+            transformation="de.cau.cs.kieler.klighd.debug.transformations.HashMapTransformation">
+      </visualization>
+      <visualization
+            class="java.lang.Boolean"
+            transformation="de.cau.cs.kieler.klighd.debug.transformations.ObjectValueTransformation">
+      </visualization>
+      <visualization
+            class="java.lang.Integer"
+            transformation="de.cau.cs.kieler.klighd.debug.transformations.ObjectValueTransformation">
+      </visualization>
+      <visualization
+            class="java.lang.Byte"
+            transformation="de.cau.cs.kieler.klighd.debug.transformations.ObjectValueTransformation">
+      </visualization>
+      <visualization
+            class="java.lang.Character"
+            transformation="de.cau.cs.kieler.klighd.debug.transformations.ObjectValueTransformation">
+      </visualization>
    </extension>
 
 </plugin>

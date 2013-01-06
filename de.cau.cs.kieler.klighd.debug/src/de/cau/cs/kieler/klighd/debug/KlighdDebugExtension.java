@@ -6,7 +6,14 @@ import java.util.Map;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.Platform;
+import org.eclipse.debug.core.DebugException;
+import org.eclipse.debug.core.model.IVariable;
 import org.eclipse.ui.statushandlers.StatusManager;
+import org.osgi.framework.Bundle;
+import org.eclipse.jdt.debug.core.IJavaClassType;
+import org.eclipse.jdt.debug.core.IJavaType;
+import org.eclipse.jdt.debug.core.IJavaValue;
+import org.eclipse.jdt.debug.core.IJavaVariable;
 
 import de.cau.cs.kieler.klighd.debug.visualization.AbstractDebugTransformation;
 
@@ -53,8 +60,29 @@ public class KlighdDebugExtension {
      * @param clazz
      *            identifier of class
      * @return the associated transformation
+     * @throws DebugException
+     * @throws ClassNotFoundException
      */
-    public AbstractDebugTransformation getTransformation(final String clazz) {
-        return transformationMap.get(clazz.split("<")[0]);
+    @SuppressWarnings("all")
+    public AbstractDebugTransformation getTransformation(IVariable model) throws DebugException {
+        String clazz = model.getValue().getReferenceTypeName();
+
+        // If clazz ends with [] return null
+        if (clazz.endsWith("[]"))
+            return null;
+
+        // remove generic subtype
+        clazz = clazz.split("<")[0];
+        // Get a transformation
+        AbstractDebugTransformation result = null;
+        // If no transformation is registred search for transformation registred to a superclass
+        if (result == null) {
+            IJavaClassType superClass = (IJavaClassType) ((IJavaValue) model.getValue()).getJavaType();
+            while (result == null && superClass != null) {
+                result = transformationMap.get(superClass.getName());
+                superClass = superClass.getSuperclass();
+            }
+        }
+        return result;
     }
 }
