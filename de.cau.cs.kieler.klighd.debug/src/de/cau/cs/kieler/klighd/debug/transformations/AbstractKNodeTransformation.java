@@ -18,6 +18,7 @@ import java.util.LinkedList;
 import org.eclipse.debug.core.DebugException;
 import org.eclipse.debug.core.model.IVariable;
 
+import de.cau.cs.kieler.core.kgraph.KNode;
 import de.cau.cs.kieler.klighd.debug.visualization.AbstractDebugTransformation;
 
 /**
@@ -69,5 +70,15 @@ public abstract class AbstractKNodeTransformation extends AbstractDebugTransform
         }
         
         return null;
+    }
+    
+    @Override
+    public KNode nextTransformation(KNode rootNode, IVariable variable) {
+        //rootNode.getChildren().clear();
+        KlighdDebugTransformation transformation = new KlighdDebugTransformation();
+        KNode innerNode = transformation.transform(variable, this.getUsedContext());
+        //new KNodeExtensions().addLayoutParam(innerNode, LayoutOptions.BORDER_SPACING, 0f);
+        rootNode.getChildren().addAll(innerNode.getChildren());
+        return innerNode;
     }
 }

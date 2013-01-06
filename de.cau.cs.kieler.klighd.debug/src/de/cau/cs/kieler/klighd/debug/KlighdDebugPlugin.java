@@ -4,12 +4,12 @@ import org.eclipse.ui.IStartup;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 
-import de.cau.cs.kieler.klighd.debug.selection.TIT_KlighdSelectionListener;
+import de.cau.cs.kieler.klighd.debug.selection.KlighdSelectionListener;
 
 /**
  * The activator class controls the plug-in life cycle
  */
-public class KlighdDebugPlugin extends AbstractUIPlugin implements IStartup{
+public class KlighdDebugPlugin extends AbstractUIPlugin implements IStartup {
 
     // The plug-in ID
     public static final String PLUGIN_ID = "de.cau.cs.kieler.klighd.debug"; //$NON-NLS-1$
@@ -52,8 +52,8 @@ public class KlighdDebugPlugin extends AbstractUIPlugin implements IStartup{
         return plugin;
     }
 
-	public void earlyStartup() {
-		TIT_KlighdSelectionListener.getInstance().register();
-	}
+    public void earlyStartup() {
+        KlighdSelectionListener.getInstance().register();
+    }
 
 }

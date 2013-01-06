@@ -8,23 +8,29 @@ import de.cau.cs.kieler.core.krendering.extensions.KNodeExtensions
 import de.cau.cs.kieler.core.krendering.extensions.KRenderingExtensions
 import de.cau.cs.kieler.core.util.Pair
 import de.cau.cs.kieler.kiml.options.LayoutOptions
+import de.cau.cs.kieler.kiml.options.Direction
 import de.cau.cs.kieler.kiml.util.KimlUtil
 import de.cau.cs.kieler.klighd.TransformationContext
-import org.eclipse.debug.core.model.IVariable
 import de.cau.cs.kieler.klighd.debug.visualization.AbstractDebugTransformation
+import org.eclipse.debug.core.model.IVariable
 
-import static de.cau.cs.kieler.klighd.debug.transformations.LinkedList_IVarToKNode.*
+import static de.cau.cs.kieler.klighd.debug.transformations.LinkedListTransformation.*
+import javax.inject.Inject
 
-class LinkedList_IVarToKNode extends AbstractDebugTransformation {
+class LinkedListTransformation extends AbstractDebugTransformation {
     
-    extension KNodeExtensions kNodeExtensions = new KNodeExtensions();
-    extension KEdgeExtensions kEdgeExtensions = new KEdgeExtensions();
-    extension KRenderingExtensions kRenderingExtensions = new KRenderingExtensions();
-    extension KColorExtensions kColorExtensions = new KColorExtensions();
+    @Inject
+    extension KNodeExtensions    
+    @Inject
+    extension KEdgeExtensions
+    @Inject
+    extension KRenderingExtensions
+    @Inject
+    extension KColorExtensions
     
  
     private static val KRenderingFactory renderingFactory = KRenderingFactory::eINSTANCE
-    
+   
     /**
      * {@inheritDoc}
      */
@@ -33,15 +39,18 @@ class LinkedList_IVarToKNode extends AbstractDebugTransformation {
         return KimlUtil::createInitializedNode() => [
             it.addLayoutParam(LayoutOptions::ALGORITHM, "de.cau.cs.kieler.kiml.ogdf.planarization")
             it.addLayoutParam(LayoutOptions::SPACING, 75f)
+            it.addLayoutParam(LayoutOptions::DIRECTION, Direction::UP);
       		it.createHeaderNode(variable)
        		val i = variable.getValueByName("size")
-            it.createChildNode(variable.getVariableByName("header"), Integer::parseInt(i)*2)
+            val IVariable header = variable.getVariableByName("header")
+            val IVariable last =  it.createChildNode(header, Integer::parseInt(i))
+            header.createEdge(last)
         ]
     }
  
   	def createHeaderNode(KNode rootNode, IVariable variable) {
     	var IVariable header = variable.getVariableByName("header")
-    	rootNode.children += header.createNode().putToLookUpWith(header.value) => [
+    	rootNode.children += header.createNode().putToLookUpWith(header) => [
     		it.setNodeSize(120,80)
     		it.data += renderingFactory.createKRectangle() => [
     			it.lineWidth = 4
@@ -51,7 +60,7 @@ class LinkedList_IVarToKNode extends AbstractDebugTransformation {
                 	it.setText(variable.name)
             	]
     			it.children += renderingFactory.createKText() => [
-                	it.setText("Type: " + variable.getReferenceTypeName)
+                	it.setText("Type: " + variable.type)
             	]
     			it.children += renderingFactory.createKText() => [
                 	it.setText("size: " + variable.getValueByName("size"))
@@ -59,37 +68,38 @@ class LinkedList_IVarToKNode extends AbstractDebugTransformation {
     		]
     	]
     }
-            
-    /**
-     * Creates a 
-     */
-    def createChildNode(KNode rootNode, IVariable parent, int recursions){
-        if (recursions > 0) {
+    
+    def IVariable createChildNode(KNode rootNode, IVariable parent, int size){
+        if (size > 0) {
         	var next = parent.getVariableByName("next")
             rootNode.createInternalNode(next)
             parent.createEdge(next)
-            rootNode.createChildNode(next, recursions -1)
+            return rootNode.createChildNode(next, size-1)
         }
+        else
+            return parent
     }
     
     def createInternalNode(KNode rootNode, IVariable next) {
-        rootNode.children += next.createNode().putToLookUpWith(next.value) => [
+        rootNode.children += next.createNode().putToLookUpWith(next) => [    
             it.setNodeSize(120,80)
-            it.data += renderingFactory.createKRectangle() => [
+            it.data += renderingFactory.createKRectangle() => [      
                 it.lineWidth = 2
                 it.backgroundColor = "lemon".color
     			it.ChildPlacement = renderingFactory.createKGridPlacement()
-    			it.children += renderingFactory.createKText() => [
-                	it.setText(next.getValueByName("element.value"))
-            	]
             ]
-            it.children += KimlUtil::createInitializedNode() => [
+            it.nextTransformation(next.getVariableByName("element"))
+            /*it.children += element.createNode().putToLookUpWith(element) => [   
             	it.data += renderingFactory.createKRectangle() => [
             		it.foregroundVisibility = false
             		it.backgroundVisibility = false
     				it.ChildPlacement = renderingFactory.createKGridPlacement()
+    				it.children += renderingFactory.createKText() => [
+                      it.setText(element.getValueByName("value"))
+                    ]
             	]
             ]
+            */
         ]
     }
     
@@ -101,5 +111,5 @@ class LinkedList_IVarToKNode extends AbstractDebugTransformation {
                 it.setLineWidth(2)
             ]
         ]
-    }   
+    }  
 }

@@ -19,12 +19,37 @@
          point="de.cau.cs.kieler.klighd.debugVisualization">
       <visualization
             class="java.util.LinkedList"
-            transformation="de.cau.cs.kieler.klighd.debug.transformations.LinkedList_IVarToKNode">
+            transformation="de.cau.cs.kieler.klighd.debug.transformations.LinkedListTransformation">
+      </visualization>
+      <visualization
+            class="java.util.HashMap"
+            transformation="de.cau.cs.kieler.klighd.debug.transformations.HashMapTransformation">
+      </visualization>
+      <visualization
+            class="java.lang.Boolean"
+            transformation="de.cau.cs.kieler.klighd.debug.transformations.ObjectValueTransformation">
+      </visualization>
+      <visualization
+            class="java.lang.Integer"
+            transformation="de.cau.cs.kieler.klighd.debug.transformations.ObjectValueTransformation">
+      </visualization>
+      <visualization
+            class="java.lang.Byte"
+            transformation="de.cau.cs.kieler.klighd.debug.transformations.ObjectValueTransformation">
+      </visualization>
+      <visualization
+            class="java.lang.Character"
+            transformation="de.cau.cs.kieler.klighd.debug.transformations.ObjectValueTransformation">
       </visualization>
       <visualization
             class="de.cau.cs.kieler.klay.layered.graph.LGraph"
             package="de.cau.cs.kieler.klay.layered.graph"
-            transformation="de.cau.cs.kieler.klighd.debug.transformations.LGraphDiagramSynthesis">
+            transformation="de.cau.cs.kieler.klighd.debug.transformations.LGraphTransformation">
+      </visualization>
+      <visualization
+            class="de.cau.cs.kieler.klay.layered.graph.LNode"
+            package="de.cau.cs.kieler.klay.layered.graph"
+            transformation="de.cau.cs.kieler.klighd.debug.transformations.LNodeTransformation">
       </visualization>
    </extension>
 
