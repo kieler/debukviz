@@ -1,33 +1,44 @@
 package de.cau.cs.kieler.klighd.debug.visualization;
 
+import javax.inject.Inject;
+
 import org.eclipse.debug.core.DebugException;
 import org.eclipse.debug.core.model.IValue;
 import org.eclipse.debug.core.model.IVariable;
 
+import de.cau.cs.kieler.core.kgraph.KEdge;
 import de.cau.cs.kieler.core.kgraph.KNode;
+import de.cau.cs.kieler.core.krendering.KRenderingFactory;
+import de.cau.cs.kieler.core.krendering.extensions.KEdgeExtensions;
+import de.cau.cs.kieler.core.krendering.extensions.KNodeExtensions;
+import de.cau.cs.kieler.core.util.Pair;
 import de.cau.cs.kieler.klighd.debug.transformations.KlighdDebugTransformation;
 import de.cau.cs.kieler.klighd.transformations.AbstractTransformation;
 
 public abstract class AbstractDebugTransformation extends AbstractTransformation<IVariable, KNode> {
+
+    @Inject
+    private KEdgeExtensions kEdgeExtensions = new KEdgeExtensions();
+    @Inject
+    private KNodeExtensions kNodeExtensions = new KNodeExtensions();
     
+    protected static final KRenderingFactory renderingFactory = KRenderingFactory.eINSTANCE;
+
     private Object transformationInfo;
-    
+
     public Object getTransformationInfo() {
         return transformationInfo;
     }
-    
+
     public void setTransformationInfo(Object transformationInfo) {
         this.transformationInfo = transformationInfo;
     }
-    
+
     public KNode nextTransformation(KNode rootNode, IVariable variable, Object transformationInfo) {
-        //rootNode.getChildren().clear();
         KlighdDebugTransformation transformation = new KlighdDebugTransformation();
         transformation.setTransformationInfo(transformationInfo);
         KNode innerNode = transformation.transform(variable, this.getUsedContext());
-        //new KNodeExtensions().addLayoutParam(innerNode, LayoutOptions.BORDER_SPACING, 0f);
         rootNode.getChildren().addAll(innerNode.getChildren());
-        //rootNode.getChildren().add(innerNode);
         return innerNode;
     }
 
@@ -80,5 +91,12 @@ public abstract class AbstractDebugTransformation extends AbstractTransformation
 
     public String getType(IVariable variable) throws DebugException {
         return variable.getValue().getReferenceTypeName();
+    }
+
+    public KEdge createEdge(IVariable source, IVariable target) {
+        KEdge edge = kEdgeExtensions.createEdge(new Pair<Object, Object>(source, target));
+        edge.setSource(kNodeExtensions.getNode(source));
+        edge.setTarget(kNodeExtensions.getNode(target));
+        return edge;
     }
 }

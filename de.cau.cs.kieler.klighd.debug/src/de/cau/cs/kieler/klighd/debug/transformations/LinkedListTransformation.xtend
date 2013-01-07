@@ -16,20 +16,18 @@ import org.eclipse.debug.core.model.IVariable
 
 import static de.cau.cs.kieler.klighd.debug.transformations.LinkedListTransformation.*
 import javax.inject.Inject
+import de.cau.cs.kieler.core.krendering.extensions.KPolylineExtensions
 
 class LinkedListTransformation extends AbstractDebugTransformation {
     
     @Inject
     extension KNodeExtensions    
-    @Inject
-    extension KEdgeExtensions
+    @Inject 
+    extension KPolylineExtensions 
     @Inject
     extension KRenderingExtensions
     @Inject
     extension KColorExtensions
-    
- 
-    private static val KRenderingFactory renderingFactory = KRenderingFactory::eINSTANCE
    
     /**
      * {@inheritDoc}
@@ -89,26 +87,14 @@ class LinkedListTransformation extends AbstractDebugTransformation {
     			it.ChildPlacement = renderingFactory.createKGridPlacement()
             ]
             it.nextTransformation(next.getVariableByName("element"),null)
-            /*it.children += element.createNode().putToLookUpWith(element) => [   
-            	it.data += renderingFactory.createKRectangle() => [
-            		it.foregroundVisibility = false
-            		it.backgroundVisibility = false
-    				it.ChildPlacement = renderingFactory.createKGridPlacement()
-    				it.children += renderingFactory.createKText() => [
-                      it.setText(element.getValueByName("value"))
-                    ]
-            	]
-            ]
-            */
         ]
     }
     
-    def createEdge(IVariable child, IVariable parent) {
-        new Pair(child, parent).createEdge() => [
-            it.source = parent.node
-            it.target = child.node
+    override createEdge(IVariable source, IVariable target) {
+        super.createEdge(source, target) => [
             it.data += renderingFactory.createKPolyline() => [
                 it.setLineWidth(2)
+                it.addArrowDecorator();
             ]
         ]
     }  
