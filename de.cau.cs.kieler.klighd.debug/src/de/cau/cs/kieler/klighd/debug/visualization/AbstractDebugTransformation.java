@@ -10,12 +10,24 @@ import de.cau.cs.kieler.klighd.transformations.AbstractTransformation;
 
 public abstract class AbstractDebugTransformation extends AbstractTransformation<IVariable, KNode> {
     
-    public KNode nextTransformation(KNode rootNode, IVariable variable) {
+    private Object transformationInfo;
+    
+    public Object getTransformationInfo() {
+        return transformationInfo;
+    }
+    
+    public void setTransformationInfo(Object transformationInfo) {
+        this.transformationInfo = transformationInfo;
+    }
+    
+    public KNode nextTransformation(KNode rootNode, IVariable variable, Object transformationInfo) {
         //rootNode.getChildren().clear();
         KlighdDebugTransformation transformation = new KlighdDebugTransformation();
+        transformation.setTransformationInfo(transformationInfo);
         KNode innerNode = transformation.transform(variable, this.getUsedContext());
         //new KNodeExtensions().addLayoutParam(innerNode, LayoutOptions.BORDER_SPACING, 0f);
-        rootNode.getChildren().add(innerNode);
+        rootNode.getChildren().addAll(innerNode.getChildren());
+        //rootNode.getChildren().add(innerNode);
         return innerNode;
     }
 

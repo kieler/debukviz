@@ -25,7 +25,7 @@ class HashMapTransformation extends AbstractDebugTransformation {
                  it.addLayoutParam(LayoutOptions::SPACING, 75f)
                  val String size = model.getValueByName("size");
                  val IVariable table = model.getVariableByName("table")
-                 it.nextTransformation(table)
+                 it.nextTransformation(table,null)
                ]
     }
    

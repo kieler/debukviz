@@ -38,23 +38,35 @@ class DefaultTransformation extends AbstractDebugTransformation {
                  it.addLayoutParam(LayoutOptions::ALGORITHM, "de.cau.cs.kieler.klay.layered");
                  it.addLayoutParam(LayoutOptions::SPACING, 75f);
                  it.addLayoutParam(LayoutOptions::DIRECTION, Direction::UP);
-                 it.children += it.transformation(model)  
+                 if (model.referenceTypeName.endsWith("[]")) {
+            // Array
+                it.children += it.arrayTransform(model)
+            }  else
+                // Types without a transformation
+                it.children += node.createValueNode(model,getValueText(model.type,model.getValueByName("")))
                ]
     }
     
-    def KNode transformation(KNode node, IVariable choice) {
-        if (choice.referenceTypeName.endsWith("[]")) {
-            // Array
-                //val result = node.createValueNode(choice,getTypeText(choice.type))
-                choice.value.variables.forEach[IVariable variable |
-                    node.nextTransformation(variable)
-                    createEdge(choice, variable)
+    def KNode arrayTransform(KNode node, IVariable choice) {
+        if (choice.type.endsWith("[]")) {
+            val result = node.createValueNode(choice,getTypeText(choice.type))
+            choice.value.variables.forEach[IVariable variable |
+                node.children += node.arrayTransform(variable)
+                choice.createEdge(variable)
+            ]
+            return result
+        }
+        else {
+            val result = choice.createNode().putToLookUpWith(choice) => [
+                it.setNodeSize(80,80);
+                it.data += renderingFactory.createKRectangle() => [
+                    it.childPlacement = renderingFactory.createKGridPlacement()
                 ]
-                return node
-            }  else {
-                // Types without a transformation
-                return node.createValueNode(choice,getValueText(choice.type,choice.getValueByName("")))
-            }           
+            ]
+            result.nextTransformation(choice,null);
+            return result;
+        }
+            
     }
     
     def KNode createValueNode(KNode node, IVariable variable, LinkedList<KText> text) {
@@ -68,6 +80,17 @@ class DefaultTransformation extends AbstractDebugTransformation {
                 ]
             ]
         ]
+    }
+    
+    def createEdge(KNode first, IVariable second) {
+        return new Pair(first,second).createEdge() => [
+            it.source = first 
+            it.target = second.node
+            it.data += renderingFactory.createKPolyline() => [
+                it.setLineWidth(2);
+                it.addArrowDecorator();
+            ];
+        ];
     }
     
     def createEdge(IVariable first, IVariable second) {

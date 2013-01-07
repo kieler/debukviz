@@ -77,10 +77,13 @@ public class KlighdDebugExtension {
         AbstractDebugTransformation result = null;
         // If no transformation is registred search for transformation registred to a superclass
         if (result == null) {
-            IJavaClassType superClass = (IJavaClassType) ((IJavaValue) model.getValue()).getJavaType();
-            while (result == null && superClass != null) {
-                result = transformationMap.get(superClass.getName());
-                superClass = superClass.getSuperclass();
+            IJavaType type = ((IJavaValue) model.getValue()).getJavaType();
+            if (type instanceof IJavaClassType) {
+                IJavaClassType superClass = (IJavaClassType) type;
+                while (result == null && superClass != null) {
+                    result = transformationMap.get(superClass.getName());
+                    superClass = superClass.getSuperclass();
+                }
             }
         }
         return result;

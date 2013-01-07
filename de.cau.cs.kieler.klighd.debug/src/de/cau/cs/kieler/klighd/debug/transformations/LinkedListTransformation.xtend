@@ -88,7 +88,7 @@ class LinkedListTransformation extends AbstractDebugTransformation {
                 it.backgroundColor = "lemon".color
     			it.ChildPlacement = renderingFactory.createKGridPlacement()
             ]
-            it.nextTransformation(next.getVariableByName("element"))
+            it.nextTransformation(next.getVariableByName("element"),null)
             /*it.children += element.createNode().putToLookUpWith(element) => [   
             	it.data += renderingFactory.createKRectangle() => [
             		it.foregroundVisibility = false
