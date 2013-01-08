@@ -18,8 +18,8 @@ import org.eclipse.jdt.debug.core.IJavaVariable;
 import de.cau.cs.kieler.klighd.debug.visualization.AbstractDebugTransformation;
 
 /**
- * Class that gathers extension data from the 'de.cau.cs.kieler.klighd.debugVisualization' extension point and publishes this data using
- * the singleton pattern.
+ * Class that gathers extension data from the 'de.cau.cs.kieler.klighd.debugVisualization' extension
+ * point and publishes this data using the singleton pattern.
  * 
  * @author hwi
  */
@@ -65,25 +65,20 @@ public class KlighdDebugExtension {
      */
     @SuppressWarnings("all")
     public AbstractDebugTransformation getTransformation(IVariable model) throws DebugException {
-        String clazz = model.getValue().getReferenceTypeName();
-
-        // If clazz ends with [] return null
-        if (clazz.endsWith("[]"))
+        // If model type is an array return null
+        if (model.getValue().getReferenceTypeName().endsWith("[]"))
             return null;
 
-        // remove generic subtype
-        clazz = clazz.split("<")[0];
         // Get a transformation
         AbstractDebugTransformation result = null;
+
         // If no transformation is registred search for transformation registred to a superclass
-        if (result == null) {
-            IJavaType type = ((IJavaValue) model.getValue()).getJavaType();
-            if (type instanceof IJavaClassType) {
-                IJavaClassType superClass = (IJavaClassType) type;
-                while (result == null && superClass != null) {
-                    result = transformationMap.get(superClass.getName());
-                    superClass = superClass.getSuperclass();
-                }
+        IJavaType type = ((IJavaValue) model.getValue()).getJavaType();
+        if (type instanceof IJavaClassType) {
+            IJavaClassType superClass = (IJavaClassType) type;
+            while (result == null && superClass != null) {
+                result = transformationMap.get(superClass.getName());
+                superClass = superClass.getSuperclass();
             }
         }
         return result;

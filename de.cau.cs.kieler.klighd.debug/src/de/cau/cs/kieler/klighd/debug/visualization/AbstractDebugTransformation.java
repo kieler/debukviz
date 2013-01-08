@@ -21,7 +21,7 @@ public abstract class AbstractDebugTransformation extends AbstractTransformation
     private KEdgeExtensions kEdgeExtensions = new KEdgeExtensions();
     @Inject
     private KNodeExtensions kNodeExtensions = new KNodeExtensions();
-    
+
     protected static final KRenderingFactory renderingFactory = KRenderingFactory.eINSTANCE;
 
     private Object transformationInfo;
@@ -98,5 +98,20 @@ public abstract class AbstractDebugTransformation extends AbstractTransformation
         edge.setSource(kNodeExtensions.getNode(source));
         edge.setTarget(kNodeExtensions.getNode(target));
         return edge;
+    }
+    
+    public KEdge createEdge(KNode source, IVariable target) {
+        KEdge edge = kEdgeExtensions.createEdge(new Pair<Object, Object>(source, target));
+        edge.setSource(source);
+        edge.setTarget(kNodeExtensions.getNode(target));
+        return edge;
+    }
+
+    public boolean valueIsNotNull(IVariable variable) {
+        try {
+            return !variable.getValue().getValueString().equals("null");
+        } catch (DebugException e) {
+            return false;
+        }
     }
 }

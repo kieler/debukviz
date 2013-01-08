@@ -57,6 +57,10 @@
             class="java.util.HashMap"
             transformation="de.cau.cs.kieler.klighd.debug.transformations.HashMapTransformation">
       </visualization>
+      <visualization
+            class="java.util.ArrayList"
+            transformation="de.cau.cs.kieler.klighd.debug.transformations.ArrayListTransformation">
+      </visualization>
    </extension>
 
 </plugin>

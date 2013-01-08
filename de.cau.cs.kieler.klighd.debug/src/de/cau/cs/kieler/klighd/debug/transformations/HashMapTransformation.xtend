@@ -29,10 +29,8 @@ class HashMapTransformation extends AbstractDebugTransformation {
             it.addLayoutParam(LayoutOptions::ALGORITHM, "de.cau.cs.kieler.kiml.ogdf.planarization")
             it.addLayoutParam(LayoutOptions::SPACING, 75f)
             it.addLayoutParam(LayoutOptions::DIRECTION, Direction::UP)
-            model.getVariablesByName("table").forEach[
-                IVariable variable |
-                if (!variable.value.valueString.equals("null"))
-                    it.createKeyValueNode(variable)
+            model.getVariablesByName("table").filter[variable | variable.valueIsNotNull].forEach[
+                IVariable variable | it.createKeyValueNode(variable)
             ]
         ]
     }
