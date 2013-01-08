@@ -48,11 +48,7 @@ class HashMapTransformation extends AbstractDebugTransformation {
     
     def createInnerNode(KNode node, IVariable variable, String text) {
         node.children += variable.createNode().putToLookUpWith(variable) => [
-            it.children += it.createNode() => [
-                it.data += renderingFactory.createKText() => [
-                    it.text = text
-                ]
-            ]
+            it.children += text.label
             it.nextTransformation(variable,null)
        ] 
     }

@@ -65,6 +65,10 @@
             class="java.util.ArrayDeque"
             transformation="de.cau.cs.kieler.klighd.debug.transformations.ArrayDequeTransformation">
       </visualization>
+      <visualization
+            class="java.util.BitSet"
+            transformation="de.cau.cs.kieler.klighd.debug.transformations.BitSetTransformation">
+      </visualization>
    </extension>
 
 </plugin>

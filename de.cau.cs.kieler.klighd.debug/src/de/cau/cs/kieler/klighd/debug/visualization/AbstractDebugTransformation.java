@@ -9,6 +9,7 @@ import org.eclipse.debug.core.model.IVariable;
 import de.cau.cs.kieler.core.kgraph.KEdge;
 import de.cau.cs.kieler.core.kgraph.KNode;
 import de.cau.cs.kieler.core.krendering.KRenderingFactory;
+import de.cau.cs.kieler.core.krendering.KText;
 import de.cau.cs.kieler.core.krendering.extensions.KEdgeExtensions;
 import de.cau.cs.kieler.core.krendering.extensions.KNodeExtensions;
 import de.cau.cs.kieler.core.util.Pair;
@@ -101,13 +102,6 @@ public abstract class AbstractDebugTransformation extends AbstractTransformation
         edge.setTarget(kNodeExtensions.getNode(target));
         return edge;
     }
-    
-    public KEdge createEdge(KNode source, IVariable target) {
-        KEdge edge = kEdgeExtensions.createEdge(new Pair<Object, Object>(source, target));
-        edge.setSource(source);
-        edge.setTarget(kNodeExtensions.getNode(target));
-        return edge;
-    }
 
     public boolean valueIsNotNull(IVariable variable) {
         try {
@@ -120,5 +114,13 @@ public abstract class AbstractDebugTransformation extends AbstractTransformation
     public KNode transform(IVariable model, TransformationContext<IVariable,KNode> transformationContext) {
         use(transformationContext);
         return this.transform(model);  
+    }
+    
+    public KNode getLabel(String label) {
+        KNode node = kNodeExtensions.createNode();
+        KText text = renderingFactory.createKText();
+        text.setText(label);
+        node.getData().add(text);
+        return node;
     }
 }

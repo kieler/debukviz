@@ -19,7 +19,7 @@ class ArrayDequeTransformation extends AbstractDebugTransformation {
     @Inject 
     extension KPolylineExtensions 
     @Inject
-    extension KRenderingExtensions  
+    extension KRenderingExtensions
     
     var IVariable previous = null
     
@@ -28,20 +28,30 @@ class ArrayDequeTransformation extends AbstractDebugTransformation {
             it.addLayoutParam(LayoutOptions::ALGORITHM, "de.cau.cs.kieler.kiml.ogdf.planarization")
             it.addLayoutParam(LayoutOptions::SPACING, 75f)
             it.addLayoutParam(LayoutOptions::DIRECTION, Direction::UP);
-            model.getVariablesByName("elements").filter[variable | variable.valueIsNotNull].forEach[
-                               IVariable variable |
-                    it.children += variable.createNode().putToLookUpWith(variable) => [
-                        it.nextTransformation(variable,null)
-                        if (previous != null)
-                            previous.createEdge(variable) => [
-                                it.data += renderingFactory.createKPolyline() => [
-                                    it.setLineWidth(2)
-                                    it.addArrowDecorator();
-                                ]
+            val head = Integer::parseInt(model.getValueByName("head"));
+            val tail = Integer::parseInt(model.getValueByName("tail"));
+            val IVariable[] elements = model.getVariablesByName("elements");
+            var int index = head;
+            while (index <= tail) {
+                val variable = elements.get(index)
+                val node = variable.createNode().putToLookUpWith(variable) => [
+                    it.nextTransformation(variable,null)
+                    if (previous != null)
+                        previous.createEdge(variable) => [
+                            it.data += renderingFactory.createKPolyline() => [
+                                it.setLineWidth(2)
+                                it.addArrowDecorator();
                             ]
-                        previous = variable
-                    ]
-            ]
+                        ]
+                    previous = variable
+                ]
+                if (index == head)
+                    node.children += "head".label
+                if (index == tail)
+                    node.children += "tail".label
+                it.children += node;
+                index = index + 1
+            }
         ]
     }
     

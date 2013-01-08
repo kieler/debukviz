@@ -49,7 +49,7 @@ public class KlighdSelectionListener implements ISelectionListener {
                 else
                     view = DiagramViewManager.getInstance().updateView("Variable", "Variable", var,
                             null);
-
+                
                 if (view != null && view.getContextViewer() != null) {
                     view.getContextViewer().getCurrentViewContext().setSourceWorkbenchPart(part);
                 }
