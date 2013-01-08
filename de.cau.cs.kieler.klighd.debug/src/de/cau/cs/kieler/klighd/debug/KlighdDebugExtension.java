@@ -18,7 +18,7 @@ import org.eclipse.jdt.debug.core.IJavaVariable;
 import de.cau.cs.kieler.klighd.debug.visualization.AbstractDebugTransformation;
 
 /**
- * Class that gathers extension data from the '...' extension point and publishes this data using
+ * Class that gathers extension data from the 'de.cau.cs.kieler.klighd.debugVisualization' extension point and publishes this data using
  * the singleton pattern.
  * 
  * @author hwi

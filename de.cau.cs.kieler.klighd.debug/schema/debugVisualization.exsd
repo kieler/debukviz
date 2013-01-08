@@ -3,7 +3,7 @@
 <schema targetNamespace="de.cau.cs.kieler.klighd.debug" xmlns="http://www.w3.org/2001/XMLSchema">
 <annotation>
       <appinfo>
-         <meta.schema plugin="de.cau.cs.kieler.klighd.debug" id="de.cau.cs.kieler.klighd.debugVisualization" name="KlighD Debug Visualization"/>
+         <meta.schema plugin="de.cau.cs.kieler.klighd.debug" id="de.cau.cs.kieler.klighd.debugVisualization" name="Debug Visualization"/>
       </appinfo>
       <documentation>
          [Enter description of this extension point.]
@@ -62,17 +62,17 @@
          <attribute name="class" type="string" use="required">
             <annotation>
                <documentation>
-                  
+                  Class to be transformed
                </documentation>
                <appinfo>
                   <meta.attribute kind="java"/>
                </appinfo>
             </annotation>
          </attribute>
-         <attribute name="package" type="string">
+         <attribute name="pluginID" type="string">
             <annotation>
                <documentation>
-                  
+                  PluginID of plugin which contains the transformation (only necessary if plugin wasn&apos;t started while launching)
                </documentation>
             </annotation>
          </attribute>
