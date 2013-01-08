@@ -8,12 +8,10 @@ import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.debug.core.DebugException;
 import org.eclipse.debug.core.model.IVariable;
-import org.eclipse.ui.statushandlers.StatusManager;
-import org.osgi.framework.Bundle;
 import org.eclipse.jdt.debug.core.IJavaClassType;
 import org.eclipse.jdt.debug.core.IJavaType;
 import org.eclipse.jdt.debug.core.IJavaValue;
-import org.eclipse.jdt.debug.core.IJavaVariable;
+import org.eclipse.ui.statushandlers.StatusManager;
 
 import de.cau.cs.kieler.klighd.debug.visualization.AbstractDebugTransformation;
 

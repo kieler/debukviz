@@ -12,25 +12,24 @@ import org.eclipse.debug.core.model.IVariable
 
 import static de.cau.cs.kieler.klighd.debug.visualization.AbstractDebugTransformation.*
 
-class ArrayListTransformation extends AbstractDebugTransformation {
+class ArrayDequeTransformation extends AbstractDebugTransformation {
     
     @Inject
     extension KNodeExtensions 
     @Inject 
     extension KPolylineExtensions 
     @Inject
-    extension KRenderingExtensions
+    extension KRenderingExtensions  
     
     var IVariable previous = null
     
     override transform(IVariable model) {
-       return KimlUtil::createInitializedNode() => [
+        return KimlUtil::createInitializedNode() => [
             it.addLayoutParam(LayoutOptions::ALGORITHM, "de.cau.cs.kieler.kiml.ogdf.planarization")
             it.addLayoutParam(LayoutOptions::SPACING, 75f)
-            it.addLayoutParam(LayoutOptions::DIRECTION, Direction::UP)
-            
-            model.getVariablesByName("elementData").filter[variable | variable.valueIsNotNull].forEach[
-                IVariable variable |
+            it.addLayoutParam(LayoutOptions::DIRECTION, Direction::UP);
+            model.getVariablesByName("elements").filter[variable | variable.valueIsNotNull].forEach[
+                               IVariable variable |
                     it.children += variable.createNode().putToLookUpWith(variable) => [
                         it.nextTransformation(variable,null)
                         if (previous != null)
@@ -43,8 +42,7 @@ class ArrayListTransformation extends AbstractDebugTransformation {
                         previous = variable
                     ]
             ]
-            
-       ]
+        ]
     }
     
 }

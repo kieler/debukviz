@@ -61,6 +61,10 @@
             class="java.util.ArrayList"
             transformation="de.cau.cs.kieler.klighd.debug.transformations.ArrayListTransformation">
       </visualization>
+      <visualization
+            class="java.util.ArrayDeque"
+            transformation="de.cau.cs.kieler.klighd.debug.transformations.ArrayDequeTransformation">
+      </visualization>
    </extension>
 
 </plugin>

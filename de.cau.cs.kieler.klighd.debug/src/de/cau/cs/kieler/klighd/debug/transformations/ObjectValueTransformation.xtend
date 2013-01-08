@@ -7,7 +7,6 @@ import de.cau.cs.kieler.core.krendering.extensions.KNodeExtensions
 import de.cau.cs.kieler.core.krendering.extensions.KRenderingExtensions
 import de.cau.cs.kieler.kiml.options.LayoutOptions
 import de.cau.cs.kieler.kiml.util.KimlUtil
-import de.cau.cs.kieler.klighd.TransformationContext
 import de.cau.cs.kieler.klighd.debug.visualization.AbstractDebugTransformation
 import java.util.LinkedList
 import javax.inject.Inject
@@ -24,8 +23,7 @@ class ObjectValueTransformation extends AbstractDebugTransformation {
     
     private static val KRenderingFactory renderingFactory = KRenderingFactory::eINSTANCE   
     
-    override transform(IVariable model, TransformationContext<IVariable,KNode> transformationContext) {
-        use(transformationContext);
+    override transform(IVariable model) {
         return 
         KimlUtil::createInitializedNode() => [
             it.addLayoutParam(LayoutOptions::ALGORITHM, "de.cau.cs.kieler.kiml.ogdf.planarization")

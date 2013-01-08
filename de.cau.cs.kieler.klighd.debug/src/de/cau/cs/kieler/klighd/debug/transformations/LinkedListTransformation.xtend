@@ -8,7 +8,6 @@ import de.cau.cs.kieler.core.krendering.extensions.KRenderingExtensions
 import de.cau.cs.kieler.kiml.options.Direction
 import de.cau.cs.kieler.kiml.options.LayoutOptions
 import de.cau.cs.kieler.kiml.util.KimlUtil
-import de.cau.cs.kieler.klighd.TransformationContext
 import de.cau.cs.kieler.klighd.debug.visualization.AbstractDebugTransformation
 import javax.inject.Inject
 import org.eclipse.debug.core.model.IVariable
@@ -29,8 +28,7 @@ class LinkedListTransformation extends AbstractDebugTransformation {
     /**
      * {@inheritDoc}
      */
-    override transform(IVariable variable,TransformationContext<IVariable,KNode> transformationContext) {
-        use(transformationContext);
+    override transform(IVariable variable) {
         return KimlUtil::createInitializedNode() => [
             it.addLayoutParam(LayoutOptions::ALGORITHM, "de.cau.cs.kieler.kiml.ogdf.planarization")
             it.addLayoutParam(LayoutOptions::SPACING, 75f)
@@ -39,7 +37,12 @@ class LinkedListTransformation extends AbstractDebugTransformation {
        		val i = variable.getValueByName("size")
             val IVariable header = variable.getVariableByName("header")
             val IVariable last =  it.createChildNode(header, Integer::parseInt(i))
-            header.createEdge(last)
+            header.createEdge(last) => [
+            it.data += renderingFactory.createKPolyline() => [
+                it.setLineWidth(2)
+                it.addArrowDecorator();
+            ]
+        ]
         ]
     }
  
@@ -68,7 +71,12 @@ class LinkedListTransformation extends AbstractDebugTransformation {
         if (size > 0) {
         	var next = parent.getVariableByName("next")
             rootNode.createInternalNode(next)
-            parent.createEdge(next)
+            parent.createEdge(next) => [
+                it.data += renderingFactory.createKPolyline() => [
+                    it.setLineWidth(2)
+                    it.addArrowDecorator();
+                ]
+            ]
             return rootNode.createChildNode(next, size-1)
         }
         else
@@ -86,13 +94,4 @@ class LinkedListTransformation extends AbstractDebugTransformation {
             it.nextTransformation(next.getVariableByName("element"),null)
         ]
     }
-    
-    override createEdge(IVariable source, IVariable target) {
-        super.createEdge(source, target) => [
-            it.data += renderingFactory.createKPolyline() => [
-                it.setLineWidth(2)
-                it.addArrowDecorator();
-            ]
-        ]
-    }  
 }

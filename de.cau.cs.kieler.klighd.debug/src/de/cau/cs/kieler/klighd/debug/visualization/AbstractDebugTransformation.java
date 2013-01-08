@@ -12,10 +12,12 @@ import de.cau.cs.kieler.core.krendering.KRenderingFactory;
 import de.cau.cs.kieler.core.krendering.extensions.KEdgeExtensions;
 import de.cau.cs.kieler.core.krendering.extensions.KNodeExtensions;
 import de.cau.cs.kieler.core.util.Pair;
+import de.cau.cs.kieler.klighd.TransformationContext;
+import de.cau.cs.kieler.klighd.debug.IKlighdDebug;
 import de.cau.cs.kieler.klighd.debug.transformations.KlighdDebugTransformation;
 import de.cau.cs.kieler.klighd.transformations.AbstractTransformation;
 
-public abstract class AbstractDebugTransformation extends AbstractTransformation<IVariable, KNode> {
+public abstract class AbstractDebugTransformation extends AbstractTransformation<IVariable, KNode> implements IKlighdDebug{
 
     @Inject
     private KEdgeExtensions kEdgeExtensions = new KEdgeExtensions();
@@ -113,5 +115,10 @@ public abstract class AbstractDebugTransformation extends AbstractTransformation
         } catch (DebugException e) {
             return false;
         }
+    }
+    
+    public KNode transform(IVariable model, TransformationContext<IVariable,KNode> transformationContext) {
+        use(transformationContext);
+        return this.transform(model);  
     }
 }

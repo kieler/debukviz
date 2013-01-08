@@ -7,7 +7,6 @@ import de.cau.cs.kieler.core.krendering.extensions.KRenderingExtensions
 import de.cau.cs.kieler.kiml.options.Direction
 import de.cau.cs.kieler.kiml.options.LayoutOptions
 import de.cau.cs.kieler.kiml.util.KimlUtil
-import de.cau.cs.kieler.klighd.TransformationContext
 import de.cau.cs.kieler.klighd.debug.visualization.AbstractDebugTransformation
 import javax.inject.Inject
 import org.eclipse.debug.core.model.IVariable
@@ -23,8 +22,7 @@ class HashMapTransformation extends AbstractDebugTransformation {
     @Inject 
     extension KPolylineExtensions 
     
-    override transform(IVariable model, TransformationContext<IVariable,KNode> transformationContext) {
-        use(transformationContext);
+    override transform(IVariable model) {
         return KimlUtil::createInitializedNode() => [
             it.addLayoutParam(LayoutOptions::ALGORITHM, "de.cau.cs.kieler.kiml.ogdf.planarization")
             it.addLayoutParam(LayoutOptions::SPACING, 75f)
