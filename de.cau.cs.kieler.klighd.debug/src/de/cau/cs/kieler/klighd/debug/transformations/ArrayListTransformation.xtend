@@ -31,7 +31,7 @@ class ArrayListTransformation extends AbstractDebugTransformation {
             
             model.getVariablesByName("elementData").filter[variable | variable.valueIsNotNull].forEach[
                 IVariable variable |
-                    it.children += variable.createNode().putToLookUpWith(variable) => [
+                    it.children += variable.createNode().putToKNodeMap(variable) => [
                         it.nextTransformation(variable,null)
                         if (previous != null)
                             previous.createEdge(variable) => [

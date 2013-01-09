@@ -34,7 +34,7 @@ class ArrayDequeTransformation extends AbstractDebugTransformation {
             var int index = head;
             while (index <= tail) {
                 val variable = elements.get(index)
-                val node = variable.createNode().putToLookUpWith(variable) => [
+                val node = variable.createNode().putToKNodeMap(variable) => [
                     it.nextTransformation(variable,null)
                     if (previous != null)
                         previous.createEdge(variable) => [

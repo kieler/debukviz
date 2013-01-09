@@ -1,5 +1,7 @@
 package de.cau.cs.kieler.klighd.debug.visualization;
 
+import java.util.HashMap;
+
 import javax.inject.Inject;
 
 import org.eclipse.debug.core.DebugException;
@@ -18,7 +20,8 @@ import de.cau.cs.kieler.klighd.debug.IKlighdDebug;
 import de.cau.cs.kieler.klighd.debug.transformations.KlighdDebugTransformation;
 import de.cau.cs.kieler.klighd.transformations.AbstractTransformation;
 
-public abstract class AbstractDebugTransformation extends AbstractTransformation<IVariable, KNode> implements IKlighdDebug{
+public abstract class AbstractDebugTransformation extends AbstractTransformation<IVariable, KNode>
+        implements IKlighdDebug {
 
     @Inject
     private KEdgeExtensions kEdgeExtensions = new KEdgeExtensions();
@@ -26,6 +29,8 @@ public abstract class AbstractDebugTransformation extends AbstractTransformation
     private KNodeExtensions kNodeExtensions = new KNodeExtensions();
 
     protected static final KRenderingFactory renderingFactory = KRenderingFactory.eINSTANCE;
+
+    private HashMap<Pair<IVariable, String>, KNode> kNodeMap = new HashMap<Pair<IVariable, String>, KNode>();
 
     private Object transformationInfo;
 
@@ -95,11 +100,15 @@ public abstract class AbstractDebugTransformation extends AbstractTransformation
     public String getType(IVariable variable) throws DebugException {
         return variable.getValue().getReferenceTypeName();
     }
-
+    
     public KEdge createEdge(IVariable source, IVariable target) {
+        return createEdge(source, target,false,false);
+    }
+
+    public KEdge createEdge(IVariable source, IVariable target, boolean sourceUnique, boolean targetUnique) {
         KEdge edge = kEdgeExtensions.createEdge(new Pair<Object, Object>(source, target));
-        edge.setSource(kNodeExtensions.getNode(source));
-        edge.setTarget(kNodeExtensions.getNode(target));
+        edge.setSource(getNode(source,sourceUnique));
+        edge.setTarget(getNode(target,targetUnique));
         return edge;
     }
 
@@ -110,17 +119,50 @@ public abstract class AbstractDebugTransformation extends AbstractTransformation
             return false;
         }
     }
-    
-    public KNode transform(IVariable model, TransformationContext<IVariable,KNode> transformationContext) {
+
+    public KNode transform(IVariable model,
+            TransformationContext<IVariable, KNode> transformationContext) {
         use(transformationContext);
-        return this.transform(model);  
+        return this.transform(model);
     }
-    
+
     public KNode getLabel(String label) {
         KNode node = kNodeExtensions.createNode();
         KText text = renderingFactory.createKText();
         text.setText(label);
         node.getData().add(text);
         return node;
+    }
+    
+    public KNode putToKNodeMap(KNode derived, IVariable source) {
+        return putToKNodeMap(derived, source, false);
+    }
+
+    public KNode putToKNodeMap(KNode derived, IVariable source, boolean unique) {
+        IVariable variable = source;
+        if (unique)
+            variable = null;
+        kNodeMap.put(new Pair<IVariable,String>(variable, getID(source)), derived);
+        return super.putToLookUpWith(derived, source);
+    }
+
+    public KNode getNode(IVariable key, boolean unique) {
+        IVariable variable = key;
+        if (unique)
+            variable = null;
+        KNode result = kNodeMap.get(new Pair<IVariable,String>(variable,getID(key)));
+        if (result == null)
+            result = kNodeExtensions.createNode();
+        return result;
+    }
+
+    public String getID(IVariable variable) {
+        try {
+            return variable.getValue().getValueString().replaceAll("\\D", "");
+        } catch (DebugException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        return "";
     }
 }

@@ -36,7 +36,7 @@ class LinkedListTransformation extends AbstractDebugTransformation {
       		it.createHeaderNode(variable)
        		val i = variable.getValueByName("size")
             val IVariable header = variable.getVariableByName("header")
-            val IVariable last =  it.createChildNode(header, Integer::parseInt(i)*3)
+            val IVariable last =  it.createChildNode(header, Integer::parseInt(i))
             last.createEdge(header) => [
             it.data += renderingFactory.createKPolyline() => [
                 it.setLineWidth(2)
@@ -48,7 +48,7 @@ class LinkedListTransformation extends AbstractDebugTransformation {
  
   	def createHeaderNode(KNode rootNode, IVariable variable) {
     	var IVariable header = variable.getVariableByName("header")
-    	rootNode.children += header.createNode().putToLookUpWith(header) => [
+    	rootNode.children += header.createNode().putToKNodeMap(header) => [
     		it.setNodeSize(120,80)
     		it.data += renderingFactory.createKRectangle() => [
     			it.lineWidth = 4
@@ -84,7 +84,7 @@ class LinkedListTransformation extends AbstractDebugTransformation {
     }
     
     def createInternalNode(KNode rootNode, IVariable next) {
-        rootNode.children += next.createNode().putToLookUpWith(next) => [    
+        rootNode.children += next.createNode().putToKNodeMap(next) => [    
             it.setNodeSize(120,80)
             it.data += renderingFactory.createKRectangle() => [      
                 it.lineWidth = 2
