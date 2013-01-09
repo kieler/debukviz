@@ -1,4 +1,4 @@
-package de.cau.cs.kieler.klighd.debug.transformations
+package de.cau.cs.kieler.klighd.debug.graphTransformations.lGraph
 
 import de.cau.cs.kieler.core.kgraph.KNode
 import de.cau.cs.kieler.core.krendering.KRenderingFactory
@@ -8,18 +8,21 @@ import de.cau.cs.kieler.core.krendering.extensions.KNodeExtensions
 import de.cau.cs.kieler.core.krendering.extensions.KRenderingExtensions
 import de.cau.cs.kieler.kiml.options.LayoutOptions
 import de.cau.cs.kieler.kiml.util.KimlUtil
-import de.cau.cs.kieler.klighd.TransformationContext
 import org.eclipse.debug.core.model.IVariable
 
-import static de.cau.cs.kieler.klighd.debug.transformations.LGraphTransformation.*
-import de.cau.cs.kieler.core.util.Pair
+import static de.cau.cs.kieler.klighd.debug.graphTransformations.lGraph.LGraphTransformation.*
+import javax.inject.Inject
 
 class LGraphTransformation extends AbstractKNodeTransformation {
     
-    extension KNodeExtensions kNodeExtensions = new KNodeExtensions()
-    extension KEdgeExtensions kEdgeExtensions = new KEdgeExtensions()
-    extension KRenderingExtensions kRenderingExtensions = new KRenderingExtensions()
-    extension KColorExtensions kColorExtensions = new KColorExtensions()
+    @Inject
+    extension KNodeExtensions
+    @Inject
+    extension KEdgeExtensions
+    @Inject
+    extension KRenderingExtensions
+    @Inject
+    extension KColorExtensions
     
     
     private static val KRenderingFactory renderingFactory = KRenderingFactory::eINSTANCE
@@ -27,9 +30,7 @@ class LGraphTransformation extends AbstractKNodeTransformation {
     /**
      * {@inheritDoc}
      */
-	override transform(IVariable variable,TransformationContext<IVariable,KNode> transformationContext) {
-        use(transformationContext)
-
+	override transform(IVariable variable) {
         return KimlUtil::createInitializedNode=> [
             it.addLayoutParam(LayoutOptions::ALGORITHM, "de.cau.cs.kieler.kiml.ogdf.planarization")
             it.addLayoutParam(LayoutOptions::SPACING, 75f)
@@ -37,7 +38,9 @@ class LGraphTransformation extends AbstractKNodeTransformation {
       		it.createLayerlessNodes(variable.getVariableByName("layerlessNodes"))
       		it.createLayeredNodes(variable.getVariableByName("layers"))
       		it.createEdges(variable.getVariableByName("layerlessNodes"))
-      		it.createEdges(variable.getVariableByName("layers"))
+      		variable.getVariableByName("layers").linkedList.forEach[IVariable layer |
+      			it.createEdges(layer)	
+      		]
         ]
 
 	}
@@ -82,36 +85,42 @@ class LGraphTransformation extends AbstractKNodeTransformation {
 	}
 	
 	def createLayerlessNodes(KNode rootNode, IVariable variable) {
-	    for (node : variable.linkedList) {
-            nextTransformation(rootNode, node)
-            
-            val currentNode = rootNode.children.last
-            //TODO: Layer is only specified in the outer graph, if there is one
-            val currentData = currentNode.data.last
-
-//            currentData += renderingFactory.createKText => [
-//                it.setText("Layer: " + variable.getValueByName("owner.id")) 
-//            ]
-        }
+	    variable.linkedList.forEach[IVariable node |
+            rootNode.children += node.createNode().putToLookUpWith(node) => [
+            	it.nextTransformation(node, -1)
+            ]
+        ]
 	}
 	
 	def createLayeredNodes(KNode rootNode, IVariable variable) {
-		for (node : variable.linkedList) {
-            nextTransformation(rootNode, node)
-
-            val currentNode = rootNode.children.last
-            //TODO: Layer is only specified in the outer graph, if there is one
-            val currentData = currentNode.data.last
-
-//            currentData += renderingFactory.createKText => [
-//                it.setText("Layer: " + variable.getValueByName("owner.id")) 
-//            ]
-        }
+		var i = 0
+		for (layer : variable.linkedList) {
+			for (node : layer.getVariableByName("nodes").linkedList)
+            	rootNode.nextTransformation(node, i)
+			i = i+1
+		}
 	}
 
     def createEdges(KNode rootNode, IVariable variable) {
-        for (edge : variable.linkedList) {
-            nextTransformation(rootNode, edge)
-        }
+    	rootNode.children += variable.createNode.putToLookUpWith(variable) => [
+    		it.setNodeSize(50,50)
+    	]
+        variable.linkedList.forEach[IVariable node |
+        	node.getVariableByName("ports").linkedList.forEach[IVariable port |
+//        		node.createEdge(variable) => [
+//        			it.data += renderingFactory.createKPolyline() => [
+//	            		    it.setLineWidth(2)
+//        			]
+//    			]
+        		port.getVariableByName("outgoingEdges").linkedList.forEach[IVariable edge |
+//        			edge.getVariableByName("source.owner").createEdge(edge.getVariableByName("target.owner")) => [
+        			edge.getVariableByName("source.owner").createEdge(variable) => [
+        				it.data += renderingFactory.createKPolyline() => [
+	            		    it.setLineWidth(2)
+    	    			]
+        			]
+        		]
+        	]
+        ]
     }
 }

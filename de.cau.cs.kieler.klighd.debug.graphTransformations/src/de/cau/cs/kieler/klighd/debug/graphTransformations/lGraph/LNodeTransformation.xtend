@@ -1,27 +1,34 @@
-package de.cau.cs.kieler.klighd.debug.transformations
+package de.cau.cs.kieler.klighd.debug.graphTransformations.lGraph
 
-import de.cau.cs.kieler.klighd.debug.transformations.AbstractKNodeTransformation
+
 import de.cau.cs.kieler.core.kgraph.KNode
-import de.cau.cs.kieler.klighd.TransformationContext
-import org.eclipse.debug.core.model.IVariable
 import de.cau.cs.kieler.core.krendering.extensions.KNodeExtensions
-import de.cau.cs.kieler.core.krendering.extensions.KEdgeExtensions
+import de.cau.cs.kieler.core.krendering.extensions.KPolylineExtensions
 import de.cau.cs.kieler.core.krendering.extensions.KRenderingExtensions
-import de.cau.cs.kieler.core.krendering.extensions.KColorExtensions
-import de.cau.cs.kieler.core.krendering.KRenderingFactory
-import de.cau.cs.kieler.kiml.util.KimlUtil
+import de.cau.cs.kieler.kiml.options.Direction
 import de.cau.cs.kieler.kiml.options.LayoutOptions
+import de.cau.cs.kieler.kiml.util.KimlUtil
+import de.cau.cs.kieler.klighd.debug.visualization.AbstractDebugTransformation
+import javax.inject.Inject
+import org.eclipse.debug.core.model.IVariable
+import de.cau.cs.kieler.core.krendering.extensions.KEdgeExtensions
+import de.cau.cs.kieler.core.krendering.extensions.KColorExtensions
+
+
+import static de.cau.cs.kieler.klighd.debug.graphTransformations.lGraph.LNodeTransformation.*
+import de.cau.cs.kieler.core.krendering.KRenderingFactory
 import de.cau.cs.kieler.core.krendering.KContainerRendering
 
 class LNodeTransformation extends AbstractKNodeTransformation {
 
-    extension KNodeExtensions kNodeExtensions = new KNodeExtensions()
-    extension KEdgeExtensions kEdgeExtensions = new KEdgeExtensions()
-    extension KRenderingExtensions kRenderingExtensions = new KRenderingExtensions()
-    extension KColorExtensions kColorExtensions = new KColorExtensions()
-    
-    
-    private static val KRenderingFactory renderingFactory = KRenderingFactory::eINSTANCE
+	@Inject 
+    extension KNodeExtensions
+	@Inject 
+    extension KEdgeExtensions
+	@Inject 
+    extension KRenderingExtensions
+	@Inject 
+    extension KColorExtensions
 
     //TODO: create ports
     //TODO: add all labels
@@ -31,10 +38,8 @@ class LNodeTransformation extends AbstractKNodeTransformation {
      * @param rootNode The KNode this node is placed into
      * @param variable The IVariable containing the data for this LNode
      */
-    override transform(IVariable variable, TransformationContext<IVariable,KNode> transformationContext) {
-        use(transformationContext)
-
-        return KimlUtil::createInitializedNode => [
+    override transform(IVariable variable) {
+        return KimlUtil::createInitializedNode() => [
             it.addLayoutParam(LayoutOptions::ALGORITHM, "de.cau.cs.kieler.kiml.ogdf.planarization")
             it.addLayoutParam(LayoutOptions::SPACING, 75f)
                 
@@ -67,6 +72,9 @@ class LNodeTransformation extends AbstractKNodeTransformation {
                                 it.setText("name: " + labels.get(0).getValueByName("text"))
                             }
                         ]
+                        it.children += renderingFactory.createKText => [
+                           it.setText("Layer: " + transformationInfo)
+                        ] 
                     ]
                 } else {
                     /*
@@ -86,6 +94,9 @@ class LNodeTransformation extends AbstractKNodeTransformation {
                             } else {
                                 it.setText("name: " + labels.get(0).getValueByName("text"))
                             }
+	                        it.children += renderingFactory.createKText => [
+	                           it.setText("Layer: " + transformationInfo)
+	                        ] 
                             if (nodeType == "NORTH_SOUTH_PORT") {
                                 val origin = variable.getVariableByName("propertyMap").getKeyFromHashMap("origin")
                                 if (origin.getType == "LNode") {

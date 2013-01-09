@@ -36,8 +36,8 @@ class LinkedListTransformation extends AbstractDebugTransformation {
       		it.createHeaderNode(variable)
        		val i = variable.getValueByName("size")
             val IVariable header = variable.getVariableByName("header")
-            val IVariable last =  it.createChildNode(header, Integer::parseInt(i))
-            header.createEdge(last) => [
+            val IVariable last =  it.createChildNode(header, Integer::parseInt(i)*3)
+            last.createEdge(header) => [
             it.data += renderingFactory.createKPolyline() => [
                 it.setLineWidth(2)
                 it.addArrowDecorator();
