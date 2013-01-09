@@ -8,18 +8,16 @@ import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.debug.core.DebugException;
 import org.eclipse.debug.core.model.IVariable;
-import org.eclipse.ui.statushandlers.StatusManager;
-import org.osgi.framework.Bundle;
 import org.eclipse.jdt.debug.core.IJavaClassType;
 import org.eclipse.jdt.debug.core.IJavaType;
 import org.eclipse.jdt.debug.core.IJavaValue;
-import org.eclipse.jdt.debug.core.IJavaVariable;
+import org.eclipse.ui.statushandlers.StatusManager;
 
 import de.cau.cs.kieler.klighd.debug.visualization.AbstractDebugTransformation;
 
 /**
- * Class that gathers extension data from the '...' extension point and publishes this data using
- * the singleton pattern.
+ * Class that gathers extension data from the 'de.cau.cs.kieler.klighd.debugVisualization' extension
+ * point and publishes this data using the singleton pattern.
  * 
  * @author hwi
  */
@@ -65,19 +63,17 @@ public class KlighdDebugExtension {
      */
     @SuppressWarnings("all")
     public AbstractDebugTransformation getTransformation(IVariable model) throws DebugException {
-        String clazz = model.getValue().getReferenceTypeName();
-
-        // If clazz ends with [] return null
-        if (clazz.endsWith("[]"))
+        // If model type is an array return null
+        if (model.getValue().getReferenceTypeName().endsWith("[]"))
             return null;
 
-        // remove generic subtype
-        clazz = clazz.split("<")[0];
         // Get a transformation
         AbstractDebugTransformation result = null;
+
         // If no transformation is registred search for transformation registred to a superclass
-        if (result == null) {
-            IJavaClassType superClass = (IJavaClassType) ((IJavaValue) model.getValue()).getJavaType();
+        IJavaType type = ((IJavaValue) model.getValue()).getJavaType();
+        if (type instanceof IJavaClassType) {
+            IJavaClassType superClass = (IJavaClassType) type;
             while (result == null && superClass != null) {
                 result = transformationMap.get(superClass.getName());
                 superClass = superClass.getSuperclass();

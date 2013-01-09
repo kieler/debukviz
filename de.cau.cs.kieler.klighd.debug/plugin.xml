@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?eclipse version="3.4"?>
 <plugin>
-   <extension-point id="de.cau.cs.kieler.klighd.debugVisualization" name="KlighD Debug Visualization" schema="schema/KlighdDebugVisualization.exsd"/>
+   <extension-point id="de.cau.cs.kieler.klighd.debugVisualization" name="Debug Visualization" schema="schema/debugVisualization.exsd"/>
    <extension
          point="org.eclipse.ui.startup">
       <startup
@@ -18,6 +18,38 @@
    <extension
          point="de.cau.cs.kieler.klighd.debugVisualization">
       <visualization
+            class="java.lang.Integer"
+            transformation="de.cau.cs.kieler.klighd.debug.transformations.ObjectValueTransformation">
+      </visualization>
+      <visualization
+            class="java.lang.Character"
+            transformation="de.cau.cs.kieler.klighd.debug.transformations.ObjectValueTransformation">
+      </visualization>
+      <visualization
+            class="java.lang.Boolean"
+            transformation="de.cau.cs.kieler.klighd.debug.transformations.ObjectValueTransformation">
+      </visualization>
+      <visualization
+            class="java.lang.Byte"
+            transformation="de.cau.cs.kieler.klighd.debug.transformations.ObjectValueTransformation">
+      </visualization>
+      <visualization
+            class="java.lang.Double"
+            transformation="de.cau.cs.kieler.klighd.debug.transformations.ObjectValueTransformation">
+      </visualization>
+      <visualization
+            class="java.lang.Float"
+            transformation="de.cau.cs.kieler.klighd.debug.transformations.ObjectValueTransformation">
+      </visualization>
+      <visualization
+            class="java.lang.Long"
+            transformation="de.cau.cs.kieler.klighd.debug.transformations.ObjectValueTransformation">
+      </visualization>
+      <visualization
+            class="java.lang.Short"
+            transformation="de.cau.cs.kieler.klighd.debug.transformations.ObjectValueTransformation">
+      </visualization>
+      <visualization
             class="java.util.LinkedList"
             transformation="de.cau.cs.kieler.klighd.debug.transformations.LinkedListTransformation">
       </visualization>
@@ -26,20 +58,16 @@
             transformation="de.cau.cs.kieler.klighd.debug.transformations.HashMapTransformation">
       </visualization>
       <visualization
-            class="java.lang.Boolean"
-            transformation="de.cau.cs.kieler.klighd.debug.transformations.ObjectValueTransformation">
+            class="java.util.ArrayList"
+            transformation="de.cau.cs.kieler.klighd.debug.transformations.ArrayListTransformation">
       </visualization>
       <visualization
-            class="java.lang.Integer"
-            transformation="de.cau.cs.kieler.klighd.debug.transformations.ObjectValueTransformation">
+            class="java.util.ArrayDeque"
+            transformation="de.cau.cs.kieler.klighd.debug.transformations.ArrayDequeTransformation">
       </visualization>
       <visualization
-            class="java.lang.Byte"
-            transformation="de.cau.cs.kieler.klighd.debug.transformations.ObjectValueTransformation">
-      </visualization>
-      <visualization
-            class="java.lang.Character"
-            transformation="de.cau.cs.kieler.klighd.debug.transformations.ObjectValueTransformation">
+            class="java.util.BitSet"
+            transformation="de.cau.cs.kieler.klighd.debug.transformations.BitSetTransformation">
       </visualization>
    </extension>
 

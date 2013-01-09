@@ -10,9 +10,8 @@ import de.cau.cs.kieler.klighd.debug.visualization.AbstractDebugTransformation;
 
 public class KlighdDebugTransformation extends AbstractDebugTransformation {
 
-    public KNode transform(IVariable model,
-            TransformationContext<IVariable, KNode> transformationContext) {
-        use(transformationContext);
+    @SuppressWarnings("unchecked")
+    public KNode transform(IVariable model, TransformationContext<IVariable,KNode> transformationContext) {
         AbstractDebugTransformation transformation = null;
         try {
             transformation = KlighdDebugExtension.INSTANCE.getTransformation(model);
@@ -24,6 +23,10 @@ public class KlighdDebugTransformation extends AbstractDebugTransformation {
             transformation = new DefaultTransformation();
         transformation = new ReinitializingTransformationProxy(
                 (Class<AbstractDebugTransformation>) transformation.getClass());
-        return transformation.transform(model, transformationContext);
+        return transformation.transform(model,transformationContext);
+    }
+
+    public KNode transform(IVariable model) {
+        return null;
     }
 }

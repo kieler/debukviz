@@ -1,21 +1,47 @@
 package de.cau.cs.kieler.klighd.debug.visualization;
 
+import javax.inject.Inject;
+
 import org.eclipse.debug.core.DebugException;
 import org.eclipse.debug.core.model.IValue;
 import org.eclipse.debug.core.model.IVariable;
 
+import de.cau.cs.kieler.core.kgraph.KEdge;
 import de.cau.cs.kieler.core.kgraph.KNode;
+import de.cau.cs.kieler.core.krendering.KRenderingFactory;
+import de.cau.cs.kieler.core.krendering.KText;
+import de.cau.cs.kieler.core.krendering.extensions.KEdgeExtensions;
+import de.cau.cs.kieler.core.krendering.extensions.KNodeExtensions;
+import de.cau.cs.kieler.core.util.Pair;
+import de.cau.cs.kieler.klighd.TransformationContext;
+import de.cau.cs.kieler.klighd.debug.IKlighdDebug;
 import de.cau.cs.kieler.klighd.debug.transformations.KlighdDebugTransformation;
 import de.cau.cs.kieler.klighd.transformations.AbstractTransformation;
 
-public abstract class AbstractDebugTransformation extends AbstractTransformation<IVariable, KNode> {
-    
-    public KNode nextTransformation(KNode rootNode, IVariable variable) {
-        //rootNode.getChildren().clear();
+public abstract class AbstractDebugTransformation extends AbstractTransformation<IVariable, KNode> implements IKlighdDebug{
+
+    @Inject
+    private KEdgeExtensions kEdgeExtensions = new KEdgeExtensions();
+    @Inject
+    private KNodeExtensions kNodeExtensions = new KNodeExtensions();
+
+    protected static final KRenderingFactory renderingFactory = KRenderingFactory.eINSTANCE;
+
+    private Object transformationInfo;
+
+    public Object getTransformationInfo() {
+        return transformationInfo;
+    }
+
+    public void setTransformationInfo(Object transformationInfo) {
+        this.transformationInfo = transformationInfo;
+    }
+
+    public KNode nextTransformation(KNode rootNode, IVariable variable, Object transformationInfo) {
         KlighdDebugTransformation transformation = new KlighdDebugTransformation();
+        transformation.setTransformationInfo(transformationInfo);
         KNode innerNode = transformation.transform(variable, this.getUsedContext());
-        //new KNodeExtensions().addLayoutParam(innerNode, LayoutOptions.BORDER_SPACING, 0f);
-        rootNode.getChildren().add(innerNode);
+        rootNode.getChildren().addAll(innerNode.getChildren());
         return innerNode;
     }
 
@@ -68,5 +94,33 @@ public abstract class AbstractDebugTransformation extends AbstractTransformation
 
     public String getType(IVariable variable) throws DebugException {
         return variable.getValue().getReferenceTypeName();
+    }
+
+    public KEdge createEdge(IVariable source, IVariable target) {
+        KEdge edge = kEdgeExtensions.createEdge(new Pair<Object, Object>(source, target));
+        edge.setSource(kNodeExtensions.getNode(source));
+        edge.setTarget(kNodeExtensions.getNode(target));
+        return edge;
+    }
+
+    public boolean valueIsNotNull(IVariable variable) {
+        try {
+            return !variable.getValue().getValueString().equals("null");
+        } catch (DebugException e) {
+            return false;
+        }
+    }
+    
+    public KNode transform(IVariable model, TransformationContext<IVariable,KNode> transformationContext) {
+        use(transformationContext);
+        return this.transform(model);  
+    }
+    
+    public KNode getLabel(String label) {
+        KNode node = kNodeExtensions.createNode();
+        KText text = renderingFactory.createKText();
+        text.setText(label);
+        node.getData().add(text);
+        return node;
     }
 }

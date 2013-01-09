@@ -1,41 +1,34 @@
 package de.cau.cs.kieler.klighd.debug.transformations
 
 import de.cau.cs.kieler.core.kgraph.KNode
-import de.cau.cs.kieler.core.krendering.KRenderingFactory
 import de.cau.cs.kieler.core.krendering.extensions.KColorExtensions
-import de.cau.cs.kieler.core.krendering.extensions.KEdgeExtensions
 import de.cau.cs.kieler.core.krendering.extensions.KNodeExtensions
+import de.cau.cs.kieler.core.krendering.extensions.KPolylineExtensions
 import de.cau.cs.kieler.core.krendering.extensions.KRenderingExtensions
-import de.cau.cs.kieler.core.util.Pair
-import de.cau.cs.kieler.kiml.options.LayoutOptions
 import de.cau.cs.kieler.kiml.options.Direction
+import de.cau.cs.kieler.kiml.options.LayoutOptions
 import de.cau.cs.kieler.kiml.util.KimlUtil
-import de.cau.cs.kieler.klighd.TransformationContext
 import de.cau.cs.kieler.klighd.debug.visualization.AbstractDebugTransformation
+import javax.inject.Inject
 import org.eclipse.debug.core.model.IVariable
 
-import static de.cau.cs.kieler.klighd.debug.transformations.LinkedListTransformation.*
-import javax.inject.Inject
+import static de.cau.cs.kieler.klighd.debug.visualization.AbstractDebugTransformation.*
 
 class LinkedListTransformation extends AbstractDebugTransformation {
     
     @Inject
     extension KNodeExtensions    
-    @Inject
-    extension KEdgeExtensions
+    @Inject 
+    extension KPolylineExtensions 
     @Inject
     extension KRenderingExtensions
     @Inject
     extension KColorExtensions
-    
- 
-    private static val KRenderingFactory renderingFactory = KRenderingFactory::eINSTANCE
    
     /**
      * {@inheritDoc}
      */
-    override transform(IVariable variable,TransformationContext<IVariable,KNode> transformationContext) {
-        use(transformationContext);
+    override transform(IVariable variable) {
         return KimlUtil::createInitializedNode() => [
             it.addLayoutParam(LayoutOptions::ALGORITHM, "de.cau.cs.kieler.kiml.ogdf.planarization")
             it.addLayoutParam(LayoutOptions::SPACING, 75f)
@@ -44,7 +37,12 @@ class LinkedListTransformation extends AbstractDebugTransformation {
        		val i = variable.getValueByName("size")
             val IVariable header = variable.getVariableByName("header")
             val IVariable last =  it.createChildNode(header, Integer::parseInt(i))
-            header.createEdge(last)
+            header.createEdge(last) => [
+            it.data += renderingFactory.createKPolyline() => [
+                it.setLineWidth(2)
+                it.addArrowDecorator();
+            ]
+        ]
         ]
     }
  
@@ -73,7 +71,12 @@ class LinkedListTransformation extends AbstractDebugTransformation {
         if (size > 0) {
         	var next = parent.getVariableByName("next")
             rootNode.createInternalNode(next)
-            parent.createEdge(next)
+            parent.createEdge(next) => [
+                it.data += renderingFactory.createKPolyline() => [
+                    it.setLineWidth(2)
+                    it.addArrowDecorator();
+                ]
+            ]
             return rootNode.createChildNode(next, size-1)
         }
         else
@@ -88,28 +91,7 @@ class LinkedListTransformation extends AbstractDebugTransformation {
                 it.backgroundColor = "lemon".color
     			it.ChildPlacement = renderingFactory.createKGridPlacement()
             ]
-            it.nextTransformation(next.getVariableByName("element"))
-            /*it.children += element.createNode().putToLookUpWith(element) => [   
-            	it.data += renderingFactory.createKRectangle() => [
-            		it.foregroundVisibility = false
-            		it.backgroundVisibility = false
-    				it.ChildPlacement = renderingFactory.createKGridPlacement()
-    				it.children += renderingFactory.createKText() => [
-                      it.setText(element.getValueByName("value"))
-                    ]
-            	]
-            ]
-            */
+            it.nextTransformation(next.getVariableByName("element"),null)
         ]
     }
-    
-    def createEdge(IVariable child, IVariable parent) {
-        new Pair(child, parent).createEdge() => [
-            it.source = parent.node
-            it.target = child.node
-            it.data += renderingFactory.createKPolyline() => [
-                it.setLineWidth(2)
-            ]
-        ]
-    }  
 }
