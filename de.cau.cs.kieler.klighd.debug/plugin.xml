@@ -69,6 +69,14 @@
             class="java.util.BitSet"
             transformation="de.cau.cs.kieler.klighd.debug.transformations.BitSetTransformation">
       </visualization>
+      <visualization
+            class="java.util.Hashtable"
+            transformation="de.cau.cs.kieler.klighd.debug.transformations.HashMapTransformation">
+      </visualization>
+      <visualization
+            class="java.util.IdentityHashMap"
+            transformation="de.cau.cs.kieler.klighd.debug.transformations.HashMapTransformation">
+      </visualization>
    </extension>
 
 </plugin>
