@@ -41,16 +41,6 @@
             class="java.lang.Character"
             transformation="de.cau.cs.kieler.klighd.debug.transformations.ObjectValueTransformation">
       </visualization>
-      <visualization
-            class="de.cau.cs.kieler.klay.layered.graph.LGraph"
-            package="de.cau.cs.kieler.klay.layered.graph"
-            transformation="de.cau.cs.kieler.klighd.debug.transformations.LGraphTransformation">
-      </visualization>
-      <visualization
-            class="de.cau.cs.kieler.klay.layered.graph.LNode"
-            package="de.cau.cs.kieler.klay.layered.graph"
-            transformation="de.cau.cs.kieler.klighd.debug.transformations.LNodeTransformation">
-      </visualization>
    </extension>
 
 </plugin>
