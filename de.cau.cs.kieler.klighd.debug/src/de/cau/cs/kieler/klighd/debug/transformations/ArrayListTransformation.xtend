@@ -22,17 +22,20 @@ class ArrayListTransformation extends AbstractDebugTransformation {
     extension KRenderingExtensions
     
     var IVariable previous = null
+    var index = 0
     
     override transform(IVariable model) {
        return KimlUtil::createInitializedNode() => [
-            it.addLayoutParam(LayoutOptions::ALGORITHM, "de.cau.cs.kieler.kiml.ogdf.planarization")
+            it.addLayoutParam(LayoutOptions::ALGORITHM, "de.cau.cs.kieler.klay.layered")
             it.addLayoutParam(LayoutOptions::SPACING, 75f)
             it.addLayoutParam(LayoutOptions::DIRECTION, Direction::UP)
             
             model.getVariablesByName("elementData").filter[variable | variable.valueIsNotNull].forEach[
                 IVariable variable |
-                    it.children += variable.createNode().putToLookUpWith(variable) => [
-                        it.nextTransformation(variable,null)
+                    it.children += variable.createNode().putToKNodeMap(variable) => [
+                    	it.addLabel(""+index)
+                    	index= index +1
+                        it.nextTransformation(variable)
                         if (previous != null)
                             previous.createEdge(variable) => [
                                 it.data += renderingFactory.createKPolyline() => [

@@ -24,6 +24,8 @@ class DefaultTransformation extends AbstractDebugTransformation {
     @Inject
     extension KRenderingExtensions
 
+	var index = 0
+
     override transform(IVariable model) {
         return KimlUtil::createInitializedNode() => [
             it.addLayoutParam(LayoutOptions::ALGORITHM, "de.cau.cs.kieler.klay.layered");
@@ -34,7 +36,7 @@ class DefaultTransformation extends AbstractDebugTransformation {
                 it.children += it.arrayTransform(model)
             } else
                 // Types without a transformation
-                it.children += node.createValueNode(model,getValueText(model.type,model.value.valueString))
+                it.children += it.createValueNode(model,getValueText(model.type,model.value.valueString))
         ]
     }
     
@@ -53,19 +55,20 @@ class DefaultTransformation extends AbstractDebugTransformation {
             ]
             return result
         } else {
-            val result = choice.createNode().putToLookUpWith(choice) => [
+            return choice.createNode().putToKNodeMap(choice) => [
                 it.setNodeSize(80,80);
+                it.addLabel(""+index)
+                index = index + 1
                 it.data += renderingFactory.createKRectangle() => [
                     it.childPlacement = renderingFactory.createKGridPlacement()
                 ]
+                it.nextTransformation(choice)
             ]
-            result.nextTransformation(choice,null);
-            return result;
         } 
     }
     
     def KNode createValueNode(KNode node, IVariable variable, LinkedList<KText> text) {
-        return variable.createNode().putToLookUpWith(variable) => [
+        return variable.createNode().putToKNodeMap(variable) => [
             it.setNodeSize(80,80);
             it.data += renderingFactory.createKRectangle() => [
                 it.childPlacement = renderingFactory.createKGridPlacement()
