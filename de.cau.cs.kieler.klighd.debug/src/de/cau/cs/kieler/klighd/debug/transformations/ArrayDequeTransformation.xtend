@@ -22,10 +22,11 @@ class ArrayDequeTransformation extends AbstractDebugTransformation {
     extension KRenderingExtensions
     
     var IVariable previous = null
+    var arrayIndex = 0
     
     override transform(IVariable model) {
         return KimlUtil::createInitializedNode() => [
-            it.addLayoutParam(LayoutOptions::ALGORITHM, "de.cau.cs.kieler.kiml.ogdf.planarization")
+            it.addLayoutParam(LayoutOptions::ALGORITHM, "de.cau.cs.kieler.klay.layered")
             it.addLayoutParam(LayoutOptions::SPACING, 75f)
             it.addLayoutParam(LayoutOptions::DIRECTION, Direction::UP);
             val head = Integer::parseInt(model.getValueByName("head"));
@@ -35,6 +36,8 @@ class ArrayDequeTransformation extends AbstractDebugTransformation {
             while (index <= tail) {
                 val variable = elements.get(index)
                 val node = variable.createNode().putToKNodeMap(variable) => [
+                    it.addLabel(""+arrayIndex)
+                    arrayIndex = arrayIndex + 1
                     it.nextTransformation(variable,null)
                     if (previous != null)
                         previous.createEdge(variable) => [
@@ -46,9 +49,9 @@ class ArrayDequeTransformation extends AbstractDebugTransformation {
                     previous = variable
                 ]
                 if (index == head)
-                    node.children += "head".label
+                    node.addLabel("Head:")
                 if (index == tail)
-                    node.children += "tail".label
+                    node.addLabel("Tail:")
                 it.children += node;
                 index = index + 1
             }

@@ -24,6 +24,8 @@ class DefaultTransformation extends AbstractDebugTransformation {
     @Inject
     extension KRenderingExtensions
 
+	var index = 0
+
     override transform(IVariable model) {
         return KimlUtil::createInitializedNode() => [
             it.addLayoutParam(LayoutOptions::ALGORITHM, "de.cau.cs.kieler.klay.layered");
@@ -53,14 +55,15 @@ class DefaultTransformation extends AbstractDebugTransformation {
             ]
             return result
         } else {
-            val result = choice.createNode().putToKNodeMap(choice) => [
+            return choice.createNode().putToKNodeMap(choice) => [
                 it.setNodeSize(80,80);
+                it.addLabel(""+index)
+                index = index + 1
                 it.data += renderingFactory.createKRectangle() => [
                     it.childPlacement = renderingFactory.createKGridPlacement()
                 ]
+                it.nextTransformation(choice)
             ]
-            result.nextTransformation(choice,null);
-            return result;
         } 
     }
     
