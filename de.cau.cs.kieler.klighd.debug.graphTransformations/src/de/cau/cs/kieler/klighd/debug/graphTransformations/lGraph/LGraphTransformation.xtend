@@ -26,9 +26,6 @@ class LGraphTransformation extends AbstractKNodeTransformation {
     @Inject
     extension KColorExtensions
     
-    
-    private static val KRenderingFactory renderingFactory = KRenderingFactory::eINSTANCE
-
     /**
      * {@inheritDoc}
      */
@@ -48,7 +45,7 @@ class LGraphTransformation extends AbstractKNodeTransformation {
 	}
 	
 	def createHeaderNode(KNode rootNode, IVariable variable) {
-		rootNode.children += variable.createNode().putToLookUpWith(variable) => [
+		rootNode.children += variable.createNode().putToKNodeMap(variable) => [
 //    		it.setNodeSize(120,80)
     		it.data += renderingFactory.createKRectangle() => [
     			it.lineWidth = 4
@@ -63,22 +60,22 @@ class LGraphTransformation extends AbstractKNodeTransformation {
                 ]
     			
     			it.children += renderingFactory.createKText() => [
-    				it.setText("size (x,y): (" + variable.getValueByName("size.x").roundTo(1) + ", " 
-    				                           + variable.getValueByName("size.y").roundTo(1) + ")" 
+    				it.setText("size (x,y): (" + variable.getValueByName("size.x").round(1) + ", " 
+    				                           + variable.getValueByName("size.y").round(1) + ")" 
                     )
             	]
     			
     			it.children += renderingFactory.createKText() => [
-                	it.setText("insets (t,r,b,l): (" + variable.getValueByName("insets.top").roundTo(1) + ", "
-                	                                 + variable.getValueByName("insets.right").roundTo(1) + ", "
-                	                                 + variable.getValueByName("insets.bottom").roundTo(1) + ", "
-                	                                 + variable.getValueByName("insets.left").roundTo(1) + ")"
+                	it.setText("insets (t,r,b,l): (" + variable.getValueByName("insets.top").round(1) + ", "
+                	                                 + variable.getValueByName("insets.right").round(1) + ", "
+                	                                 + variable.getValueByName("insets.bottom").round(1) + ", "
+                	                                 + variable.getValueByName("insets.left").round(1) + ")"
                 	)
             	]
     			
     			it.children += renderingFactory.createKText() => [
-                	it.setText("offset (x,y): (" + variable.getValueByName("offset.x").roundTo(1) + ", "
-                	                             + variable.getValueByName("offset.y").roundTo(1) + ")"
+                	it.setText("offset (x,y): (" + variable.getValueByName("offset.x").round(1) + ", "
+                	                             + variable.getValueByName("offset.y").round(1) + ")"
                 	)
             	]
             ]
@@ -88,7 +85,7 @@ class LGraphTransformation extends AbstractKNodeTransformation {
 /*	
 	def createLayerlessNodes(KNode rootNode, IVariable variable) {
 	    variable.linkedList.forEach[IVariable node |
-            rootNode.children += node.createNode().putToLookUpWith(node) => [
+            rootNode.children += node.createNode().putToKNodeMap(node) => [
             	it.nextTransformation(node, -1)
             ]
         ]
@@ -111,7 +108,7 @@ class LGraphTransformation extends AbstractKNodeTransformation {
 	}
 
     def createEdges(KNode rootNode, IVariable layer) {
-//    	rootNode.children += layer.createNode.putToLookUpWith(layer) => [
+//    	rootNode.children += layer.createNode.putToKNodeMap(layer) => [
 //    		it.setNodeSize(50,50)
 //    	]
         layer.linkedList.forEach[IVariable node |

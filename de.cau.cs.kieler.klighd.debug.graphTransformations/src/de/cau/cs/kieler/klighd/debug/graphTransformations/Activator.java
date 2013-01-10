@@ -1,4 +1,4 @@
-package de.cau.cs.kieler.klighd.debug.graphtransformations;
+package de.cau.cs.kieler.klighd.debug.graphTransformations;
 
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;

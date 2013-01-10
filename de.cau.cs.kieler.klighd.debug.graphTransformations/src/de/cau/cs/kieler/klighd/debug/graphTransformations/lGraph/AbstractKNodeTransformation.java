@@ -72,7 +72,7 @@ public abstract class AbstractKNodeTransformation extends AbstractDebugTransform
         return null;
     }
     
-    public String roundTo(String string, int decimalPositions) {
+    public String round(String string, int decimalPositions) {
     	Double d = Double.valueOf(string);
     	long l = Math.round((d*Math.pow(10,decimalPositions)));
     	d = (((double)l)/Math.pow(10,decimalPositions));

@@ -32,7 +32,7 @@ class LNodeTransformation extends AbstractKNodeTransformation {
     //TODO: add all labels
 
     /**
-     * Create a representation of a LNode
+     * Creates a representation of a LNode
      * @param rootNode The KNode this node is placed into
      * @param variable The IVariable containing the data for this LNode
      */
@@ -41,7 +41,7 @@ class LNodeTransformation extends AbstractKNodeTransformation {
             it.addLayoutParam(LayoutOptions::ALGORITHM, "de.cau.cs.kieler.kiml.ogdf.planarization")
             it.addLayoutParam(LayoutOptions::SPACING, 75f)
                 
-            it.children += variable.createNode().putToLookUpWith(variable) => [
+            it.children += variable.createNode().putToKNodeMap(variable) => [
 //                it.addLayoutParam(LayoutOptions::LABEL_SPACING, 75f)
 //                it.addLayoutParam(LayoutOptions::SPACING, 75f)
                 
