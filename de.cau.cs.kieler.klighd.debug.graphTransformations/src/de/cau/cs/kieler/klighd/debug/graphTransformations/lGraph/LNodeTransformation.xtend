@@ -1,6 +1,5 @@
 package de.cau.cs.kieler.klighd.debug.graphTransformations.lGraph
 
-
 import de.cau.cs.kieler.core.kgraph.KNode
 import de.cau.cs.kieler.core.krendering.extensions.KNodeExtensions
 import de.cau.cs.kieler.core.krendering.extensions.KPolylineExtensions
@@ -13,11 +12,10 @@ import javax.inject.Inject
 import org.eclipse.debug.core.model.IVariable
 import de.cau.cs.kieler.core.krendering.extensions.KEdgeExtensions
 import de.cau.cs.kieler.core.krendering.extensions.KColorExtensions
-
-
-import static de.cau.cs.kieler.klighd.debug.graphTransformations.lGraph.LNodeTransformation.*
 import de.cau.cs.kieler.core.krendering.KRenderingFactory
 import de.cau.cs.kieler.core.krendering.KContainerRendering
+
+import static de.cau.cs.kieler.klighd.debug.graphTransformations.lGraph.LNodeTransformation.*
 
 class LNodeTransformation extends AbstractKNodeTransformation {
 
@@ -38,12 +36,14 @@ class LNodeTransformation extends AbstractKNodeTransformation {
      * @param rootNode The KNode this node is placed into
      * @param variable The IVariable containing the data for this LNode
      */
-    override transform(IVariable variable) {
+     override transform(IVariable variable) {
         return KimlUtil::createInitializedNode() => [
             it.addLayoutParam(LayoutOptions::ALGORITHM, "de.cau.cs.kieler.kiml.ogdf.planarization")
             it.addLayoutParam(LayoutOptions::SPACING, 75f)
                 
             it.children += variable.createNode().putToLookUpWith(variable) => [
+//                it.addLayoutParam(LayoutOptions::LABEL_SPACING, 75f)
+//                it.addLayoutParam(LayoutOptions::SPACING, 75f)
                 
                 // Get the nodeType
                 val nodeType = variable.nodeType
@@ -52,14 +52,14 @@ class LNodeTransformation extends AbstractKNodeTransformation {
                 // Get the labels
                 val labels = variable.getVariableByName("labels").linkedList
                 
-                /*
-                 * Normal nodes. (If nodeType is null, the default type is taken, which is "NORMAL")
-                 *  - show their name (if set) or their node ID
-                 *  - are represented by an rectangle  
-                 */ 
                 if (nodeType == "NORMAL" ) {
+	                /*
+	                 * Normal nodes. (If nodeType is null, the default type is taken, which is "NORMAL")
+	                 *  - show their name (if set) or their node ID
+	                 *  - are represented by an rectangle  
+	                 */ 
                     it.data += renderingFactory.createKRectangle => [
-                        it.lineWidth = 2 
+                    	it.lineWidth = 2 
                         it.setBackgroundColor(variable)
                         it.ChildPlacement = renderingFactory.createKGridPlacement                    
                         
@@ -98,7 +98,7 @@ class LNodeTransformation extends AbstractKNodeTransformation {
 	                           it.setText("Layer: " + transformationInfo)
 	                        ] 
                             if (nodeType == "NORTH_SOUTH_PORT") {
-                                val origin = variable.getVariableByName("propertyMap").getKeyFromHashMap("origin")
+                                val origin = variable.getVariableByName("propertyMap").getValFromHashMap("origin")
                                 if (origin.getType == "LNode") {
                                     it.children += renderingFactory.createKText => [
                                         it.setText("Origin: " + origin.getVariableByName("labels").linkedList.get(0))
@@ -127,20 +127,20 @@ class LNodeTransformation extends AbstractKNodeTransformation {
         *  coding: #RGB", where each component is given as a two-digit hexadecimal value.
         */
         switch (getNodeType(variable)) {
-            case "COMPOUND_SIDE": rendering.setBackgroundColor(128,128,128)
-            case "EXTERNAL_PORT": rendering.setBackgroundColor(204,153,204)
-            case "LONG_EDGE": rendering.setBackgroundColor(234,237,0)
-            case "NORTH_SOUTH_PORT": rendering.setBackgroundColor(0,52,222)
-            case "LOWER_COMPOUND_BORDER": rendering.setBackgroundColor(24,231,72)
-            case "LOWER_COMPOUND_PORT": rendering.setBackgroundColor(47,109,62)
-            case "UPPER_COMPOUND_BORDER": rendering.setBackgroundColor(251,8,56)
-            case "UPPER_COMPOUND_PORT": rendering.setBackgroundColor(176,29,56)
-            default: return rendering.setBackgroundColor(255,255,255)
+            case "COMPOUND_SIDE": rendering.setForegroundColor(128,128,128)
+            case "EXTERNAL_PORT": rendering.setForegroundColor(204,153,204)
+            case "LONG_EDGE": rendering.setForegroundColor(234,237,0)
+            case "NORTH_SOUTH_PORT": rendering.setForegroundColor(0,52,222)
+            case "LOWER_COMPOUND_BORDER": rendering.setForegroundColor(24,231,72)
+            case "LOWER_COMPOUND_PORT": rendering.setForegroundColor(47,109,62)
+            case "UPPER_COMPOUND_BORDER": rendering.setForegroundColor(251,8,56)
+            case "UPPER_COMPOUND_PORT": rendering.setForegroundColor(176,29,56)
+            default: return rendering.setForegroundColor(0,0,0)
         }
     }
     
     def getNodeType(IVariable variable) {
-        val type = variable.getVariableByName("propertyMap").getKeyFromHashMap("nodeType")
+        val type = variable.getVariableByName("propertyMap").getValFromHashMap("nodeType")
         if (type == null) {
             return "NORMAL"
         } else {
