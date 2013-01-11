@@ -43,6 +43,7 @@ class LNodeTransformation extends AbstractKNodeTransformation {
 //            it.children += variable.createNode().putToLookUpWith(variable) => [
         	println("KNode:" + node.getValue.getValueString)
             it.children += node.createNode().putToKNodeMap(node) => [
+				it.setNodeSize(120,80)
 //                it.addLayoutParam(LayoutOptions::LABEL_SPACING, 75f)
 //                it.addLayoutParam(LayoutOptions::SPACING, 75f)
                 
