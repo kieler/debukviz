@@ -45,7 +45,8 @@ class LGraphTransformation extends AbstractKNodeTransformation {
 	}
 	
 	def createHeaderNode(KNode rootNode, IVariable variable) {
-		rootNode.children += variable.createNode().putToKNodeMap(variable) => [
+//		rootNode.children += variable.createNode().putToKNodeMap(variable) => [
+		rootNode.children += variable.createNode().putToLookUpWith(variable) => [
 //    		it.setNodeSize(120,80)
     		it.data += renderingFactory.createKRectangle() => [
     			it.lineWidth = 4
@@ -85,7 +86,8 @@ class LGraphTransformation extends AbstractKNodeTransformation {
 /*	
 	def createLayerlessNodes(KNode rootNode, IVariable variable) {
 	    variable.linkedList.forEach[IVariable node |
-            rootNode.children += node.createNode().putToKNodeMap(node) => [
+//            rootNode.children += node.createNode().putToKNodeMap(node) => [
+            rootNode.children += node.createNode().putToLookUpWith(node) => [
             	it.nextTransformation(node, -1)
             ]
         ]
@@ -108,14 +110,10 @@ class LGraphTransformation extends AbstractKNodeTransformation {
 	}
 
     def createEdges(KNode rootNode, IVariable layer) {
-//    	rootNode.children += layer.createNode.putToKNodeMap(layer) => [
-//    		it.setNodeSize(50,50)
-//    	]
         layer.linkedList.forEach[IVariable node |
         	node.getVariableByName("ports").linkedList.forEach[IVariable port |
         		port.getVariableByName("outgoingEdges").linkedList.forEach[IVariable edge |
         			edge.getVariableByName("source.owner").createEdge(edge.getVariableByName("target.owner")) => [
-//        			edge.getVariableByName("source.owner").createEdge(layer) => [
         				it.data += renderingFactory.createKPolyline() => [
 	            		    it.setLineWidth(2)
 	            		    if (edge.edgeType == "COMPOUND_DUMMY") {

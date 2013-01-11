@@ -40,8 +40,8 @@ class LNodeTransformation extends AbstractKNodeTransformation {
         return KimlUtil::createInitializedNode() => [
             it.addLayoutParam(LayoutOptions::ALGORITHM, "de.cau.cs.kieler.kiml.ogdf.planarization")
             it.addLayoutParam(LayoutOptions::SPACING, 75f)
-                
-            it.children += variable.createNode().putToKNodeMap(variable) => [
+            it.children += variable.createNode().putToLookUpWith(variable) => [
+//            it.children += variable.createNode().putToKNodeMap(variable) => [
 //                it.addLayoutParam(LayoutOptions::LABEL_SPACING, 75f)
 //                it.addLayoutParam(LayoutOptions::SPACING, 75f)
                 

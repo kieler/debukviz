@@ -1,4 +1,4 @@
-package de.cau.cs.kieler.klighd.debug.graphTransformations.lGraph
+package de.cau.cs.kieler.klighd.debug.graphTransformations.pGraph
 
 import de.cau.cs.kieler.core.kgraph.KNode
 import de.cau.cs.kieler.core.krendering.KRenderingFactory

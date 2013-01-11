@@ -1,4 +1,4 @@
-package de.cau.cs.kieler.klighd.debug.graphTransformations.lGraph
+package de.cau.cs.kieler.klighd.debug.graphTransformations.pGraph
 
 import de.cau.cs.kieler.core.kgraph.KNode
 import de.cau.cs.kieler.core.krendering.KRenderingFactory
@@ -14,6 +14,7 @@ import static de.cau.cs.kieler.klighd.debug.graphTransformations.lGraph.LGraphTr
 import javax.inject.Inject
 import de.cau.cs.kieler.core.krendering.LineStyle
 import de.cau.cs.kieler.core.properties.IProperty
+import de.cau.cs.kieler.klighd.debug.graphTransformations.lGraph.AbstractKNodeTransformation
 
 class PGraphTransformation extends AbstractKNodeTransformation {
     
