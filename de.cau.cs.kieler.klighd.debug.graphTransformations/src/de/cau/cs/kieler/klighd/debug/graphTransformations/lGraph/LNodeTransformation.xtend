@@ -36,21 +36,22 @@ class LNodeTransformation extends AbstractKNodeTransformation {
      * @param rootNode The KNode this node is placed into
      * @param variable The IVariable containing the data for this LNode
      */
-     override transform(IVariable variable) {
+     override transform(IVariable node) {
         return KimlUtil::createInitializedNode() => [
             it.addLayoutParam(LayoutOptions::ALGORITHM, "de.cau.cs.kieler.kiml.ogdf.planarization")
             it.addLayoutParam(LayoutOptions::SPACING, 75f)
-            it.children += variable.createNode().putToLookUpWith(variable) => [
-//            it.children += variable.createNode().putToKNodeMap(variable) => [
+//            it.children += variable.createNode().putToLookUpWith(variable) => [
+        	println("KNode:" + node.getValue.getValueString)
+            it.children += node.createNode().putToKNodeMap(node) => [
 //                it.addLayoutParam(LayoutOptions::LABEL_SPACING, 75f)
 //                it.addLayoutParam(LayoutOptions::SPACING, 75f)
                 
                 // Get the nodeType
-                val nodeType = variable.nodeType
+                val nodeType = node.nodeType
                 // Get the ports
-                val ports = variable.getVariableByName("ports").linkedList
+                val ports = node.getVariableByName("ports").linkedList
                 // Get the labels
-                val labels = variable.getVariableByName("labels").linkedList
+                val labels = node.getVariableByName("labels").linkedList
                 
                 if (nodeType == "NORMAL" ) {
 	                /*
@@ -60,7 +61,7 @@ class LNodeTransformation extends AbstractKNodeTransformation {
 	                 */ 
                     it.data += renderingFactory.createKRectangle => [
                     	it.lineWidth = 2 
-                        it.setBackgroundColor(variable)
+                        it.setBackgroundColor(node)
                         it.ChildPlacement = renderingFactory.createKGridPlacement                    
                         
                         // Name of the node is the first label
@@ -84,13 +85,13 @@ class LNodeTransformation extends AbstractKNodeTransformation {
                      */
                     it.data += renderingFactory.createKEllipse => [
                         it.lineWidth = 2
-                        it.setBackgroundColor(variable)
+                        it.setBackgroundColor(node)
                         it.ChildPlacement = renderingFactory.createKGridPlacement
                         // Name of the node is the first label
                         it.children += renderingFactory.createKText => [
                             if(labels.isEmpty) {
                                 // no name given, so display the node id instead
-                                it.setText("nodeID: " + variable.getValueByName("id"))
+                                it.setText("nodeID: " + node.getValueByName("id"))
                             } else {
                                 it.setText("name: " + labels.get(0).getValueByName("text"))
                             }
@@ -98,7 +99,7 @@ class LNodeTransformation extends AbstractKNodeTransformation {
 	                           it.setText("Layer: " + transformationInfo)
 	                        ] 
                             if (nodeType == "NORTH_SOUTH_PORT") {
-                                val origin = variable.getVariableByName("propertyMap").getValFromHashMap("origin")
+                                val origin = node.getVariableByName("propertyMap").getValFromHashMap("origin")
                                 if (origin.getType == "LNode") {
                                     it.children += renderingFactory.createKText => [
                                         it.setText("Origin: " + origin.getVariableByName("labels").linkedList.get(0))
@@ -112,7 +113,7 @@ class LNodeTransformation extends AbstractKNodeTransformation {
         ]
     }
     
-    def setBackgroundColor(KContainerRendering rendering, IVariable variable) {
+    def setBackgroundColor(KContainerRendering rendering, IVariable node) {
        /*
         *  original values from de.cau.cs.kieler.klay.layered.properties.NodeType:
         *  case "COMPOUND_SIDE": return "#808080"
@@ -126,7 +127,7 @@ class LNodeTransformation extends AbstractKNodeTransformation {
         *  default: return "#000000"
         *  coding: #RGB", where each component is given as a two-digit hexadecimal value.
         */
-        switch (getNodeType(variable)) {
+        switch (node.getNodeType) {
             case "COMPOUND_SIDE": rendering.setForegroundColor(128,128,128)
             case "EXTERNAL_PORT": rendering.setForegroundColor(204,153,204)
             case "LONG_EDGE": rendering.setForegroundColor(234,237,0)
@@ -139,8 +140,8 @@ class LNodeTransformation extends AbstractKNodeTransformation {
         }
     }
     
-    def getNodeType(IVariable variable) {
-        val type = variable.getVariableByName("propertyMap").getValFromHashMap("nodeType")
+    def getNodeType(IVariable node) {
+        val type = node.getVariableByName("propertyMap").getValFromHashMap("nodeType")
         if (type == null) {
             return "NORMAL"
         } else {
