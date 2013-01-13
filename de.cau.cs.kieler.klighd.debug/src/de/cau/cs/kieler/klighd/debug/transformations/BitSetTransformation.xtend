@@ -2,8 +2,6 @@ package de.cau.cs.kieler.klighd.debug.transformations
 
 import de.cau.cs.kieler.core.krendering.extensions.KNodeExtensions
 import de.cau.cs.kieler.core.krendering.extensions.KRenderingExtensions
-import de.cau.cs.kieler.kiml.options.Direction
-import de.cau.cs.kieler.kiml.options.LayoutOptions
 import de.cau.cs.kieler.kiml.util.KimlUtil
 import de.cau.cs.kieler.klighd.debug.visualization.AbstractDebugTransformation
 import javax.inject.Inject
@@ -18,15 +16,12 @@ class BitSetTransformation extends AbstractDebugTransformation {
     @Inject
     extension KRenderingExtensions
     
-    var String bitStream = ""
+    var String bitString = ""
     
     override transform(IVariable model) {
         return KimlUtil::createInitializedNode() => [
-            it.addLayoutParam(LayoutOptions::ALGORITHM, "de.cau.cs.kieler.kiml.ogdf.planarization")
-            it.addLayoutParam(LayoutOptions::SPACING, 75f)
-            it.addLayoutParam(LayoutOptions::DIRECTION, Direction::UP);
             model.getVariablesByName("words").forEach[IVariable variable |
-                bitStream = bitStream + Integer::toBinaryString(Integer::parseInt(variable.getValueByName("")))
+                bitString = bitString + Integer::toBinaryString(Integer::parseInt(variable.getValueByName("")))
             ]
             it.children += createNode() => [
                 it.data += renderingFactory.createKRectangle() => [
@@ -40,7 +35,7 @@ class BitSetTransformation extends AbstractDebugTransformation {
                                 it.text = "Words in use: "+model.getValueByName("wordsInUse")
                     ]
                     it.children += renderingFactory.createKText() => [
-                                it.text = bitStream
+                                it.text = bitString
                     ]
                 ]        
             ]

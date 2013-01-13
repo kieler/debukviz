@@ -25,12 +25,14 @@ class LinkedListTransformation extends AbstractDebugTransformation {
     @Inject
     extension KColorExtensions
    
+   
+    var index = 0
     /**
      * {@inheritDoc}
      */
     override transform(IVariable variable) {
         return KimlUtil::createInitializedNode() => [
-            it.addLayoutParam(LayoutOptions::ALGORITHM, "de.cau.cs.kieler.kiml.ogdf.planarization")
+            it.addLayoutParam(LayoutOptions::ALGORITHM, "de.cau.cs.kieler.klay.layered")
             it.addLayoutParam(LayoutOptions::SPACING, 75f)
             it.addLayoutParam(LayoutOptions::DIRECTION, Direction::UP);
       		it.createHeaderNode(variable)
@@ -86,6 +88,8 @@ class LinkedListTransformation extends AbstractDebugTransformation {
     def createInternalNode(KNode rootNode, IVariable next) {
         rootNode.children += next.createNode().putToKNodeMap(next) => [    
             it.setNodeSize(120,80)
+            it.addLabel(""+index)
+            index = index + 1
             it.data += renderingFactory.createKRectangle() => [      
                 it.lineWidth = 2
                 it.backgroundColor = "lemon".color

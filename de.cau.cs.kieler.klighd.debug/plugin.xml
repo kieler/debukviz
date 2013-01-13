@@ -55,7 +55,7 @@
       </visualization>
       <visualization
             class="java.util.HashMap"
-            transformation="de.cau.cs.kieler.klighd.debug.transformations.HashMapTransformation">
+            transformation="de.cau.cs.kieler.klighd.debug.transformations.KeyValueTransformation">
       </visualization>
       <visualization
             class="java.util.ArrayList"
@@ -71,11 +71,35 @@
       </visualization>
       <visualization
             class="java.util.Hashtable"
-            transformation="de.cau.cs.kieler.klighd.debug.transformations.HashMapTransformation">
+            transformation="de.cau.cs.kieler.klighd.debug.transformations.KeyValueTransformation">
       </visualization>
       <visualization
             class="java.util.IdentityHashMap"
-            transformation="de.cau.cs.kieler.klighd.debug.transformations.HashMapTransformation">
+            transformation="de.cau.cs.kieler.klighd.debug.transformations.IdentityHashMapTransformation">
+      </visualization>
+      <visualization
+            class="java.util.LinkedHashMap"
+            transformation="de.cau.cs.kieler.klighd.debug.transformations.LinkedHashMapTransformation">
+      </visualization>
+      <visualization
+            class="java.util.WeakHashMap"
+            transformation="de.cau.cs.kieler.klighd.debug.transformations.WeakHashMapTransformation">
+      </visualization>
+      <visualization
+            class="java.util.EnumMap"
+            transformation="de.cau.cs.kieler.klighd.debug.transformations.EnumMapTransformation">
+      </visualization>
+      <visualization
+            class="java.util.EnumSet"
+            transformation="de.cau.cs.kieler.klighd.debug.transformations.EnumSetTransformation">
+      </visualization>
+      <visualization
+            class="java.util.HashSet"
+            transformation="de.cau.cs.kieler.klighd.debug.transformations.HashSetTransformation">
+      </visualization>
+      <visualization
+            class="java.util.LinkedHashSet"
+            transformation="de.cau.cs.kieler.klighd.debug.transformations.LinkedHashSetTransformation">
       </visualization>
    </extension>
 
