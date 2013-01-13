@@ -1,5 +1,6 @@
 package de.cau.cs.kieler.klighd.debug.selection;
 
+import org.eclipse.debug.core.DebugException;
 import org.eclipse.debug.core.model.IVariable;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.StructuredSelection;
