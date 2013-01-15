@@ -33,21 +33,23 @@ class LinkedHashMapTransformation extends AbstractDebugTransformation {
         ]
     }
     
+    def getKey(IVariable variable) {
+        return variable.getVariableByName("key")
+    }
+    
     def createKeyValueNode(KNode node, IVariable variable) {
-       val key = variable.getVariableByName("key")
        val value = variable.getVariableByName("value")
        val before = variable.getVariableByName("before")
-       val keyNode = node.createInnerNode(variable,key,"Key:")
-       keyNode.putToKNodeMap(variable,true);
+       node.createInnerNode(variable,variable.key,"Key:")
        node.createInnerNode(variable,value,"Value:")
-       key.createEdge(value) => [
+       variable.key.createEdge(value) => [
             it.data += renderingFactory.createKPolyline() => [
                 it.setLineWidth(2);
                 it.addArrowDecorator();
             ];
        ];
-       if (before.getVariableByName("key").valueIsNotNull)
-	       before.createEdge(variable,true,true) => [
+       if (before.key.valueIsNotNull)
+	       before.key.createEdge(variable.key) => [
 	            it.data += renderingFactory.createKPolyline() => [
 	                it.setLineWidth(2);
 	                it.addArrowDecorator();
@@ -56,7 +58,7 @@ class LinkedHashMapTransformation extends AbstractDebugTransformation {
     }
     
     def createInnerNode(KNode rootNode, IVariable parent, IVariable variable, String text) {
-    	val node = variable.createNode().putToKNodeMap(variable) => [
+    	val node = variable.createNode() => [
             it.addLabel(text)
             it.nextTransformation(variable,null)
        	] ;

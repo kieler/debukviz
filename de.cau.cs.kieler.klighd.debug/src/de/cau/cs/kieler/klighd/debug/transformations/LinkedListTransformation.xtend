@@ -38,19 +38,19 @@ class LinkedListTransformation extends AbstractDebugTransformation {
       		it.createHeaderNode(variable)
        		val i = variable.getValueByName("size")
             val IVariable header = variable.getVariableByName("header")
-            val IVariable last =  it.createChildNode(header, Integer::parseInt(i))
-            last.createEdge(header) => [
-            it.data += renderingFactory.createKPolyline() => [
-                it.setLineWidth(2)
-                it.addArrowDecorator();
+            val IVariable last =  it.createChildNode(header, Integer::parseInt(i)*3+1)
+            last.element.createEdge(header.element) => [
+                it.data += renderingFactory.createKPolyline() => [
+                    it.setLineWidth(2)
+                    it.addArrowDecorator();
+                ]
             ]
-        ]
         ]
     }
  
   	def createHeaderNode(KNode rootNode, IVariable variable) {
     	var IVariable header = variable.getVariableByName("header")
-    	rootNode.children += header.createNode().putToKNodeMap(header) => [
+    	rootNode.children += header.element.createNode() => [
     		it.setNodeSize(120,80)
     		it.data += renderingFactory.createKRectangle() => [
     			it.lineWidth = 4
@@ -69,11 +69,16 @@ class LinkedListTransformation extends AbstractDebugTransformation {
     	]
     }
     
+    def IVariable getElement(IVariable variable) {
+        return variable.getVariableByName("element");
+    }
+    
+    
     def IVariable createChildNode(KNode rootNode, IVariable parent, int size){
         if (size > 0) {
         	var next = parent.getVariableByName("next")
             rootNode.createInternalNode(next)
-            parent.createEdge(next) => [
+            parent.element.createEdge(next.element) => [
                 it.data += renderingFactory.createKPolyline() => [
                     it.setLineWidth(2)
                     it.addArrowDecorator();
@@ -86,7 +91,7 @@ class LinkedListTransformation extends AbstractDebugTransformation {
     }
     
     def createInternalNode(KNode rootNode, IVariable next) {
-        rootNode.children += next.createNode().putToKNodeMap(next) => [    
+        rootNode.children += next.element.createNode() => [    
             it.setNodeSize(120,80)
             it.addLabel(""+index)
             index = index + 1
@@ -95,7 +100,7 @@ class LinkedListTransformation extends AbstractDebugTransformation {
                 it.backgroundColor = "lemon".color
     			it.ChildPlacement = renderingFactory.createKGridPlacement()
             ]
-            it.nextTransformation(next.getVariableByName("element"),null)
+            it.nextTransformation(next.element,null)
         ]
     }
 }

@@ -32,7 +32,7 @@ class ArrayListTransformation extends AbstractDebugTransformation {
             
             model.getVariablesByName("elementData").filter[variable | variable.valueIsNotNull].forEach[
                 IVariable variable |
-                    it.children += variable.createNode().putToKNodeMap(variable) => [
+                    it.children += variable.createNode() => [
                     	it.addLabel(""+index)
                     	index= index +1
                         it.nextTransformation(variable)

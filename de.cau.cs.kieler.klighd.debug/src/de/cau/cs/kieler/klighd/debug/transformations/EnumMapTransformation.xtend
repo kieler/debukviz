@@ -39,7 +39,7 @@ class EnumMapTransformation extends AbstractDebugTransformation {
     
     def createKeyValueNode(KNode node, IVariable key, IVariable value) {
 		// Add key node
-		node.children += key.createNode().putToKNodeMap(key) => [
+		node.children += key.createNode() => [
 			it.addLabel("Key:")
 			it.children += createNode() => [
 				it.data += renderingFactory.createKText() => [
@@ -49,7 +49,7 @@ class EnumMapTransformation extends AbstractDebugTransformation {
 		]
 		
 		// Add value node
-		node.children += value.createNode().putToKNodeMap(value) => [
+		node.children += value.createNode() => [
 		    it.addLabel("Value:")
 		    it.nextTransformation(value)
 		]

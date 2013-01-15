@@ -35,7 +35,7 @@ class EnumSetTransformation extends AbstractDebugTransformation {
     }
     
         def createEnumElementNode(KNode node, IVariable enumElement) {
-			node.children += enumElement.createNode().putToKNodeMap(enumElement) => [
+			node.children += enumElement.createNode() => [
 				it.children += createNode() => [
 					it.data += renderingFactory.createKText() => [
 						it.text = enumElement.getValueByName("name")

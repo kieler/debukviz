@@ -47,7 +47,7 @@ class WeakHashMapTransformation extends AbstractDebugTransformation {
     }
     
     def createInnerNode(KNode rootNode, IVariable variable, String text) {
-    	rootNode.children += variable.createNode().putToKNodeMap(variable) => [
+    	rootNode.children += variable.createNode() => [
 			it.addLabel(text)
     		it.nextTransformation(variable)
     	]

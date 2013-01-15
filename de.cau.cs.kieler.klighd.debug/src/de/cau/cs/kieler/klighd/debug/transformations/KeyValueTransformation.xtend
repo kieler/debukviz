@@ -47,7 +47,7 @@ class KeyValueTransformation extends AbstractDebugTransformation {
     }
     
     def createInnerNode(KNode node, IVariable variable, String text) {
-        node.children += variable.createNode().putToKNodeMap(variable) => [
+        node.children += variable.createNode() => [
             it.addLabel(text)
             it.nextTransformation(variable,null)
        ] 

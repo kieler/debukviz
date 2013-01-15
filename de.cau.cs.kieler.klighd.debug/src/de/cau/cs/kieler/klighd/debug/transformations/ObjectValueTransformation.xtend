@@ -30,7 +30,7 @@ class ObjectValueTransformation extends AbstractDebugTransformation {
     }
     
     def KNode createValueNode(KNode node, IVariable variable, LinkedList<KText> text) {
-        return variable.createNode().putToKNodeMap(variable) => [
+        return variable.createNode() => [
             it.setNodeSize(80,80);
             it.data += renderingFactory.createKRectangle() => [
                 it.childPlacement = renderingFactory.createKGridPlacement()

@@ -28,19 +28,25 @@ class LinkedHashSetTransformation extends AbstractDebugTransformation {
             it.addLayoutParam(LayoutOptions::DIRECTION, Direction::UP)
             model.getVariablesByName("map.table").filter[variable | variable.valueIsNotNull].forEach[
                 IVariable variable | 
-               	val vari = variable.getVariableByName("key")
-               	val before = variable.getVariableByName("before")
-               	it.children += variable.createNode().putToKNodeMap(variable,true) => [
-               		it.nextTransformation(vari)
+               	it.children += variable.key.createNode() => [
+               		it.nextTransformation(variable.key)
        			]
-       			if (before.getVariableByName("key").valueIsNotNull)
-	       			before.createEdge(variable,true,true) => [
+       			if (variable.beforeKey.valueIsNotNull)
+	       			variable.beforeKey.createEdge(variable.key) => [
 	            		it.data += renderingFactory.createKPolyline() => [
-	                		it.setLineWidth(2);
-	                		it.addArrowDecorator();
-	            		];
-	       		];
+	                		it.setLineWidth(2)
+	                		it.addArrowDecorator()
+	            		]
+	       		]
        		]
 		]
+    }
+    
+    def getBeforeKey(IVariable variable) {
+        variable.getVariableByName("before.key")
+    }
+    
+    def getKey(IVariable variable) {
+        variable.getVariableByName("key")
     }
 }

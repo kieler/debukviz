@@ -32,8 +32,6 @@ public abstract class AbstractDebugTransformation extends
 
 	protected static final KRenderingFactory renderingFactory = KRenderingFactory.eINSTANCE;
 
-	private HashMap<Pair<IVariable, String>, KNode> kNodeMap = new HashMap<Pair<IVariable, String>, KNode>();
-
 	private Object transformationInfo;
 
 	public Object getTransformationInfo() {
@@ -115,15 +113,10 @@ public abstract class AbstractDebugTransformation extends
 	}
 
 	public KEdge createEdge(IVariable source, IVariable target) {
-		return createEdge(source, target, false, false);
-	}
-
-	public KEdge createEdge(IVariable source, IVariable target,
-			boolean sourceUnique, boolean targetUnique) {
 		KEdge edge = kEdgeExtensions.createEdge(new Pair<Object, Object>(
 				source, target));
-		edge.setSource(getNode(source, sourceUnique));
-		edge.setTarget(getNode(target, targetUnique));
+		edge.setSource(kNodeExtensions.getNode(source));
+		edge.setTarget(kNodeExtensions.getNode(target));
 		return edge;
 	}
 
@@ -146,30 +139,6 @@ public abstract class AbstractDebugTransformation extends
 		kLabel.setText(label);
 		node.getLabels().add(kLabel);
 		return kLabel;
-	}
-
-	public KNode putToKNodeMap(KNode derived, IVariable source) {
-		return putToKNodeMap(derived, source, false);
-	}
-
-	public KNode putToKNodeMap(KNode derived, IVariable source, boolean unique) {
-		IVariable variable = source;
-		if (unique)
-			variable = null;
-		kNodeMap.put(new Pair<IVariable, String>(variable, getID(source)),
-				derived);
-		return super.putToLookUpWith(derived, source);
-	}
-
-	public KNode getNode(IVariable key, boolean unique) {
-		IVariable variable = key;
-		if (unique)
-			variable = null;
-		KNode result = kNodeMap.get(new Pair<IVariable, String>(variable,
-				getID(key)));
-		if (result == null)
-			result = kNodeExtensions.createNode();
-		return result;
 	}
 
 	public String getID(IVariable variable) {
