@@ -101,6 +101,10 @@
             class="java.util.LinkedHashSet"
             transformation="de.cau.cs.kieler.klighd.debug.transformations.LinkedHashSetTransformation">
       </visualization>
+      <visualization
+            class="java.util.LinkedList.Entry"
+            transformation="de.cau.cs.kieler.klighd.debug.transformations.LinkedListEntryTransformation">
+      </visualization>
    </extension>
 
 </plugin>

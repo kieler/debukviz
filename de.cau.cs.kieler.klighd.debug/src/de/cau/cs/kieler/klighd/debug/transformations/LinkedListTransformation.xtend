@@ -36,9 +36,8 @@ class LinkedListTransformation extends AbstractDebugTransformation {
             it.addLayoutParam(LayoutOptions::SPACING, 75f)
             it.addLayoutParam(LayoutOptions::DIRECTION, Direction::UP);
       		it.createHeaderNode(variable)
-       		val i = variable.getValueByName("size")
-            val IVariable header = variable.getVariableByName("header")
-            val IVariable last =  it.createChildNode(header, Integer::parseInt(i)*3+1)
+            val header = variable.getVariableByName("header")
+            val last = it.createChildNode(header)
             last.element.createEdge(header.element) => [
                 it.data += renderingFactory.createKPolyline() => [
                     it.setLineWidth(2)
@@ -74,9 +73,9 @@ class LinkedListTransformation extends AbstractDebugTransformation {
     }
     
     
-    def IVariable createChildNode(KNode rootNode, IVariable parent, int size){
-        if (size > 0) {
-        	var next = parent.getVariableByName("next")
+    def IVariable createChildNode(KNode rootNode, IVariable parent){
+       var next = parent.getVariableByName("next")
+       if (!next.element.nodeExists) {
             rootNode.createInternalNode(next)
             parent.element.createEdge(next.element) => [
                 it.data += renderingFactory.createKPolyline() => [
@@ -84,7 +83,7 @@ class LinkedListTransformation extends AbstractDebugTransformation {
                     it.addArrowDecorator();
                 ]
             ]
-            return rootNode.createChildNode(next, size-1)
+            return rootNode.createChildNode(next)
         }
         else
             return parent
@@ -100,7 +99,7 @@ class LinkedListTransformation extends AbstractDebugTransformation {
                 it.backgroundColor = "lemon".color
     			it.ChildPlacement = renderingFactory.createKGridPlacement()
             ]
-            it.nextTransformation(next.element,null)
+            it.nextTransformation(next)
         ]
     }
 }

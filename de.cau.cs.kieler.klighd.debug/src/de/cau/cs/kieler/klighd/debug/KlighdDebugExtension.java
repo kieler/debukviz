@@ -75,7 +75,8 @@ public class KlighdDebugExtension {
         if (type instanceof IJavaClassType) {
             IJavaClassType superClass = (IJavaClassType) type;
             while (result == null && superClass != null) {
-                result = transformationMap.get(superClass.getName());
+                String test = superClass.getName().replaceAll("\\$", ".");
+                result = transformationMap.get(superClass.getName().replaceAll("\\$", "."));
                 superClass = superClass.getSuperclass();
             }
         }

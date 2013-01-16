@@ -141,11 +141,8 @@ public abstract class AbstractDebugTransformation extends
 		return kLabel;
 	}
 
-	public String getID(IVariable variable) {
-		try {
-			return variable.getValue().getValueString().replaceAll("\\D", "");
-		} catch (Exception e) {
-		}
-		return "";
+	public boolean nodeExists(IVariable variable) throws DebugException {
+	    KNode node = kNodeExtensions.getNode(variable);
+	    return kNodeExtensions.getNode(variable).eContainer() != null;
 	}
 }
