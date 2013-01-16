@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="de.cau.cs.kieler.klighd.debugVisualization">
+      <visualization
+            class="de.cau.cs.kieler.klay.layered.graph.LGraph"
+            transformation="de.cau.cs.kieler.klighd.debug.graphTransformations.lGraph.LGraphTransformation">
+      </visualization>
+      <visualization
+            class="de.cau.cs.kieler.klay.layered.graph.LNode"
+            transformation="de.cau.cs.kieler.klighd.debug.graphTransformations.lGraph.LNodeTransformation">
+      </visualization>
+   </extension>
+
+</plugin>
