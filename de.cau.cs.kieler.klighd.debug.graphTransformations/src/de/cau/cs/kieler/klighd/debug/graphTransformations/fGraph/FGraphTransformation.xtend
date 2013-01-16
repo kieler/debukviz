@@ -84,10 +84,11 @@ class FGraphTransformation extends AbstractKNodeTransformation {
                 it.lineWidth = 4
             ]
             nodes.linkedList.forEach[IVariable node |
+            	setTransformationInfo()
                 it.nextTransformation(node)
             ]
         ]
-        graph.createEdge(nodes, true, true) => [
+        graph.createEdge(nodes) => [
             it.data += renderingFactory.createKPolyline => [
                 it.setLineWidth(2)
                 it.addArrowDecorator
