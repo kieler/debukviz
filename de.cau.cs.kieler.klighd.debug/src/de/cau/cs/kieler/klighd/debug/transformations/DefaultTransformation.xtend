@@ -56,12 +56,8 @@ class DefaultTransformation extends AbstractDebugTransformation {
             return result
         } else {
             return choice.createNode() => [
-                it.setNodeSize(80,80);
                 it.addLabel(""+index)
                 index = index + 1
-                it.data += renderingFactory.createKRectangle() => [
-                    it.childPlacement = renderingFactory.createKGridPlacement()
-                ]
                 it.nextTransformation(choice)
             ]
         } 

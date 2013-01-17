@@ -27,19 +27,19 @@ class LinkedHashMapTransformation extends AbstractDebugTransformation {
             it.addLayoutParam(LayoutOptions::ALGORITHM, "de.cau.cs.kieler.klay.layered")
             it.addLayoutParam(LayoutOptions::SPACING, 75f)
             it.addLayoutParam(LayoutOptions::DIRECTION, Direction::UP)
-            model.getVariablesByName("table").filter[variable | variable.valueIsNotNull].forEach[
+            model.getVariables("table").filter[variable | variable.valueIsNotNull].forEach[
                 IVariable variable | it.createKeyValueNode(variable)
             ]
         ]
     }
     
     def getKey(IVariable variable) {
-        return variable.getVariableByName("key")
+        return variable.getVariable("key")
     }
     
     def createKeyValueNode(KNode node, IVariable variable) {
-       val value = variable.getVariableByName("value")
-       val before = variable.getVariableByName("before")
+       val value = variable.getVariable("value")
+       val before = variable.getVariable("before")
        node.createInnerNode(variable,variable.key,"Key:")
        node.createInnerNode(variable,value,"Value:")
        variable.key.createEdge(value) => [

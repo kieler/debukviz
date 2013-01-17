@@ -1,11 +1,10 @@
 package de.cau.cs.kieler.klighd.debug.visualization;
 
-import java.util.HashMap;
+import java.util.LinkedList;
 
 import javax.inject.Inject;
 
 import org.eclipse.debug.core.DebugException;
-import org.eclipse.debug.core.model.IValue;
 import org.eclipse.debug.core.model.IVariable;
 
 import de.cau.cs.kieler.core.kgraph.KEdge;
@@ -52,60 +51,59 @@ public abstract class AbstractDebugTransformation extends
 		transformation.setTransformationInfo(transformationInfo);
 		KNode innerNode = transformation.transform(variable,
 				this.getUsedContext());
+		rootNode.getData().add(renderingFactory.createKChildArea());
 		rootNode.getChildren().addAll(innerNode.getChildren());
 		return innerNode;
 	}
 
-	public String getValueByName(IVariable variable, String field)
+	public String getValue(IVariable variable, String fieldPath)
 			throws DebugException {
-		IVariable var = getVariableByName(variable, field);
+		IVariable var = getVariable(variable, fieldPath);
 		if (var != null)
 			return var.getValue().getValueString();
 		return "null";
 	}
 
-	public IVariable[] getVariablesByName(IVariable variable, String field)
+	public IVariable[] getVariables(IVariable variable, String fieldPath)
 			throws DebugException {
-		IVariable var = getVariableByName(variable, field);
-		if (var != null) {
-			IValue val = var.getValue();
-			if (val.hasVariables())
-				return val.getVariables();
-		}
-		return null;
+		IVariable var = getVariable(variable, fieldPath);
+		if (var != null)
+			return var.getValue().getVariables();
+		else
+			return null;
 	}
 
-	/**
-	 * Getter for the variable of a specific field stored in a variable
-	 * 
-	 * @param variable
-	 *            variable in which the field is stored
-	 * @param fieldPath
-	 *            Dot separated path of names to the field which variable is
-	 *            returned
-	 * @return variable represented by target field name or null if target field
-	 *         doesn't exists
-	 * @throws DebugException
-	 */
-	public IVariable getVariableByName(IVariable variable, String fieldPath)
+	public IVariable getVariable(IVariable variable, String fieldPath)
 			throws DebugException {
+		LinkedList<IVariable> varList = getVariableList(variable, fieldPath);
+		if (varList.size() == 0)
+			return null;
+		else
+			return varList.getFirst();
+	}
+
+	public LinkedList<IVariable> getVariableList(IVariable variable, String fieldPath)
+			throws DebugException {
+		LinkedList<IVariable> result = new LinkedList<IVariable>();
 		String[] fields = fieldPath.split("\\.");
-		for (String f : fields) {
+		for (int j = 0; j < fields.length; j++) {
 			boolean found = false;
-			IValue val = variable.getValue();
-			// Only search for field if variable has fields
-			if (val.hasVariables()) {
-				IVariable[] vars = val.getVariables();
-				for (int i = 0; i < vars.length && !found; i++)
-					if (vars[i].getName().equals(f)) {
+			IVariable[] vars = variable.getValue().getVariables();
+			for (int i = 0; i < vars.length && !found; i++)
+				if (vars[i].getName().equals(fields[j]) || ((j == fields.length-1) && fields[j].equals("*"))) {
+					if (j == fields.length-1) {
+						result.add(vars[i]);
+					}
+					else {
 						found = true;
 						variable = vars[i];
 					}
-				if (!found)
-					return null;
-			}
+					
+				}
+			if (!found)
+				return result;
 		}
-		return variable;
+		return result;
 	}
 
 	public String getType(IVariable variable) throws DebugException {
@@ -142,7 +140,6 @@ public abstract class AbstractDebugTransformation extends
 	}
 
 	public boolean nodeExists(IVariable variable) throws DebugException {
-	    KNode node = kNodeExtensions.getNode(variable);
-	    return kNodeExtensions.getNode(variable).eContainer() != null;
+		return kNodeExtensions.getNode(variable).eContainer() != null;
 	}
 }

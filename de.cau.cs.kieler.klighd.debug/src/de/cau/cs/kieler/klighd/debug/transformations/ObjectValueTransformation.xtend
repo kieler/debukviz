@@ -25,7 +25,7 @@ class ObjectValueTransformation extends AbstractDebugTransformation {
     override transform(IVariable model) {
         return 
         KimlUtil::createInitializedNode() => [
-            it.children += it.createValueNode(model,getValueText(model.type,model.getValueByName("value")))
+            it.children += it.createValueNode(model,getValueText(model.type,model.getValue("value")))
         ]
     }
     
@@ -45,7 +45,7 @@ class ObjectValueTransformation extends AbstractDebugTransformation {
     def LinkedList<KText> getValueText(String type, String value) {
         return new LinkedList<KText>() => [
             it += renderingFactory.createKText() => [
-                it.text = "<<"+type+">>"
+                it.text = "<<"+type.substring(type.lastIndexOf('.')+1)+">>"
                 it.setForegroundColor(120,120,120)
             ]
             it += renderingFactory.createKText() => [

@@ -21,8 +21,8 @@ class EnumSetTransformation extends AbstractDebugTransformation {
             it.addLayoutParam(LayoutOptions::ALGORITHM, "de.cau.cs.kieler.klay.layered")
             it.addLayoutParam(LayoutOptions::SPACING, 75f)
             it.addLayoutParam(LayoutOptions::DIRECTION, Direction::UP);
-            val universe = model.getVariablesByName("universe")
-            val elements = Integer::toBinaryString(Integer::parseInt(model.getValueByName("elements")))
+            val universe = model.getVariables("universe")
+            val elements = Integer::toBinaryString(Integer::parseInt(model.getValue("elements")))
             var index = 0
             val length = elements.length
             while (index < universe.size && index < length) {
@@ -38,7 +38,7 @@ class EnumSetTransformation extends AbstractDebugTransformation {
 			node.children += enumElement.createNode() => [
 				it.children += createNode() => [
 					it.data += renderingFactory.createKText() => [
-						it.text = enumElement.getValueByName("name")
+						it.text = enumElement.getValue("name")
 					]  
 				]
 			]

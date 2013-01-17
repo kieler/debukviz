@@ -27,9 +27,9 @@ class EnumMapTransformation extends AbstractDebugTransformation {
             it.addLayoutParam(LayoutOptions::ALGORITHM, "de.cau.cs.kieler.klay.layered")
             it.addLayoutParam(LayoutOptions::SPACING, 75f)
             it.addLayoutParam(LayoutOptions::DIRECTION, Direction::UP)
-            val keyUniverse = model.getVariablesByName("keyUniverse")
+            val keyUniverse = model.getVariables("keyUniverse")
             var index = 0;
-            for (value : model.getVariablesByName("vals")) {
+            for (value : model.getVariables("vals")) {
             	if (value.valueIsNotNull)
                 	it.createKeyValueNode(keyUniverse.get(index),value)
                 index = index + 1;
@@ -41,10 +41,13 @@ class EnumMapTransformation extends AbstractDebugTransformation {
 		// Add key node
 		node.children += key.createNode() => [
 			it.addLabel("Key:")
+			it.data += renderingFactory.createKChildArea
 			it.children += createNode() => [
-				it.data += renderingFactory.createKText() => [
-					it.text = key.getValueByName("name")
-				]  
+				it.children += createNode => [
+					it.data += renderingFactory.createKText() => [
+						it.text = key.getValue("name")
+					]
+				]
 			]
 		]
 		

@@ -27,15 +27,15 @@ class KeyValueTransformation extends AbstractDebugTransformation {
             it.addLayoutParam(LayoutOptions::ALGORITHM, "de.cau.cs.kieler.klay.layered")
             it.addLayoutParam(LayoutOptions::SPACING, 75f)
             it.addLayoutParam(LayoutOptions::DIRECTION, Direction::UP)
-            model.getVariablesByName("table").filter[variable | variable.valueIsNotNull].forEach[
+            model.getVariables("table").filter[variable | variable.valueIsNotNull].forEach[
                 IVariable variable | it.createKeyValueNode(variable)
             ]
         ]
     }
     
     def createKeyValueNode(KNode node, IVariable variable) {
-       val key = variable.getVariableByName("key")
-       val value = variable.getVariableByName("value")
+       val key = variable.getVariable("key")
+       val value = variable.getVariable("value")
        node.createInnerNode(key,"Key:")
        node.createInnerNode(value,"Value:")
        key.createEdge(value) => [
@@ -49,7 +49,7 @@ class KeyValueTransformation extends AbstractDebugTransformation {
     def createInnerNode(KNode node, IVariable variable, String text) {
         node.children += variable.createNode() => [
             it.addLabel(text)
-            it.nextTransformation(variable,null)
+            it.nextTransformation(variable)
        ] 
     }
 }

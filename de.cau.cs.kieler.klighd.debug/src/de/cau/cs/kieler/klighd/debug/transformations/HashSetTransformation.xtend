@@ -18,10 +18,12 @@ class HashSetTransformation extends AbstractDebugTransformation {
             it.addLayoutParam(LayoutOptions::ALGORITHM, "de.cau.cs.kieler.klay.layered")
             it.addLayoutParam(LayoutOptions::SPACING, 75f)
             it.addLayoutParam(LayoutOptions::DIRECTION, Direction::UP)
-            model.getVariablesByName("map.table").filter[variable | variable.valueIsNotNull].forEach[
+            model.getVariables("map.table").filter[variable | variable.valueIsNotNull].forEach[
                 IVariable variable | 
-               	val vari = variable.getVariableByName("key")
-               	it.nextTransformation(vari)
+               	it.children += createNode() => [
+               		it.data += renderingFactory.createKChildArea
+               		it.nextTransformation(variable.getVariable("key"))
+               	]
        		] 
 		]
     }

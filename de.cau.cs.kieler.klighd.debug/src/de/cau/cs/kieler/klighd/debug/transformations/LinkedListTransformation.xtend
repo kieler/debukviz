@@ -36,7 +36,7 @@ class LinkedListTransformation extends AbstractDebugTransformation {
             it.addLayoutParam(LayoutOptions::SPACING, 75f)
             it.addLayoutParam(LayoutOptions::DIRECTION, Direction::UP);
       		it.createHeaderNode(variable)
-            val header = variable.getVariableByName("header")
+            val header = variable.getVariable("header")
             val last = it.createChildNode(header)
             last.element.createEdge(header.element) => [
                 it.data += renderingFactory.createKPolyline() => [
@@ -46,9 +46,9 @@ class LinkedListTransformation extends AbstractDebugTransformation {
             ]
         ]
     }
- 
+
   	def createHeaderNode(KNode rootNode, IVariable variable) {
-    	var IVariable header = variable.getVariableByName("header")
+    	var IVariable header = variable.getVariable("header")
     	rootNode.children += header.element.createNode() => [
     		it.setNodeSize(120,80)
     		it.data += renderingFactory.createKRectangle() => [
@@ -62,19 +62,19 @@ class LinkedListTransformation extends AbstractDebugTransformation {
                 	it.setText("Type: " + variable.type)
             	]
     			it.children += renderingFactory.createKText() => [
-                	it.setText("size: " + variable.getValueByName("size"))
+                	it.setText("size: " + variable.getValue("size"))
             	]
     		]
     	]
     }
     
     def IVariable getElement(IVariable variable) {
-        return variable.getVariableByName("element");
+        return variable.getVariable("element");
     }
     
     
     def IVariable createChildNode(KNode rootNode, IVariable parent){
-       var next = parent.getVariableByName("next")
+       var next = parent.getVariable("next")
        if (!next.element.nodeExists) {
             rootNode.createInternalNode(next)
             parent.element.createEdge(next.element) => [
@@ -90,15 +90,9 @@ class LinkedListTransformation extends AbstractDebugTransformation {
     }
     
     def createInternalNode(KNode rootNode, IVariable next) {
-        rootNode.children += next.element.createNode() => [    
-            it.setNodeSize(120,80)
+        rootNode.children += next.element.createNode() => [
             it.addLabel(""+index)
             index = index + 1
-            it.data += renderingFactory.createKRectangle() => [      
-                it.lineWidth = 2
-                it.backgroundColor = "lemon".color
-    			it.ChildPlacement = renderingFactory.createKGridPlacement()
-            ]
             it.nextTransformation(next)
         ]
     }

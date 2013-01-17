@@ -29,16 +29,15 @@ class ArrayDequeTransformation extends AbstractDebugTransformation {
             it.addLayoutParam(LayoutOptions::ALGORITHM, "de.cau.cs.kieler.klay.layered")
             it.addLayoutParam(LayoutOptions::SPACING, 75f)
             it.addLayoutParam(LayoutOptions::DIRECTION, Direction::UP);
-            val head = Integer::parseInt(model.getValueByName("head"));
-            val tail = Integer::parseInt(model.getValueByName("tail"));
-            val IVariable[] elements = model.getVariablesByName("elements");
+            val head = Integer::parseInt(model.getValue("head"));
+            val tail = Integer::parseInt(model.getValue("tail"));
+            val IVariable[] elements = model.getVariables("elements");
             var int index = head;
             while (index <= tail) {
                 val variable = elements.get(index)
                 val node = variable.createNode() => [
-                    it.addLabel(""+arrayIndex)
-                    arrayIndex = arrayIndex + 1
                     it.nextTransformation(variable,null)
+                    arrayIndex = arrayIndex + 1
                     if (previous != null)
                         previous.createEdge(variable) => [
                             it.data += renderingFactory.createKPolyline() => [
