@@ -51,7 +51,7 @@ public abstract class AbstractDebugTransformation extends
 		transformation.setTransformationInfo(transformationInfo);
 		KNode innerNode = transformation.transform(variable,
 				this.getUsedContext());
-		rootNode.getData().add(renderingFactory.createKChildArea());
+		//rootNode.getData().add(renderingFactory.createKChildArea());
 		rootNode.getChildren().addAll(innerNode.getChildren());
 		return innerNode;
 	}
