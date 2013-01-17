@@ -121,6 +121,10 @@
             class="java.util.TreeSet"
             transformation="de.cau.cs.kieler.klighd.debug.transformations.TreeSetTransformation">
       </visualization>
+      <visualization
+            class="java.lang.String"
+            transformation="de.cau.cs.kieler.klighd.debug.transformations.StringTransformation">
+      </visualization>
    </extension>
 
 </plugin>

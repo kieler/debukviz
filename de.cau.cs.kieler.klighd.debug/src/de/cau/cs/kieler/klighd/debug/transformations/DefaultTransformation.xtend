@@ -14,6 +14,10 @@ import javax.inject.Inject
 import org.eclipse.debug.core.model.IVariable
 
 import static de.cau.cs.kieler.klighd.debug.visualization.AbstractDebugTransformation.*
+import org.eclipse.jdt.debug.core.IJavaPrimitiveValue
+import org.eclipse.jdt.debug.core.IJavaValue
+import org.eclipse.jdt.debug.core.IJavaArray
+import org.eclipse.jdt.debug.core.IJavaObject
 
 class DefaultTransformation extends AbstractDebugTransformation {
        
@@ -31,28 +35,55 @@ class DefaultTransformation extends AbstractDebugTransformation {
             it.addLayoutParam(LayoutOptions::ALGORITHM, "de.cau.cs.kieler.klay.layered");
             it.addLayoutParam(LayoutOptions::SPACING, 75f);
             it.addLayoutParam(LayoutOptions::DIRECTION, Direction::UP);
-            if (model.type.endsWith("[]")) {
-                // Array
+            val value = model.value
+            // Array
+            if (value instanceof IJavaArray)
                 it.children += it.arrayTransform(model)
-            } else
-                // Types without a transformation
-                it.children += it.createValueNode(model,getValueText(model.type,model.value.valueString))
+            // Types without a transformation
+            // primitive datatypes and null
+            else if (value instanceof IJavaPrimitiveValue || (value instanceof IJavaValue && (value as IJavaValue).isNull()))
+                	it.children += it.createValueNode(model)
+            // objecttypes
+            else if (value instanceof IJavaObject) {
+            	value.variables.forEach[
+            		IVariable variable |
+            		val value_ = variable.value
+            		// TODO: handle primitive types and null values
+            		if (value_ instanceof IJavaObject) {
+            			val id = (value_ as IJavaObject).uniqueId
+            			it.children += it.createObjectNode(variable,id)	
+            		}
+            	]
+            }   
         ]
     }
     
+    def KNode createObjectNode(KNode node, IVariable variable, Long id) {
+    	
+    }
+    
     def KNode arrayTransform(KNode node, IVariable choice) {
-        if (choice.type.endsWith("[]")) {
-            val result = node.createValueNode(choice,getTypeText(choice.type))
-            choice.value.variables.forEach[
-                IVariable variable |
-                node.children += node.arrayTransform(variable)
-                choice.createEdge(variable) => [
-                    it.data += renderingFactory.createKPolyline() => [
-                        it.setLineWidth(2);
-                        it.addArrowDecorator();
-                    ]  
-                ]           
-            ]
+            if (choice.value instanceof IJavaArray) {
+	            val result = choice.createNode() => [
+	         		it.setNodeSize(80,80);
+	            	it.data += renderingFactory.createKRectangle() => [
+	                	it.childPlacement = renderingFactory.createKGridPlacement()
+	                	it.children += renderingFactory.createKText() => [
+	                		it.text = choice.type.substring(choice.type.lastIndexOf('.')+1)
+	            		]
+	            	]
+	            ]
+	            
+            	choice.value.variables.forEach[
+                	IVariable variable |
+                	node.children += node.arrayTransform(variable)
+                	choice.createEdge(variable) => [
+                		it.data += renderingFactory.createKPolyline() => [
+                    		it.setLineWidth(2)
+                    		it.addArrowDecorator();
+            			]
+            		]
+                ]                       
             return result
         } else {
             return choice.createNode() => [
@@ -63,12 +94,12 @@ class DefaultTransformation extends AbstractDebugTransformation {
         } 
     }
     
-    def KNode createValueNode(KNode node, IVariable variable, LinkedList<KText> text) {
+    def KNode createValueNode(KNode node, IVariable variable) {
         return variable.createNode() => [
             it.setNodeSize(80,80);
             it.data += renderingFactory.createKRectangle() => [
                 it.childPlacement = renderingFactory.createKGridPlacement()
-                text.forEach[
+                getValueText(variable.type,variable.value.valueString).forEach[
                     KText t |
                     it.children += t
                 ]
@@ -86,13 +117,5 @@ class DefaultTransformation extends AbstractDebugTransformation {
                 it.text = value
             ]
         ]
-    }
-    
-    def LinkedList<KText> getTypeText(String type) {
-        return new LinkedList<KText>() => [
-            it += renderingFactory.createKText() => [
-                it.text = type
-            ]
-        ]
-    }       
+    }     
 }
