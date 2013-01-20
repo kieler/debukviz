@@ -39,8 +39,8 @@ class PGraphTransformation extends AbstractKNodeTransformation {
             it.addLayoutParam(LayoutOptions::SPACING, 75f)
             
             it.createHeaderNode(graph)
-            it.createNodes(graph.getVariableByName("nodes"))
-            it.createEdges(graph.getVariableByName("edges", "java.util.LinkedHashSet<de.cau.cs.kieler.klay.planar.graph.PEdge>"))
+            it.createNodes(graph.getVariable("nodes"))
+            it.createEdges(graph.getVariableOfType("edges", "java.util.LinkedHashSet<de.cau.cs.kieler.klay.planar.graph.PEdge>"))
         ]
 
     }
@@ -71,32 +71,32 @@ class PGraphTransformation extends AbstractKNodeTransformation {
                 it.children += createKText(graph, "parent", "", ": ")
 
                 it.children += renderingFactory.createKText => [
-                    it.text = "pos (x,y): (" + graph.getValueByName("pos.x").round(1) + " x " 
-                                              + graph.getValueByName("pos.y").round(1) + ")" 
+                    it.text = "pos (x,y): (" + graph.getValue("pos.x").round(1) + " x " 
+                                              + graph.getValue("pos.y").round(1) + ")" 
                 ]
                 
                 it.children += renderingFactory.createKText => [
-                    it.text = "size (x,y): (" + graph.getValueByName("size.x").round(1) + " x " 
-                                              + graph.getValueByName("size.y").round(1) + ")" 
+                    it.text = "size (x,y): (" + graph.getValue("size.x").round(1) + " x " 
+                                              + graph.getValue("size.y").round(1) + ")" 
                 ]
 
                 it.children += renderingFactory.createKText => [
-                    it.text = "type: " + graph.getValueByName("type.name")
+                    it.text = "type: " + graph.getValue("type.name")
                 ]
             ]
         ]
     }
 
     def createNodes(KNode rootNode, IVariable nodesHashSet) {
-        nodesHashSet.getVariableByName("map").getVariablesByName("table").filter[e | e.valueIsNotNull].forEach[IVariable node |
-            rootNode.nextTransformation(node.getVariableByName("key"))
+        nodesHashSet.getVariable("map").getVariables("table").filter[e | e.valueIsNotNull].forEach[IVariable node |
+            rootNode.nextTransformation(node.getVariable("key"))
         ]
     }
 
     def createEdges(KNode rootNode, IVariable edgesHashSet) {
-        edgesHashSet.getVariableByName("map").getVariablesByName("table").filter[e | e.valueIsNotNull].forEach[IVariable edge |
-            edge.getVariableByName("key.source")
-                .createEdge(edge.getVariableByName("key.target")) => [
+        edgesHashSet.getVariable("map").getVariables("table").filter[e | e.valueIsNotNull].forEach[IVariable edge |
+            edge.getVariable("key.source")
+                .createEdge(edge.getVariable("key.target")) => [
                 it.data += renderingFactory.createKPolyline => [
                     it.setLineWidth(2)
                     it.addArrowDecorator

@@ -44,9 +44,9 @@ class LNodeTransformation extends AbstractKNodeTransformation {
                 // Get the nodeType
                 val nodeType = node.nodeType
                 // Get the ports
-                val ports = node.getVariableByName("ports").linkedList
+                val ports = node.getVariable("ports").linkedList
                 // Get the labels
-                val labels = node.getVariableByName("labels").linkedList
+                val labels = node.getVariable("labels").linkedList
                 
                 var KContainerRendering container
                 
@@ -66,10 +66,10 @@ class LNodeTransformation extends AbstractKNodeTransformation {
                     container = renderingFactory.createKEllipse => [
                         if (nodeType == "NORTH_SOUTH_PORT") {
 	                    	it.children += renderingFactory.createKText => [
-                                val origin = node.getVariableByName("propertyMap").getValFromHashMap("origin")
+                                val origin = node.getVariable("propertyMap").getValFromHashMap("origin")
                                 if (origin.getType == "LNode") {
                                     it.children += renderingFactory.createKText => [
-                                        it.setText("Origin: " + origin.getVariableByName("labels").linkedList.get(0))
+                                        it.setText("Origin: " + origin.getVariable("labels").linkedList.get(0))
                                     ]   
                                 }
 	                        ]
@@ -93,7 +93,7 @@ class LNodeTransformation extends AbstractKNodeTransformation {
                         // no name given, so display the node id instead
                         it.setText("name (first label): -")
                     } else {
-                        it.setText("name (first label): " + labels.get(0).getValueByName("text"))
+                        it.setText("name (first label): " + labels.get(0).getValue("text"))
                     }
                 ]
                 
@@ -105,24 +105,24 @@ class LNodeTransformation extends AbstractKNodeTransformation {
 
                 //insets
                 container.children += renderingFactory.createKText => [
-                    it.text = "insets (b,l,r,t): (" + node.getValueByName("insets.bottom").round(1) + " x "
-								                    + node.getValueByName("insets.left").round(1) + " x "
-								                    + node.getValueByName("insets.right").round(1) + " x "
-								                    + node.getValueByName("insets.top").round(1) + ")" 
+                    it.text = "insets (b,l,r,t): (" + node.getValue("insets.bottom").round(1) + " x "
+								                    + node.getValue("insets.left").round(1) + " x "
+								                    + node.getValue("insets.right").round(1) + " x "
+								                    + node.getValue("insets.top").round(1) + ")" 
                 ]
                 
                 //TODO: labels
                 
                 //margin
                 container.children += renderingFactory.createKText => [
-                    it.text = "margin (b,l,r,t): (" + node.getValueByName("margin.bottom").round(1) + " x "
-								                    + node.getValueByName("margin.left").round(1) + " x "
-								                    + node.getValueByName("margin.right").round(1) + " x "
-								                    + node.getValueByName("margin.top").round(1) + ")" 
+                    it.text = "margin (b,l,r,t): (" + node.getValue("margin.bottom").round(1) + " x "
+								                    + node.getValue("margin.left").round(1) + " x "
+								                    + node.getValue("margin.right").round(1) + " x "
+								                    + node.getValue("margin.top").round(1) + ")" 
                 ]
                 //owner
                 container.children += renderingFactory.createKText => [
-                	it.text = "owner: layer(" + node.getValueByName("layer.id") + ")"
+                	it.text = "owner: layer(" + node.getValue("layer.id") + ")"
                 ]
                 //ports
                 //pos
@@ -180,11 +180,11 @@ class LNodeTransformation extends AbstractKNodeTransformation {
     }
     
     def getNodeType(IVariable node) {
-        val type = node.getVariableByName("propertyMap").getValFromHashMap("nodeType")
+        val type = node.getVariable("propertyMap").getValFromHashMap("nodeType")
         if (type == null) {
             return "NORMAL"
         } else {
-            return type.getValueByName("name")   
+            return type.getValue("name")   
         }
     }
 }

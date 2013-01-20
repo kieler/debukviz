@@ -43,7 +43,7 @@ class FGraphTransformation extends AbstractKNodeTransformation {
             it.createBendPoints(graph)
             it.createAdjacency(graph)
             it.createNodes(graph)
-            it.createEdges(graph.getVariableByName("edges"))
+            it.createEdges(graph.getVariable("edges"))
         ]
 
     }
@@ -77,7 +77,7 @@ class FGraphTransformation extends AbstractKNodeTransformation {
     }
 
     def createNodes(KNode rootNode, IVariable graph) {
-        val nodes = graph.getVariableByName("nodes")
+        val nodes = graph.getVariable("nodes")
 
         rootNode.children += nodes.createNode => [
             it.data += renderingFactory.createKRectangle => [
@@ -101,12 +101,12 @@ class FGraphTransformation extends AbstractKNodeTransformation {
     }
     
     def createBendPoints(KNode rootNode, IVariable graph) {
-        val bendPoints = graph.getVariableByName("bendPoints")
+        val bendPoints = graph.getVariable("bendPoints")
         rootNode.children += bendPoints.createNode => [
                 it.data += renderingFactory.createKRectangle() => [
                     it.lineWidth = 4
                 ]
-                if (Integer::parseInt(bendPoints.getValueByName("size")) > 0) {
+                if (Integer::parseInt(bendPoints.getValue("size")) > 0) {
                     // render the bendpoints
                     bendPoints.linkedList.forEach[IVariable bendPoint |
                         it.nextTransformation(bendPoint)
@@ -129,7 +129,7 @@ class FGraphTransformation extends AbstractKNodeTransformation {
     }
 
     def createAdjacency(KNode rootNode, IVariable graph){
-        val adjacency = graph.getVariableByName("adjacency")
+        val adjacency = graph.getVariable("adjacency")
         rootNode.children += adjacency.createNode => [
             // TODO: create an adjacency matrix
             it.setNodeSize(20,20)
@@ -151,7 +151,7 @@ class FGraphTransformation extends AbstractKNodeTransformation {
     
     def createEdges(KNode rootNode, IVariable edgesLinkedList) {
         edgesLinkedList.linkedList.forEach[IVariable edge |
-            edge.getVariableByName("source").createEdge(edge.getVariableByName("target")) => [
+            edge.getVariable("source").createEdge(edge.getVariable("target")) => [
                 it.data += renderingFactory.createKPolyline => [
                     it.setLineWidth(2)
                     it.addArrowDecorator

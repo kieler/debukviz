@@ -47,18 +47,18 @@ class FBendpointTransformation extends AbstractKNodeTransformation {
 
                     // associated edge
                     it.children += renderingFactory.createKText() => [
-                        it.text = "edge: (" + bendPoint.getValueByName("edge.source.label") + " -> " 
-                                            + bendPoint.getValueByName("edge.target.label") + ")" 
+                        it.text = "edge: (" + bendPoint.getValue("edge.source.label") + " -> " 
+                                            + bendPoint.getValue("edge.target.label") + ")" 
                     ]
 
                     it.children += renderingFactory.createKText() => [
-                        it.text = "position (x,y): (" + bendPoint.getValueByName("position.x").round(1) + " x " 
-                                                      + bendPoint.getValueByName("position.y").round(1) + ")" 
+                        it.text = "position (x,y): (" + bendPoint.getValue("position.x").round(1) + " x " 
+                                                      + bendPoint.getValue("position.y").round(1) + ")" 
                     ]
                     
                     it.children += renderingFactory.createKText() => [
-                        it.text = "size (x,y): (" + bendPoint.getValueByName("size.x").round(1) + " x " 
-                                                  + bendPoint.getValueByName("size.y").round(1) + ")" 
+                        it.text = "size (x,y): (" + bendPoint.getValue("size.x").round(1) + " x " 
+                                                  + bendPoint.getValue("size.y").round(1) + ")" 
                     ]
                 ]
             ]

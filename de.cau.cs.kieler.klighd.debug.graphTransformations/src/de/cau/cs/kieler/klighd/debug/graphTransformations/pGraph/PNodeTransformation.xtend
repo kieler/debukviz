@@ -47,7 +47,7 @@ class PNodeTransformation extends AbstractKNodeTransformation {
     
                 // comments at PNode.writeDotGraph is not consistent to the code in the method
                 // here I am following the display style implemented
-                switch node.getValueByName("type.name") {
+                switch node.getValue("type.name") {
                     case "NORMAL" : {
                         // Normal nodes are represented by an ellipse
                         container = renderingFactory.createKEllipse

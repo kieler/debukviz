@@ -40,8 +40,8 @@ class LGraphTransformation extends AbstractKNodeTransformation {
       		it.createPropertyMap(graph)
       		it.createAllNodes(graph)
 
-      		it.createEdges(graph.getVariableByName("layerlessNodes"))
-      		graph.getVariableByName("layers").linkedList.forEach[IVariable layer |
+      		it.createEdges(graph.getVariable("layerlessNodes"))
+      		graph.getVariable("layers").linkedList.forEach[IVariable layer |
       			it.createEdges(layer)	
       		]
         ]
@@ -71,7 +71,7 @@ class LGraphTransformation extends AbstractKNodeTransformation {
     			
     			// hashCodeCounter of graph
     			it.children += renderingFactory.createKText => [
-                    it.text = "hashCodeCounter: " + graph.getValueByName("hashCodeCounter.count")
+                    it.text = "hashCodeCounter: " + graph.getValue("hashCodeCounter.count")
               	]
               	
               	// id of graph
@@ -79,22 +79,22 @@ class LGraphTransformation extends AbstractKNodeTransformation {
               	
               	// size of graph
                 it.children += renderingFactory.createKText => [
-                    it.text = "size (x,y): (" + graph.getValueByName("size.x").round(1) + " x " 
-                                              + graph.getValueByName("size.y").round(1) + ")" 
+                    it.text = "size (x,y): (" + graph.getValue("size.x").round(1) + " x " 
+                                              + graph.getValue("size.y").round(1) + ")" 
                 ]
     			
     			// insets of graph
     			it.children += renderingFactory.createKText => [
-                	it.text = "insets (t,r,b,l): (" + graph.getValueByName("insets.top").round(1) + " x "
-                	                                + graph.getValueByName("insets.right").round(1) + " x "
-                	                                + graph.getValueByName("insets.bottom").round(1) + " x "
-                	                                + graph.getValueByName("insets.left").round(1) + ")"
+                	it.text = "insets (t,r,b,l): (" + graph.getValue("insets.top").round(1) + " x "
+                	                                + graph.getValue("insets.right").round(1) + " x "
+                	                                + graph.getValue("insets.bottom").round(1) + " x "
+                	                                + graph.getValue("insets.left").round(1) + ")"
             	]
     			
     			// offset of graph
     			it.children += renderingFactory.createKText => [
-                	it.text = "offset (x,y): (" + graph.getValueByName("offset.x").round(1) + " x "
-                	                            + graph.getValueByName("offset.y").round(1) + ")"
+                	it.text = "offset (x,y): (" + graph.getValue("offset.x").round(1) + " x "
+                	                            + graph.getValue("offset.y").round(1) + ")"
             	]
             ]
 		]
@@ -104,13 +104,13 @@ class LGraphTransformation extends AbstractKNodeTransformation {
 	def createAllNodes(KNode rootNode, IVariable graph) {
 		// the node has to be registered to a specific object.
 		// we are using the layerlessNodes element here
-		val dummy = graph.getVariableByName("layerlessNodes")
+		val dummy = graph.getVariable("layerlessNodes")
         rootNode.children += dummy.createNode => [
             it.data += renderingFactory.createKRectangle => [
                 it.lineWidth = 4
             ]
-	  		it.createLayerlessNodes(graph.getVariableByName("layerlessNodes"))
-	  		it.createLayeredNodes(graph.getVariableByName("layers"))
+	  		it.createLayerlessNodes(graph.getVariable("layerlessNodes"))
+	  		it.createLayeredNodes(graph.getVariable("layers"))
   		]
   		
 	    // create edge from graph to propertyMap
@@ -135,7 +135,7 @@ class LGraphTransformation extends AbstractKNodeTransformation {
 	def createLayeredNodes(KNode rootNode, IVariable layers) {
 		var i = 0
 		for (layer : layers.linkedList) {
-			for (node : layer.getVariableByName("nodes").linkedList)
+			for (node : layer.getVariable("nodes").linkedList)
             	rootNode.nextTransformation(node, i)
 			i = i+1
 		}
@@ -143,10 +143,10 @@ class LGraphTransformation extends AbstractKNodeTransformation {
 
     def createEdges(KNode rootNode, IVariable layer) {
         layer.linkedList.forEach[IVariable node |
-        	node.getVariableByName("ports").linkedList.forEach[IVariable port |
-        		port.getVariableByName("outgoingEdges").linkedList.forEach[IVariable edge |
-                    edge.getVariableByName("source.owner")
-                        .createEdge(edge.getVariableByName("target.owner")) => [
+        	node.getVariable("ports").linkedList.forEach[IVariable port |
+        		port.getVariable("outgoingEdges").linkedList.forEach[IVariable edge |
+                    edge.getVariable("source.owner")
+                        .createEdge(edge.getVariable("target.owner")) => [
         				it.data += renderingFactory.createKPolyline => [
 	            		    it.setLineWidth(2)
                             it.addArrowDecorator
@@ -164,16 +164,16 @@ class LGraphTransformation extends AbstractKNodeTransformation {
     }
     
     def getEdgeType(IVariable edge) {
-    	val type = edge.getVariableByName("propertyMap").getValFromHashMap("EDGE_TYPE")
+    	val type = edge.getVariable("propertyMap").getValFromHashMap("EDGE_TYPE")
     	if (type == null) {
 	        return "NORMAL"
     	} else {
-	        return type.getValueByName("name")   
+	        return type.getValue("name")   
     	}
     }
     
     def createPropertyMap(KNode rootNode,IVariable propertyMapHolder) {
-    	val propertyMap = propertyMapHolder.getVariableByName("propertyMap")
+    	val propertyMap = propertyMapHolder.getVariable("propertyMap")
     	
     	// create propertyMap node
         rootNode.children += propertyMap.createNode => [
@@ -188,9 +188,9 @@ class LGraphTransformation extends AbstractKNodeTransformation {
                 ]
 
                 // add all non null properties
-                propertyMap.getVariablesByName("table").filter[e | e.valueIsNotNull].forEach[IVariable property |
+                propertyMap.getVariables("table").filter[e | e.valueIsNotNull].forEach[IVariable property |
 	                it.children += renderingFactory.createKText => [
-	                    it.text = property.getValueByName("key.id") + ": " + property.getValueByName("key")
+	                    it.text = property.getValue("key.id") + ": " + property.getValue("key")
 	                ]
                 ]
             ]
