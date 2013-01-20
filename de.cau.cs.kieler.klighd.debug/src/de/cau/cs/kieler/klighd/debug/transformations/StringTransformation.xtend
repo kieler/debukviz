@@ -13,7 +13,7 @@ import org.eclipse.debug.core.model.IVariable
 
 import static de.cau.cs.kieler.klighd.debug.transformations.ObjectValueTransformation.*
 
-class ObjectValueTransformation extends AbstractDebugTransformation {
+class StringTransformation extends AbstractDebugTransformation {
    
     @Inject
     extension KNodeExtensions
@@ -25,7 +25,7 @@ class ObjectValueTransformation extends AbstractDebugTransformation {
     override transform(IVariable model) {
         return 
         KimlUtil::createInitializedNode() => [
-            it.children += it.createValueNode(model,getValueText(model.type,model.getValue("value")))
+            it.children += it.createValueNode(model,getValueText(model.type,model.value.valueString))
         ]
     }
     

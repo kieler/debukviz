@@ -20,8 +20,8 @@ class BitSetTransformation extends AbstractDebugTransformation {
     
     override transform(IVariable model) {
         return KimlUtil::createInitializedNode() => [
-            model.getVariablesByName("words").forEach[IVariable variable |
-                bitString = bitString + Integer::toBinaryString(Integer::parseInt(variable.getValueByName("")))
+            model.getVariables("words").forEach[IVariable variable |
+                bitString = bitString + Integer::toBinaryString(Integer::parseInt(variable.value.valueString))
             ]
             it.children += createNode() => [
                 it.data += renderingFactory.createKRectangle() => [
@@ -32,7 +32,7 @@ class BitSetTransformation extends AbstractDebugTransformation {
                     ]
                     
                     it.children += renderingFactory.createKText() => [
-                                it.text = "Words in use: "+model.getValueByName("wordsInUse")
+                                it.text = "Words in use: "+model.getValue("wordsInUse")
                     ]
                     it.children += renderingFactory.createKText() => [
                                 it.text = bitString

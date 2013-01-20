@@ -26,7 +26,7 @@ class LinkedHashSetTransformation extends AbstractDebugTransformation {
             it.addLayoutParam(LayoutOptions::ALGORITHM, "de.cau.cs.kieler.klay.layered")
             it.addLayoutParam(LayoutOptions::SPACING, 75f)
             it.addLayoutParam(LayoutOptions::DIRECTION, Direction::UP)
-            model.getVariablesByName("map.table").filter[variable | variable.valueIsNotNull].forEach[
+            model.getVariables("map.table").filter[variable | variable.valueIsNotNull].forEach[
                 IVariable variable | 
                	it.children += variable.key.createNode() => [
                		it.nextTransformation(variable.key)
@@ -43,10 +43,10 @@ class LinkedHashSetTransformation extends AbstractDebugTransformation {
     }
     
     def getBeforeKey(IVariable variable) {
-        variable.getVariableByName("before.key")
+        variable.getVariable("before.key")
     }
     
     def getKey(IVariable variable) {
-        variable.getVariableByName("key")
+        variable.getVariable("key")
     }
 }

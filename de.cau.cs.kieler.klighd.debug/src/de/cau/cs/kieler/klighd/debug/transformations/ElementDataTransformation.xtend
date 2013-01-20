@@ -12,7 +12,7 @@ import org.eclipse.debug.core.model.IVariable
 
 import static de.cau.cs.kieler.klighd.debug.visualization.AbstractDebugTransformation.*
 
-class ArrayListTransformation extends AbstractDebugTransformation {
+class ElementDataTransformation extends AbstractDebugTransformation {
     
     @Inject
     extension KNodeExtensions 
@@ -30,7 +30,7 @@ class ArrayListTransformation extends AbstractDebugTransformation {
             it.addLayoutParam(LayoutOptions::SPACING, 75f)
             it.addLayoutParam(LayoutOptions::DIRECTION, Direction::UP)
             
-            model.getVariablesByName("elementData").filter[variable | variable.valueIsNotNull].forEach[
+            model.getVariables("elementData").filter[variable | variable.valueIsNotNull].forEach[
                 IVariable variable |
                     it.children += variable.createNode() => [
                     	it.addLabel(""+index)

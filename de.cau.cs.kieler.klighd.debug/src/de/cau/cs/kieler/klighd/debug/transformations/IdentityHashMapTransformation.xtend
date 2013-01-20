@@ -28,7 +28,7 @@ class IdentityHashMapTransformation extends AbstractDebugTransformation {
             it.addLayoutParam(LayoutOptions::SPACING, 75f)
             it.addLayoutParam(LayoutOptions::DIRECTION, Direction::UP)
             var index = 0
-            val IVariable[] table = model.getVariablesByName("table").filter[variable | variable.valueIsNotNull]
+            val IVariable[] table = model.getVariables("table").filter[variable | variable.valueIsNotNull]
             println(table.size)
             while (index < table.size) {
             	var IVariable key = table.get(index)

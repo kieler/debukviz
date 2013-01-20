@@ -27,15 +27,15 @@ class WeakHashMapTransformation extends AbstractDebugTransformation {
             it.addLayoutParam(LayoutOptions::ALGORITHM, "de.cau.cs.kieler.klay.layered")
             it.addLayoutParam(LayoutOptions::SPACING, 100f)
             it.addLayoutParam(LayoutOptions::DIRECTION, Direction::UP)
-            model.getVariablesByName("table").filter[variable | variable.valueIsNotNull].forEach[
+            model.getVariables("table").filter[variable | variable.valueIsNotNull].forEach[
                 IVariable variable | it.createKeyValueNode(variable)
             ]
         ]
     }
     
     def createKeyValueNode(KNode node, IVariable variable) {
-       val key = variable.getVariableByName("referent")
-       val value = variable.getVariableByName("value")
+       val key = variable.getVariable("referent")
+       val value = variable.getVariable("value")
        node.createInnerNode(key,"Key:")
        node.createInnerNode(value,"Value:")
        key.createEdge(value) => [
