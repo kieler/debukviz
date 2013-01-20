@@ -1,0 +1,8 @@
+- FGraph hat kaum Dokumentation, weder im confluence, noch im source:
+    - was ist der parent, child?
+    - was bedeuten die zahlenwerte in der adjazenzmatrix?
+
+- gut wären ein paar einfache beispiele: 
+    - wie kann ich (überhaupt?) die position eines knotens festlegen?
+    - wie ändere ich fordergrund/hintergrundfarbe
+    

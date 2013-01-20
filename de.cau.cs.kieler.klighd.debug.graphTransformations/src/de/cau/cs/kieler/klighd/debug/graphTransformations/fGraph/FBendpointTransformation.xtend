@@ -30,12 +30,12 @@ class FBendpointTransformation extends AbstractKNodeTransformation {
             it.addLayoutParam(LayoutOptions::SPACING, 75f)
             
             it.children += bendPoint.createNode => [
-                it.setNodeSize(120,80)
+//                it.setNodeSize(120,80)
                 
 //                it.addLayoutParam(LayoutOptions::LABEL_SPACING, 75f)
 //                it.addLayoutParam(LayoutOptions::SPACING, 75f)
                 
-                it.data += renderingFactory.createKRectangle => [
+                it.data += renderingFactory.createKEllipse => [
                     it.lineWidth = 2
                     it.ChildPlacement = renderingFactory.createKGridPlacement()
                     

@@ -40,7 +40,7 @@ class FNodeTransformation extends AbstractKNodeTransformation {
             it.addLayoutParam(LayoutOptions::SPACING, 75f)
             
             it.children += node.createNode() => [
-                it.setNodeSize(120,80)
+//                it.setNodeSize(120,80)
                 
 //                it.addLayoutParam(LayoutOptions::LABEL_SPACING, 75f)
 //                it.addLayoutParam(LayoutOptions::SPACING, 75f)
