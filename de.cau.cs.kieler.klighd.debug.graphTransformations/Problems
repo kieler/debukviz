@@ -5,4 +5,6 @@
 - gut wären ein paar einfache beispiele: 
     - wie kann ich (überhaupt?) die position eines knotens festlegen?
     - wie ändere ich fordergrund/hintergrundfarbe
-    
+
+- PGraph
+    - wie kann ich ein PFace erzeugen?    

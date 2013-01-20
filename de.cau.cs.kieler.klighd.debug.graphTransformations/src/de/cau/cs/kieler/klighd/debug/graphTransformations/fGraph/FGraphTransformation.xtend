@@ -46,7 +46,6 @@ class FGraphTransformation extends AbstractKNodeTransformation {
             it.createHeaderNode(graph)
             val graphNode = it.createNodes(graph)
             graphNode.createEdges(graph.getVariable("edges"), graph.getVariable("adjacency"))
-//            graphNode.createAdjacency(graph)
         ]
 
     }
@@ -97,8 +96,8 @@ class FGraphTransformation extends AbstractKNodeTransformation {
                 it.lineWidth = 4
             ]
             it.addLabel("Graph visualization")
+            // create all nodes
             nodes.linkedList.forEach[IVariable node |
-            	setTransformationInfo()
                 it.nextTransformation(node)
             ]
         ]
@@ -114,43 +113,27 @@ class FGraphTransformation extends AbstractKNodeTransformation {
         return newNode
     }
     
-    def createAdjacency(KNode rootNode, IVariable graph){
-        val adjacency = graph.getVariable("adjacency")
-        rootNode.children += adjacency.createNode => [
-            // TODO: create an adjacency matrix
-            it.setNodeSize(20,20)
-            it.data += renderingFactory.createKRectangle() => [
-                it.lineWidth = 4
-            ]
-        ]
-        graph.createEdge(adjacency) => [
-            it.data += renderingFactory.createKPolyline => [
-                it.setLineWidth(2)
-                it.addArrowDecorator
-                it.setLineStyle(LineStyle::SOLID)
-            ]
-            KimlUtil::createInitializedLabel(it) => [
-                it.setText("adjacency")
-            ]
-        ]
-    } 
-    
     def createEdges(KNode rootNode, IVariable edgesLinkedList, IVariable adjacency) {
         edgesLinkedList.linkedList.forEach[IVariable edge |
+            
+            // get the bendPoints assigned to the edge
             val bendPoints = edge.getVariable("bendpoints")
             val bendCount = Integer::parseInt(bendPoints.getValue("size"))
             
+            // IVariables the edge has to connect
             val source = edge.getVariable("source")
             var target = edge.getVariable("target")
+            
+            // IDs of the Nodes to be connected. Needed for Adjacency
             val sourceID = Integer::parseInt(source.getValue("id"))
             val targetID = Integer::parseInt(target.getValue("id"))
             
             // create bendPoint nodes
             if(bendCount > 0) {
                 if(bendCount > 1) {
-                    // more than one bendpoint: create a node containing bendpoints
+                    // more than one bendpoint: create a node containing bendPoints
                     rootNode.children += bendPoints.createNode => [
-                        // create container node 
+                        // create container rectangle 
                         it.data += renderingFactory.createKRectangle() => [
                             it.lineWidth = 4
                         ]
@@ -167,7 +150,7 @@ class FGraphTransformation extends AbstractKNodeTransformation {
                                 it.setLineStyle(LineStyle::SOLID)
                             ];
                         ]
-                        // set target for the "default" edge to the new created node
+                        // set target for the "default" edge to the new created container node
                         target = bendPoints  
                     
                 } else {
