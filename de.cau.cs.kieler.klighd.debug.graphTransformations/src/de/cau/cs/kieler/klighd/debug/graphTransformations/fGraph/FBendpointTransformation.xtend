@@ -29,7 +29,7 @@ class FBendpointTransformation extends AbstractKNodeTransformation {
             it.addLayoutParam(LayoutOptions::ALGORITHM, "de.cau.cs.kieler.klay.layered")
             it.addLayoutParam(LayoutOptions::SPACING, 75f)
             
-            it.children += bendPoint.createNode => [
+            it.children += bendPoint.createNodeById => [
 //                it.setNodeSize(120,80)
                 
 //                it.addLayoutParam(LayoutOptions::LABEL_SPACING, 75f)

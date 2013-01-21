@@ -8,3 +8,9 @@
 
 - PGraph
     - wie kann ich ein PFace erzeugen?    
+    
+    
+Offenes Problem:
+	- wie Knotenzahl beschränken?
+	- evtl in KlighD? (Wir sind nur "eine" Transformation für KlighD)
+	

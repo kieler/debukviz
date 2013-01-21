@@ -39,8 +39,8 @@ class FGraphTransformation extends AbstractKNodeTransformation {
      */
     override transform(IVariable graph) {
         return KimlUtil::createInitializedNode=> [
-//            it.addLayoutParam(LayoutOptions::ALGORITHM, "de.cau.cs.kieler.klay.layered")
-            it.addLayoutParam(LayoutOptions::ALGORITHM, "de.cau.cs.kieler.graphviz.dot")
+            it.addLayoutParam(LayoutOptions::ALGORITHM, "de.cau.cs.kieler.klay.layered")
+//            it.addLayoutParam(LayoutOptions::ALGORITHM, "de.cau.cs.kieler.graphviz.dot")
             it.addLayoutParam(LayoutOptions::SPACING, 75f)
             
             it.createHeaderNode(graph)
@@ -51,7 +51,7 @@ class FGraphTransformation extends AbstractKNodeTransformation {
     }
     
     def createHeaderNode(KNode rootNode, IVariable graph) {
-        rootNode.children += graph.createNode => [
+        rootNode.children += graph.createNodeById => [
 //          it.setNodeSize(120,80)
             it.data += renderingFactory.createKRectangle => [
                 it.lineWidth = 4
@@ -91,7 +91,7 @@ class FGraphTransformation extends AbstractKNodeTransformation {
         val nodes = graph.getVariable("nodes")
 
         // create outer nodes rectangle
-        val KNode newNode = nodes.createNode => [
+        val KNode newNode = nodes.createNodeById => [
             it.data += renderingFactory.createKRectangle => [
                 it.lineWidth = 4
             ]
@@ -102,7 +102,7 @@ class FGraphTransformation extends AbstractKNodeTransformation {
             ]
         ]
         // create edge from root node to the nodes node
-        graph.createEdge(nodes) => [
+        graph.createEdgeById(nodes) => [
             it.data += renderingFactory.createKPolyline => [
                 it.setLineWidth(2)
                 it.addArrowDecorator
@@ -132,7 +132,7 @@ class FGraphTransformation extends AbstractKNodeTransformation {
             if(bendCount > 0) {
                 if(bendCount > 1) {
                     // more than one bendpoint: create a node containing bendPoints
-                    rootNode.children += bendPoints.createNode => [
+                    rootNode.children += bendPoints.createNodeById => [
                         // create container rectangle 
                         it.data += renderingFactory.createKRectangle() => [
                             it.lineWidth = 4
@@ -158,7 +158,7 @@ class FGraphTransformation extends AbstractKNodeTransformation {
                     val bendPoint = bendPoints.linkedList.get(0)
                     rootNode.nextTransformation(bendPoint)
                     // create the edge from the new created node to the target node
-                    bendPoint.createEdge(target) => [
+                    bendPoint.createEdgeById(target) => [
                         it.data += renderingFactory.createKPolyline => [
                             it.setLineWidth(2)
                             it.addInheritanceTriangleArrowDecorator
@@ -170,14 +170,14 @@ class FGraphTransformation extends AbstractKNodeTransformation {
                 }
             }
             // create first edge, either from source to new or target node
-            source.createEdge(target) => [
+            source.createEdgeById(target) => [
                 it.data += renderingFactory.createKPolyline => [
                     it.setLineWidth(2)
                     it.addArrowDecorator
                     it.setLineStyle(LineStyle::SOLID)
                 ]
                 // add labels 
-                edge.getVariables("labels").forEach[IVariable label |
+                edge.getVariable("labels").linkedList.forEach[IVariable label |
                     it.addLabel(label.getValue("text"))
                 ]
                 // add label with adjacency value

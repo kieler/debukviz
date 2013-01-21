@@ -39,7 +39,7 @@ class FNodeTransformation extends AbstractKNodeTransformation {
             it.addLayoutParam(LayoutOptions::ALGORITHM, "de.cau.cs.kieler.klay.layered")
             it.addLayoutParam(LayoutOptions::SPACING, 75f)
             
-            it.children += node.createNode() => [
+            it.children += node.createNodeById => [
 //                it.setNodeSize(120,80)
                 
 //                it.addLayoutParam(LayoutOptions::LABEL_SPACING, 75f)

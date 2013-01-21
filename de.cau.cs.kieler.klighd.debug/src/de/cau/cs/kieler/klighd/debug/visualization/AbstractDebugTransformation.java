@@ -1,30 +1,31 @@
 package de.cau.cs.kieler.klighd.debug.visualization;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedList;
-import java.util.List;
 
 import javax.inject.Inject;
 
 import org.eclipse.debug.core.DebugException;
+import org.eclipse.debug.core.model.IValue;
 import org.eclipse.debug.core.model.IVariable;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.jdt.debug.core.IJavaObject;
+import org.eclipse.jdt.debug.core.IJavaPrimitiveValue;
 import org.eclipse.jdt.debug.core.IJavaValue;
 
 import de.cau.cs.kieler.core.kgraph.KEdge;
 import de.cau.cs.kieler.core.kgraph.KLabel;
 import de.cau.cs.kieler.core.kgraph.KLabeledGraphElement;
 import de.cau.cs.kieler.core.kgraph.KNode;
-import de.cau.cs.kieler.core.krendering.KRectangle;
 import de.cau.cs.kieler.core.krendering.KRenderingFactory;
 import de.cau.cs.kieler.core.krendering.KText;
 import de.cau.cs.kieler.core.krendering.extensions.KEdgeExtensions;
 import de.cau.cs.kieler.core.krendering.extensions.KNodeExtensions;
-import de.cau.cs.kieler.core.krendering.extensions.KRenderingExtensions;
 import de.cau.cs.kieler.core.util.Pair;
+import de.cau.cs.kieler.kiml.klayoutdata.KShapeLayout;
+import de.cau.cs.kieler.kiml.options.EdgeLabelPlacement;
+import de.cau.cs.kieler.kiml.options.LayoutOptions;
 import de.cau.cs.kieler.kiml.util.KimlUtil;
 import de.cau.cs.kieler.klighd.TransformationContext;
 import de.cau.cs.kieler.klighd.debug.IKlighdDebug;
@@ -38,14 +39,14 @@ public abstract class AbstractDebugTransformation extends AbstractTransformation
     private KEdgeExtensions kEdgeExtensions = new KEdgeExtensions();
     @Inject
     private KNodeExtensions kNodeExtensions = new KNodeExtensions();
-
+    
     protected static final KRenderingFactory renderingFactory = KRenderingFactory.eINSTANCE;
 
     private Object transformationInfo;
     private static final HashMap<Long, KNode> kNodeMap = new HashMap<Long, KNode>();
     private static Integer depth = 0;
     private static Integer nodeCount = 0;
-    private static Integer maxDepth = 5;
+    private static Integer maxDepth = 20;
 
     public Object getTransformationInfo() {
         return transformationInfo;
@@ -64,7 +65,7 @@ public abstract class AbstractDebugTransformation extends AbstractTransformation
     }
     
     public static void resetMaxDepth() {
-        maxDepth = 5;
+        maxDepth = 20;
     }
 
     public KNode nextTransformation(KNode rootNode, IVariable variable) throws DebugException {
@@ -145,8 +146,8 @@ public abstract class AbstractDebugTransformation extends AbstractTransformation
             boolean superF = false;
             if (fieldName.equals(lastFieldName))
                 superF = superField;
-            IJavaObject value = (IJavaObject) variable.getValue();
-            variable = (IVariable) value.getField(fieldName, superF);
+            IJavaObject javaObject = (IJavaObject) variable.getValue();
+            variable = (IVariable) javaObject.getField(fieldName, superF);
         }
         return variable;
     }
@@ -194,6 +195,12 @@ public abstract class AbstractDebugTransformation extends AbstractTransformation
     public KLabel addLabel(KLabeledGraphElement node, String label) {
         KLabel kLabel = KimlUtil.createInitializedLabel(node);
         kLabel.setText(label);
+        
+        KShapeLayout shapeLayout = kLabel.getData(KShapeLayout.class);
+        shapeLayout.setProperty(LayoutOptions.EDGE_LABEL_PLACEMENT, EdgeLabelPlacement.CENTER);
+        shapeLayout.setWidth(60.0f);
+        shapeLayout.setHeight(50.0f);
+        
         node.getLabels().add(kLabel);
         return kLabel;
     }
