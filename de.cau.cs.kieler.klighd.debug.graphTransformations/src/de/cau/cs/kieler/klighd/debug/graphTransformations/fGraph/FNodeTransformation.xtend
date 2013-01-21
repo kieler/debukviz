@@ -40,7 +40,7 @@ class FNodeTransformation extends AbstractKNodeTransformation {
             it.addLayoutParam(LayoutOptions::SPACING, 75f)
             
             it.children += node.createNode() => [
-                it.setNodeSize(120,80)
+//                it.setNodeSize(120,80)
                 
 //                it.addLayoutParam(LayoutOptions::LABEL_SPACING, 75f)
 //                it.addLayoutParam(LayoutOptions::SPACING, 75f)
@@ -54,25 +54,29 @@ class FNodeTransformation extends AbstractKNodeTransformation {
                         it.setForegroundColor(120,120,120)
                         it.text = node.ShortType
                     ]
-
+                    
+                    // id of node
                     it.children += node.createKText("id", "", ": ")
+                    // label of node (there is only one)
                     it.children += node.createKText("label", "", ": ")
                     
+                    // displacement
                     it.children += renderingFactory.createKText() => [
-                        it.text = "displacement (x,y): (" + node.getValueByName("displacement.x").round(1) + " x " 
-                                                          + node.getValueByName("displacement.y").round(1) + ")" 
+                        it.text = "displacement (x,y): (" + node.getValue("displacement.x").round(1) + " x " 
+                                                          + node.getValue("displacement.y").round(1) + ")" 
                     ]
                     
+                    // position
                     it.children += renderingFactory.createKText() => [
-                        it.text = "position (x,y): (" + node.getValueByName("position.x").round(1) + " x " 
-                                                      + node.getValueByName("position.y").round(1) + ")" 
+                        it.text = "position (x,y): (" + node.getValue("position.x").round(1) + " x " 
+                                                      + node.getValue("position.y").round(1) + ")" 
                     ]
                     
+                    // size
                     it.children += renderingFactory.createKText() => [
-                        it.text = "size (x,y): (" + node.getValueByName("size.x").round(1) + " x " 
-                                                  + node.getValueByName("size.y").round(1) + ")" 
+                        it.text = "size (x,y): (" + node.getValue("size.x").round(1) + " x " 
+                                                  + node.getValue("size.y").round(1) + ")" 
                     ]
-                    
                 ]
             ]
         ]

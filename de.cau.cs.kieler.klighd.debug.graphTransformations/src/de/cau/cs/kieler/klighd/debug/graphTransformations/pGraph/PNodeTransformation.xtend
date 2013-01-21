@@ -39,15 +39,12 @@ class PNodeTransformation extends AbstractKNodeTransformation {
             it.addLayoutParam(LayoutOptions::SPACING, 75f)
             
             it.children += node.createNode => [
-                it.setNodeSize(120,80)
-//                it.addLayoutParam(LayoutOptions::LABEL_SPACING, 75f)
-//                it.addLayoutParam(LayoutOptions::SPACING, 75f)
-                
+                // either an ellipse or a rectangle
                 var KContainerRendering container
     
                 // comments at PNode.writeDotGraph is not consistent to the code in the method
                 // here I am following the display style implemented
-                switch node.getValueByName("type.name") {
+                switch node.getValue("type.name") {
                     case "NORMAL" : {
                         // Normal nodes are represented by an ellipse
                         container = renderingFactory.createKEllipse
@@ -76,11 +73,20 @@ class PNodeTransformation extends AbstractKNodeTransformation {
                 ]
                                         
                 // PNodes don't have a name or labels
-                // ID of node
+                // id of node
                 container.children += node.createKText("id", "", ": ")
                 
-                // TODO: maybe include the "origin" property, as the name of the original node is
-                // only given there
+                // position
+                container.children += renderingFactory.createKText() => [
+                    it.text = "position (x,y): (" + node.getValue("pos.x").round(1) + " x " 
+                                                  + node.getValue("pos.y").round(1) + ")" 
+                ]
+                
+                // size
+                container.children += renderingFactory.createKText() => [
+                    it.text = "size (x,y): (" + node.getValue("size.x").round(1) + " x " 
+                                              + node.getValue("size.y").round(1) + ")" 
+                ]
                 
                 it.data += container
             ]
