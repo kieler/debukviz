@@ -12,12 +12,12 @@ import de.cau.cs.kieler.klighd.debug.visualization.AbstractDebugTransformation
 import java.util.LinkedList
 import javax.inject.Inject
 import org.eclipse.debug.core.model.IVariable
-
-import static de.cau.cs.kieler.klighd.debug.visualization.AbstractDebugTransformation.*
-import org.eclipse.jdt.debug.core.IJavaPrimitiveValue
-import org.eclipse.jdt.debug.core.IJavaValue
 import org.eclipse.jdt.debug.core.IJavaArray
 import org.eclipse.jdt.debug.core.IJavaObject
+import org.eclipse.jdt.debug.core.IJavaPrimitiveValue
+import org.eclipse.jdt.debug.core.IJavaValue
+
+import static de.cau.cs.kieler.klighd.debug.visualization.AbstractDebugTransformation.*
 
 class DefaultTransformation extends AbstractDebugTransformation {
        
@@ -34,7 +34,7 @@ class DefaultTransformation extends AbstractDebugTransformation {
         return KimlUtil::createInitializedNode() => [
             it.addLayoutParam(LayoutOptions::ALGORITHM, "de.cau.cs.kieler.klay.layered");
             it.addLayoutParam(LayoutOptions::SPACING, 75f);
-            it.addLayoutParam(LayoutOptions::DIRECTION, Direction::UP);
+            it.addLayoutParam(LayoutOptions::DIRECTION, Direction::RIGHT);
             val value = model.value
             // Array
             if (value instanceof IJavaArray)
@@ -50,21 +50,23 @@ class DefaultTransformation extends AbstractDebugTransformation {
             		val value_ = variable.value
             		// TODO: handle primitive types and null values
             		if (value_ instanceof IJavaObject) {
-            			val id = (value_ as IJavaObject).uniqueId
-            			it.children += it.createObjectNode(variable,id)	
+            			it.children += it.createObjectNode(variable)	
             		}
             	]
             }   
         ]
     }
     
-    def KNode createObjectNode(KNode node, IVariable variable, Long id) {
-    	
+    def KNode createObjectNode(KNode node, IVariable variable) {
+    	variable.createNodeById() => [
+    	    it.addLabel(variable.name)
+    	    it.nextTransformation(variable)
+    	]
     }
     
     def KNode arrayTransform(KNode node, IVariable choice) {
             if (choice.value instanceof IJavaArray) {
-	            val result = choice.createNode() => [
+	            val result = choice.getNode() => [
 	         		it.setNodeSize(80,80);
 	            	it.data += renderingFactory.createKRectangle() => [
 	                	it.childPlacement = renderingFactory.createKGridPlacement()
@@ -78,11 +80,11 @@ class DefaultTransformation extends AbstractDebugTransformation {
                 	IVariable variable |
                 	node.children += node.arrayTransform(variable)
                 	choice.createEdge(variable) => [
-                		it.data += renderingFactory.createKPolyline() => [
-                    		it.setLineWidth(2)
-                    		it.addArrowDecorator();
-            			]
-            		]
+    	                it.data += renderingFactory.createKPolyline() => [
+                            it.setLineWidth(2)
+                            it.addArrowDecorator()
+                        ]
+                	]
                 ]                       
             return result
         } else {
@@ -117,5 +119,5 @@ class DefaultTransformation extends AbstractDebugTransformation {
                 it.text = value
             ]
         ]
-    }     
+    }    
 }

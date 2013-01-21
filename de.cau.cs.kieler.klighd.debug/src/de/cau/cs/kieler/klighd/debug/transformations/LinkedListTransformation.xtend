@@ -38,7 +38,7 @@ class LinkedListTransformation extends AbstractDebugTransformation {
       		it.createHeaderNode(variable)
             val header = variable.getVariable("header")
             val last = it.createChildNode(header)
-            last.element.createEdge(header.element) => [
+            last.createEdgeById(header) => [
                 it.data += renderingFactory.createKPolyline() => [
                     it.setLineWidth(2)
                     it.addArrowDecorator();
@@ -49,7 +49,7 @@ class LinkedListTransformation extends AbstractDebugTransformation {
 
   	def createHeaderNode(KNode rootNode, IVariable variable) {
     	var IVariable header = variable.getVariable("header")
-    	rootNode.children += header.element.createNode() => [
+    	rootNode.children += header.createNodeById() => [
     		it.setNodeSize(120,80)
     		it.data += renderingFactory.createKRectangle() => [
     			it.lineWidth = 4
@@ -66,18 +66,13 @@ class LinkedListTransformation extends AbstractDebugTransformation {
             	]
     		]
     	]
-    }
-    
-    def IVariable getElement(IVariable variable) {
-        return variable.getVariable("element");
-    }
-    
+    }    
     
     def IVariable createChildNode(KNode rootNode, IVariable parent){
        var next = parent.getVariable("next")
-       if (!next.element.nodeExists) {
+       if (!next.nodeExists) {
             rootNode.createInternalNode(next)
-            parent.element.createEdge(next.element) => [
+            parent.createEdgeById(next) => [
                 it.data += renderingFactory.createKPolyline() => [
                     it.setLineWidth(2)
                     it.addArrowDecorator();
@@ -90,10 +85,6 @@ class LinkedListTransformation extends AbstractDebugTransformation {
     }
     
     def createInternalNode(KNode rootNode, IVariable next) {
-        rootNode.children += next.element.createNode() => [
-            it.addLabel(""+index)
-            index = index + 1
-            it.nextTransformation(next)
-        ]
+        rootNode.nextTransformation(next)
     }
 }

@@ -28,7 +28,11 @@ class KeyValueTransformation extends AbstractDebugTransformation {
             it.addLayoutParam(LayoutOptions::SPACING, 75f)
             it.addLayoutParam(LayoutOptions::DIRECTION, Direction::UP)
             model.getVariables("table").filter[variable | variable.valueIsNotNull].forEach[
-                IVariable variable | it.createKeyValueNode(variable)
+                IVariable variable | 
+                    it.createKeyValueNode(variable)
+                    val next = variable.getVariable("next");
+                    if (next.valueIsNotNull)
+                        it.createKeyValueNode(next)
             ]
         ]
     }

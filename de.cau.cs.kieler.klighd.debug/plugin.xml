@@ -59,7 +59,7 @@
       </visualization>
       <visualization
             class="java.util.ArrayList"
-            transformation="de.cau.cs.kieler.klighd.debug.transformations.ElementDataTransformation">
+            transformation="de.cau.cs.kieler.klighd.debug.transformations.ArrayListTransformation">
       </visualization>
       <visualization
             class="java.util.ArrayDeque"
@@ -110,10 +110,6 @@
             transformation="de.cau.cs.kieler.klighd.debug.transformations.PriorityQueueTransformation">
       </visualization>
       <visualization
-            class="java.util.Vector"
-            transformation="de.cau.cs.kieler.klighd.debug.transformations.ElementDataTransformation">
-      </visualization>
-      <visualization
             class="java.util.TreeMap"
             transformation="de.cau.cs.kieler.klighd.debug.transformations.TreeMapTransformation">
       </visualization>
@@ -124,6 +120,10 @@
       <visualization
             class="java.lang.String"
             transformation="de.cau.cs.kieler.klighd.debug.transformations.StringTransformation">
+      </visualization>
+      <visualization
+            class="java.util.Vector"
+            transformation="de.cau.cs.kieler.klighd.debug.transformations.VectorTransformation">
       </visualization>
    </extension>
 

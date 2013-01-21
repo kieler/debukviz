@@ -9,6 +9,7 @@ import org.eclipse.core.runtime.Platform;
 import org.eclipse.debug.core.DebugException;
 import org.eclipse.debug.core.model.IVariable;
 import org.eclipse.jdt.debug.core.IJavaClassType;
+import org.eclipse.jdt.debug.core.IJavaObject;
 import org.eclipse.jdt.debug.core.IJavaType;
 import org.eclipse.jdt.debug.core.IJavaValue;
 import org.eclipse.ui.statushandlers.StatusManager;
@@ -62,24 +63,29 @@ public class KlighdDebugExtension {
      * @throws ClassNotFoundException
      */
     @SuppressWarnings("all")
-    public AbstractDebugTransformation getTransformation(IVariable model) throws DebugException {
-        // If model type is an array return null
-        if (model.getValue().getReferenceTypeName().endsWith("[]"))
-            return null;
-
-        // Get a transformation
+    public AbstractDebugTransformation getTransformation(IVariable model) {
         AbstractDebugTransformation result = null;
-
-        // If no transformation is registred search for transformation registred to a superclass
-        IJavaType type = ((IJavaValue) model.getValue()).getJavaType();
-        if (type instanceof IJavaClassType) {
-            IJavaClassType superClass = (IJavaClassType) type;
-            while (result == null && superClass != null) {
-                String test = superClass.getName().replaceAll("\\$", ".");
-                result = transformationMap.get(superClass.getName().replaceAll("\\$", "."));
-                superClass = superClass.getSuperclass();
+        try {
+            IJavaValue value = (IJavaValue)model.getValue();
+            // If value doesn't represent an object or the value represents the null object return null
+            if (!(value instanceof IJavaObject) || ((IJavaObject)value).isNull())
+                return null;
+            
+            // If no transformation is registred for current class
+            // search for transformation registred for the superclass if exists
+            IJavaType type = value.getJavaType();
+            if (type instanceof IJavaClassType) {
+                IJavaClassType superClass = (IJavaClassType) type;
+                while (result == null && superClass != null) {
+                    String test = superClass.getName().replaceAll("\\$", ".");
+                    result = transformationMap.get(superClass.getName().replaceAll("\\$", "."));
+                    superClass = superClass.getSuperclass();
+                }
             }
         }
-        return result;
+        catch (DebugException exception) {
+            StatusManager.getManager().handle(exception, KlighdDebugPlugin.PLUGIN_ID);
+        }
+        return result;     
     }
 }

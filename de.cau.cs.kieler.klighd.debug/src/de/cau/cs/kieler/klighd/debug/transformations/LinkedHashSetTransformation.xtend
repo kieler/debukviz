@@ -25,14 +25,21 @@ class LinkedHashSetTransformation extends AbstractDebugTransformation {
         return KimlUtil::createInitializedNode() => [
             it.addLayoutParam(LayoutOptions::ALGORITHM, "de.cau.cs.kieler.klay.layered")
             it.addLayoutParam(LayoutOptions::SPACING, 75f)
-            it.addLayoutParam(LayoutOptions::DIRECTION, Direction::UP)
+            it.addLayoutParam(LayoutOptions::DIRECTION, Direction::RIGHT)
             model.getVariables("map.table").filter[variable | variable.valueIsNotNull].forEach[
                 IVariable variable | 
-               	it.children += variable.key.createNode() => [
+               	it.children += variable.createNodeById() => [
                		it.nextTransformation(variable.key)
        			]
-       			if (variable.beforeKey.valueIsNotNull)
-	       			variable.beforeKey.createEdge(variable.key) => [
+       			val next = variable.getVariable("next");
+                if (next.valueIsNotNull) {
+                    it.children += next.createNodeById() => [
+                        it.nextTransformation(next.key)
+                    ]
+                
+                }
+       			if (variable.before.valueIsNotNull)
+	       			variable.before.createEdgeById(variable) => [
 	            		it.data += renderingFactory.createKPolyline() => [
 	                		it.setLineWidth(2)
 	                		it.addArrowDecorator()
@@ -42,8 +49,8 @@ class LinkedHashSetTransformation extends AbstractDebugTransformation {
 		]
     }
     
-    def getBeforeKey(IVariable variable) {
-        variable.getVariable("before.key")
+    def getBefore(IVariable variable) {
+        variable.getVariable("before")
     }
     
     def getKey(IVariable variable) {

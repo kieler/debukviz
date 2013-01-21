@@ -21,11 +21,9 @@ class LinkedListEntryTransformation extends AbstractDebugTransformation {
             it.addLayoutParam(LayoutOptions::ALGORITHM, "de.cau.cs.kieler.klay.layered")
             it.addLayoutParam(LayoutOptions::SPACING, 75f)
             it.addLayoutParam(LayoutOptions::DIRECTION, Direction::UP); 
-            it.nextTransformation(variable.element,null)
+            it.children += variable.createNodeById() => [
+                it.nextTransformation(variable.getVariable("element"),null)
+            ]
         ]
-    }
-    
-    def IVariable getElement(IVariable variable) {
-        return variable.getVariable("element");
     }
 }

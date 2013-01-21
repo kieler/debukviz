@@ -28,18 +28,18 @@ class ArrayDequeTransformation extends AbstractDebugTransformation {
         return KimlUtil::createInitializedNode() => [
             it.addLayoutParam(LayoutOptions::ALGORITHM, "de.cau.cs.kieler.klay.layered")
             it.addLayoutParam(LayoutOptions::SPACING, 75f)
-            it.addLayoutParam(LayoutOptions::DIRECTION, Direction::UP);
+            it.addLayoutParam(LayoutOptions::DIRECTION, Direction::RIGHT);
             val head = Integer::parseInt(model.getValue("head"));
             val tail = Integer::parseInt(model.getValue("tail"));
             val IVariable[] elements = model.getVariables("elements");
             var int index = head;
             while (index <= tail) {
                 val variable = elements.get(index)
-                val node = variable.createNode() => [
+                val node = variable.createNodeById() => [
                     it.nextTransformation(variable,null)
                     arrayIndex = arrayIndex + 1
                     if (previous != null)
-                        previous.createEdge(variable) => [
+                        previous.createEdgeById(variable) => [
                             it.data += renderingFactory.createKPolyline() => [
                                 it.setLineWidth(2)
                                 it.addArrowDecorator();

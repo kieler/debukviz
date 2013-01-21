@@ -39,7 +39,7 @@ class EnumMapTransformation extends AbstractDebugTransformation {
     
     def createKeyValueNode(KNode node, IVariable key, IVariable value) {
 		// Add key node
-		node.children += key.createNode() => [
+		node.children += key.createNodeById() => [
 			it.addLabel("Key:")
 			it.data += renderingFactory.createKChildArea
 			it.children += createNode() => [
@@ -52,13 +52,13 @@ class EnumMapTransformation extends AbstractDebugTransformation {
 		]
 		
 		// Add value node
-		node.children += value.createNode() => [
+		node.children += value.createNodeById() => [
 		    it.addLabel("Value:")
 		    it.nextTransformation(value)
 		]
 		
 		// Add edge between key node and value node
-		key.createEdge(value) => [
+		key.createEdgeById(value) => [
         	it.data += renderingFactory.createKPolyline() => [
             	it.setLineWidth(2);
             	it.addArrowDecorator();

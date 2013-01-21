@@ -26,9 +26,13 @@ class LinkedHashMapTransformation extends AbstractDebugTransformation {
         return KimlUtil::createInitializedNode() => [
             it.addLayoutParam(LayoutOptions::ALGORITHM, "de.cau.cs.kieler.klay.layered")
             it.addLayoutParam(LayoutOptions::SPACING, 75f)
-            it.addLayoutParam(LayoutOptions::DIRECTION, Direction::UP)
+            it.addLayoutParam(LayoutOptions::DIRECTION, Direction::RIGHT)
             model.getVariables("table").filter[variable | variable.valueIsNotNull].forEach[
-                IVariable variable | it.createKeyValueNode(variable)
+                IVariable variable | 
+                    it.createKeyValueNode(variable)
+                    val next = variable.getVariable("next");
+                    if (next.valueIsNotNull)
+                        it.createKeyValueNode(next)
             ]
         ]
     }
@@ -38,31 +42,31 @@ class LinkedHashMapTransformation extends AbstractDebugTransformation {
     }
     
     def createKeyValueNode(KNode node, IVariable variable) {
-       val value = variable.getVariable("value")
-       val before = variable.getVariable("before")
-       node.createInnerNode(variable,variable.key,"Key:")
-       node.createInnerNode(variable,value,"Value:")
-       variable.key.createEdge(value) => [
+        val key = variable.getVariable("key")
+        val value = variable.getVariable("value")
+        val beforeKey = variable.getVariable("before.key")
+        node.children += key.createNodeById() => [
+            it.addLabel("Key:")
+            it.nextTransformation(key)
+        ]
+        node.children += value.createNode() => [
+            it.addLabel("Value:")
+            it.nextTransformation(value)
+        ]
+        key.createEdge(value) => [
             it.data += renderingFactory.createKPolyline() => [
                 it.setLineWidth(2);
                 it.addArrowDecorator();
-            ];
-       ];
-       if (before.key.valueIsNotNull)
-	       before.key.createEdge(variable.key) => [
-	            it.data += renderingFactory.createKPolyline() => [
-	                it.setLineWidth(2);
-	                it.addArrowDecorator();
-	            ];
-	       ];
-    }
-    
-    def createInnerNode(KNode rootNode, IVariable parent, IVariable variable, String text) {
-    	val node = variable.createNode() => [
-            it.addLabel(text)
-            it.nextTransformation(variable,null)
-       	] ;
-        rootNode.children += node
-        return node
+            ]
+        ]
+        
+       
+        if (beforeKey.valueIsNotNull)
+            beforeKey.createEdgeById(key) => [
+            it.data += renderingFactory.createKPolyline() => [
+                it.setLineWidth(2)
+                it.addArrowDecorator()
+            ]
+        ]
     }
 }

@@ -12,7 +12,7 @@ import org.eclipse.debug.core.model.IVariable
 
 import static de.cau.cs.kieler.klighd.debug.visualization.AbstractDebugTransformation.*
 
-class PriorityQueueTransformation extends AbstractDebugTransformation {
+class VectorTransformation extends AbstractDebugTransformation {
     
     @Inject
     extension KNodeExtensions 
@@ -29,14 +29,11 @@ class PriorityQueueTransformation extends AbstractDebugTransformation {
             it.addLayoutParam(LayoutOptions::ALGORITHM, "de.cau.cs.kieler.klay.layered")
             it.addLayoutParam(LayoutOptions::SPACING, 75f)
             it.addLayoutParam(LayoutOptions::DIRECTION, Direction::RIGHT)
-            
-            model.getVariables("queue").filter[variable | variable.valueIsNotNull].forEach[
+            val size = Integer::parseInt(model.getValue("elementCount"))
+            model.getVariables("elementData").subList(0,size).forEach[
                 IVariable variable |
                     it.children += variable.createNode() => [
-                    	if (index == 0)
-                    		it.addLabel("head")
-                    	else
-                    		it.addLabel(""+index)
+                    	it.addLabel(""+index)
                     	index= index +1
                         it.nextTransformation(variable)
                         if (previous != null)

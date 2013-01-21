@@ -17,13 +17,17 @@ class HashSetTransformation extends AbstractDebugTransformation {
         return KimlUtil::createInitializedNode() => [
             it.addLayoutParam(LayoutOptions::ALGORITHM, "de.cau.cs.kieler.klay.layered")
             it.addLayoutParam(LayoutOptions::SPACING, 75f)
-            it.addLayoutParam(LayoutOptions::DIRECTION, Direction::UP)
+            it.addLayoutParam(LayoutOptions::DIRECTION, Direction::RIGHT)
             model.getVariables("map.table").filter[variable | variable.valueIsNotNull].forEach[
                 IVariable variable | 
-               	it.children += createNode() => [
-               		it.data += renderingFactory.createKChildArea
+               	it.children += variable.createNodeById() => [
                		it.nextTransformation(variable.getVariable("key"))
                	]
+               	val next = variable.getVariable("next");
+               	if (next.valueIsNotNull)
+                   	it.children += next.createNodeById() => [
+                        it.nextTransformation(next.getVariable("key"))
+                    ]
        		] 
 		]
     }

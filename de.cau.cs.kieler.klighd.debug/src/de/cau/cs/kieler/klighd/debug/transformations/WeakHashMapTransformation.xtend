@@ -25,10 +25,14 @@ class WeakHashMapTransformation extends AbstractDebugTransformation {
     override transform(IVariable model) {
         return KimlUtil::createInitializedNode() => [
             it.addLayoutParam(LayoutOptions::ALGORITHM, "de.cau.cs.kieler.klay.layered")
-            it.addLayoutParam(LayoutOptions::SPACING, 100f)
+            it.addLayoutParam(LayoutOptions::SPACING, 75f)
             it.addLayoutParam(LayoutOptions::DIRECTION, Direction::UP)
             model.getVariables("table").filter[variable | variable.valueIsNotNull].forEach[
-                IVariable variable | it.createKeyValueNode(variable)
+                IVariable variable | 
+                    it.createKeyValueNode(variable)
+                    val next = variable.getVariable("next");
+                    if (next.valueIsNotNull)
+                        it.createKeyValueNode(next)
             ]
         ]
     }
@@ -46,8 +50,8 @@ class WeakHashMapTransformation extends AbstractDebugTransformation {
         ]; 
     }
     
-    def createInnerNode(KNode rootNode, IVariable variable, String text) {
-    	rootNode.children += variable.createNode() => [
+    def createInnerNode(KNode node, IVariable variable, String text) {
+    	node.children += variable.createNode() => [
 			it.addLabel(text)
     		it.nextTransformation(variable)
     	]
