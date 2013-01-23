@@ -1,14 +1,21 @@
 package de.cau.cs.kieler.klighd.debug.transformations;
 
+import javax.inject.Inject;
+
 import org.eclipse.debug.core.model.IVariable;
 
 import de.cau.cs.kieler.core.kgraph.KNode;
+import de.cau.cs.kieler.core.krendering.extensions.KNodeExtensions;
+import de.cau.cs.kieler.kiml.options.LayoutOptions;
 import de.cau.cs.kieler.klighd.TransformationContext;
 import de.cau.cs.kieler.klighd.debug.KlighdDebugExtension;
 import de.cau.cs.kieler.klighd.debug.visualization.AbstractDebugTransformation;
 
 public class KlighdDebugTransformation extends AbstractDebugTransformation {
 
+	@Inject
+	KNodeExtensions kNodeExtensions;
+	
     /**
      * {@inheritDoc}
      */

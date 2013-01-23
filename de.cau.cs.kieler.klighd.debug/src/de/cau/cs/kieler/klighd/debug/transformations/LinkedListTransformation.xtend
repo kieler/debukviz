@@ -34,11 +34,11 @@ class LinkedListTransformation extends AbstractDebugTransformation {
         return KimlUtil::createInitializedNode() => [
             it.addLayoutParam(LayoutOptions::ALGORITHM, "de.cau.cs.kieler.klay.layered")
             it.addLayoutParam(LayoutOptions::SPACING, 75f)
-            it.addLayoutParam(LayoutOptions::DIRECTION, Direction::UP);
+            it.addLayoutParam(LayoutOptions::DIRECTION, Direction::UP)
       		it.createHeaderNode(variable)
             val header = variable.getVariable("header")
             val last = it.createChildNode(header)
-            last.createEdgeById(header) => [
+            last.element.createEdgeById(header.element) => [
                 it.data += renderingFactory.createKPolyline() => [
                     it.setLineWidth(2)
                     it.addArrowDecorator();
@@ -46,10 +46,14 @@ class LinkedListTransformation extends AbstractDebugTransformation {
             ]
         ]
     }
+    
+    def getElement(IVariable variable) {
+    	return variable.getVariable("element")
+    }
 
   	def createHeaderNode(KNode rootNode, IVariable variable) {
     	var IVariable header = variable.getVariable("header")
-    	rootNode.children += header.createNodeById() => [
+    	rootNode.addNewNodeById(header.element)=> [
     		it.setNodeSize(120,80)
     		it.data += renderingFactory.createKRectangle() => [
     			it.lineWidth = 4
@@ -70,9 +74,9 @@ class LinkedListTransformation extends AbstractDebugTransformation {
     
     def IVariable createChildNode(KNode rootNode, IVariable parent){
        var next = parent.getVariable("next")
-       if (!next.nodeExists) {
-            rootNode.createInternalNode(next)
-            parent.createEdgeById(next) => [
+       if (!next.element.nodeExists) {
+            rootNode.createInternalNode(next.element)
+            parent.element.createEdgeById(next.element) => [
                 it.data += renderingFactory.createKPolyline() => [
                     it.setLineWidth(2)
                     it.addArrowDecorator();
@@ -85,6 +89,6 @@ class LinkedListTransformation extends AbstractDebugTransformation {
     }
     
     def createInternalNode(KNode rootNode, IVariable next) {
-        rootNode.nextTransformation(next)
+    	rootNode.nextTransformation(next.element)
     }
 }

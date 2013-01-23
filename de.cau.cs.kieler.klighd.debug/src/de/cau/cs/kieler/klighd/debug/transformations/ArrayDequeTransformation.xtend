@@ -22,7 +22,6 @@ class ArrayDequeTransformation extends AbstractDebugTransformation {
     extension KRenderingExtensions
     
     var IVariable previous = null
-    var arrayIndex = 0
     
     override transform(IVariable model) {
         return KimlUtil::createInitializedNode() => [
@@ -35,23 +34,19 @@ class ArrayDequeTransformation extends AbstractDebugTransformation {
             var int index = head;
             while (index <= tail) {
                 val variable = elements.get(index)
-                val node = variable.createNodeById() => [
-                    it.nextTransformation(variable,null)
-                    arrayIndex = arrayIndex + 1
-                    if (previous != null)
-                        previous.createEdgeById(variable) => [
-                            it.data += renderingFactory.createKPolyline() => [
-                                it.setLineWidth(2)
-                                it.addArrowDecorator();
-                            ]
-                        ]
-                    previous = variable
-                ]
+                val node = it.nextTransformation(variable)
                 if (index == head)
-                    node.addLabel("Head:")
-                if (index == tail)
-                    node.addLabel("Tail:")
-                it.children += node;
+                	node.addLabel("head")
+                if (index == tail-1)
+                	node.addLabel("tail")
+                if (previous != null)
+                    previous.createEdgeById(variable) => [
+                        it.data += renderingFactory.createKPolyline() => [
+                            it.setLineWidth(2)
+                            it.addArrowDecorator();
+                        ]
+                    ]
+                previous = variable
                 index = index + 1
             }
         ]

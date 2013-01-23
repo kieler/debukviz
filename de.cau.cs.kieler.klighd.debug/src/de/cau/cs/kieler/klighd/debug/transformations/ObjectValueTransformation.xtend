@@ -7,6 +7,7 @@ import de.cau.cs.kieler.core.krendering.extensions.KNodeExtensions
 import de.cau.cs.kieler.core.krendering.extensions.KRenderingExtensions
 import de.cau.cs.kieler.kiml.util.KimlUtil
 import de.cau.cs.kieler.klighd.debug.visualization.AbstractDebugTransformation
+import de.cau.cs.kieler.kiml.options.LayoutOptions
 import java.util.LinkedList
 import javax.inject.Inject
 import org.eclipse.debug.core.model.IVariable
@@ -25,19 +26,16 @@ class ObjectValueTransformation extends AbstractDebugTransformation {
     override transform(IVariable model) {
         return 
         KimlUtil::createInitializedNode() => [
-            it.children += it.createValueNode(model,getValueText(model.type,model.getValue("value")))
-        ]
-    }
-    
-    def KNode createValueNode(KNode node, IVariable variable, LinkedList<KText> text) {
-        return variable.createNode() => [
-            it.setNodeSize(80,80);
-            it.data += renderingFactory.createKRectangle() => [
-                it.childPlacement = renderingFactory.createKGridPlacement()
-                text.forEach[
-                    KText t |
-                    it.children += t
-                ]
+        	it.children += createNode() => [
+	            val text = getValueText(model.type,model.getValue("value"))
+	            it.setNodeSize(80,80);
+	            it.data += renderingFactory.createKRectangle() => [
+	                it.childPlacement = renderingFactory.createKGridPlacement()
+	                text.forEach[
+	                    KText t |
+	                    it.children += t
+	                ]
+	            ]
             ]
         ]
     }

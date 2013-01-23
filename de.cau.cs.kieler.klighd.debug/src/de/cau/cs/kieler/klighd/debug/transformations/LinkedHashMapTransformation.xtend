@@ -22,51 +22,51 @@ class LinkedHashMapTransformation extends AbstractDebugTransformation {
     @Inject 
     extension KPolylineExtensions 
     
+    var index = 0;
+    var size = 0;
+    
     override transform(IVariable model) {
         return KimlUtil::createInitializedNode() => [
             it.addLayoutParam(LayoutOptions::ALGORITHM, "de.cau.cs.kieler.klay.layered")
             it.addLayoutParam(LayoutOptions::SPACING, 75f)
             it.addLayoutParam(LayoutOptions::DIRECTION, Direction::RIGHT)
-            model.getVariables("table").filter[variable | variable.valueIsNotNull].forEach[
-                IVariable variable | 
-                    it.createKeyValueNode(variable)
-                    val next = variable.getVariable("next");
-                    if (next.valueIsNotNull)
-                        it.createKeyValueNode(next)
-            ]
+            size = Integer::parseInt(model.getValue("size"))
+            it.createKeyValueNode(model.getVariable("header.after"))
         ]
-    }
-    
-    def getKey(IVariable variable) {
-        return variable.getVariable("key")
     }
     
     def createKeyValueNode(KNode node, IVariable variable) {
         val key = variable.getVariable("key")
         val value = variable.getVariable("value")
         val beforeKey = variable.getVariable("before.key")
-        node.children += key.createNodeById() => [
+        val after = variable.getVariable("after")
+        
+        index = index + 1
+        
+        node.children += variable.createNode() => [
             it.addLabel("Key:")
             it.nextTransformation(key)
         ]
-        node.children += value.createNode() => [
-            it.addLabel("Value:")
-            it.nextTransformation(value)
-        ]
-        key.createEdge(value) => [
+        if (!value.nodeExists)
+	        node.children += value.createNodeById() => [
+	            it.addLabel("Value:")
+	            it.nextTransformation(value)
+	        ]
+        /*variable.createEdgeById(value) => [
             it.data += renderingFactory.createKPolyline() => [
                 it.setLineWidth(2);
                 it.addArrowDecorator();
             ]
         ]
         
-       
-        if (beforeKey.valueIsNotNull)
-            beforeKey.createEdgeById(key) => [
-            it.data += renderingFactory.createKPolyline() => [
-                it.setLineWidth(2)
-                it.addArrowDecorator()
+        if(index < size) {
+        	node.createKeyValueNode(after)
+        	variable.createEdgeById(after) => [
+        		it.data += renderingFactory.createKPolyline() => [
+                	it.setLineWidth(2);
+                	it.addArrowDecorator();
+                ]
             ]
-        ]
+        }*/
     }
 }
