@@ -49,8 +49,7 @@ class LGraphTransformation extends AbstractKNodeTransformation {
 	}
 	
 	def createHeaderNode(KNode rootNode, IVariable graph) {
-		rootNode.children += graph.createNode => [
-//    		it.setNodeSize(120,80)
+		rootNode.children += graph.createNodeById => [
     		it.data += renderingFactory.createKRectangle => [
     			it.lineWidth = 4
     			it.ChildPlacement = renderingFactory.createKGridPlacement
@@ -105,7 +104,7 @@ class LGraphTransformation extends AbstractKNodeTransformation {
 		// the node has to be registered to a specific object.
 		// we are using the layerlessNodes element here
 		val dummy = graph.getVariable("layerlessNodes")
-        rootNode.children += dummy.createNode => [
+        rootNode.children += dummy.createNodeById => [
             it.data += renderingFactory.createKRectangle => [
                 it.lineWidth = 4
             ]
@@ -114,7 +113,7 @@ class LGraphTransformation extends AbstractKNodeTransformation {
   		]
   		
 	    // create edge from graph to propertyMap
-        graph.createEdge(dummy) => [
+        graph.createEdgeById(dummy) => [
             it.data += renderingFactory.createKPolyline => [
                 it.setLineWidth(2)
                 it.addArrowDecorator
@@ -176,7 +175,7 @@ class LGraphTransformation extends AbstractKNodeTransformation {
     	val propertyMap = propertyMapHolder.getVariable("propertyMap")
     	
     	// create propertyMap node
-        rootNode.children += propertyMap.createNode => [
+        rootNode.children += propertyMap.createNodeById => [
             it.data += renderingFactory.createKRectangle => [
                 it.lineWidth = 4
     			it.ChildPlacement = renderingFactory.createKGridPlacement
@@ -197,7 +196,7 @@ class LGraphTransformation extends AbstractKNodeTransformation {
         ]
         
         // create edge from graph to propertyMap
-        propertyMapHolder.createEdge(propertyMap) => [
+        propertyMapHolder.createEdgeById(propertyMap) => [
             it.data += renderingFactory.createKPolyline => [
                 it.setLineWidth(2)
                 it.addArrowDecorator

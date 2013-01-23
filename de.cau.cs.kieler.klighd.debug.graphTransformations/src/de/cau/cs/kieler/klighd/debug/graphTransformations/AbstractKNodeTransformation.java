@@ -69,14 +69,15 @@ public abstract class AbstractKNodeTransformation extends AbstractDebugTransform
      */
     public IVariable getValFromHashMap(IVariable variable, String key)
             throws NumberFormatException, DebugException {
-        int size = Integer.parseInt(getValue(variable, "threshold"));
+        IVariable[] vars = getVariables(variable, "table");
 
-        for (int i = 0; i <= size; i++) {
-            IVariable current = getVariable(variable, "table.[" + i + "]");
-            String currentString = getValue(current, "key.id");
-            if (currentString.equals(key)) {
-                return getVariable(current, "value");
-            }
+        for (IVariable var : vars) {
+        	if (valueIsNotNull(var)) {
+                String currentString = getValue(var, "key.id");
+                if (currentString.equals(key)) {
+                    return getVariable(var, "value");
+                }
+        	}
         }
 
         return null;

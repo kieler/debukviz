@@ -36,7 +36,7 @@ class LNodeTransformation extends AbstractKNodeTransformation {
         return KimlUtil::createInitializedNode => [
             it.addLayoutParam(LayoutOptions::ALGORITHM, "de.cau.cs.kieler.kiml.ogdf.planarization")
             it.addLayoutParam(LayoutOptions::SPACING, 75f)
-            it.children += node.createNode => [
+            it.children += node.createNodeById => [
 				it.setNodeSize(120,80)
 //                it.addLayoutParam(LayoutOptions::LABEL_SPACING, 75f)
 //                it.addLayoutParam(LayoutOptions::SPACING, 75f)
@@ -166,7 +166,8 @@ class LNodeTransformation extends AbstractKNodeTransformation {
         *  default: return "#000000"
         *  coding: #RGB", where each component is given as a two-digit hexadecimal value.
         */
-        switch (node.getNodeType) {
+        val type = node.nodeType
+        switch (type) {
             case "COMPOUND_SIDE": rendering.setForegroundColor(128,128,128)
             case "EXTERNAL_PORT": rendering.setForegroundColor(204,153,204)
             case "LONG_EDGE": rendering.setForegroundColor(234,237,0)
@@ -180,7 +181,8 @@ class LNodeTransformation extends AbstractKNodeTransformation {
     }
     
     def getNodeType(IVariable node) {
-        val type = node.getVariable("propertyMap").getValFromHashMap("nodeType")
+    	val map =  node.getVariable("propertyMap")
+        val type = map.getValFromHashMap("nodeType")
         if (type == null) {
             return "NORMAL"
         } else {
