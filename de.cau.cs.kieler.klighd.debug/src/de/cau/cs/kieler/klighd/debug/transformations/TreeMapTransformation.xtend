@@ -27,7 +27,7 @@ class TreeMapTransformation extends AbstractDebugTransformation {
             it.addLayoutParam(LayoutOptions::ALGORITHM, "de.cau.cs.kieler.klay.layered")
             it.addLayoutParam(LayoutOptions::SPACING, 75f)
             it.addLayoutParam(LayoutOptions::DIRECTION, Direction::UP)
-           	createTreeNode(model.getVariable("root"),"root")
+           	createTreeNode(model.getVariable("root"),"")
         ]
     }
     
@@ -64,8 +64,9 @@ class TreeMapTransformation extends AbstractDebugTransformation {
         	root.parent.parent.createEdge(root.parent) => [
        			it.data += renderingFactory.createKPolyline() => [
                     it.setLineWidth(2)
-                    it.addArrowDecorator();
+                    it.addArrowDecorator()
             	]
+            	it.addLabel(label)
        		]
         }
     }
@@ -74,7 +75,6 @@ class TreeMapTransformation extends AbstractDebugTransformation {
     	val key = root.getVariable("key")
     	val value = root.getVariable("value")
     	node.children += root.parent.createNode() => [
-    		it.addLabel(label)
 	    	it.createInnerNode(root,key,"Key:")
 	       	it.createInnerNode(root,value,"Value:")
 	       	key.createEdge(value) => [

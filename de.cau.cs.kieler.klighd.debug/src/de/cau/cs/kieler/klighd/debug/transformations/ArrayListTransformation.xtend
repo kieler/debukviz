@@ -32,7 +32,7 @@ class ArrayListTransformation extends AbstractDebugTransformation {
             val size = Integer::parseInt(model.getValue("size"))
             model.getVariables("elementData").subList(0,size).forEach[
                 IVariable variable |
-                    it.children += variable.createNode() => [
+                    it.addNewNodeById(variable) => [
                     	it.addLabel(""+index)
                     	index= index +1
                         it.nextTransformation(variable)

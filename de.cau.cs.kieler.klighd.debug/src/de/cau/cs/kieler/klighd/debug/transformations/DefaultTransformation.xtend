@@ -38,21 +38,21 @@ class DefaultTransformation extends AbstractDebugTransformation {
             val value = model.value
             // Array
             if (value instanceof IJavaArray)
-                it.children += it.arrayTransform(model)
+                it.arrayTransform(model)
             // Types without a transformation
             // primitive datatypes and null
             else if (value instanceof IJavaPrimitiveValue || (value instanceof IJavaValue && (value as IJavaValue).isNull()))
-                	it.children += it.createValueNode(model)
+               	it.createValueNode(model)
             // objecttypes
             else if (value instanceof IJavaObject) {
-            	value.variables.forEach[
+            	/*value.variables.forEach[
             		IVariable variable |
             		val value_ = variable.value
             		// TODO: handle primitive types and null values
             		if (value_ instanceof IJavaObject) {
             			it.children += it.createObjectNode(variable)	
             		}
-            	]
+            	]*/
             }   
         ]
     }
@@ -60,26 +60,27 @@ class DefaultTransformation extends AbstractDebugTransformation {
     def KNode createObjectNode(KNode node, IVariable variable) {
     	variable.createNodeById() => [
     	    it.addLabel(variable.name)
-    	    it.nextTransformation(variable)
+    	    it.children += it.nextTransformation(variable)
     	]
     }
     
     def KNode arrayTransform(KNode node, IVariable choice) {
             if (choice.value instanceof IJavaArray) {
-	            val result = choice.getNode() => [
+	            val result = node.addNewNodeById(choice)=> [
 	         		it.setNodeSize(80,80);
 	            	it.data += renderingFactory.createKRectangle() => [
 	                	it.childPlacement = renderingFactory.createKGridPlacement()
 	                	it.children += renderingFactory.createKText() => [
-	                		it.text = choice.type.substring(choice.type.lastIndexOf('.')+1)
+	                		it.text = choice.type
 	            		]
 	            	]
 	            ]
 	            
             	choice.value.variables.forEach[
                 	IVariable variable |
-                	node.children += node.arrayTransform(variable)
-                	choice.createEdge(variable) => [
+                	node.arrayTransform(variable)
+                	choice.createEdgeById(variable) => [
+                		it.addLabel(variable.name.replaceAll("[\\[\\]]",""))
     	                it.data += renderingFactory.createKPolyline() => [
                             it.setLineWidth(2)
                             it.addArrowDecorator()
@@ -87,17 +88,16 @@ class DefaultTransformation extends AbstractDebugTransformation {
                 	]
                 ]                       
             return result
-        } else {
-            return choice.createNode() => [
-                it.addLabel(""+index)
-                index = index + 1
-                it.nextTransformation(choice)
+        } else if (choice.value instanceof IJavaObject && !(choice.value as IJavaObject).isNull) {
+            return node.nextTransformation(choice)
+        } else
+        	return node.addNewNodeById(choice) => [
+            	it.createValueNode(choice)
             ]
-        } 
     }
     
-    def KNode createValueNode(KNode node, IVariable variable) {
-        return variable.createNode() => [
+    def createValueNode(KNode node, IVariable variable) {
+        node => [
             it.setNodeSize(80,80);
             it.data += renderingFactory.createKRectangle() => [
                 it.childPlacement = renderingFactory.createKGridPlacement()

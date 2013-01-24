@@ -18,10 +18,12 @@ import de.cau.cs.kieler.core.kgraph.KEdge;
 import de.cau.cs.kieler.core.kgraph.KLabel;
 import de.cau.cs.kieler.core.kgraph.KLabeledGraphElement;
 import de.cau.cs.kieler.core.kgraph.KNode;
+import de.cau.cs.kieler.core.krendering.KPolyline;
 import de.cau.cs.kieler.core.krendering.KRenderingFactory;
 import de.cau.cs.kieler.core.krendering.KText;
 import de.cau.cs.kieler.core.krendering.extensions.KEdgeExtensions;
 import de.cau.cs.kieler.core.krendering.extensions.KNodeExtensions;
+import de.cau.cs.kieler.core.krendering.extensions.KPolylineExtensions;
 import de.cau.cs.kieler.core.util.Pair;
 import de.cau.cs.kieler.kiml.klayoutdata.KShapeLayout;
 import de.cau.cs.kieler.kiml.options.EdgeLabelPlacement;
@@ -37,6 +39,8 @@ public abstract class AbstractDebugTransformation extends AbstractTransformation
 
     @Inject
     private KEdgeExtensions kEdgeExtensions = new KEdgeExtensions();
+    @Inject
+    private KPolylineExtensions kPolylineExtensions = new KPolylineExtensions();
     @Inject
     private KNodeExtensions kNodeExtensions = new KNodeExtensions();
     
@@ -83,7 +87,7 @@ public abstract class AbstractDebugTransformation extends AbstractTransformation
 
     public KNode nextTransformation(KNode rootNode, IVariable variable, Object transformationInfo) throws DebugException {
         int maxNodeCount = -1;
-        KNode innerNode;
+        KNode innerNode = null;
         // Perform transformation if recursion depth less-equal maxDepth
         if (depth <= maxDepth) {
             depth++;
@@ -98,7 +102,15 @@ public abstract class AbstractDebugTransformation extends AbstractTransformation
                 nodeCount += countNodes(innerNode);
             }*/
             depth--;
-            rootNode.getChildren().addAll(innerNode.getChildren());
+            EList<KNode> rootChildren = rootNode.getChildren();
+            EList<KNode> innerChildren = innerNode.getChildren();
+            //rootNode.getChildren().addAll(innerNode.getChildren());
+            if(innerNode.getChildren().size() == 1)
+            	innerNode = innerNode.getChildren().get(0);
+            if (kNodeMap.get(getId(variable)) == null)
+            	kNodeMap.put(getId(variable), innerNode);
+
+            rootNode.getChildren().add(innerNode);
         }
         else {
             innerNode = kNodeExtensions.createNode(variable);
@@ -116,8 +128,7 @@ public abstract class AbstractDebugTransformation extends AbstractTransformation
             innerNode.getChildren().add(node);
             rootNode.getChildren().add(innerNode);
         }
-        
-        return innerNode;
+	    return innerNode;
     }
 
     public String getValue(IVariable variable, String fieldPath) throws DebugException {
@@ -157,7 +168,8 @@ public abstract class AbstractDebugTransformation extends AbstractTransformation
     }
 
     public String getType(IVariable variable) throws DebugException {
-        return variable.getValue().getReferenceTypeName();
+    	String type = variable.getValue().getReferenceTypeName(); 
+        return type.substring(type.lastIndexOf('.')+1);
     }
 
     public KEdge createEdgeById(IVariable source, IVariable target) throws DebugException {
@@ -206,19 +218,20 @@ public abstract class AbstractDebugTransformation extends AbstractTransformation
     }
 
     public boolean nodeExists(IVariable variable) throws DebugException {
-        return kNodeMap.containsKey(getId(variable));
+        return kNodeMap.get(getId(variable)) != null || kNodeExtensions.getNode(variable).getParent() != null;
     }
 
     public Long getId(IVariable variable) throws DebugException {
         IJavaValue value = (IJavaValue) variable.getValue();
         if (!(value instanceof IJavaObject) || ((IJavaObject) value).isNull())
-            return new Long(-1);
+            return new Long(-kNodeMap.size());
         else
             return ((IJavaObject) value).getUniqueId();
     }
 
     /**
-     * Returns an existing or new node linked with the id of object represented by variable
+     * Returns an existing or new node linked with the id of object re            innerNode = new KlighdDebugTransformation().transform(variable, this.getUsedContext(),
+                    transformationInfo);presented by variable
      * 
      * @param variable
      *            variable representing the object, which id is linked with an node
@@ -226,12 +239,51 @@ public abstract class AbstractDebugTransformation extends AbstractTransformation
      * @throws DebugException
      */
     public KNode createNodeById(IVariable variable) throws DebugException {
-        Long id = getId(variable);
-        KNode node = kNodeMap.get(id);
-        if (node == null) {
-            node = kNodeExtensions.createNode(variable);
-            kNodeMap.put(id, node);
+        KNode node = null;
+    	Long id = getId(variable);
+        if (id != -1) {
+        	node = kNodeMap.get(id);
+	        if (node == null) {
+	        	node = kNodeExtensions.createNode(variable);
+	            kNodeMap.put(id, node);
+	        }
         }
+        else
+        	node = kNodeExtensions.createNode(variable);
         return node;
+    }
+    
+    public KNode addNewNodeById(KNode node, IVariable variable) throws DebugException {
+    	KNode resultNode = null;
+    	/*if (nodeExists(variable)) {
+    		//resultNode = createNodeById(variable);
+    		//node.getChildren().add(resultNode);
+    		KNode parent = node;
+    		while (parent != null)
+    			parent = parent.getParent();
+
+    		//node.setParent(parent);
+    		resultNode = kNodeExtensions.createNode(null);
+    		
+    		/*KEdge edge = kEdgeExtensions.createEdge(new Pair<Object, Object>(resultNode, node));
+            edge.setSource(resultNode);
+            edge.setTarget(node);
+            
+            KPolyline polyline = renderingFactory.createKPolyline();
+            kPolylineExtensions.
+            it.data += renderingFactory.createKPolyline() => [
+                                                              it.setLineWidth(2)
+                                                              it.addArrowDecorator();
+                                                          ]*/
+    		//node.getChildren().add(resultNode);
+    		//create dummyNode
+    		//resultNode = dummyNode
+    	/*}
+    	else {*/
+    		resultNode = createNodeById(variable);
+    		resultNode.setParent(node);
+    		//node.getChildren().add(resultNode);
+    	//}
+    	return resultNode;
     }
 }

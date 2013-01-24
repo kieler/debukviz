@@ -52,10 +52,11 @@ class EnumMapTransformation extends AbstractDebugTransformation {
 		]
 		
 		// Add value node
-		node.children += value.createNodeById() => [
-		    it.addLabel("Value:")
-		    it.nextTransformation(value)
-		]
+		if (!value.nodeExists)
+			node.children += value.createNodeById() => [
+			    it.addLabel("Value:")
+			    it.nextTransformation(value)
+			]
 		
 		// Add edge between key node and value node
 		key.createEdgeById(value) => [

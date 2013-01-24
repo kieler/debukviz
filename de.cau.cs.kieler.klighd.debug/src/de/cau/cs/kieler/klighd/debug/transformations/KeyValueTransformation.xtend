@@ -24,8 +24,10 @@ class KeyValueTransformation extends AbstractDebugTransformation {
     
     override transform(IVariable model) {
         return KimlUtil::createInitializedNode() => [
-            it.addLayoutParam(LayoutOptions::ALGORITHM, "de.cau.cs.kieler.klay.layered")
-            it.addLayoutParam(LayoutOptions::SPACING, 75f)
+            it.addLayoutParam(LayoutOptions::ALGORITHM, "de.cau.cs.kieler.kiml.ogdf.planarization")
+            it.addLayoutParam(LayoutOptions::SPACING, 50f)
+            it.addLayoutParam(LayoutOptions::LAYOUT_HIERARCHY, true)
+            it.addLayoutParam(LayoutOptions::DEBUG_MODE, true)
             it.addLayoutParam(LayoutOptions::DIRECTION, Direction::UP)
             model.getVariables("table").filter[variable | variable.valueIsNotNull].forEach[
                 IVariable variable | 
@@ -38,22 +40,29 @@ class KeyValueTransformation extends AbstractDebugTransformation {
     }
     
     def createKeyValueNode(KNode node, IVariable variable) {
-       val key = variable.getVariable("key")
-       val value = variable.getVariable("value")
-       node.createInnerNode(key,"Key:")
-       node.createInnerNode(value,"Value:")
-       key.createEdge(value) => [
+       	val key = variable.getVariable("key")
+       	val value = variable.getVariable("value")
+	   	/*node.children += key.createNodeById() => [
+	       	it.addLabel("Key:")
+	       	it.nextTransformation(key)
+	   	]
+	   	node.children += value.createNodeById() => [
+	       	it.addLabel("Value:")
+	       	it.nextTransformation(value)
+	   	]*/
+	   	node.addNewNodeById(key) => [
+	   		it.addLabel("Key:")
+	       	it.nextTransformation(key)
+	   	]
+	   	node.addNewNodeById(value) => [
+	       		it.addLabel("Value:")
+	       		it.nextTransformation(value)
+	   	    ]
+        key.createEdgeById(value) => [
             it.data += renderingFactory.createKPolyline() => [
                 it.setLineWidth(2);
                 it.addArrowDecorator();
-            ];
-        ]; 
-    }
-    
-    def createInnerNode(KNode node, IVariable variable, String text) {
-        node.children += variable.createNode() => [
-            it.addLabel(text)
-            it.nextTransformation(variable)
-       ] 
+            ]
+        ]
     }
 }
