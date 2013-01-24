@@ -14,8 +14,11 @@ import javax.inject.Inject
 import org.eclipse.debug.core.model.IVariable
 
 import static de.cau.cs.kieler.klighd.debug.visualization.AbstractDebugTransformation.*
+import de.cau.cs.kieler.klighd.debug.graphTransformations.GraphTransformationInfo
 
 class LGraphTransformation extends AbstractKNodeTransformation {
+    
+    private boolean detailedView = true;
     
     @Inject
     extension KNodeExtensions
@@ -32,20 +35,23 @@ class LGraphTransformation extends AbstractKNodeTransformation {
      * {@inheritDoc}
      */
 	override transform(IVariable graph) {
+        if(transformationInfo instanceof GraphTransformationInfo) {
+            detailedView = (transformationInfo as GraphTransformationInfo).isDetailedView
+        }
         return KimlUtil::createInitializedNode=> [
             it.addLayoutParam(LayoutOptions::ALGORITHM, "de.cau.cs.kieler.kiml.ogdf.planarization")
             it.addLayoutParam(LayoutOptions::SPACING, 75f)
             
      		it.createHeaderNode(graph)
-      		it.createPropertyMap(graph)
+      		if (detailedView) {it.createPropertyMap(graph)}
       		it.createAllNodes(graph)
 
+            // create all edges, first for all layerlessNodes, then iterate through all layers
       		it.createEdges(graph.getVariable("layerlessNodes"))
       		graph.getVariable("layers").linkedList.forEach[IVariable layer |
       			it.createEdges(layer)	
       		]
         ]
-
 	}
 	
 	def createHeaderNode(KNode rootNode, IVariable graph) {
@@ -101,10 +107,12 @@ class LGraphTransformation extends AbstractKNodeTransformation {
 
 
 	def createAllNodes(KNode rootNode, IVariable graph) {
+	    // create a node (visualization) containing the graphical visualisation of the LGraph
 		// the node has to be registered to a specific object.
 		// we are using the layerlessNodes element here
-		val dummy = graph.getVariable("layerlessNodes")
-        rootNode.children += dummy.createNodeById => [
+		val visualization = graph.getVariable("layerlessNodes")
+
+        rootNode.addNewNodeById(visualization) => [
             it.data += renderingFactory.createKRectangle => [
                 it.lineWidth = 4
             ]
@@ -113,7 +121,7 @@ class LGraphTransformation extends AbstractKNodeTransformation {
   		]
   		
 	    // create edge from graph to propertyMap
-        graph.createEdgeById(dummy) => [
+        graph.createEdgeById(visualization) => [
             it.data += renderingFactory.createKPolyline => [
                 it.setLineWidth(2)
                 it.addArrowDecorator
@@ -145,7 +153,7 @@ class LGraphTransformation extends AbstractKNodeTransformation {
         	node.getVariable("ports").linkedList.forEach[IVariable port |
         		port.getVariable("outgoingEdges").linkedList.forEach[IVariable edge |
                     edge.getVariable("source.owner")
-                        .createEdge(edge.getVariable("target.owner")) => [
+                        .createEdgeById(edge.getVariable("target.owner")) => [
         				it.data += renderingFactory.createKPolyline => [
 	            		    it.setLineWidth(2)
                             it.addArrowDecorator
@@ -175,7 +183,7 @@ class LGraphTransformation extends AbstractKNodeTransformation {
     	val propertyMap = propertyMapHolder.getVariable("propertyMap")
     	
     	// create propertyMap node
-        rootNode.children += propertyMap.createNodeById => [
+        rootNode.addNewNodeById(propertyMap) => [
             it.data += renderingFactory.createKRectangle => [
                 it.lineWidth = 4
     			it.ChildPlacement = renderingFactory.createKGridPlacement
@@ -186,15 +194,16 @@ class LGraphTransformation extends AbstractKNodeTransformation {
                     it.text = propertyMap.ShortType
                 ]
 
-                // add all non null properties
-                propertyMap.getVariables("table").filter[e | e.valueIsNotNull].forEach[IVariable property |
+                // add all properties
+                propertyMap.hashMapToLinkedList.forEach[IVariable property |
 	                it.children += renderingFactory.createKText => [
+	                    println(property.getVariable("key").getType)
 	                    it.text = property.getValue("key.id") + ": " + property.getValue("key")
 	                ]
                 ]
             ]
         ]
-        
+
         // create edge from graph to propertyMap
         propertyMapHolder.createEdgeById(propertyMap) => [
             it.data += renderingFactory.createKPolyline => [

@@ -37,9 +37,6 @@ class LNodeTransformation extends AbstractKNodeTransformation {
             it.addLayoutParam(LayoutOptions::ALGORITHM, "de.cau.cs.kieler.kiml.ogdf.planarization")
             it.addLayoutParam(LayoutOptions::SPACING, 75f)
             it.children += node.createNodeById => [
-				it.setNodeSize(120,80)
-//                it.addLayoutParam(LayoutOptions::LABEL_SPACING, 75f)
-//                it.addLayoutParam(LayoutOptions::SPACING, 75f)
                 
                 // Get the nodeType
                 val nodeType = node.nodeType
@@ -47,7 +44,7 @@ class LNodeTransformation extends AbstractKNodeTransformation {
                 val ports = node.getVariable("ports").linkedList
                 // Get the labels
                 val labels = node.getVariable("labels").linkedList
-                
+
                 var KContainerRendering container
                 
                 if (nodeType == "NORMAL" ) {
@@ -120,10 +117,12 @@ class LNodeTransformation extends AbstractKNodeTransformation {
 								                    + node.getValue("margin.right").round(1) + " x "
 								                    + node.getValue("margin.top").round(1) + ")" 
                 ]
-                //owner
+
+                //owner (layer)
                 container.children += renderingFactory.createKText => [
-                	it.text = "owner: layer(" + node.getValue("layer.id") + ")"
+                	it.text = "owner: layer(" + node.getValue("owner.id") + ")"
                 ]
+
                 //ports
                 //pos
                 //propertyMap

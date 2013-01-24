@@ -72,15 +72,37 @@ public abstract class AbstractKNodeTransformation extends AbstractDebugTransform
         IVariable[] vars = getVariables(variable, "table");
 
         for (IVariable var : vars) {
-        	if (valueIsNotNull(var)) {
+            if (valueIsNotNull(var)) {
                 String currentString = getValue(var, "key.id");
                 if (currentString.equals(key)) {
                     return getVariable(var, "value");
                 }
-        	}
+                IVariable next = getVariable(var, "next");
+                if (valueIsNotNull(next)) {
+                    currentString = getValue(next, "key.id");
+                    if (currentString.equals(key)) {
+                        return getVariable(next, "value");
+                    }
+                }
+            }
         }
-
+        // key not found
         return null;
+    }
+    
+    public LinkedList<IVariable> hashMapToLinkedList(IVariable variable) throws DebugException {
+        IVariable[] vars = getVariables(variable, "table");
+        LinkedList<IVariable> retVal = new LinkedList<IVariable>();
+        for (IVariable var : vars) {
+            if (valueIsNotNull(var)) {
+                retVal.add(var);
+                IVariable next = getVariable(var, "next");
+                if (valueIsNotNull(next)) {
+                    retVal.add(next);
+                }
+            }
+        }
+        return retVal;
     }
 
     public String round(String string, int decimalPositions) {
