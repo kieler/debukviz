@@ -11,13 +11,18 @@ import javax.inject.Inject
 import org.eclipse.debug.core.model.IVariable
 
 import static de.cau.cs.kieler.klighd.debug.visualization.AbstractDebugTransformation.*
+import de.cau.cs.kieler.core.kgraph.KEdge
+import de.cau.cs.kieler.core.krendering.extensions.KLabelExtensions
+import de.cau.cs.kieler.kiml.options.EdgeLabelPlacement
 
 class ArrayListTransformation extends AbstractDebugTransformation {
     
     @Inject
     extension KNodeExtensions 
     @Inject 
-    extension KPolylineExtensions 
+    extension KPolylineExtensions
+    @Inject 
+    extension KLabelExtensions  
     @Inject
     extension KRenderingExtensions
     
@@ -33,21 +38,23 @@ class ArrayListTransformation extends AbstractDebugTransformation {
             model.getVariables("elementData").subList(0,size).forEach[
                 IVariable variable |
                     it.addNewNodeById(variable) => [
-                    	it.addLabel(""+index)
-                    	index= index +1
                         it.nextTransformation(variable)
                         if (previous != null)
-                            previous.createEdge(variable) => [
+                            previous.createEdgeById(variable) => [
+                                variable.createLabel(it) => [
+                                    it.addLayoutParam(LayoutOptions::EDGE_LABEL_PLACEMENT, EdgeLabelPlacement::CENTER)
+                                    it.setLabelSize(50,50)
+                                    it.text = "" + index;
+                                ]
                                 it.data += renderingFactory.createKPolyline() => [
                                     it.setLineWidth(2)
                                     it.addArrowDecorator();
                                 ]
                             ]
                         previous = variable
+                        index= index +1
                     ]
-            ]
-            
+            ]    
        ]
     }
-    
 }
