@@ -12,6 +12,8 @@ import javax.inject.Inject
 import org.eclipse.debug.core.model.IVariable
 
 import static de.cau.cs.kieler.klighd.debug.visualization.AbstractDebugTransformation.*
+import de.cau.cs.kieler.core.krendering.extensions.KLabelExtensions
+import de.cau.cs.kieler.kiml.options.EdgeLabelPlacement
 
 class EnumMapTransformation extends AbstractDebugTransformation {
    
@@ -21,12 +23,14 @@ class EnumMapTransformation extends AbstractDebugTransformation {
     extension KRenderingExtensions
     @Inject 
     extension KPolylineExtensions 
+    @Inject 
+    extension KLabelExtensions 
     
     override transform(IVariable model) {
         return KimlUtil::createInitializedNode() => [
             it.addLayoutParam(LayoutOptions::ALGORITHM, "de.cau.cs.kieler.klay.layered")
             it.addLayoutParam(LayoutOptions::SPACING, 75f)
-            it.addLayoutParam(LayoutOptions::DIRECTION, Direction::UP)
+            it.addLayoutParam(LayoutOptions::DIRECTION, Direction::RIGHT)
             val keyUniverse = model.getVariables("keyUniverse")
             var index = 0;
             for (value : model.getVariables("vals")) {
@@ -39,27 +43,24 @@ class EnumMapTransformation extends AbstractDebugTransformation {
     
     def createKeyValueNode(KNode node, IVariable key, IVariable value) {
 		// Add key node
-		node.children += key.createNodeById() => [
-			it.addLabel("Key:")
-			it.data += renderingFactory.createKChildArea
-			it.children += createNode() => [
-				it.children += createNode => [
-					it.data += renderingFactory.createKText() => [
-						it.text = key.getValue("name")
-					]
-				]
+		node.addNewNodeById(key) => [
+		    it.children += createNode() => [
+    			it.data += renderingFactory.createKText() => [
+    				it.text = key.getValue("name")
+    			]
 			]
 		]
 		
 		// Add value node
-		if (!value.nodeExists)
-			node.children += value.createNodeById() => [
-			    it.addLabel("Value:")
-			    it.nextTransformation(value)
-			]
-		
+		node.addNewNodeById(value) => [
+		    it.nextTransformation(value)
+		]
 		// Add edge between key node and value node
 		key.createEdgeById(value) => [
+            value.createLabel(it) => [
+                it.addLayoutParam(LayoutOptions::EDGE_LABEL_PLACEMENT,EdgeLabelPlacement::CENTER)
+                it.text = "value";
+            ]
         	it.data += renderingFactory.createKPolyline() => [
             	it.setLineWidth(2);
             	it.addArrowDecorator();

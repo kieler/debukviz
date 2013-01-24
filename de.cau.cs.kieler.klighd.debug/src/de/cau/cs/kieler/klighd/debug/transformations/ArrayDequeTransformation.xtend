@@ -37,8 +37,8 @@ class ArrayDequeTransformation extends AbstractDebugTransformation {
                 val node = it.nextTransformation(variable)
                 if (index == head)
                 	node.addLabel("head")
-                if (index == tail-1)
-                	node.addLabel("tail")
+                if (index == tail)
+                    node.addLabel("tail")
                 if (previous != null)
                     previous.createEdgeById(variable) => [
                         it.data += renderingFactory.createKPolyline() => [

@@ -121,6 +121,10 @@
             class="java.util.Vector"
             transformation="de.cau.cs.kieler.klighd.debug.transformations.VectorTransformation">
       </visualization>
+      <visualization
+            class="java.lang.Object"
+            transformation="de.cau.cs.kieler.klighd.debug.transformations.ObjectTransformation">
+      </visualization>
    </extension>
 
 </plugin>
