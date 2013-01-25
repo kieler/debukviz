@@ -11,6 +11,8 @@ import javax.inject.Inject
 import org.eclipse.debug.core.model.IVariable
 
 import static de.cau.cs.kieler.klighd.debug.visualization.AbstractDebugTransformation.*
+import de.cau.cs.kieler.core.krendering.extensions.KLabelExtensions
+import de.cau.cs.kieler.kiml.options.EdgeLabelPlacement
 
 class ArrayDequeTransformation extends AbstractDebugTransformation {
     
@@ -18,6 +20,8 @@ class ArrayDequeTransformation extends AbstractDebugTransformation {
     extension KNodeExtensions 
     @Inject 
     extension KPolylineExtensions 
+    @Inject 
+    extension KLabelExtensions
     @Inject
     extension KRenderingExtensions
     
@@ -34,18 +38,22 @@ class ArrayDequeTransformation extends AbstractDebugTransformation {
             var int index = head;
             while (index <= tail) {
                 val variable = elements.get(index)
-                val node = it.nextTransformation(variable)
-                if (index == head)
-                	node.addLabel("head")
-                if (index == tail)
-                    node.addLabel("tail")
-                if (previous != null)
-                    previous.createEdgeById(variable) => [
+                it.addNewNodeById(variable)?.nextTransformation(variable)
+                
+                if (previous != null) {
+                    val edge = previous.createEdgeById(variable) => [
                         it.data += renderingFactory.createKPolyline() => [
                             it.setLineWidth(2)
                             it.addArrowDecorator();
                         ]
                     ]
+                    if (index == head)
+                        previous.createLabel(edge) => [
+                            it.text = "head";
+                            it.addLayoutParam(LayoutOptions::EDGE_LABEL_PLACEMENT, EdgeLabelPlacement::CENTER)
+                            it.setLabelSize(50,50)
+                        ]
+                }
                 previous = variable
                 index = index + 1
             }

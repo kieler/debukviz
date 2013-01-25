@@ -6,7 +6,6 @@ import org.eclipse.debug.core.model.IVariable;
 
 import de.cau.cs.kieler.core.kgraph.KNode;
 import de.cau.cs.kieler.core.krendering.extensions.KNodeExtensions;
-import de.cau.cs.kieler.kiml.options.LayoutOptions;
 import de.cau.cs.kieler.klighd.TransformationContext;
 import de.cau.cs.kieler.klighd.debug.KlighdDebugExtension;
 import de.cau.cs.kieler.klighd.debug.visualization.AbstractDebugTransformation;
@@ -22,9 +21,11 @@ public class KlighdDebugTransformation extends AbstractDebugTransformation {
     public KNode transform(IVariable model, TransformationContext<IVariable,KNode> transformationContext) {
         // perform Transformation
         KNode node = transform(model,transformationContext,null);
-        // clear stored information
+
+        // reset stored information
         AbstractDebugTransformation.resetKNodeMap();
-        AbstractDebugTransformation.resetNodeCount();
+        AbstractDebugTransformation.resetDummyNodeMap();
+        //AbstractDebugTransformation.resetNodeCount();
         AbstractDebugTransformation.resetMaxDepth();
         return node;
     }
@@ -53,6 +54,7 @@ public class KlighdDebugTransformation extends AbstractDebugTransformation {
                 (Class<AbstractDebugTransformation>) transformation.getClass());
         
         transformation.setTransformationInfo(transformationInfo);
+        
         return transformation.transform(model,transformationContext);
     }
 

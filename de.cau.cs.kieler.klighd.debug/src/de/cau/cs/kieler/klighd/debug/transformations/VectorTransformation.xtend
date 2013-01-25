@@ -22,7 +22,6 @@ class VectorTransformation extends AbstractDebugTransformation {
     extension KRenderingExtensions
     
     var IVariable previous = null
-    var index = 0
     
     override transform(IVariable model) {
        return KimlUtil::createInitializedNode() => [
@@ -32,21 +31,16 @@ class VectorTransformation extends AbstractDebugTransformation {
             val size = Integer::parseInt(model.getValue("elementCount"))
             model.getVariables("elementData").subList(0,size).forEach[
                 IVariable variable |
-                    it.children += variable.createNode() => [
-                    	it.addLabel(""+index)
-                    	index= index +1
-                        it.nextTransformation(variable)
-                        if (previous != null)
-                            previous.createEdge(variable) => [
-                                it.data += renderingFactory.createKPolyline() => [
-                                    it.setLineWidth(2)
-                                    it.addArrowDecorator();
-                                ]
+                    it.addNewNodeById(variable)?.nextTransformation(variable)
+                    if (previous != null)
+                        previous.createEdgeById(variable) => [
+                            it.data += renderingFactory.createKPolyline() => [
+                                it.setLineWidth(2)
+                                it.addArrowDecorator();
                             ]
-                        previous = variable
-                    ]
-            ]
-            
+                        ]
+                    previous = variable
+            ]   
        ]
     }
     

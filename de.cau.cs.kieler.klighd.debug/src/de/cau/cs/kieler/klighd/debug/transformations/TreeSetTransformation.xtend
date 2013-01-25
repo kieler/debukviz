@@ -12,6 +12,8 @@ import javax.inject.Inject
 import org.eclipse.debug.core.model.IVariable
 
 import static de.cau.cs.kieler.klighd.debug.visualization.AbstractDebugTransformation.*
+import de.cau.cs.kieler.kiml.options.EdgeLabelPlacement
+import de.cau.cs.kieler.core.krendering.extensions.KLabelExtensions
 
 class TreeSetTransformation extends AbstractDebugTransformation {
    
@@ -21,67 +23,53 @@ class TreeSetTransformation extends AbstractDebugTransformation {
     extension KRenderingExtensions
     @Inject 
     extension KPolylineExtensions 
+    @Inject 
+    extension KLabelExtensions 
     
     override transform(IVariable model) {
         return KimlUtil::createInitializedNode() => [
             it.addLayoutParam(LayoutOptions::ALGORITHM, "de.cau.cs.kieler.klay.layered")
             it.addLayoutParam(LayoutOptions::SPACING, 75f)
-            it.addLayoutParam(LayoutOptions::DIRECTION, Direction::UP)
-           	createTreeNode(model.getVariable("m.root"),"root")
+            it.addLayoutParam(LayoutOptions::DIRECTION, Direction::DOWN)
+            //it.addLayoutParam(LayoutOptions::LAYOUT_HIERARCHY, true)
+            createTreeNode(model.getVariable("m.root"),"")
         ]
     }
     
     def getParent(IVariable variable) {
-    	variable.getVariable("parent")
+        variable.getVariable("parent")
+    }
+    
+    def getKey(IVariable variable) {
+        variable.getVariable("key")
     }
     
     def createTreeNode(KNode node, IVariable root, String label) {
-    	val left = root.getVariable("left")
-    	val right = root.getVariable("right")
-      	
-      	node.createKeyNode(root,label)
-      	
-       	if (right.valueIsNotNull) {
-       		node.createTreeNode(right,"right")
-       		/*root.createEdge(right) => [
-       			it.data += renderingFactory.createKPolyline() => [
-                    it.setLineWidth(2)
-                    it.addArrowDecorator();
-            	]
-       		]*/
-       	}
-       	if (left.valueIsNotNull) {
-       		node.createTreeNode(left,"left")
-       		/*root.createEdge(left) => [
-       			it.data += renderingFactory.createKPolyline() => [
-                    it.setLineWidth(2)
-                    it.addArrowDecorator();
-            	]
-       		]*/
-       	}
-       	
-        if (root.parent.valueIsNotNull) {
-        	root.parent.parent.createEdge(root.parent) => [
-       			it.data += renderingFactory.createKPolyline() => [
-                    it.setLineWidth(2)
-                    it.addArrowDecorator();
-            	]
-       		]
+        val left = root.getVariable("left")
+        val right = root.getVariable("right")
+        
+        val key = root.key
+        node.addNewNodeById(key)?.nextTransformation(key)
+        
+        if (right.valueIsNotNull) {
+            node.createTreeNode(right,"right")
         }
-    }
-    
-    def createKeyNode(KNode node, IVariable root, String label) {
-    	val key = root.getVariable("key")
-    	node.children += root.parent.createNode() => [
-    		it.addLabel(label)
-	    	it.createInnerNode(root,key,"Key:")
-	    ]
-    }
-    
-    def createInnerNode(KNode rootNode, IVariable parent, IVariable variable, String text) {
-        rootNode.children += variable.createNode() => [
-            it.addLabel(text)
-            it.nextTransformation(variable,null)
-       	]
+        if (left.valueIsNotNull) {
+            node.createTreeNode(left,"left")
+        }
+        
+        if (root.valueIsNotNull) {
+            root.parent.key.createEdgeById(key) => [
+                root.createLabel(it) => [
+                    it.addLayoutParam(LayoutOptions::EDGE_LABEL_PLACEMENT,EdgeLabelPlacement::CENTER)
+                    it.setLabelSize(50,50)
+                    it.text = label
+                ]
+                it.data += renderingFactory.createKPolyline() => [
+                    it.setLineWidth(2)
+                    it.addArrowDecorator()
+                ]
+            ]
+        }
     }
 }

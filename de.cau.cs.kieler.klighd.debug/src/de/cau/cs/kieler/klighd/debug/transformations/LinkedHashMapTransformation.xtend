@@ -12,6 +12,8 @@ import javax.inject.Inject
 import org.eclipse.debug.core.model.IVariable
 
 import static de.cau.cs.kieler.klighd.debug.visualization.AbstractDebugTransformation.*
+import de.cau.cs.kieler.core.krendering.extensions.KLabelExtensions
+import de.cau.cs.kieler.kiml.options.EdgeLabelPlacement
 
 class LinkedHashMapTransformation extends AbstractDebugTransformation {
    
@@ -20,7 +22,9 @@ class LinkedHashMapTransformation extends AbstractDebugTransformation {
     @Inject
     extension KRenderingExtensions
     @Inject 
-    extension KPolylineExtensions 
+    extension KPolylineExtensions
+    @Inject 
+    extension KLabelExtensions 
     
     var index = 0;
     var size = 0;
@@ -38,35 +42,38 @@ class LinkedHashMapTransformation extends AbstractDebugTransformation {
     def createKeyValueNode(KNode node, IVariable variable) {
         val key = variable.getVariable("key")
         val value = variable.getVariable("value")
-        val beforeKey = variable.getVariable("before.key")
         val after = variable.getVariable("after")
         
         index = index + 1
         
-        node.children += variable.createNode() => [
-            it.addLabel("Key:")
-            it.nextTransformation(key)
-        ]
-        if (!value.nodeExists)
-	        node.children += value.createNodeById() => [
-	            it.addLabel("Value:")
-	            it.nextTransformation(value)
-	        ]
-        /*variable.createEdgeById(value) => [
+        node.addNewNodeById(key)?.nextTransformation(key)
+        
+        node.addNewNodeById(value)?.nextTransformation(value)
+    
+        key.createEdgeById(value) => [
+            value.createLabel(it) => [
+                it.addLayoutParam(LayoutOptions::EDGE_LABEL_PLACEMENT,EdgeLabelPlacement::CENTER)
+                it.setLabelSize(50,50)
+                it.text = "value";
+            ]
             it.data += renderingFactory.createKPolyline() => [
                 it.setLineWidth(2);
                 it.addArrowDecorator();
             ]
         ]
-        
-        if(index < size) {
-        	node.createKeyValueNode(after)
-        	variable.createEdgeById(after) => [
+        if (index < size) {
+            node.createKeyValueNode(after)
+        	key.createEdgeById(after.getVariable("key")) => [
+        	    key.createLabel(it) => [
+        	        it.addLayoutParam(LayoutOptions::EDGE_LABEL_PLACEMENT,EdgeLabelPlacement::CENTER)
+        	        it.setLabelSize(50,50)
+                    it.text = "after"
+        	    ]
         		it.data += renderingFactory.createKPolyline() => [
-                	it.setLineWidth(2);
-                	it.addArrowDecorator();
+                	it.setLineWidth(2)
+                	it.addArrowDecorator()
                 ]
             ]
-        }*/
+        }
     }
 }

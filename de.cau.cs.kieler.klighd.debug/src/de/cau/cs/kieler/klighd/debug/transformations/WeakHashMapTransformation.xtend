@@ -12,6 +12,8 @@ import javax.inject.Inject
 import org.eclipse.debug.core.model.IVariable
 
 import static de.cau.cs.kieler.klighd.debug.visualization.AbstractDebugTransformation.*
+import de.cau.cs.kieler.core.krendering.extensions.KLabelExtensions
+import de.cau.cs.kieler.kiml.options.EdgeLabelPlacement
 
 class WeakHashMapTransformation extends AbstractDebugTransformation {
    
@@ -20,13 +22,17 @@ class WeakHashMapTransformation extends AbstractDebugTransformation {
     @Inject
     extension KRenderingExtensions
     @Inject 
-    extension KPolylineExtensions 
+    extension KPolylineExtensions
+    @Inject 
+    extension KLabelExtensions 
     
     override transform(IVariable model) {
         return KimlUtil::createInitializedNode() => [
-            it.addLayoutParam(LayoutOptions::ALGORITHM, "de.cau.cs.kieler.klay.layered")
-            it.addLayoutParam(LayoutOptions::SPACING, 75f)
-            it.addLayoutParam(LayoutOptions::DIRECTION, Direction::UP)
+            it.addLayoutParam(LayoutOptions::ALGORITHM, "de.cau.cs.kieler.kiml.ogdf.planarization")
+            it.addLayoutParam(LayoutOptions::SPACING, 50f)
+            it.addLayoutParam(LayoutOptions::LAYOUT_HIERARCHY, true)
+            it.addLayoutParam(LayoutOptions::DEBUG_MODE, true)
+            it.addLayoutParam(LayoutOptions::DIRECTION, Direction::RIGHT)
             model.getVariables("table").filter[variable | variable.valueIsNotNull].forEach[
                 IVariable variable | 
                     it.createKeyValueNode(variable)
@@ -38,22 +44,23 @@ class WeakHashMapTransformation extends AbstractDebugTransformation {
     }
     
     def createKeyValueNode(KNode node, IVariable variable) {
-       val key = variable.getVariable("referent")
-       val value = variable.getVariable("value")
-       node.createInnerNode(key,"Key:")
-       node.createInnerNode(value,"Value:")
-       key.createEdge(value) => [
-            it.data += renderingFactory.createKPolyline() => [
-                it.setLineWidth(2);
-                it.addArrowDecorator();
-            ];
-        ]; 
-    }
+        val key = variable.getVariable("referent")
+        val value = variable.getVariable("value")
+
+        node.addNewNodeById(key)?.nextTransformation(key)
+        
+        node.addNewNodeById(value)?.nextTransformation(value)
     
-    def createInnerNode(KNode node, IVariable variable, String text) {
-    	node.children += variable.createNode() => [
-			it.addLabel(text)
-    		it.nextTransformation(variable)
-    	]
+        key.createEdgeById(value) => [
+            value.createLabel(it) => [
+                it.addLayoutParam(LayoutOptions::EDGE_LABEL_PLACEMENT,EdgeLabelPlacement::CENTER)
+                it.setLabelSize(50,50)
+                it.text = "value"
+            ]
+            it.data += renderingFactory.createKPolyline() => [
+                it.setLineWidth(2)
+                it.addArrowDecorator()
+            ]
+        ]
     }
 }

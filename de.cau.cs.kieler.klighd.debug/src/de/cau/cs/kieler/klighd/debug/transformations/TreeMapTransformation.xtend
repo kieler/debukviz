@@ -12,6 +12,8 @@ import javax.inject.Inject
 import org.eclipse.debug.core.model.IVariable
 
 import static de.cau.cs.kieler.klighd.debug.visualization.AbstractDebugTransformation.*
+import de.cau.cs.kieler.core.krendering.extensions.KLabelExtensions
+import de.cau.cs.kieler.kiml.options.EdgeLabelPlacement
 
 class TreeMapTransformation extends AbstractDebugTransformation {
    
@@ -21,12 +23,15 @@ class TreeMapTransformation extends AbstractDebugTransformation {
     extension KRenderingExtensions
     @Inject 
     extension KPolylineExtensions 
+    @Inject 
+    extension KLabelExtensions 
     
     override transform(IVariable model) {
         return KimlUtil::createInitializedNode() => [
             it.addLayoutParam(LayoutOptions::ALGORITHM, "de.cau.cs.kieler.klay.layered")
             it.addLayoutParam(LayoutOptions::SPACING, 75f)
-            it.addLayoutParam(LayoutOptions::DIRECTION, Direction::UP)
+            it.addLayoutParam(LayoutOptions::DIRECTION, Direction::DOWN)
+            //it.addLayoutParam(LayoutOptions::LAYOUT_HIERARCHY, true)
            	createTreeNode(model.getVariable("root"),"")
         ]
     }
@@ -39,57 +44,48 @@ class TreeMapTransformation extends AbstractDebugTransformation {
     	val left = root.getVariable("left")
     	val right = root.getVariable("right")
       	
-      	node.createKeyValueNode(root,label)
+      	node.createKeyValueNode(root)
       	
        	if (right.valueIsNotNull) {
        		node.createTreeNode(right,"right")
-       		/*root.createEdge(right) => [
-       			it.data += renderingFactory.createKPolyline() => [
-                    it.setLineWidth(2)
-                    it.addArrowDecorator();
-            	]
-       		]*/
        	}
        	if (left.valueIsNotNull) {
        		node.createTreeNode(left,"left")
-       		/*root.createEdge(left) => [
-       			it.data += renderingFactory.createKPolyline() => [
-                    it.setLineWidth(2)
-                    it.addArrowDecorator();
-            	]
-       		]*/
        	}
        	
-        if (root.parent.valueIsNotNull) {
-        	root.parent.parent.createEdge(root.parent) => [
+        if (root.valueIsNotNull) {
+        	root.parent.createEdgeById(root) => [
+                root.createLabel(it) => [
+                    it.addLayoutParam(LayoutOptions::EDGE_LABEL_PLACEMENT,EdgeLabelPlacement::CENTER)
+                    it.setLabelSize(50,50)
+                    it.text = label
+                ]
        			it.data += renderingFactory.createKPolyline() => [
                     it.setLineWidth(2)
                     it.addArrowDecorator()
             	]
-            	it.addLabel(label)
        		]
         }
     }
     
-    def createKeyValueNode(KNode node, IVariable root, String label) {
+    def createKeyValueNode(KNode rootNode, IVariable root) {
     	val key = root.getVariable("key")
     	val value = root.getVariable("value")
-    	node.children += root.parent.createNode() => [
-	    	it.createInnerNode(root,key,"Key:")
-	       	it.createInnerNode(root,value,"Value:")
-	       	key.createEdge(value) => [
-	       		it.data += renderingFactory.createKPolyline() => [
-	                    it.setLineWidth(2)
-	                    it.addArrowDecorator();
-	            ]
-	       	]
-       	]
-    }
-    
-    def createInnerNode(KNode rootNode, IVariable parent, IVariable variable, String text) {
-        rootNode.children += variable.createNode() => [
-            it.addLabel(text)
-            it.nextTransformation(variable,null)
+    	val node = rootNode.addNewNodeById(root)
+	    if (node != null) {
+    	    node.addNewNodeById(key)?.nextTransformation(key)
+            node.addNewNodeById(value)?.nextTransformation(value)
+	    }
+	    key.createEdgeById(value) => [
+            value.createLabel(it) => [
+                it.addLayoutParam(LayoutOptions::EDGE_LABEL_PLACEMENT,EdgeLabelPlacement::CENTER)
+                it.setLabelSize(50,50)
+                it.text = "value"
+            ]
+       		it.data += renderingFactory.createKPolyline() => [
+                    it.setLineWidth(2)
+                    it.addArrowDecorator();
+            ]
        	]
     }
 }

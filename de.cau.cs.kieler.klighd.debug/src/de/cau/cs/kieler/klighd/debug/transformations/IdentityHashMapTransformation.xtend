@@ -12,6 +12,8 @@ import javax.inject.Inject
 import org.eclipse.debug.core.model.IVariable
 
 import static de.cau.cs.kieler.klighd.debug.visualization.AbstractDebugTransformation.*
+import de.cau.cs.kieler.core.krendering.extensions.KLabelExtensions
+import de.cau.cs.kieler.kiml.options.EdgeLabelPlacement
 
 class IdentityHashMapTransformation extends AbstractDebugTransformation {
    
@@ -21,6 +23,8 @@ class IdentityHashMapTransformation extends AbstractDebugTransformation {
     extension KRenderingExtensions
     @Inject 
     extension KPolylineExtensions 
+    @Inject 
+    extension KLabelExtensions 
     
     override transform(IVariable model) {
         return KimlUtil::createInitializedNode() => [
@@ -43,20 +47,18 @@ class IdentityHashMapTransformation extends AbstractDebugTransformation {
     }
     
     def createKeyValueNode(KNode node, IVariable key, IVariable value) {
-       node.createInnerNode(key,"Key:")
-       node.createInnerNode(value,"Value:")
-       key.createEdge(value) => [
+        node.addNewNodeById(key)?.nextTransformation(key)
+        node.addNewNodeById(value)?.nextTransformation(value)
+        
+        key.createEdgeById(value) => [
+            value.createLabel(it) => [
+                it.addLayoutParam(LayoutOptions::EDGE_LABEL_PLACEMENT,EdgeLabelPlacement::CENTER)
+                it.text = "value";
+            ]
             it.data += renderingFactory.createKPolyline() => [
                 it.setLineWidth(2);
                 it.addArrowDecorator();
-            ];
-        ]; 
-    }
-    
-    def createInnerNode(KNode node, IVariable variable, String text) {
-        node.children += variable.createNode() => [
-            it.addLabel(text)
-            it.nextTransformation(variable,null)
-       ] 
+            ]
+        ]
     }
 }

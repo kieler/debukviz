@@ -46,28 +46,20 @@ class KeyValueTransformation extends AbstractDebugTransformation {
     def createKeyValueNode(KNode node, IVariable variable) {
        	val key = variable.getVariable("key")
        	val value = variable.getVariable("value")
-	   	/*node.children += key.createNodeById() => [
-	       	it.addLabel("Key:")
-	       	it.nextTransformation(key)
-	   	]
-	   	node.children += value.createNodeById() => [
-	       	it.addLabel("Value:")
-	       	it.nextTransformation(value)
-	   	]*/
-	   	node.addNewNodeById(key) => [
-	       	it.nextTransformation(key)
-	   	]
-	   	node.addNewNodeById(value) => [
-	    	it.nextTransformation(value)
-	   	]
+
+	   	node.addNewNodeById(key)?.nextTransformation(key)
+	   	
+	   	node.addNewNodeById(value)?.nextTransformation(value)
+	
         key.createEdgeById(value) => [
             value.createLabel(it) => [
                 it.addLayoutParam(LayoutOptions::EDGE_LABEL_PLACEMENT,EdgeLabelPlacement::CENTER)
-                it.text = "value";
+                it.setLabelSize(50,50)
+                it.text = "value"
             ]
             it.data += renderingFactory.createKPolyline() => [
-                it.setLineWidth(2);
-                it.addArrowDecorator();
+                it.setLineWidth(2)
+                it.addArrowDecorator()
             ]
         ]
     }

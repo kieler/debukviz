@@ -2,10 +2,12 @@ package de.cau.cs.kieler.klighd.debug.transformations
 
 import de.cau.cs.kieler.core.kgraph.KNode
 import de.cau.cs.kieler.core.krendering.KText
+import de.cau.cs.kieler.core.krendering.extensions.KLabelExtensions
 import de.cau.cs.kieler.core.krendering.extensions.KNodeExtensions
 import de.cau.cs.kieler.core.krendering.extensions.KPolylineExtensions
 import de.cau.cs.kieler.core.krendering.extensions.KRenderingExtensions
 import de.cau.cs.kieler.kiml.options.Direction
+import de.cau.cs.kieler.kiml.options.EdgeLabelPlacement
 import de.cau.cs.kieler.kiml.options.LayoutOptions
 import de.cau.cs.kieler.kiml.util.KimlUtil
 import de.cau.cs.kieler.klighd.debug.visualization.AbstractDebugTransformation
@@ -27,8 +29,8 @@ class DefaultTransformation extends AbstractDebugTransformation {
     extension KNodeExtensions
     @Inject
     extension KRenderingExtensions
-
-	var index = 0
+    @Inject
+    extension KLabelExtensions
 
     override transform(IVariable model) {
         return KimlUtil::createInitializedNode() => [
@@ -59,7 +61,7 @@ class DefaultTransformation extends AbstractDebugTransformation {
     
     def KNode createObjectNode(KNode node, IVariable variable) {
     	variable.createNodeById() => [
-    	    it.addLabel(variable.name)
+    	    //it.addLabel(variable.name)
     	    it.children += it.nextTransformation(variable)
     	]
     }
@@ -80,7 +82,11 @@ class DefaultTransformation extends AbstractDebugTransformation {
                 	IVariable variable |
                 	node.arrayTransform(variable)
                 	choice.createEdgeById(variable) => [
-                		it.addLabel(variable.name.replaceAll("[\\[\\]]",""))
+                		variable.createLabel(it) => [
+                            it.addLayoutParam(LayoutOptions::EDGE_LABEL_PLACEMENT, EdgeLabelPlacement::CENTER)
+                            it.setLabelSize(50,50)
+                            it.text = variable.name.replaceAll("[\\[\\]]","");
+                		]
     	                it.data += renderingFactory.createKPolyline() => [
                             it.setLineWidth(2)
                             it.addArrowDecorator()
@@ -91,9 +97,7 @@ class DefaultTransformation extends AbstractDebugTransformation {
         } else if (choice.value instanceof IJavaObject && !(choice.value as IJavaObject).isNull) {
             return node.nextTransformation(choice)
         } else
-        	return node.addNewNodeById(choice) => [
-            	it.createValueNode(choice)
-            ]
+        	return node.addNewNodeById(choice)?.createValueNode(choice)
     }
     
     def createValueNode(KNode node, IVariable variable) {

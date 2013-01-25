@@ -1,6 +1,5 @@
 package de.cau.cs.kieler.klighd.debug.transformations
 
-import de.cau.cs.kieler.core.kgraph.KNode
 import de.cau.cs.kieler.core.krendering.KRenderingFactory
 import de.cau.cs.kieler.core.krendering.KText
 import de.cau.cs.kieler.core.krendering.extensions.KNodeExtensions
@@ -11,7 +10,7 @@ import java.util.LinkedList
 import javax.inject.Inject
 import org.eclipse.debug.core.model.IVariable
 
-import static de.cau.cs.kieler.klighd.debug.transformations.ObjectValueTransformation.*
+import static de.cau.cs.kieler.klighd.debug.transformations.StringTransformation.*
 
 class StringTransformation extends AbstractDebugTransformation {
    

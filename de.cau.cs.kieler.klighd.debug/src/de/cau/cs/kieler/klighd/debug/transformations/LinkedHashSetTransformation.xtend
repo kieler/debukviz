@@ -11,49 +11,55 @@ import org.eclipse.debug.core.model.IVariable
 import static de.cau.cs.kieler.klighd.debug.visualization.AbstractDebugTransformation.*
 import de.cau.cs.kieler.core.krendering.extensions.KRenderingExtensions
 import de.cau.cs.kieler.core.krendering.extensions.KPolylineExtensions
+import de.cau.cs.kieler.core.krendering.extensions.KLabelExtensions
+import de.cau.cs.kieler.core.kgraph.KNode
+import de.cau.cs.kieler.kiml.options.EdgeLabelPlacement
 
 class LinkedHashSetTransformation extends AbstractDebugTransformation {
    
-    @Inject
+   @Inject
     extension KNodeExtensions
     @Inject
     extension KRenderingExtensions
     @Inject 
-    extension KPolylineExtensions 
+    extension KPolylineExtensions
+    @Inject 
+    extension KLabelExtensions 
+    
+    var index = 0;
+    var size = 0;
     
     override transform(IVariable model) {
         return KimlUtil::createInitializedNode() => [
             it.addLayoutParam(LayoutOptions::ALGORITHM, "de.cau.cs.kieler.klay.layered")
             it.addLayoutParam(LayoutOptions::SPACING, 75f)
             it.addLayoutParam(LayoutOptions::DIRECTION, Direction::RIGHT)
-            model.getVariables("map.table").filter[variable | variable.valueIsNotNull].forEach[
-                IVariable variable | 
-               	it.children += variable.createNodeById() => [
-               		it.nextTransformation(variable.key)
-       			]
-       			val next = variable.getVariable("next");
-                if (next.valueIsNotNull) {
-                    it.children += next.createNodeById() => [
-                        it.nextTransformation(next.key)
-                    ]
-                
-                }
-       			if (variable.before.valueIsNotNull)
-	       			variable.before.createEdgeById(variable) => [
-	            		it.data += renderingFactory.createKPolyline() => [
-	                		it.setLineWidth(2)
-	                		it.addArrowDecorator()
-	            		]
-	       		]
-       		]
-		]
+            size = Integer::parseInt(model.getValue("map.size"))
+            it.createKeyValueNode(model.getVariable("map.header.after"))
+        ]
     }
     
-    def getBefore(IVariable variable) {
-        variable.getVariable("before")
-    }
+    def createKeyValueNode(KNode node, IVariable variable) {
+        val key = variable.getVariable("key")
+        val after = variable.getVariable("after")
+        
+        index = index + 1
+        
+        node.addNewNodeById(key)?.nextTransformation(key)
     
-    def getKey(IVariable variable) {
-        variable.getVariable("key")
+        if (index < size) {
+            node.createKeyValueNode(after)
+            key.createEdgeById(after.getVariable("key")) => [
+                key.createLabel(it) => [
+                    it.addLayoutParam(LayoutOptions::EDGE_LABEL_PLACEMENT,EdgeLabelPlacement::CENTER)
+                    it.setLabelSize(50,50)
+                    it.text = "after"
+                ]
+                it.data += renderingFactory.createKPolyline() => [
+                    it.setLineWidth(2)
+                    it.addArrowDecorator()
+                ]
+            ]
+        }
     }
 }

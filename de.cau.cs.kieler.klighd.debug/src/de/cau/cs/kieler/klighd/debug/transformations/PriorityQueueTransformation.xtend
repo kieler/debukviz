@@ -22,35 +22,26 @@ class PriorityQueueTransformation extends AbstractDebugTransformation {
     extension KRenderingExtensions
     
     var IVariable previous = null
-    var index = 0
     
     override transform(IVariable model) {
        return KimlUtil::createInitializedNode() => [
             it.addLayoutParam(LayoutOptions::ALGORITHM, "de.cau.cs.kieler.klay.layered")
             it.addLayoutParam(LayoutOptions::SPACING, 75f)
             it.addLayoutParam(LayoutOptions::DIRECTION, Direction::RIGHT)
-            
-            model.getVariables("queue").filter[variable | variable.valueIsNotNull].forEach[
+            val size = Integer::parseInt(model.getValue("size"))
+            model.getVariables("queue").subList(0,size).forEach[
                 IVariable variable |
-                    it.children += variable.createNode() => [
-                    	if (index == 0)
-                    		it.addLabel("head")
-                    	else
-                    		it.addLabel(""+index)
-                    	index= index +1
-                        it.nextTransformation(variable)
-                        if (previous != null)
-                            previous.createEdge(variable) => [
-                                it.data += renderingFactory.createKPolyline() => [
-                                    it.setLineWidth(2)
-                                    it.addArrowDecorator();
-                                ]
+                    it.addNewNodeById(variable)?.nextTransformation(variable)
+                    if (previous != null)
+                        previous.createEdgeById(variable) => [
+                            it.data += renderingFactory.createKPolyline() => [
+                                it.setLineWidth(2)
+                                it.addArrowDecorator();
                             ]
-                        previous = variable
-                    ]
+                        ]
+                    previous = variable
+                ]
             ]
-            
-       ]
     }
     
 }
