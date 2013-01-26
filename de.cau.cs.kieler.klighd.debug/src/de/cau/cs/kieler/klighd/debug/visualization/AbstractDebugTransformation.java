@@ -49,7 +49,7 @@ public abstract class AbstractDebugTransformation extends AbstractTransformation
     private static final HashMap<IVariable, KNode> dummyNodeMap = new HashMap<IVariable, KNode>();
     private static Integer depth = 0;
     //private static Integer nodeCount = 0;
-    private static Integer maxDepth = 20;
+    private static Integer maxDepth = 5;
 
     public Object getTransformationInfo() {
         return transformationInfo;
@@ -72,7 +72,7 @@ public abstract class AbstractDebugTransformation extends AbstractTransformation
     //}
 
     public static void resetMaxDepth() {
-        maxDepth = 20;
+        maxDepth = 5;
     }
 
     public KNode nextTransformation(KNode rootNode, IVariable variable) throws DebugException {
@@ -108,8 +108,8 @@ public abstract class AbstractDebugTransformation extends AbstractTransformation
             while (innerNode.getChildren().size() == 1)
                 innerNode = innerNode.getChildren().get(0);
             if (kNodeMap.get(getId(variable)) == null)
-                kNodeMap.put(getId(variable), innerNode);
-
+                kNodeMap.put(getId(variable), innerNode);                
+            
             rootNode.getChildren().add(innerNode);
         } else {
             innerNode = kNodeExtensions.createNode(variable);
@@ -227,8 +227,6 @@ public abstract class AbstractDebugTransformation extends AbstractTransformation
         if (!(value instanceof IJavaObject))
             return new Long(-2);
         else {
-            if (value.isNull() || value.getJavaType().getName().equals("java.lang.Object"))
-                return new Long(-1);
             return ((IJavaObject)value).getUniqueId();
         }
     }

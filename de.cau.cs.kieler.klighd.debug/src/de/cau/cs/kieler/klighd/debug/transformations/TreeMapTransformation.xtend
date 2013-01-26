@@ -53,7 +53,7 @@ class TreeMapTransformation extends AbstractDebugTransformation {
        		node.createTreeNode(left,"left")
        	}
        	
-        if (root.valueIsNotNull) {
+        if (root.parent.valueIsNotNull) {
         	root.parent.createEdgeById(root) => [
                 root.createLabel(it) => [
                     it.addLayoutParam(LayoutOptions::EDGE_LABEL_PLACEMENT,EdgeLabelPlacement::CENTER)

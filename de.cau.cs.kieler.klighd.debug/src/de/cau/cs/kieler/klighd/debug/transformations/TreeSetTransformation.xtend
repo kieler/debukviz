@@ -17,7 +17,7 @@ import de.cau.cs.kieler.core.krendering.extensions.KLabelExtensions
 
 class TreeSetTransformation extends AbstractDebugTransformation {
    
-    @Inject
+@Inject
     extension KNodeExtensions
     @Inject
     extension KRenderingExtensions
@@ -36,19 +36,19 @@ class TreeSetTransformation extends AbstractDebugTransformation {
         ]
     }
     
-    def getParent(IVariable variable) {
-        variable.getVariable("parent")
+     def getKey(IVariable variable) {
+        variable.getVariable("key")
     }
     
-    def getKey(IVariable variable) {
-        variable.getVariable("key")
+    def getParent(IVariable variable) {
+        variable.getVariable("parent")
     }
     
     def createTreeNode(KNode node, IVariable root, String label) {
         val left = root.getVariable("left")
         val right = root.getVariable("right")
-        
         val key = root.key
+        
         node.addNewNodeById(key)?.nextTransformation(key)
         
         if (right.valueIsNotNull) {
@@ -58,7 +58,7 @@ class TreeSetTransformation extends AbstractDebugTransformation {
             node.createTreeNode(left,"left")
         }
         
-        if (root.valueIsNotNull) {
+        if (root.parent.valueIsNotNull) {
             root.parent.key.createEdgeById(key) => [
                 root.createLabel(it) => [
                     it.addLayoutParam(LayoutOptions::EDGE_LABEL_PLACEMENT,EdgeLabelPlacement::CENTER)

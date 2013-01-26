@@ -37,38 +37,40 @@ class DefaultTransformation extends AbstractDebugTransformation {
             it.addLayoutParam(LayoutOptions::ALGORITHM, "de.cau.cs.kieler.klay.layered");
             it.addLayoutParam(LayoutOptions::SPACING, 75f);
             it.addLayoutParam(LayoutOptions::DIRECTION, Direction::RIGHT);
-            val value = model.value
             // Array
-            if (value instanceof IJavaArray)
-                it.arrayTransform(model)
-            // Types without a transformation
-            // primitive datatypes and null
-            else if (value instanceof IJavaPrimitiveValue || (value instanceof IJavaValue && (value as IJavaValue).isNull()))
+            if (model.isArray)
+                it.createArrayNode(model)
+            // primitive datatypes or null or null object
+            else if (model.isPrimitiveOrNull || model.isNullObject)
                	it.createValueNode(model)
             // objecttypes
-            else if (value instanceof IJavaObject) {
-            	/*value.variables.forEach[
-            		IVariable variable |
-            		val value_ = variable.value
-            		// TODO: handle primitive types and null values
-            		if (value_ instanceof IJavaObject) {
-            			it.children += it.createObjectNode(variable)	
-            		}
-            	]*/
+            else if (model.isObject) {
+            	it.createObjectNode(model)
             }   
         ]
     }
     
-    def KNode createObjectNode(KNode node, IVariable variable) {
-    	variable.createNodeById() => [
-    	    //it.addLabel(variable.name)
-    	    it.children += it.nextTransformation(variable)
-    	]
+    def boolean isNullObject(IVariable variable) {
+        return variable.type.equals("Object")
     }
     
-    def KNode arrayTransform(KNode node, IVariable choice) {
+    def boolean isArray(IVariable variable) {
+        return variable.value instanceof IJavaArray
+    }
+    
+    def boolean isPrimitiveOrNull(IVariable variable) {
+        val value = variable.value
+        return value instanceof IJavaPrimitiveValue || 
+              (value instanceof IJavaValue && (value as IJavaValue).isNull())
+    }
+    
+    def boolean isObject(IVariable variable) {
+        return variable.value instanceof IJavaObject
+    }
+    
+    def createArrayNode(KNode node, IVariable choice) {
             if (choice.value instanceof IJavaArray) {
-	            val result = node.addNewNodeById(choice)=> [
+	            node.addNewNodeById(choice)=> [
 	         		it.setNodeSize(80,80);
 	            	it.data += renderingFactory.createKRectangle() => [
 	                	it.childPlacement = renderingFactory.createKGridPlacement()
@@ -80,7 +82,7 @@ class DefaultTransformation extends AbstractDebugTransformation {
 	            
             	choice.value.variables.forEach[
                 	IVariable variable |
-                	node.arrayTransform(variable)
+                	node.createArrayNode(variable)
                 	choice.createEdgeById(variable) => [
                 		variable.createLabel(it) => [
                             it.addLayoutParam(LayoutOptions::EDGE_LABEL_PLACEMENT, EdgeLabelPlacement::CENTER)
@@ -92,36 +94,61 @@ class DefaultTransformation extends AbstractDebugTransformation {
                             it.addArrowDecorator()
                         ]
                 	]
-                ]                       
-            return result
-        } else if (choice.value instanceof IJavaObject && !(choice.value as IJavaObject).isNull) {
-            return node.nextTransformation(choice)
+                ]         
+        } else if (!choice.isPrimitiveOrNull && !choice.isNullObject) {
+            node.addNewNodeById(choice)?.nextTransformation(choice)
         } else
-        	return node.addNewNodeById(choice)?.createValueNode(choice)
+        	node.addNewNodeById(choice)?.createValueNode(choice)
     }
     
-    def createValueNode(KNode node, IVariable variable) {
-        node => [
+    def createValueNode(KNode rootNode, IVariable choice) {
+        rootNode.children += createNode() => [
             it.setNodeSize(80,80);
             it.data += renderingFactory.createKRectangle() => [
                 it.childPlacement = renderingFactory.createKGridPlacement()
-                getValueText(variable.type,variable.value.valueString).forEach[
-                    KText t |
-                    it.children += t
+                it.children += renderingFactory.createKText() => [
+                    it.text = "<<"+choice.type+">>"
+                    it.setForegroundColor(120,120,120)
+                ]
+                it.children += renderingFactory.createKText() => [
+                    it.text = choice.value.valueString
                 ]
             ]
         ]
     }
-        
-    def LinkedList<KText> getValueText(String type, String value) {
-        return new LinkedList<KText>() => [
-            it += renderingFactory.createKText() => [
-                it.text = "<<"+type+">>"
-                it.setForegroundColor(120,120,120)
+    
+    def createObjectNode(KNode rootNode, IVariable choice) {
+        if (choice.isNullObject) {}
+        else {
+            val primitiveList = new LinkedList<KText>()
+            choice.value.variables.forEach[IVariable variable |
+                if (variable.isPrimitiveOrNull)
+                    primitiveList += renderingFactory.createKText() => [
+                        var text = ""
+                        if (!variable.type.equals("null"))
+                            text = text + variable.type + " "
+                        text = text + variable.name + ": " + variable.value.valueString 
+                        it.text = text  
+                    ]
+                else {
+                    rootNode.addNewNodeById(variable)?.nextTransformation(variable)
+                }
             ]
-            it += renderingFactory.createKText() => [
-                it.text = value
+            rootNode.children += createNode() => [
+                it.addLayoutParam(LayoutOptions::BORDER_SPACING, 5.0f);
+                it.data += renderingFactory.createKRectangle() => [
+                    it.childPlacement = renderingFactory.createKGridPlacement()
+                    it.children += renderingFactory.createKText() => [
+                        it.text = "Variables without id"
+                    ]
+                    it.children += renderingFactory.createKText() => [
+                        it.text = "--------------------"
+                    ]
+                    primitiveList.forEach[KText text |
+                        it.children += text
+                    ]
+                ]
             ]
-        ]
+         }   
     }    
 }
