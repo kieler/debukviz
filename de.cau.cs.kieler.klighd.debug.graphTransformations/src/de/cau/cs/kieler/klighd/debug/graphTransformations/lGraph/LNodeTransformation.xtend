@@ -38,6 +38,7 @@ class LNodeTransformation extends AbstractKielerGraphTransformation {
      */
     override transform(IVariable node) {
 //TODO: transformationInfo is not passed to new transformation
+println("transformationInfo in LNode: " + transformationInfo)
         if(transformationInfo instanceof Boolean) {
             detailedView = transformationInfo as Boolean
         }

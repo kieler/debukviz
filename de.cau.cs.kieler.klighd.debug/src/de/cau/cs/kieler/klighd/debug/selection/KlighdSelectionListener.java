@@ -2,8 +2,6 @@ package de.cau.cs.kieler.klighd.debug.selection;
 
 import org.eclipse.debug.core.DebugException;
 import org.eclipse.debug.core.model.IVariable;
-import org.eclipse.jdt.debug.core.IJavaObject;
-import org.eclipse.jdt.debug.core.IJavaValue;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.ui.ISelectionListener;
@@ -45,12 +43,6 @@ public class KlighdSelectionListener implements ISelectionListener {
             StructuredSelection treeSelection = (StructuredSelection) selection;
             if (treeSelection.getFirstElement() instanceof IVariable) {
                 IVariable var = (IVariable) treeSelection.getFirstElement();
-                try {
-					System.out.println(((IJavaObject) var).getUniqueId());
-				} catch (DebugException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
                 DiagramViewPart view = null;
                 if (DiagramViewManager.getInstance().getView("Variable") == null)
                     view = DiagramViewManager.getInstance().createView("Variable", "Variable", var,
