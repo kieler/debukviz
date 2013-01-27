@@ -1,7 +1,6 @@
 package de.cau.cs.kieler.klighd.debug.transformations
 
 import de.cau.cs.kieler.core.kgraph.KNode
-import de.cau.cs.kieler.core.krendering.extensions.KColorExtensions
 import de.cau.cs.kieler.core.krendering.extensions.KNodeExtensions
 import de.cau.cs.kieler.core.krendering.extensions.KPolylineExtensions
 import de.cau.cs.kieler.core.krendering.extensions.KRenderingExtensions
@@ -22,11 +21,10 @@ class LinkedListTransformation extends AbstractDebugTransformation {
     extension KPolylineExtensions 
     @Inject
     extension KRenderingExtensions
-    @Inject
-    extension KColorExtensions
    
    
     var index = 0
+    var size = 0
     /**
      * {@inheritDoc}
      */
@@ -35,60 +33,27 @@ class LinkedListTransformation extends AbstractDebugTransformation {
             it.addLayoutParam(LayoutOptions::ALGORITHM, "de.cau.cs.kieler.klay.layered")
             it.addLayoutParam(LayoutOptions::SPACING, 75f)
             it.addLayoutParam(LayoutOptions::DIRECTION, Direction::UP)
-      		it.createHeaderNode(variable)
-            val header = variable.getVariable("header")
-            val last = it.createChildNode(header)
-            last.element.createEdgeById(header.element) => [
-                it.data += renderingFactory.createKPolyline() => [
-                    it.setLineWidth(2)
-                    it.addArrowDecorator();
-                ]
-            ]
+            size = Integer::parseInt(variable.getValue("size"))
+            it.createChildNode(variable.getVariable("header.next"))
         ]
     }
     
     def getElement(IVariable variable) {
     	return variable.getVariable("element")
-    }
-
-  	def createHeaderNode(KNode rootNode, IVariable variable) {
-    	var IVariable header = variable.getVariable("header")
-    	rootNode.addNewNodeById(header.element)=> [
-    		it.setNodeSize(120,80)
-    		it.data += renderingFactory.createKRectangle() => [
-    			it.lineWidth = 4
-    			it.backgroundColor = "lemon".color
-    			it.ChildPlacement = renderingFactory.createKGridPlacement()
-    			it.children += renderingFactory.createKText() => [
-                	it.setText(variable.name)
-            	]
-    			it.children += renderingFactory.createKText() => [
-                	it.setText("Type: " + variable.type)
-            	]
-    			it.children += renderingFactory.createKText() => [
-                	it.setText("size: " + variable.getValue("size"))
-            	]
-    		]
-    	]
-    }    
+    }  
     
-    def IVariable createChildNode(KNode rootNode, IVariable parent){
-       var next = parent.getVariable("next")
-       if (!next.element.nodeExists) {
-            rootNode.createInternalNode(next.element)
-            parent.element.createEdgeById(next.element) => [
+    def createChildNode(KNode rootNode, IVariable variable) {
+       rootNode.addNewNodeById(variable.element)?.nextTransformation(variable.element)
+       index = index + 1
+       if (index < size) {
+           var next = variable.getVariable("next")
+           rootNode.createChildNode(next)
+           variable.element.createEdgeById(next.element) => [
                 it.data += renderingFactory.createKPolyline() => [
                     it.setLineWidth(2)
                     it.addArrowDecorator();
                 ]
             ]
-            return rootNode.createChildNode(next)
-        }
-        else
-            return parent
-    }
-    
-    def createInternalNode(KNode rootNode, IVariable next) {
-    	rootNode.nextTransformation(next.element)
+       }
     }
 }

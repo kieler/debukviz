@@ -7,28 +7,22 @@ import java.util.LinkedList;
 import javax.inject.Inject;
 
 import org.eclipse.debug.core.DebugException;
-import org.eclipse.debug.core.model.IValue;
 import org.eclipse.debug.core.model.IVariable;
-import org.eclipse.emf.common.util.EList;
 import org.eclipse.jdt.debug.core.IJavaObject;
-import org.eclipse.jdt.debug.core.IJavaPrimitiveValue;
 import org.eclipse.jdt.debug.core.IJavaValue;
 
 import de.cau.cs.kieler.core.kgraph.KEdge;
-import de.cau.cs.kieler.core.kgraph.KLabel;
-import de.cau.cs.kieler.core.kgraph.KLabeledGraphElement;
 import de.cau.cs.kieler.core.kgraph.KNode;
+import de.cau.cs.kieler.core.krendering.KEllipse;
 import de.cau.cs.kieler.core.krendering.KPolyline;
+import de.cau.cs.kieler.core.krendering.KRectangle;
 import de.cau.cs.kieler.core.krendering.KRenderingFactory;
 import de.cau.cs.kieler.core.krendering.KText;
+import de.cau.cs.kieler.core.krendering.extensions.KContainerRenderingExtensions;
 import de.cau.cs.kieler.core.krendering.extensions.KEdgeExtensions;
 import de.cau.cs.kieler.core.krendering.extensions.KNodeExtensions;
 import de.cau.cs.kieler.core.krendering.extensions.KPolylineExtensions;
-import de.cau.cs.kieler.core.util.Pair;
-import de.cau.cs.kieler.kiml.klayoutdata.KShapeLayout;
-import de.cau.cs.kieler.kiml.options.EdgeLabelPlacement;
-import de.cau.cs.kieler.kiml.options.LayoutOptions;
-import de.cau.cs.kieler.kiml.util.KimlUtil;
+import de.cau.cs.kieler.core.krendering.extensions.KRenderingExtensions;
 import de.cau.cs.kieler.klighd.TransformationContext;
 import de.cau.cs.kieler.klighd.debug.IKlighdDebug;
 import de.cau.cs.kieler.klighd.debug.transformations.KlighdDebugTransformation;
@@ -40,6 +34,10 @@ public abstract class AbstractDebugTransformation extends AbstractTransformation
     @Inject
     private KEdgeExtensions kEdgeExtensions = new KEdgeExtensions();
     @Inject
+    private KRenderingExtensions kRenderingExtensions = new KRenderingExtensions();
+    @Inject
+    private KContainerRenderingExtensions kContainerRenderingExtensions = new KContainerRenderingExtensions();
+    @Inject
     private KPolylineExtensions kPolylineExtensions = new KPolylineExtensions();
     @Inject
     private KNodeExtensions kNodeExtensions = new KNodeExtensions();
@@ -48,9 +46,10 @@ public abstract class AbstractDebugTransformation extends AbstractTransformation
 
     private Object transformationInfo;
     private static final HashMap<Long, KNode> kNodeMap = new HashMap<Long, KNode>();
+    private static final HashMap<IVariable, KNode> dummyNodeMap = new HashMap<IVariable, KNode>();
     private static Integer depth = 0;
-    private static Integer nodeCount = 0;
-    private static Integer maxDepth = 20;
+    //private static Integer nodeCount = 0;
+    private static Integer maxDepth = 5;
 
     public Object getTransformationInfo() {
         return transformationInfo;
@@ -63,31 +62,35 @@ public abstract class AbstractDebugTransformation extends AbstractTransformation
     public static void resetKNodeMap() {
         kNodeMap.clear();
     }
-
-    public static void resetNodeCount() {
-        nodeCount = 0;
+    
+    public static void resetDummyNodeMap() {
+        dummyNodeMap.clear();
     }
 
+    //public static void resetNodeCount() {
+    //    nodeCount = 0;
+    //}
+
     public static void resetMaxDepth() {
-        maxDepth = 20;
+        maxDepth = 5;
     }
 
     public KNode nextTransformation(KNode rootNode, IVariable variable) throws DebugException {
         return nextTransformation(rootNode, variable, null);
     }
 
-    private int countNodes(KNode rootNode) {
-        int count = 0;
-        EList<KNode> nodes = rootNode.getChildren();
-        count += nodes.size();
-        for (KNode node : nodes)
-            count += countNodes(node);
-        return count;
-    }
+//    private int countNodes(KNode rootNode) {
+//        int count = 0;
+//        EList<KNode> nodes = rootNode.getChildren();
+//        count += nodes.size();
+//        for (KNode node : nodes)
+//            count += countNodes(node);
+//        return count;
+//    }
 
     public KNode nextTransformation(KNode rootNode, IVariable variable, Object transformationInfo)
             throws DebugException {
-        int maxNodeCount = -1;
+        //int maxNodeCount = -1;
         KNode innerNode = null;
         // Perform transformation if recursion depth less-equal maxDepth
         if (depth <= maxDepth) {
@@ -95,30 +98,34 @@ public abstract class AbstractDebugTransformation extends AbstractTransformation
             innerNode = new KlighdDebugTransformation().transform(variable, this.getUsedContext(),
                     transformationInfo);
             // Calculate nodeCount
-            /*
-             * if (nodeCount > maxNodeCount) maxDepth = depth; else { //int test =
-             * countNodes(innerNode); //int test2 = nodeCount; nodeCount += countNodes(innerNode); }
-             */
+            //if (nodeCount > maxNodeCount) 
+            //  maxDepth = depth; 
+            //else { 
+            //  int test = countNodes(innerNode); 
+            //  int test2 = nodeCount; nodeCount += countNodes(innerNode); 
+            //}
             depth--;
-            if (innerNode.getChildren().size() == 1)
+            while (innerNode.getChildren().size() == 1)
                 innerNode = innerNode.getChildren().get(0);
             if (kNodeMap.get(getId(variable)) == null)
-                kNodeMap.put(getId(variable), innerNode);
-
+                kNodeMap.put(getId(variable), innerNode);                
+            
             rootNode.getChildren().add(innerNode);
         } else {
             innerNode = kNodeExtensions.createNode(variable);
-            KNode node = kNodeExtensions.createNode();
-
+            kNodeExtensions.setNodeSize(innerNode, 80, 80);
+            
+            KRectangle rec = renderingFactory.createKRectangle();
+            rec.setChildPlacement(renderingFactory.createKGridPlacement());
+            
             KText type = renderingFactory.createKText();
             type.setText(variable.getReferenceTypeName());
             KText name = renderingFactory.createKText();
             type.setText(variable.getName());
 
-            node.getData().add(type);
-            node.getData().add(name);
-
-            innerNode.getChildren().add(node);
+            rec.getChildren().add(type);
+            rec.getChildren().add(name);
+            innerNode.getData().add(rec);
             rootNode.getChildren().add(innerNode);
         }
         return innerNode;
@@ -166,16 +173,15 @@ public abstract class AbstractDebugTransformation extends AbstractTransformation
     }
 
     public KEdge createEdgeById(IVariable source, IVariable target) throws DebugException {
-        KEdge edge = kEdgeExtensions.createEdge(new Pair<Object, Object>(source, target));
-        edge.setSource(createNodeById(source));
-        edge.setTarget(createNodeById(target));
-        return edge;
-    }
-
-    public KEdge createEdge(IVariable source, IVariable target) throws DebugException {
-        KEdge edge = kEdgeExtensions.createEdge(new Pair<Object, Object>(source, target));
-        edge.setSource(kNodeExtensions.getNode(source));
-        edge.setTarget(kNodeExtensions.getNode(target));
+        KEdge edge = kEdgeExtensions.createEdge();
+        KNode sourceNode = dummyNodeMap.get(source);
+        KNode targetNode = dummyNodeMap.get(target);
+        if (sourceNode == null)
+            sourceNode = getNode(source);
+        if (targetNode == null)
+            targetNode = getNode(target);
+        edge.setSource(sourceNode);
+        edge.setTarget(targetNode);        
         return edge;
     }
 
@@ -196,23 +202,19 @@ public abstract class AbstractDebugTransformation extends AbstractTransformation
         this.setTransformationInfo(null);
         return node;
     }
-
-    public KLabel addLabel(KLabeledGraphElement node, String label) {
-        KLabel kLabel = KimlUtil.createInitializedLabel(node);
-        kLabel.setText(label);
-
-        KShapeLayout shapeLayout = kLabel.getData(KShapeLayout.class);
-        shapeLayout.setProperty(LayoutOptions.EDGE_LABEL_PLACEMENT, EdgeLabelPlacement.CENTER);
-        shapeLayout.setWidth(60.0f);
-        shapeLayout.setHeight(50.0f);
-
-        node.getLabels().add(kLabel);
-        return kLabel;
+    
+    public KNode getNode(IVariable variable) throws DebugException {
+        KNode node = kNodeMap.get(getId(variable));
+        if (node == null) {
+            node = kNodeExtensions.getNode(variable);
+            if (node.getParent() == null)
+                node = null;
+        }
+        return node;
     }
 
     public boolean nodeExists(IVariable variable) throws DebugException {
-        return kNodeMap.get(getId(variable)) != null
-                || kNodeExtensions.getNode(variable).getParent() != null;
+        return kNodeMap.containsKey(getId(variable)) || kNodeExtensions.getNode(variable).getParent() != null;
     }
     /**
      * Returns unique id of the object respresenting by variable
@@ -220,13 +222,12 @@ public abstract class AbstractDebugTransformation extends AbstractTransformation
      * @return unique id or -1 if object is null or -2 if variable represents a primitiv value
      * @throws DebugException
      */
-    public Long getId(IVariable variable) throws DebugException {
+    private Long getId(IVariable variable) throws DebugException {
         IJavaValue value = (IJavaValue) variable.getValue();
         if (!(value instanceof IJavaObject))
             return new Long(-2);
         else {
-            IJavaObject javaValue = (IJavaObject) value;
-            return javaValue.getUniqueId();
+            return ((IJavaObject)value).getUniqueId();
         }
     }
 
@@ -257,28 +258,36 @@ public abstract class AbstractDebugTransformation extends AbstractTransformation
     public KNode addNewNodeById(KNode node, IVariable variable) throws DebugException {
         KNode resultNode = null;
         
-        if (nodeExists(variable)) { 
-            resultNode = kNodeExtensions.createNode();
-            //node.getChildren().add(resultNode); 
-            // KNode parent = node; 
-            //while (parent != null) 
-            //  parent = parent.getParent();
-          
-            //node.setParent(parent); resultNode = kNodeExtensions.createNode(null);
-          
-            //KEdge edge = kEdgeExtensions.createEdge(new Pair<Object, Object>(resultNode, node));
-            //edge.setSource(resultNode); edge.setTarget(node);
-            
-            //KPolyline polyline = renderingFactory.createKPolyline(); kPolylineExtensions. it.data +=
-            //renderingFactory.createKPolyline() => [ it.setLineWidth(2) it.addArrowDecorator(); ]
-         
-            // node.getChildren().add(resultNode);
+        if (nodeExists(variable)) {
+            KNode variableNode = getNode(variable);
             // create dummyNode
-            // resultNode = dummyNode 
+            resultNode = kNodeExtensions.createNode();   
+            kNodeExtensions.setNodeSize(resultNode, 20, 20);
+            KEllipse ellipse = renderingFactory.createKEllipse();
+            kRenderingExtensions.setForegroundColor(ellipse,255,0,0);
+            resultNode.getData().add(ellipse);
+            
+            // create edge dummyNode -> variableNode
+            KEdge edge = kEdgeExtensions.createEdge();
+            edge.setSource(resultNode); 
+            edge.setTarget(variableNode);
+            
+            KPolyline polyline = renderingFactory.createKPolyline(); 
+            kRenderingExtensions.setLineWidth(polyline, 2);
+            kRenderingExtensions.setForegroundColor(polyline,255,0,0);
+            kPolylineExtensions.addArrowDecorator(polyline);
+            
+            edge.getData().add(polyline);
+
+            resultNode.setParent(node);
+            dummyNodeMap.put(variable, resultNode);
+            return null;
         } else {
             resultNode = createNodeById(variable);
             resultNode.setParent(node);
+            return resultNode;
         }
-        return resultNode;
+        
+       
     }
 }
