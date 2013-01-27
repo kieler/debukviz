@@ -9,17 +9,15 @@ import de.cau.cs.kieler.core.krendering.extensions.KRenderingExtensions
 import de.cau.cs.kieler.kiml.options.LayoutOptions
 import de.cau.cs.kieler.kiml.util.KimlUtil
 import org.eclipse.debug.core.model.IVariable
-
 import javax.inject.Inject
 import de.cau.cs.kieler.core.krendering.LineStyle
 import de.cau.cs.kieler.core.properties.IProperty
-import org.eclipse.debug.core.model.IVariable
-import de.cau.cs.kieler.klighd.debug.graphTransformations.AbstractKNodeTransformation
 import de.cau.cs.kieler.core.krendering.KEllipse
 import de.cau.cs.kieler.core.krendering.KContainerRendering
 import de.cau.cs.kieler.klay.planar.graph.*
+import de.cau.cs.kieler.klighd.debug.graphTransformations.AbstractKielerGraphTransformation
 
-class PNodeTransformation extends AbstractKNodeTransformation {
+class PNodeTransformation extends AbstractKielerGraphTransformation {
     
     @Inject
     extension KNodeExtensions
@@ -69,7 +67,7 @@ class PNodeTransformation extends AbstractKNodeTransformation {
                 // Type of node
                 container.children += renderingFactory.createKText() => [
                     it.setForegroundColor(120,120,120)
-                    it.text = node.ShortType
+                    it.text = node.getType
                 ]
                                         
                 // PNodes don't have a name or labels

@@ -9,15 +9,13 @@ import de.cau.cs.kieler.core.krendering.extensions.KRenderingExtensions
 import de.cau.cs.kieler.kiml.options.LayoutOptions
 import de.cau.cs.kieler.kiml.util.KimlUtil
 import org.eclipse.debug.core.model.IVariable
-
 import javax.inject.Inject
 import de.cau.cs.kieler.core.krendering.LineStyle
 import de.cau.cs.kieler.core.properties.IProperty
-import de.cau.cs.kieler.klighd.debug.graphTransformations.AbstractKNodeTransformation
 import de.cau.cs.kieler.core.krendering.extensions.KPolylineExtensions
+import de.cau.cs.kieler.klighd.debug.graphTransformations.AbstractKielerGraphTransformation
 
-
-class PGraphTransformation extends AbstractKNodeTransformation {
+class PGraphTransformation extends AbstractKielerGraphTransformation {
     
     @Inject
     extension KNodeExtensions
@@ -40,8 +38,9 @@ class PGraphTransformation extends AbstractKNodeTransformation {
             
             it.createHeaderNode(graph)
             val graphNode = it.createNodes(graph)
-            graphNode.createEdges(graph.getVariableOfType("edges", 
-                            "java.util.LinkedHashSet<de.cau.cs.kieler.klay.planar.graph.PEdge>"))
+
+            graphNode.createEdges(graph.getVariable("edges",false))
+                            
             it.createFaces(graph)
         ]
     }
@@ -57,7 +56,7 @@ class PGraphTransformation extends AbstractKNodeTransformation {
                 // type of graph
                 it.children += renderingFactory.createKText => [
                     it.setForegroundColor(120,120,120)
-                    it.text = graph.ShortType
+                    it.text = graph.getType
                 ]
                 
                 // name of variable

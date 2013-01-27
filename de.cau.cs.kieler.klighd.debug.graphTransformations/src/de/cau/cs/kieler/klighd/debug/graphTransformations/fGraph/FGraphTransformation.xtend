@@ -9,19 +9,19 @@ import de.cau.cs.kieler.core.krendering.extensions.KRenderingExtensions
 import de.cau.cs.kieler.kiml.options.LayoutOptions
 import de.cau.cs.kieler.kiml.util.KimlUtil
 import org.eclipse.debug.core.model.IVariable
-
-import static de.cau.cs.kieler.klighd.debug.graphTransformations.lGraph.LGraphTransformation.*
 import javax.inject.Inject
 import de.cau.cs.kieler.core.krendering.LineStyle
 import de.cau.cs.kieler.core.properties.IProperty
-import de.cau.cs.kieler.klighd.debug.graphTransformations.AbstractKNodeTransformation
 import de.cau.cs.kieler.core.krendering.extensions.KPolylineExtensions
 import de.cau.cs.kieler.kiml.klayoutdata.impl.KShapeLayoutImpl
 import javax.swing.text.Position
 import de.cau.cs.kieler.core.kgraph.KLabeledGraphElement
 import de.cau.cs.kieler.core.util.Pair
 
-class FGraphTransformation extends AbstractKNodeTransformation {
+import static de.cau.cs.kieler.klighd.debug.graphTransformations.lGraph.LGraphTransformation.*
+import de.cau.cs.kieler.klighd.debug.graphTransformations.AbstractKielerGraphTransformation
+
+class FGraphTransformation extends AbstractKielerGraphTransformation {
     
     @Inject
     extension KNodeExtensions
@@ -61,7 +61,7 @@ class FGraphTransformation extends AbstractKNodeTransformation {
                 // Type of graph
                 it.children += renderingFactory.createKText => [
                     it.setForegroundColor(120,120,120)
-                    it.text = graph.ShortType
+                    it.text = graph.getType
                 ]
 
                 // name of variable
