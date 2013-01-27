@@ -12,7 +12,6 @@ import org.eclipse.debug.core.model.IVariable
 
 import static de.cau.cs.kieler.klighd.debug.visualization.AbstractDebugTransformation.*
 import de.cau.cs.kieler.klighd.debug.graphTransformations.AbstractKielerGraphTransformation
-import de.cau.cs.kieler.klighd.debug.graphTransformations.GraphTransformationInfo
 import de.cau.cs.kieler.core.kgraph.KNode
 import de.cau.cs.kieler.core.krendering.extensions.KPolylineExtensions
 

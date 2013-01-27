@@ -15,6 +15,8 @@ import de.cau.cs.kieler.kiml.util.KimlUtil
 import java.math.*
 import de.cau.cs.kieler.core.krendering.KText
 import de.cau.cs.kieler.klighd.debug.visualization.AbstractDebugTransformation
+import de.cau.cs.kieler.core.kgraph.KLabel
+import de.cau.cs.kieler.core.kgraph.KLabeledGraphElement
 
 abstract class AbstractKielerGraphTransformation extends AbstractDebugTransformation {
     @Inject
@@ -308,4 +310,11 @@ abstract class AbstractKielerGraphTransformation extends AbstractDebugTransforma
             it.text = variable.getType
         ]    
     }
+    
+    def addLabel(KLabeledGraphElement labeledElement, String text) {
+        labeledElement.labels += KimlUtil::createInitializedLabel(labeledElement) => [
+            it.setText(text)
+        ]
+    }
+    
 }
