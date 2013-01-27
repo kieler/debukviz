@@ -233,9 +233,10 @@ abstract class AbstractKielerGraphTransformation extends AbstractDebugTransforma
                 it.setLineWidth(2)
                 it.addArrowDecorator
             ]
-            KimlUtil::createInitializedLabel(it) => [
-                it.setText("Property Map")
-            ]
+            it.addLabel("Property Map")
+//            KimlUtil::createInitializedLabel(it) => [
+//                it.setText("Property Map")
+//            ]
         ]
     }
     
@@ -312,7 +313,7 @@ abstract class AbstractKielerGraphTransformation extends AbstractDebugTransforma
     }
     
     def addLabel(KLabeledGraphElement labeledElement, String text) {
-        labeledElement.labels += KimlUtil::createInitializedLabel(labeledElement) => [
+        KimlUtil::createInitializedLabel(labeledElement) => [
             it.setText(text)
         ]
     }
