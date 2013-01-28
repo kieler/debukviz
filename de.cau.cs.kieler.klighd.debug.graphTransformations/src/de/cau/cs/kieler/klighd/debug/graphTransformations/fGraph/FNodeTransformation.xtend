@@ -9,18 +9,17 @@ import de.cau.cs.kieler.core.krendering.extensions.KRenderingExtensions
 import de.cau.cs.kieler.kiml.options.LayoutOptions
 import de.cau.cs.kieler.kiml.util.KimlUtil
 import org.eclipse.debug.core.model.IVariable
-
-import static de.cau.cs.kieler.klighd.debug.graphTransformations.lGraph.LGraphTransformation.*
 import javax.inject.Inject
 import de.cau.cs.kieler.core.krendering.LineStyle
 import de.cau.cs.kieler.core.properties.IProperty
-import org.eclipse.debug.core.model.IVariable
-import de.cau.cs.kieler.klighd.debug.graphTransformations.AbstractKNodeTransformation
 import de.cau.cs.kieler.core.krendering.KEllipse
 import de.cau.cs.kieler.core.krendering.KContainerRendering
 import de.cau.cs.kieler.klay.planar.graph.*
 
-class FNodeTransformation extends AbstractKNodeTransformation {
+import static de.cau.cs.kieler.klighd.debug.graphTransformations.lGraph.LGraphTransformation.*
+import de.cau.cs.kieler.klighd.debug.graphTransformations.AbstractKielerGraphTransformation
+
+class FNodeTransformation extends AbstractKielerGraphTransformation {
     
     @Inject
     extension KNodeExtensions
@@ -52,7 +51,7 @@ class FNodeTransformation extends AbstractKNodeTransformation {
                     // Type of node
                     it.children += renderingFactory.createKText() => [
                         it.setForegroundColor(120,120,120)
-                        it.text = node.ShortType
+                        it.text = node.getType
                     ]
                     
                     // id of node

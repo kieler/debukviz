@@ -9,13 +9,16 @@ import de.cau.cs.kieler.core.krendering.extensions.KPolylineExtensions
 import de.cau.cs.kieler.core.krendering.extensions.KRenderingExtensions
 import de.cau.cs.kieler.kiml.options.LayoutOptions
 import de.cau.cs.kieler.kiml.util.KimlUtil
-import de.cau.cs.kieler.klighd.debug.graphTransformations.AbstractKNodeTransformation
 import javax.inject.Inject
 import org.eclipse.debug.core.model.IVariable
+import de.cau.cs.kieler.klighd.debug.graphTransformations.GraphTransformationInfo
+import de.cau.cs.kieler.core.krendering.KRendering
+import de.cau.cs.kieler.core.krendering.KContainerRendering
 
 import static de.cau.cs.kieler.klighd.debug.visualization.AbstractDebugTransformation.*
+import de.cau.cs.kieler.klighd.debug.graphTransformations.AbstractKielerGraphTransformation
 
-class LGraphTransformation extends AbstractKNodeTransformation {
+class LGraphTransformation extends AbstractKielerGraphTransformation {
     
     @Inject
     extension KNodeExtensions
@@ -32,89 +35,117 @@ class LGraphTransformation extends AbstractKNodeTransformation {
      * {@inheritDoc}
      */
 	override transform(IVariable graph) {
-        return KimlUtil::createInitializedNode=> [
+        if(transformationInfo instanceof Boolean) {
+            detailedView = transformationInfo as Boolean
+        }
+        detailedView = true
+        return KimlUtil::createInitializedNode => [
             it.addLayoutParam(LayoutOptions::ALGORITHM, "de.cau.cs.kieler.kiml.ogdf.planarization")
             it.addLayoutParam(LayoutOptions::SPACING, 75f)
             
+            // create header node
      		it.createHeaderNode(graph)
-      		it.createPropertyMap(graph)
-      		it.createAllNodes(graph)
-
-      		it.createEdges(graph.getVariable("layerlessNodes"))
-      		graph.getVariable("layers").linkedList.forEach[IVariable layer |
-      			it.createEdges(layer)	
-      		]
+     		
+     		// add the propertyMap and visualization, if in detailed mode
+      		if (detailedView) {
+                // add propertyMap
+                it.addPropertyMapAndEdge(graph.getVariable("propertyMap"), graph)
+                
+                // create the visualization
+          		it.createAllNodes(graph)
+    
+                // create all edges, first for all layerlessNodes, then iterate through all layers
+          		it.createEdges(graph.getVariable("layerlessNodes"))
+          		graph.getVariable("layers").linkedList.forEach[IVariable layer |
+          			it.createEdges(layer)	
+          		]
+            }
         ]
-
 	}
 	
 	def createHeaderNode(KNode rootNode, IVariable graph) {
-		rootNode.children += graph.createNode => [
-//    		it.setNodeSize(120,80)
+		rootNode.children += graph.createNodeById => [
     		it.data += renderingFactory.createKRectangle => [
-    			it.lineWidth = 4
+    		    if (detailedView) it.lineWidth = 4 else it.lineWidth = 2
     			it.ChildPlacement = renderingFactory.createKGridPlacement
 
-                // type of the graph
-                it.children += renderingFactory.createKText => [
-                    it.setForegroundColor(120,120,120)
-                    it.text = graph.ShortType
-                ]
+                if(detailedView) {
+                    // type of the graph
+                    it.addShortType(graph)
+
+                    // name of the variable
+                    it.children += renderingFactory.createKText => [
+                        it.text = "VarName: " + graph.name 
+                    ]
+                }
                 
-                // name of the variable
-                it.children += renderingFactory.createKText => [
-                    it.text = "VarName: " + graph.name 
-                ]
+                // id of graph
+                it.children += createKText(graph, "id", "", ": ")
                 
                 // hashCode of graph
                 it.children += createKText(graph, "hashCode", "", ": ")
     			
-    			// hashCodeCounter of graph
-    			it.children += renderingFactory.createKText => [
-                    it.text = "hashCodeCounter: " + graph.getValue("hashCodeCounter.count")
-              	]
-              	
-              	// id of graph
-              	it.children += createKText(graph, "id", "", ": ")
-              	
-              	// size of graph
-                it.children += renderingFactory.createKText => [
-                    it.text = "size (x,y): (" + graph.getValue("size.x").round(1) + " x " 
-                                              + graph.getValue("size.y").round(1) + ")" 
-                ]
-    			
-    			// insets of graph
-    			it.children += renderingFactory.createKText => [
-                	it.text = "insets (t,r,b,l): (" + graph.getValue("insets.top").round(1) + " x "
-                	                                + graph.getValue("insets.right").round(1) + " x "
-                	                                + graph.getValue("insets.bottom").round(1) + " x "
-                	                                + graph.getValue("insets.left").round(1) + ")"
-            	]
-    			
-    			// offset of graph
-    			it.children += renderingFactory.createKText => [
-                	it.text = "offset (x,y): (" + graph.getValue("offset.x").round(1) + " x "
-                	                            + graph.getValue("offset.y").round(1) + ")"
-            	]
+    			if(detailedView) {
+                    // hashCodeCounter of graph
+                    it.children += renderingFactory.createKText => [
+                        it.text = "hashCodeCounter: " + graph.getValue("hashCodeCounter.count")
+                    ]
+                    
+                    // size of graph
+                    it.children += renderingFactory.createKText => [
+                        it.text = "size (x,y): (" + graph.getValue("size.x").round(1) + " x " 
+                                                  + graph.getValue("size.y").round(1) + ")" 
+                    ]
+                    
+                    // insets of graph
+                    it.children += renderingFactory.createKText => [
+                        it.text = "insets (t,r,b,l): (" + graph.getValue("insets.top").round(1) + " x "
+                                                        + graph.getValue("insets.right").round(1) + " x "
+                                                        + graph.getValue("insets.bottom").round(1) + " x "
+                                                        + graph.getValue("insets.left").round(1) + ")"
+                    ]
+                    
+                    // offset of graph
+                    it.children += renderingFactory.createKText => [
+                        it.text = "offset (x,y): (" + graph.getValue("offset.x").round(1) + " x "
+                                                    + graph.getValue("offset.y").round(1) + ")"
+                    ]
+    			} else {
+    			    // # of nodes
+                    it.children += renderingFactory.createKText => [
+                        var count = Integer::parseInt(graph.getValue("layerlessNodes.size"))
+                        for(layer : graph.getVariable("layers").linkedList) {
+                            count = count + Integer::parseInt(layer.getValue("nodes.size"))
+                        }
+                        it.text = "nodes (#): " + count
+                    ]
+    			    
+    			    // # of layers
+                    it.children += renderingFactory.createKText => [
+                        it.text = "layers (#): " + graph.getValue("layers.size")
+                    ]
+    			}
             ]
 		]
 	}
 
-
 	def createAllNodes(KNode rootNode, IVariable graph) {
+	    // create a node (visualization) containing the graphical visualisation of the LGraph
 		// the node has to be registered to a specific object.
 		// we are using the layerlessNodes element here
-		val dummy = graph.getVariable("layerlessNodes")
-        rootNode.children += dummy.createNode => [
+		val visualization = graph.getVariable("layerlessNodes")
+        rootNode.addNewNodeById(visualization) => [
             it.data += renderingFactory.createKRectangle => [
                 it.lineWidth = 4
             ]
-	  		it.createLayerlessNodes(graph.getVariable("layerlessNodes"))
-	  		it.createLayeredNodes(graph.getVariable("layers"))
+            // create all nodes (layerless and layered)
+	  		it.createNodes(graph.getVariable("layerlessNodes"))
+	  		for (layer : graph.getVariable("layers").linkedList) {
+	  		    it.createNodes(layer.getVariable("nodes"))
+	  		}
   		]
-  		
 	    // create edge from graph to propertyMap
-        graph.createEdge(dummy) => [
+        graph.createEdgeById(visualization) => [
             it.data += renderingFactory.createKPolyline => [
                 it.setLineWidth(2)
                 it.addArrowDecorator
@@ -126,19 +157,10 @@ class LGraphTransformation extends AbstractKNodeTransformation {
         ]   
 	}
 	
-	def createLayerlessNodes(KNode rootNode, IVariable layerlessNodes) {
-	    layerlessNodes.linkedList.forEach[IVariable node |
-	    	rootNode.nextTransformation(node, -1)
+	def createNodes(KNode rootNode, IVariable nodes) {
+	    nodes.linkedList.forEach[IVariable node |
+          rootNode.nextTransformation(node, false)
         ]
-	}
-	
-	def createLayeredNodes(KNode rootNode, IVariable layers) {
-		var i = 0
-		for (layer : layers.linkedList) {
-			for (node : layer.getVariable("nodes").linkedList)
-            	rootNode.nextTransformation(node, i)
-			i = i+1
-		}
 	}
 
     def createEdges(KNode rootNode, IVariable layer) {
@@ -146,7 +168,7 @@ class LGraphTransformation extends AbstractKNodeTransformation {
         	node.getVariable("ports").linkedList.forEach[IVariable port |
         		port.getVariable("outgoingEdges").linkedList.forEach[IVariable edge |
                     edge.getVariable("source.owner")
-                        .createEdge(edge.getVariable("target.owner")) => [
+                        .createEdgeById(edge.getVariable("target.owner")) => [
         				it.data += renderingFactory.createKPolyline => [
 	            		    it.setLineWidth(2)
                             it.addArrowDecorator
@@ -171,44 +193,8 @@ class LGraphTransformation extends AbstractKNodeTransformation {
 	        return type.getValue("name")   
     	}
     }
-    
-    def createPropertyMap(KNode rootNode,IVariable propertyMapHolder) {
-    	val propertyMap = propertyMapHolder.getVariable("propertyMap")
-    	
-    	// create propertyMap node
-        rootNode.children += propertyMap.createNode => [
-            it.data += renderingFactory.createKRectangle => [
-                it.lineWidth = 4
-    			it.ChildPlacement = renderingFactory.createKGridPlacement
-
-                // type of the graph
-                it.children += renderingFactory.createKText => [
-                    it.setForegroundColor(120,120,120)
-                    it.text = propertyMap.ShortType
-                ]
-
-                // add all non null properties
-                propertyMap.getVariables("table").filter[e | e.valueIsNotNull].forEach[IVariable property |
-	                it.children += renderingFactory.createKText => [
-	                    it.text = property.getValue("key.id") + ": " + property.getValue("key")
-	                ]
-                ]
-            ]
-        ]
-        
-        // create edge from graph to propertyMap
-        propertyMapHolder.createEdge(propertyMap) => [
-            it.data += renderingFactory.createKPolyline => [
-                it.setLineWidth(2)
-                it.addArrowDecorator
-                it.setLineStyle(LineStyle::SOLID)
-            ]
-            KimlUtil::createInitializedLabel(it) => [
-                it.setText("propertyMap")
-            ]
-        ]    
-    }
 }
+
 
 
 

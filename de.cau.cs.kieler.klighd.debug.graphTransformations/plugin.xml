@@ -19,6 +19,18 @@
             class="de.cau.cs.kieler.klay.layered.graph.LNode"
             transformation="de.cau.cs.kieler.klighd.debug.graphTransformations.lGraph.LNodeTransformation">
       </visualization>
+      <visualization
+            class="de.cau.cs.kieler.klay.layered.graph.LEdge"
+            transformation="de.cau.cs.kieler.klighd.debug.graphTransformations.lGraph.LEdgeTransformation">
+      </visualization>
+      <visualization
+            class="de.cau.cs.kieler.klay.layered.graph.LLabel"
+            transformation="de.cau.cs.kieler.klighd.debug.graphTransformations.lGraph.LLabelTransformation">
+      </visualization>
+      <visualization
+            class="de.cau.cs.kieler.klay.layered.graph.LPort"
+            transformation="de.cau.cs.kieler.klighd.debug.graphTransformations.lGraph.LPortTransformation">
+      </visualization>
       <visualization 
       		class="de.cau.cs.kieler.klay.force.graph.FBendpoint"
       		transformation="de.cau.cs.kieler.klighd.debug.graphTransformations.fGraph.FBendpointTransformation">
