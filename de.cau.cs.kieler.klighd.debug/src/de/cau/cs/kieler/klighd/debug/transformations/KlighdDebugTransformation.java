@@ -1,19 +1,14 @@
 package de.cau.cs.kieler.klighd.debug.transformations;
 
-import javax.inject.Inject;
-
 import org.eclipse.debug.core.model.IVariable;
 
 import de.cau.cs.kieler.core.kgraph.KNode;
-import de.cau.cs.kieler.core.krendering.extensions.KNodeExtensions;
 import de.cau.cs.kieler.klighd.TransformationContext;
 import de.cau.cs.kieler.klighd.debug.KlighdDebugExtension;
 import de.cau.cs.kieler.klighd.debug.visualization.AbstractDebugTransformation;
+import de.cau.cs.kieler.klighd.transformations.AbstractTransformation;
 
-public class KlighdDebugTransformation extends AbstractDebugTransformation {
-
-	@Inject
-	KNodeExtensions kNodeExtensions;
+public class KlighdDebugTransformation extends AbstractTransformation<IVariable, KNode> {
 	
     /**
      * {@inheritDoc}
@@ -49,16 +44,10 @@ public class KlighdDebugTransformation extends AbstractDebugTransformation {
         if (transformation == null)
             transformation = new DefaultTransformation();
         
-        // use proxy for injection
+        //use proxy for injection
         transformation = new ReinitializingTransformationProxy(
                 (Class<AbstractDebugTransformation>) transformation.getClass());
         
-        transformation.setTransformationInfo(transformationInfo);
-        
-        return transformation.transform(model,transformationContext);
-    }
-
-    public KNode transform(IVariable model) {
-        return null;
+        return transformation.transform(model,transformationContext, transformationInfo);
     }
 }

@@ -26,7 +26,7 @@ class WeakHashMapTransformation extends AbstractDebugTransformation {
     @Inject 
     extension KLabelExtensions 
     
-    override transform(IVariable model) {
+    override transform(IVariable model, Object transformationInfo) {
         return KimlUtil::createInitializedNode() => [
             it.addLayoutParam(LayoutOptions::ALGORITHM, "de.cau.cs.kieler.kiml.ogdf.planarization")
             it.addLayoutParam(LayoutOptions::SPACING, 50f)

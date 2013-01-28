@@ -19,7 +19,8 @@ class ObjectValueTransformation extends AbstractDebugTransformation {
     
     private static val KRenderingFactory renderingFactory = KRenderingFactory::eINSTANCE   
     
-    override transform(IVariable model) {
+    override transform(IVariable model, Object transformationInfo) {
+        println(transformationInfo)
         return 
         KimlUtil::createInitializedNode() => [
         	it.children += createNode() => [
