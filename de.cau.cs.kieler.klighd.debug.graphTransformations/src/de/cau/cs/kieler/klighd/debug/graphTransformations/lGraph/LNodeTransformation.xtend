@@ -89,20 +89,9 @@ println("LNode detailedView: " +detailedView)
                 ]
             }
 
-            if(detailedView) container.lineWidth = 4 else container.lineWidth = 2
+            container.headerNodeBasics(detailedView, node)
+
             container.setForegroundColor(node)
-            container.ChildPlacement = renderingFactory.createKGridPlacement
-
-            if(detailedView){
-                // Type of node
-                container.addShortType(node)                
-
-                // name of the variable
-                container.children += renderingFactory.createKText => [
-                    it.text = "VarName: " + node.name 
-                ]
-            }
-
 
             // Name of the node is the first label
             container.children += renderingFactory.createKText => [
