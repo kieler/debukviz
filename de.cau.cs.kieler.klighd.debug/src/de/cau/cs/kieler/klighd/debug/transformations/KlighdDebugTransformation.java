@@ -29,8 +29,6 @@ public class KlighdDebugTransformation extends AbstractTransformation<IVariable,
         AbstractDebugTransformation.resetDummyNodeMap();
         //AbstractDebugTransformation.resetNodeCount();
         AbstractDebugTransformation.resetMaxDepth();
-        //kNodeExtensions.addLayoutParam(node, LayoutOptions.ALGORITHM, "de.cau.cs.kieler.kiml.ogdf.planarization");
-        kNodeExtensions.addLayoutParam(node, LayoutOptions.ALGORITHM, "de.cau.cs.kieler.klay.layered");
         return node;
     }
     

@@ -10,10 +10,10 @@ import de.cau.cs.kieler.kiml.util.KimlUtil
 import de.cau.cs.kieler.klighd.debug.visualization.AbstractDebugTransformation
 import javax.inject.Inject
 import org.eclipse.debug.core.model.IVariable
-
-import static de.cau.cs.kieler.klighd.debug.visualization.AbstractDebugTransformation.*
 import de.cau.cs.kieler.core.krendering.extensions.KLabelExtensions
 import de.cau.cs.kieler.kiml.options.EdgeLabelPlacement
+
+import static de.cau.cs.kieler.klighd.debug.visualization.AbstractDebugTransformation.*
 
 class EnumMapTransformation extends AbstractDebugTransformation {
    
@@ -29,7 +29,6 @@ class EnumMapTransformation extends AbstractDebugTransformation {
     override transform(IVariable model, Object transformationInfo) {
         return KimlUtil::createInitializedNode() => [
             it.addLayoutParam(LayoutOptions::ALGORITHM, "de.cau.cs.kieler.klay.layered")
-            it.addLayoutParam(LayoutOptions::SPACING, 75f)
             it.addLayoutParam(LayoutOptions::DIRECTION, Direction::RIGHT)
             val keyUniverse = model.getVariables("keyUniverse")
             var index = 0;
@@ -43,7 +42,7 @@ class EnumMapTransformation extends AbstractDebugTransformation {
     
     def createKeyValueNode(KNode node, IVariable key, IVariable value) {
 		// Add key node
-		node.addNewNodeById(key)?.children += createNode() => [
+		node.addNodeById(key)?.children += createNode() => [
 			it.data += renderingFactory.createKText() => [
 				it.text = key.getValue("name")
 			]

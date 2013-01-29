@@ -10,10 +10,10 @@ import de.cau.cs.kieler.kiml.util.KimlUtil
 import de.cau.cs.kieler.klighd.debug.visualization.AbstractDebugTransformation
 import javax.inject.Inject
 import org.eclipse.debug.core.model.IVariable
-
-import static de.cau.cs.kieler.klighd.debug.visualization.AbstractDebugTransformation.*
 import de.cau.cs.kieler.core.krendering.extensions.KLabelExtensions
 import de.cau.cs.kieler.kiml.options.EdgeLabelPlacement
+
+import static de.cau.cs.kieler.klighd.debug.visualization.AbstractDebugTransformation.*
 
 class LinkedListTransformation extends AbstractDebugTransformation {
     
@@ -35,7 +35,6 @@ class LinkedListTransformation extends AbstractDebugTransformation {
     override transform(IVariable variable, Object transformationInfo) {
         return KimlUtil::createInitializedNode() => [
             it.addLayoutParam(LayoutOptions::ALGORITHM, "de.cau.cs.kieler.kiml.ogdf.planarization")
-            it.addLayoutParam(LayoutOptions::SPACING, 75f)
             it.addLayoutParam(LayoutOptions::DIRECTION, Direction::RIGHT)
             size = Integer::parseInt(variable.getValue("size"))
             it.createChildNode(variable.getVariable("header.next"))
@@ -47,7 +46,7 @@ class LinkedListTransformation extends AbstractDebugTransformation {
     }  
     
     def createChildNode(KNode rootNode, IVariable variable) {
-       rootNode.addNewNodeById(variable)?.nextTransformation(variable.element)
+       rootNode.addNodeById(variable)?.nextTransformation(variable.element)
        index = index + 1
        if (index < size) {
            val next = variable.getVariable("next")

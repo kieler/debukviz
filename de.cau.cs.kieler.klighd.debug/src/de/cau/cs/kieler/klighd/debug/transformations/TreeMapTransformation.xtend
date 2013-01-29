@@ -10,10 +10,10 @@ import de.cau.cs.kieler.kiml.util.KimlUtil
 import de.cau.cs.kieler.klighd.debug.visualization.AbstractDebugTransformation
 import javax.inject.Inject
 import org.eclipse.debug.core.model.IVariable
-
-import static de.cau.cs.kieler.klighd.debug.visualization.AbstractDebugTransformation.*
 import de.cau.cs.kieler.core.krendering.extensions.KLabelExtensions
 import de.cau.cs.kieler.kiml.options.EdgeLabelPlacement
+
+import static de.cau.cs.kieler.klighd.debug.visualization.AbstractDebugTransformation.*
 
 class TreeMapTransformation extends AbstractDebugTransformation {
    
@@ -29,9 +29,7 @@ class TreeMapTransformation extends AbstractDebugTransformation {
     override transform(IVariable model, Object transformationInfo) {
         return KimlUtil::createInitializedNode() => [
             it.addLayoutParam(LayoutOptions::ALGORITHM, "de.cau.cs.kieler.klay.layered")
-            it.addLayoutParam(LayoutOptions::SPACING, 75f)
             it.addLayoutParam(LayoutOptions::DIRECTION, Direction::DOWN)
-            //it.addLayoutParam(LayoutOptions::LAYOUT_HIERARCHY, true)
            	createTreeNode(model.getVariable("root"),"")
         ]
     }
@@ -71,10 +69,10 @@ class TreeMapTransformation extends AbstractDebugTransformation {
     def createKeyValueNode(KNode rootNode, IVariable root) {
     	val key = root.getVariable("key")
     	val value = root.getVariable("value")
-    	val node = rootNode.addNewNodeById(root)
+    	val node = rootNode.addNodeById(root)
 	    if (node != null) {
-    	    node.addNewNodeById(key)?.nextTransformation(key)
-            node.addNewNodeById(value)?.nextTransformation(value)
+    	    node.nextTransformation(key)
+            node.nextTransformation(value)
 	    }
 	    key.createEdgeById(value) => [
             value.createLabel(it) => [

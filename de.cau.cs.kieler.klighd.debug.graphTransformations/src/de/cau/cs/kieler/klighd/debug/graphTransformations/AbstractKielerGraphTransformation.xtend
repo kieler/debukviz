@@ -203,7 +203,7 @@ abstract class AbstractKielerGraphTransformation extends AbstractDebugTransforma
     
     def addPropertyMapAndEdge(KNode rootNode, IVariable propertyMap, IVariable headerNode) {
         // create propertyMap node
-        rootNode.addNewNodeById(propertyMap) => [
+        rootNode.addNodeById(propertyMap) => [
             it.data += renderingFactory.createKRectangle => [
                 it.lineWidth = 4
                 it.ChildPlacement = renderingFactory.createKGridPlacement 

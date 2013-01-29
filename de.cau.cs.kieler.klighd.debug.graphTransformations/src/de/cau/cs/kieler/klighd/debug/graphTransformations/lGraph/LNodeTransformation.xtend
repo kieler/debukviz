@@ -9,11 +9,11 @@ import de.cau.cs.kieler.kiml.options.LayoutOptions
 import de.cau.cs.kieler.kiml.util.KimlUtil
 import javax.inject.Inject
 import org.eclipse.debug.core.model.IVariable
-
-import static de.cau.cs.kieler.klighd.debug.visualization.AbstractDebugTransformation.*
 import de.cau.cs.kieler.klighd.debug.graphTransformations.AbstractKielerGraphTransformation
 import de.cau.cs.kieler.core.kgraph.KNode
 import de.cau.cs.kieler.core.krendering.extensions.KPolylineExtensions
+
+import static de.cau.cs.kieler.klighd.debug.visualization.AbstractDebugTransformation.*
 
 class LNodeTransformation extends AbstractKielerGraphTransformation {
 
@@ -186,7 +186,7 @@ class LNodeTransformation extends AbstractKielerGraphTransformation {
     def addPorts(KNode rootNode, IVariable node) {
         // create a node (ports) containing the port elements
         val ports = node.getVariable("ports")
-        rootNode.addNewNodeById(ports) => [
+        rootNode.addNodeById(ports) => [
             it.data += renderingFactory.createKRectangle => [
                 it.lineWidth = 4
             ]

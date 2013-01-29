@@ -30,7 +30,6 @@ class ArrayDequeTransformation extends AbstractDebugTransformation {
     override transform(IVariable model, Object transformationInfo) {
         return KimlUtil::createInitializedNode() => [
             it.addLayoutParam(LayoutOptions::ALGORITHM, "de.cau.cs.kieler.klay.layered")
-            it.addLayoutParam(LayoutOptions::SPACING, 75f)
             it.addLayoutParam(LayoutOptions::DIRECTION, Direction::RIGHT);
             val head = Integer::parseInt(model.getValue("head"));
             val tail = Integer::parseInt(model.getValue("tail"));

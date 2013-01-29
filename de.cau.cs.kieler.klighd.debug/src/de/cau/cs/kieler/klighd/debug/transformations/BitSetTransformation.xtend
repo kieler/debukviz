@@ -23,7 +23,7 @@ class BitSetTransformation extends AbstractDebugTransformation {
             model.getVariables("words").forEach[IVariable variable |
                 bitString = bitString + Integer::toBinaryString(Integer::parseInt(variable.value.valueString))
             ]
-            it.addNewNodeById(model) => [
+            it.addNodeById(model) => [
                 it.data += renderingFactory.createKRectangle() => [
                     it.childPlacement = renderingFactory.createKGridPlacement()
                     it.children += renderingFactory.createKText() => [

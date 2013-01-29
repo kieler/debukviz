@@ -18,9 +18,9 @@ import org.eclipse.jdt.debug.core.IJavaArray
 import org.eclipse.jdt.debug.core.IJavaObject
 import org.eclipse.jdt.debug.core.IJavaPrimitiveValue
 import org.eclipse.jdt.debug.core.IJavaValue
+import de.cau.cs.kieler.core.krendering.extensions.KEdgeExtensions
 
 import static de.cau.cs.kieler.klighd.debug.visualization.AbstractDebugTransformation.*
-import de.cau.cs.kieler.core.krendering.extensions.KEdgeExtensions
 
 class DefaultTransformation extends AbstractDebugTransformation {
        
@@ -38,7 +38,6 @@ class DefaultTransformation extends AbstractDebugTransformation {
     override transform(IVariable model, Object transformationInfo) {
         return KimlUtil::createInitializedNode() => [
             it.addLayoutParam(LayoutOptions::ALGORITHM, "de.cau.cs.kieler.klay.layered")
-            it.addLayoutParam(LayoutOptions::SPACING, 75f)
             it.addLayoutParam(LayoutOptions::DIRECTION, Direction::RIGHT)
             // Array
             if (model.isArray)
@@ -73,7 +72,7 @@ class DefaultTransformation extends AbstractDebugTransformation {
     
     def createArrayNode(KNode rootNode, IVariable choice) {
             if (choice.value instanceof IJavaArray) {
-	            val node = rootNode.addNewNodeById(choice)
+	            val node = rootNode.addNodeById(choice)
 	         	if (node != null) {
     	         	node => [
     	         		it.setNodeSize(80,80);
@@ -102,13 +101,13 @@ class DefaultTransformation extends AbstractDebugTransformation {
                     ]       
                 }  
         } else if (!choice.isPrimitiveOrNull && !choice.isNullObject) {
-            rootNode.nextTransformation(choice)
+                rootNode.nextTransformation(choice)
         } else
         	rootNode.createValueNode(choice)
     }
     
     def createValueNode(KNode rootNode, IVariable choice) {
-        val node = rootNode.addNewNodeById(choice) 
+        val node = rootNode.addNodeById(choice) 
         if (node != null) 
             node => [
                 it.setNodeSize(80,80);

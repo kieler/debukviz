@@ -24,7 +24,7 @@ class StringTransformation extends AbstractDebugTransformation {
     override transform(IVariable model, Object transformationInfo) {
         return 
         KimlUtil::createInitializedNode() => [
-        	it.children += createNode() => [
+        	it.addNodeById(model) => [
 	        	val text = getValueText(model.type,model.value.valueString)
 	        	it.setNodeSize(80,80);
 	            it.data += renderingFactory.createKRectangle() => [

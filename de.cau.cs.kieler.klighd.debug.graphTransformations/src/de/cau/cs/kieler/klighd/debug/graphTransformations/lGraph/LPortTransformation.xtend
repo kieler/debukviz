@@ -11,12 +11,11 @@ import de.cau.cs.kieler.core.krendering.extensions.KRenderingExtensions
 import de.cau.cs.kieler.kiml.options.LayoutOptions
 import de.cau.cs.kieler.kiml.util.KimlUtil
 import javax.inject.Inject
-import org.eclipse.debug.core.model.IVariable
 import de.cau.cs.kieler.core.krendering.KRendering
 import de.cau.cs.kieler.core.krendering.KContainerRendering
+import de.cau.cs.kieler.klighd.debug.graphTransformations.AbstractKielerGraphTransformation
 
 import static de.cau.cs.kieler.klighd.debug.visualization.AbstractDebugTransformation.*
-import de.cau.cs.kieler.klighd.debug.graphTransformations.AbstractKielerGraphTransformation
 
 class LPortTransformation extends AbstractKielerGraphTransformation {
     
@@ -147,7 +146,7 @@ class LPortTransformation extends AbstractKielerGraphTransformation {
     def addListOfLabels(KNode rootNode, IVariable port) {
         // create a node (labels) containing the label elements
         val labels = port.getVariable("labels")
-        rootNode.addNewNodeById(labels) => [
+        rootNode.addNodeById(labels) => [
             it.data += renderingFactory.createKRectangle => [
                 it.lineWidth = 4
             ]
@@ -170,7 +169,7 @@ class LPortTransformation extends AbstractKielerGraphTransformation {
     
     def addListOfEdges(KNode rootNode, IVariable port, IVariable edges) {
         // create a node (edges) containing the edges elements
-        rootNode.addNewNodeById(edges) => [
+        rootNode.addNodeById(edges) => [
             it.data += renderingFactory.createKRectangle => [
                 it.lineWidth = 4
             ]
