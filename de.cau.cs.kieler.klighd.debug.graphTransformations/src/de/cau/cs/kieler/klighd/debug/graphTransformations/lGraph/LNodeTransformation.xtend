@@ -36,13 +36,11 @@ class LNodeTransformation extends AbstractKielerGraphTransformation {
      * @param rootNode The KNode this node is placed into
      * @param variable The IVariable containing the data for this LNode
      */
-    override transform(IVariable node) {
+    override transform(IVariable node, Object transformationInfo) {
 //TODO: transformationInfo is not passed to new transformation
-println("transformationInfo in LNode: " + transformationInfo)
         if(transformationInfo instanceof Boolean) {
             detailedView = transformationInfo as Boolean
         }
-        detailedView = false
         
         return KimlUtil::createInitializedNode => [
             it.addLayoutParam(LayoutOptions::ALGORITHM, "de.cau.cs.kieler.kiml.ogdf.planarization")

@@ -31,7 +31,7 @@ class LPortTransformation extends AbstractKielerGraphTransformation {
     @Inject
     extension KColorExtensions
     
-    override transform(IVariable port) {
+    override transform(IVariable port, Object transformationInfo) {
         if(transformationInfo instanceof Boolean) {
             detailedView = transformationInfo as Boolean
         }
