@@ -319,4 +319,28 @@ abstract class AbstractKielerGraphTransformation extends AbstractDebugTransforma
         ]
     }
     
+    def headerNodeBasics(KContainerRendering container, Boolean detailedView, IVariable variable) {
+        container.ChildPlacement = renderingFactory.createKGridPlacement
+
+        if(detailedView) {
+            // bold line in detailed view
+            container.lineWidth = 4
+            
+            // type of the graph
+            container.addShortType(variable)
+
+            // name of the variable
+            container.children += renderingFactory.createKText => [
+                it.text = "VarName: " + variable.name 
+            ]
+            
+            // coloring of main element
+            container.setBackgroundColor("lemon".color);
+        } else {
+            // slim line in not detailed view
+            container.lineWidth = 2
+        }
+    }
+
+    
 }

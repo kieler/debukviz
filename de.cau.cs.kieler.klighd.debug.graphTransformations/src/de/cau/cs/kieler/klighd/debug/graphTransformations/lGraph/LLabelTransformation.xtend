@@ -51,18 +51,7 @@ class LLabelTransformation extends AbstractKielerGraphTransformation {
     def createHeaderNode(KNode rootNode, IVariable label) { 
         rootNode.addNewNodeById(label) => [
             it.data += renderingFactory.createKRectangle => [
-                if(detailedView) it.lineWidth = 4 else it.lineWidth = 2
-                it.ChildPlacement = renderingFactory.createKGridPlacement
-
-                if(detailedView) {
-                    // type of the label
-                    it.addShortType(label)
-                    
-                    // name of the variable
-                    it.children += renderingFactory.createKText => [
-                        it.text = "VarName: " + label.name 
-                    ]
-                }
+                it.headerNodeBasics(detailedView, label)
                 
                 // id of label
                 it.children += createKText(label, "id", "", ": ")

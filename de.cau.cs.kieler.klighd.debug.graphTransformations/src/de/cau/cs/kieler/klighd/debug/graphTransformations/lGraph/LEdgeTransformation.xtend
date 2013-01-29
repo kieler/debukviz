@@ -36,7 +36,8 @@ class LEdgeTransformation extends AbstractKielerGraphTransformation {
         if(transformationInfo instanceof Boolean) {
             detailedView = transformationInfo as Boolean
         }
-        detailedView = false
+println("LEdge detailedView: " +detailedView)
+//        detailedView = false
 //TODO: crash if dedailedView: "OGDF error: Process terminated with exit value -1073741676."
 println("LEdge transInfo: " + transformationInfo)
         return KimlUtil::createInitializedNode => [
@@ -70,18 +71,7 @@ println("LEdge: all done")
     def createHeaderNode(KNode rootNode, IVariable edge) { 
         rootNode.addNewNodeById(edge) => [
             it.data += renderingFactory.createKRectangle => [
-                if(detailedView) it.lineWidth = 4 else it.lineWidth = 2
-                it.ChildPlacement = renderingFactory.createKGridPlacement
-
-                if(detailedView) {
-                    // type of the edge
-                    it.addShortType(edge)
-                        
-                    // name of the variable
-                    it.children += renderingFactory.createKText => [
-                        it.text = "VarName: " + edge.name 
-                    ]
-                }
+                it.headerNodeBasics(detailedView, edge)
                 
                 // id of edge
                 it.children += createKText(edge, "id", "", ": ")

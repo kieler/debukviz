@@ -38,9 +38,8 @@ class LPortTransformation extends AbstractKielerGraphTransformation {
         if(transformationInfo instanceof Boolean) {
             detailedView = transformationInfo as Boolean
         }
-println("detailedView: " +detailedView)
+println("LPort detailedView: " +detailedView)
 //TODO: crash if detailedView is true. "OGDF error: Process terminated with exit value -1073741676."
-        detailedView = false
         return KimlUtil::createInitializedNode => [
             it.addLayoutParam(LayoutOptions::ALGORITHM, "de.cau.cs.kieler.kiml.ogdf.planarization")
 //            it.addLayoutParam(LayoutOptions::ALGORITHM, "de.cau.cs.kieler.klay.layered")
@@ -67,18 +66,7 @@ println("detailedView: " +detailedView)
     def createHeaderNode(KNode rootNode, IVariable port) { 
         rootNode.addNewNodeById(port) => [
             it.data += renderingFactory.createKRectangle => [
-                if(detailedView) it.lineWidth = 4 else it.lineWidth = 2
-                it.ChildPlacement = renderingFactory.createKGridPlacement
-
-                if(detailedView) {
-                    // type of the port
-                    it.addShortType(port)
-                    
-                    // name of the variable
-                    it.children += renderingFactory.createKText => [
-                        it.text = "VarName: " + port.name 
-                    ]
-                }
+                it.headerNodeBasics(detailedView, port)
                 
                 // id of port
                 it.children += createKText(port, "id", "", ": ")

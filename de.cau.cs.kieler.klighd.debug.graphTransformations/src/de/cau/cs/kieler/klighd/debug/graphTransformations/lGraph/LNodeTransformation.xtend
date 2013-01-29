@@ -35,6 +35,7 @@ class LNodeTransformation extends AbstractKielerGraphTransformation {
         if(transformationInfo instanceof Boolean) {
             detailedView = transformationInfo as Boolean
         }
+println("LNode detailedView: " +detailedView)
         
         return KimlUtil::createInitializedNode => [
             it.addLayoutParam(LayoutOptions::ALGORITHM, "de.cau.cs.kieler.kiml.ogdf.planarization")
