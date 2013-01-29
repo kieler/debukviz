@@ -28,7 +28,7 @@ class LinkedListTransformation extends AbstractDebugTransformation {
     /**
      * {@inheritDoc}
      */
-    override transform(IVariable variable) {
+    override transform(IVariable variable, Object transformationInfo) {
         return KimlUtil::createInitializedNode() => [
             it.addLayoutParam(LayoutOptions::ALGORITHM, "de.cau.cs.kieler.klay.layered")
             it.addLayoutParam(LayoutOptions::SPACING, 75f)

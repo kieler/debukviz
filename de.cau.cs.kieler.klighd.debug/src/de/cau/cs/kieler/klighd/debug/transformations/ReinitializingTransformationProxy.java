@@ -34,6 +34,7 @@ import de.cau.cs.kieler.core.krendering.extensions.ViewSynthesisShared;
 import de.cau.cs.kieler.klighd.ITransformation;
 import de.cau.cs.kieler.klighd.TransformationContext;
 import de.cau.cs.kieler.klighd.TransformationOption;
+import de.cau.cs.kieler.klighd.debug.IKlighdDebug;
 import de.cau.cs.kieler.klighd.debug.visualization.AbstractDebugTransformation;
 
 
@@ -61,7 +62,7 @@ import de.cau.cs.kieler.klighd.debug.visualization.AbstractDebugTransformation;
 public class ReinitializingTransformationProxy extends AbstractDebugTransformation {
 
     private Class<AbstractDebugTransformation> transformationClass = null;
-    private ITransformation<IVariable, KNode> transformationDelegate = null;
+    private AbstractDebugTransformation transformationDelegate = null;
     private Module transformationClassBinding = null;
     
 
@@ -220,33 +221,11 @@ public class ReinitializingTransformationProxy extends AbstractDebugTransformati
      * {@inheritDoc}<br>
      * Delegates to the 'delegate' object.
      */
-    public KNode transform(final IVariable model, final TransformationContext<IVariable, KNode> transformationContext) {
+    public KNode transform(final IVariable model, final TransformationContext<IVariable, KNode> transformationContext, Object transformationInfo) {
         this.transformationDelegate = getNewDelegateInstance(); 
-        return this.transformationDelegate.transform(model, transformationContext);
+        return this.transformationDelegate.transform(model, transformationContext, transformationInfo);
     }
-    
-    
-    /**
-     * Stub enforced by {@link AbstractTransformation}.
-     * @param model the model
-     * @return null
-     */
-    public KNode transform(final IVariable model) {
-        return null;
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public Set<TransformationOption> getTransformationOptions() {
-        if (this.transformationDelegate == null) {
-            return getNewDelegateInstance().getTransformationOptions();
-        }
-        return this.transformationDelegate.getTransformationOptions();
-    }
-    
-    
+        
     /**
      * {@inheritDoc}
      */
@@ -254,12 +233,16 @@ public class ReinitializingTransformationProxy extends AbstractDebugTransformati
         return this.getClass().getSimpleName() + "(" + getNewDelegateInstance() + ")";
     }
     
-
     /**
      * Getter for the delegate attribute.
      * @return the delegate
      */
-    public ITransformation<IVariable, KNode> getDelegate() {
+    public AbstractDebugTransformation getDelegate() {
         return this.transformationDelegate;
+    }
+
+    public KNode transform(IVariable model, Object transformationInfo) {
+        // TODO Auto-generated method stub
+        return null;
     }
 }

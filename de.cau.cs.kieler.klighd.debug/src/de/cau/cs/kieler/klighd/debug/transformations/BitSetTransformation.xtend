@@ -18,7 +18,7 @@ class BitSetTransformation extends AbstractDebugTransformation {
     
     var String bitString = ""
     
-    override transform(IVariable model) {
+    override transform(IVariable model, Object transformationInfo) {
         return KimlUtil::createInitializedNode() => [
             model.getVariables("words").forEach[IVariable variable |
                 bitString = bitString + Integer::toBinaryString(Integer::parseInt(variable.value.valueString))
