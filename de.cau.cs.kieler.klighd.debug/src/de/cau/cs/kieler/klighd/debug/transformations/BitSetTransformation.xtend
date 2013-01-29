@@ -1,6 +1,5 @@
 package de.cau.cs.kieler.klighd.debug.transformations
 
-import de.cau.cs.kieler.core.krendering.extensions.KNodeExtensions
 import de.cau.cs.kieler.core.krendering.extensions.KRenderingExtensions
 import de.cau.cs.kieler.kiml.util.KimlUtil
 import de.cau.cs.kieler.klighd.debug.visualization.AbstractDebugTransformation
@@ -11,8 +10,6 @@ import static de.cau.cs.kieler.klighd.debug.visualization.AbstractDebugTransform
 
 class BitSetTransformation extends AbstractDebugTransformation {
     
-    @Inject
-    extension KNodeExtensions
     @Inject
     extension KRenderingExtensions
     
