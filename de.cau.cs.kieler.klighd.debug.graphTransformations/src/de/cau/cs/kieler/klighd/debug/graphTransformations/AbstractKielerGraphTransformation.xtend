@@ -202,42 +202,43 @@ abstract class AbstractKielerGraphTransformation extends AbstractDebugTransforma
     }
     
     def addPropertyMapAndEdge(KNode rootNode, IVariable propertyMap, IVariable headerNode) {
-        // create propertyMap node
-        rootNode.addNewNodeById(propertyMap) => [
-            it.data += renderingFactory.createKRectangle => [
-                it.lineWidth = 4
-                it.ChildPlacement = renderingFactory.createKGridPlacement 
-//                it.ChildPlacement = renderingFactory.createKStackPlacement
+        if(rootNode != null && propertyMap.valueIsNotNull && headerNode.valueIsNotNull) {
+            // create propertyMap node
+            rootNode.addNewNodeById(propertyMap) => [
+                it.data += renderingFactory.createKRectangle => [
+                    it.lineWidth = 4
+                    it.ChildPlacement = renderingFactory.createKGridPlacement 
 //TODO: warum geht das hier nicht?
-                it.placementData = renderingFactory.createKGridPlacementData => [
-                    it.setInsetRight(20)
-                    it.setInsetLeft(20)
-                    it.setInsetTop(20)
-                    it.setInsetBottom(20)
+                    it.placementData = renderingFactory.createKGridPlacementData => [
+                        it.setInsetRight(20)
+                        it.setInsetLeft(20)
+                        it.setInsetTop(20)
+                        it.setInsetBottom(20)
+                    ]
+                    
+                    // add type of the propertyMap
+                    it.children += renderingFactory.createKText => [
+                        it.setForegroundColor(120,120,120)
+                        it.text = propertyMap.getType
+                    ]
+            
+                    // add all properties
+                    propertyMap.flattenStruct(it, "PROPERTY MAP", "")
                 ]
-                
-                // add type of the propertyMap
-                it.children += renderingFactory.createKText => [
-                    it.setForegroundColor(120,120,120)
-                    it.text = propertyMap.getType
+            ]
+                            
+            //create edge from header to propertyMap node
+            headerNode.createEdgeById(propertyMap) => [
+                it.data += renderingFactory.createKPolyline => [
+                    it.setLineWidth(2)
+                    it.addArrowDecorator
                 ]
-        
-                // add all properties
-                propertyMap.flattenStruct(it, "PROPERTY MAP", "")
+                it.addLabel("Property Map")
+    //            KimlUtil::createInitializedLabel(it) => [
+    //                it.setText("Property Map")
+    //            ]
             ]
-        ]
-                        
-        //create edge from header to propertyMap node
-        headerNode.createEdgeById(propertyMap) => [
-            it.data += renderingFactory.createKPolyline => [
-                it.setLineWidth(2)
-                it.addArrowDecorator
-            ]
-            it.addLabel("Property Map")
-//            KimlUtil::createInitializedLabel(it) => [
-//                it.setText("Property Map")
-//            ]
-        ]
+        }
     }
     
     /**

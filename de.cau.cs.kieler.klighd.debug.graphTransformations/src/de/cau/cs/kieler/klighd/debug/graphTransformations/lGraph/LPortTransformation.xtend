@@ -31,14 +31,19 @@ class LPortTransformation extends AbstractKielerGraphTransformation {
     @Inject
     extension KColorExtensions
     
-    override transform(IVariable port) {
+    /**
+     * {@inheritDoc}
+     */
+    override transform(IVariable port, Object transformationInfo) {
         if(transformationInfo instanceof Boolean) {
             detailedView = transformationInfo as Boolean
         }
+println("detailedView: " +detailedView)
 //TODO: crash if detailedView is true. "OGDF error: Process terminated with exit value -1073741676."
         detailedView = false
         return KimlUtil::createInitializedNode => [
             it.addLayoutParam(LayoutOptions::ALGORITHM, "de.cau.cs.kieler.kiml.ogdf.planarization")
+//            it.addLayoutParam(LayoutOptions::ALGORITHM, "de.cau.cs.kieler.klay.layered")
             it.addLayoutParam(LayoutOptions::SPACING, 75f)
             
             // create KNode for given LPort
@@ -60,7 +65,7 @@ class LPortTransformation extends AbstractKielerGraphTransformation {
     }
     
     def createHeaderNode(KNode rootNode, IVariable port) { 
-        rootNode.children += port.createNodeById => [
+        rootNode.addNewNodeById(port) => [
             it.data += renderingFactory.createKRectangle => [
                 if(detailedView) it.lineWidth = 4 else it.lineWidth = 2
                 it.ChildPlacement = renderingFactory.createKGridPlacement
@@ -170,6 +175,7 @@ class LPortTransformation extends AbstractKielerGraphTransformation {
     
     def addListOfEdges(KNode rootNode, IVariable port, IVariable edges) {
         // create a node (edges) containing the edges elements
+        println(edges.getValue.getValueString)
         rootNode.addNewNodeById(edges) => [
             it.data += renderingFactory.createKRectangle => [
                 it.lineWidth = 4

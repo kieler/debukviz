@@ -28,21 +28,13 @@ class LNodeTransformation extends AbstractKielerGraphTransformation {
 	@Inject 
     extension KColorExtensions
 
-    //TODO: create ports
-    //TODO: add all labels
-
     /**
-     * Creates a representation of a LNode
-     * @param rootNode The KNode this node is placed into
-     * @param variable The IVariable containing the data for this LNode
+     * {@inheritDoc}
      */
-    override transform(IVariable node) {
-//TODO: transformationInfo is not passed to new transformation
-println("transformationInfo in LNode: " + transformationInfo)
+    override transform(IVariable node, Object transformationInfo) {
         if(transformationInfo instanceof Boolean) {
             detailedView = transformationInfo as Boolean
         }
-        detailedView = false
         
         return KimlUtil::createInitializedNode => [
             it.addLayoutParam(LayoutOptions::ALGORITHM, "de.cau.cs.kieler.kiml.ogdf.planarization")
@@ -63,7 +55,7 @@ println("transformationInfo in LNode: " + transformationInfo)
     }
     
     def createHeaderNode(KNode rootNode, IVariable node) {
-        rootNode.children += node.createNodeById => [
+        rootNode.addNewNodeById(node) => [
             // Get the nodeType
             val nodeType = node.nodeType
 

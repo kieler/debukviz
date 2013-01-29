@@ -33,11 +33,11 @@ class LGraphTransformation extends AbstractKielerGraphTransformation {
     /**
      * {@inheritDoc}
      */
-	override transform(IVariable graph) {
+	override transform(IVariable graph, Object transformationInfo) {
         if(transformationInfo instanceof Boolean) {
             detailedView = transformationInfo as Boolean
         }
-        detailedView = true
+        
         return KimlUtil::createInitializedNode => [
             it.addLayoutParam(LayoutOptions::ALGORITHM, "de.cau.cs.kieler.kiml.ogdf.planarization")
             it.addLayoutParam(LayoutOptions::SPACING, 75f)
@@ -63,7 +63,7 @@ class LGraphTransformation extends AbstractKielerGraphTransformation {
 	}
 	
 	def createHeaderNode(KNode rootNode, IVariable graph) {
-		rootNode.children += graph.createNodeById => [
+		rootNode.addNewNodeById(graph) => [
     		it.data += renderingFactory.createKRectangle => [
     		    if (detailedView) it.lineWidth = 4 else it.lineWidth = 2
     			it.ChildPlacement = renderingFactory.createKGridPlacement

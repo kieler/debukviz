@@ -37,7 +37,7 @@ class FGraphTransformation extends AbstractKielerGraphTransformation {
     /**
      * {@inheritDoc}
      */
-    override transform(IVariable graph) {
+    override transform(IVariable graph, Object transformationInfo) {
         if(transformationInfo instanceof Boolean) {
             detailedView = transformationInfo as Boolean
         }

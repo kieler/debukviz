@@ -194,13 +194,16 @@ public abstract class AbstractDebugTransformation extends AbstractTransformation
     }
 
     public KNode transform(IVariable model,
-            TransformationContext<IVariable, KNode> transformationContext) {
+            TransformationContext<IVariable, KNode> transformationContext, Object transformationInfo) {
         use(transformationContext);
         // perform transformation
-        KNode node = this.transform(model);
+        KNode node = this.transform(model, transformationInfo);
         // clear local stored information
-        this.setTransformationInfo(null);
         return node;
+    }
+    
+    public KNode transform(IVariable model, TransformationContext<IVariable,KNode> transformationContext) {
+        throw null;
     }
     
     public KNode getNode(IVariable variable) throws DebugException {

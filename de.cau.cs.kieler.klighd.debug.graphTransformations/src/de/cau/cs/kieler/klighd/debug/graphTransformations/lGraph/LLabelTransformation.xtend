@@ -32,11 +32,10 @@ class LLabelTransformation extends AbstractKielerGraphTransformation {
     @Inject
     extension KColorExtensions
     
-    override transform(IVariable label) {
+    override transform(IVariable label, Object transformationInfo) {
         if(transformationInfo instanceof Boolean) {
             detailedView = transformationInfo as Boolean
         }
-        detailedView = false
         return KimlUtil::createInitializedNode => [
             it.addLayoutParam(LayoutOptions::ALGORITHM, "de.cau.cs.kieler.kiml.ogdf.planarization")
             it.addLayoutParam(LayoutOptions::SPACING, 75f)
@@ -50,7 +49,7 @@ class LLabelTransformation extends AbstractKielerGraphTransformation {
     }
     
     def createHeaderNode(KNode rootNode, IVariable label) { 
-        rootNode.children += label.createNodeById => [
+        rootNode.addNewNodeById(label) => [
             it.data += renderingFactory.createKRectangle => [
                 if(detailedView) it.lineWidth = 4 else it.lineWidth = 2
                 it.ChildPlacement = renderingFactory.createKGridPlacement

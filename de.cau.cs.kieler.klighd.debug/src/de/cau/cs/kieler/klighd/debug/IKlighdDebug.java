@@ -6,5 +6,5 @@ import de.cau.cs.kieler.core.kgraph.KNode;
 
 public interface IKlighdDebug {
 
-    public KNode transform(IVariable model);
+    public KNode transform(IVariable model, Object transformationInfo);
 }

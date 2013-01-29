@@ -23,7 +23,7 @@ class FBendpointTransformation extends AbstractKielerGraphTransformation {
 //    @Inject
 //    extension KColorExtensions
     
-    override transform(IVariable bendPoint) {
+    override transform(IVariable bendPoint, Object transformationInfo) {
          return KimlUtil::createInitializedNode() => [
             it.addLayoutParam(LayoutOptions::ALGORITHM, "de.cau.cs.kieler.klay.layered")
             it.addLayoutParam(LayoutOptions::SPACING, 75f)
