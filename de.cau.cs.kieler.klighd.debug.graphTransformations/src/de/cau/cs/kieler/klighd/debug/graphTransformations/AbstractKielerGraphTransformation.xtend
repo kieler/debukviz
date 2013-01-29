@@ -135,7 +135,7 @@ abstract class AbstractKielerGraphTransformation extends AbstractDebugTransforma
             case "Property<T>" : 
                 return key.getValue("id") + ": "
             case "LayoutOptionData<T>" : 
-                return key.getValue("name") + ": "
+                return key.getValue("name") + " -> "
             case "KNodeImpl" :
                 return "KNode" + key.getValue.getValueString + ": "
         }
@@ -147,25 +147,23 @@ abstract class AbstractKielerGraphTransformation extends AbstractDebugTransforma
     def flattenStruct(IVariable element, KContainerRendering container, String remainder, String prefix) {
         switch element.getType {
             case "HashMap<K,V>" : {
-                // write the remainder to the container ("header" of following elements)
-                if(remainder.length > 0) {
-                    container.children += renderingFactory.createKText =>[
-                        it.text = prefix + remainder
-                    ]
-                }
+                container.addRemainer(prefix, remainder)
                 // create all child elements
                 element.hashMapToLinkedList.forEach [
                     it.getVariable("value").flattenStruct(container, it.getVariable("key").keyString, prefix + "- ")
                 ]
             }
             case "RegularEnumSet<E>" : {
-                // write the remainder to the container
-                if(remainder.length > 0)
-                    container.children += renderingFactory.createKText =>[
-                        it.text = prefix + remainder
-                    ]
+                container.addRemainer(prefix, remainder)
                 // create the enumSet elements
                 container.enumSetToKText(element, prefix + "- ")
+            } 
+            case "NodeGroup" : {
+                container.addRemainer(prefix, remainder)
+                // create all child elements
+                element.getVariables("nodes").forEach [
+                    it.flattenStruct(container, "", prefix + "- ")
+                ]
             } 
             case "KNodeImpl" :
                 container.children += renderingFactory.createKText =>[
@@ -218,10 +216,17 @@ abstract class AbstractKielerGraphTransformation extends AbstractDebugTransforma
         }
     }
     
+    def addRemainer(KContainerRendering container, String prefix, String remainder) {
+        if(remainder.length > 0)
+            container.children += renderingFactory.createKText =>[
+                it.text = prefix + remainder
+            ]
+    }
+
     def addPropertyMapAndEdge(KNode rootNode, IVariable propertyMap, IVariable headerNode) {
         if(rootNode != null && propertyMap.valueIsNotNull && headerNode.valueIsNotNull) {
             // create propertyMap node
-            rootNode.addNewNodeById(propertyMap) => [
+            rootNode.addNodeById(propertyMap) => [
                 it.data += renderingFactory.createKRectangle => [
                     it.lineWidth = 4
                     it.ChildPlacement = renderingFactory.createKGridPlacement 
@@ -240,7 +245,7 @@ abstract class AbstractKielerGraphTransformation extends AbstractDebugTransforma
                     ]
             
                     // add all properties
-                    propertyMap.flattenStruct(it, "PROPERTY MAP", "")
+                    propertyMap.flattenStruct(it, "", "")
                 ]
             ]
                             
@@ -345,7 +350,7 @@ abstract class AbstractKielerGraphTransformation extends AbstractDebugTransforma
 
             // name of the variable
             container.children += renderingFactory.createKText => [
-                it.text = "VarName: " + variable.name 
+                it.text = "Variable: " + variable.name + variable.getValue.getValueString 
             ]
             
             // coloring of main element

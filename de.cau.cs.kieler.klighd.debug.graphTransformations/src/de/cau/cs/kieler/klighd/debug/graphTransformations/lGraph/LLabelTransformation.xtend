@@ -48,7 +48,7 @@ class LLabelTransformation extends AbstractKielerGraphTransformation {
     }
     
     def createHeaderNode(KNode rootNode, IVariable label) { 
-        rootNode.addNewNodeById(label) => [
+        rootNode.addNodeById(label) => [
             it.data += renderingFactory.createKRectangle => [
                 it.headerNodeBasics(detailedView, label)
                 

@@ -61,7 +61,7 @@ class LNodeTransformation extends AbstractKielerGraphTransformation {
     }
     
     def createHeaderNode(KNode rootNode, IVariable node) {
-        rootNode.addNewNodeById(node) => [
+        rootNode.addNodeById(node) => [
             // Get the nodeType
             val nodeType = node.nodeType
 

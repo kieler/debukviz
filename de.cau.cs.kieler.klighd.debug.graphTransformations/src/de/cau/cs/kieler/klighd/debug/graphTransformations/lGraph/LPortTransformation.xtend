@@ -66,7 +66,7 @@ class LPortTransformation extends AbstractKielerGraphTransformation {
     }
     
     def createHeaderNode(KNode rootNode, IVariable port) { 
-        rootNode.addNewNodeById(port) => [
+        rootNode.addNodeById(port) => [
             it.data += renderingFactory.createKRectangle => [
                 it.headerNodeBasics(detailedView, port)
                 
@@ -143,7 +143,7 @@ class LPortTransformation extends AbstractKielerGraphTransformation {
         // create a node (labels) containing the label elements
         val labels = port.getVariable("labels")
         if (!labels.getValue("size").equals("0")) {
-            rootNode.addNewNodeById(labels) => [
+            rootNode.addNodeById(labels) => [
                 it.data += renderingFactory.createKRectangle => [
                     it.lineWidth = 4
                 ]
@@ -171,7 +171,7 @@ class LPortTransformation extends AbstractKielerGraphTransformation {
     def addListOfEdges(KNode rootNode, IVariable port, IVariable edges) {
         // create a node (edges) containing the edges elements
         if (!edges.getValue("size").equals("0")) {
-            rootNode.addNewNodeById(edges) => [
+            rootNode.addNodeById(edges) => [
                 it.data += renderingFactory.createKRectangle => [
                     it.lineWidth = 4
                 ]

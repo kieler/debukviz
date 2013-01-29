@@ -67,7 +67,7 @@ class LGraphTransformation extends AbstractKielerGraphTransformation {
 	}
 	
 	def createHeaderNode(KNode rootNode, IVariable graph) {
-		rootNode.addNewNodeById(graph) => [
+		rootNode.addNodeById(graph) => [
     		it.data += renderingFactory.createKRectangle => [
     		    it.headerNodeBasics(detailedView, graph)
                 

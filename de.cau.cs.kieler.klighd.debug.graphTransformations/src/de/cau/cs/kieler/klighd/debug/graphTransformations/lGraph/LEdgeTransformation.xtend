@@ -60,7 +60,7 @@ class LEdgeTransformation extends AbstractKielerGraphTransformation {
         if (!labels.getValue("size").equals("0")) {
  
             // create container node
-            rootNode.addNewNodeById(labels) => [
+            rootNode.addNodeById(labels) => [
                 it.data += renderingFactory.createKRectangle => [
                     if(detailedView) it.lineWidth = 4 else it.lineWidth = 2
                     it.ChildPlacement = renderingFactory.createKGridPlacement
@@ -89,7 +89,7 @@ class LEdgeTransformation extends AbstractKielerGraphTransformation {
 
     
     def createHeaderNode(KNode rootNode, IVariable edge) { 
-        rootNode.addNewNodeById(edge) => [
+        rootNode.addNodeById(edge) => [
             it.data += renderingFactory.createKRectangle => [
                 it.headerNodeBasics(detailedView, edge)
                 
