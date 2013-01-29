@@ -74,32 +74,33 @@ class DefaultTransformation extends AbstractDebugTransformation {
     def createArrayNode(KNode rootNode, IVariable choice) {
             if (choice.value instanceof IJavaArray) {
 	            val node = rootNode.addNewNodeById(choice)
-	         	if (node != null)
-	         	node => [
-	         		it.setNodeSize(80,80);
-	            	it.data += renderingFactory.createKRectangle() => [
-	                	it.childPlacement = renderingFactory.createKGridPlacement()
-	                	it.children += renderingFactory.createKText() => [
-	                		it.text = choice.type
-	            		]
-	            	]
-	            ]
-	            
-            	choice.value.variables.forEach[
-                	IVariable variable |
-                	rootNode.createArrayNode(variable)
-                	choice.createEdgeById(variable) => [
-                		variable.createLabel(it) => [
-                            it.addLayoutParam(LayoutOptions::EDGE_LABEL_PLACEMENT, EdgeLabelPlacement::CENTER)
-                            it.setLabelSize(50,50)
-                            it.text = variable.name.replaceAll("[\\[\\]]","");
-                		]
-    	                it.data += renderingFactory.createKPolyline() => [
-                            it.setLineWidth(2)
-                            it.addArrowDecorator()
-                        ]
-                	]
-                ]         
+	         	if (node != null) {
+    	         	node => [
+    	         		it.setNodeSize(80,80);
+    	            	it.data += renderingFactory.createKRectangle() => [
+    	                	it.childPlacement = renderingFactory.createKGridPlacement()
+    	                	it.children += renderingFactory.createKText() => [
+    	                		it.text = choice.type
+    	            		]
+    	            	]
+    	            ]
+    	            
+                	choice.value.variables.forEach[
+                    	IVariable variable |
+                    	rootNode.createArrayNode(variable)
+                    	choice.createEdgeById(variable) => [
+                    		variable.createLabel(it) => [
+                                it.addLayoutParam(LayoutOptions::EDGE_LABEL_PLACEMENT, EdgeLabelPlacement::CENTER)
+                                it.setLabelSize(50,50)
+                                it.text = variable.name.replaceAll("[\\[\\]]","");
+                    		]
+        	                it.data += renderingFactory.createKPolyline() => [
+                                it.setLineWidth(2)
+                                it.addArrowDecorator()
+                            ]
+                    	]
+                    ]       
+                }  
         } else if (!choice.isPrimitiveOrNull && !choice.isNullObject) {
             rootNode.nextTransformation(choice)
         } else

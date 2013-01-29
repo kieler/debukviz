@@ -107,7 +107,7 @@ public abstract class AbstractDebugTransformation extends AbstractTransformation
             depth--;
             while (innerNode.getChildren().size() == 1)
                 innerNode = innerNode.getChildren().get(0);
-            //if (kNodeMap.get(getId(variable)) == null)
+            if (kNodeMap.get(getId(variable)) == null)
                 kNodeMap.put(getId(variable), innerNode);                
             
             rootNode.getChildren().add(innerNode);

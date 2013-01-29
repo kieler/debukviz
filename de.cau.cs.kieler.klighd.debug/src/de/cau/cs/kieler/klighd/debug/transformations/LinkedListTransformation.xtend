@@ -36,7 +36,7 @@ class LinkedListTransformation extends AbstractDebugTransformation {
         return KimlUtil::createInitializedNode() => [
             it.addLayoutParam(LayoutOptions::ALGORITHM, "de.cau.cs.kieler.kiml.ogdf.planarization")
             it.addLayoutParam(LayoutOptions::SPACING, 75f)
-            it.addLayoutParam(LayoutOptions::DIRECTION, Direction::UP)
+            it.addLayoutParam(LayoutOptions::DIRECTION, Direction::RIGHT)
             size = Integer::parseInt(variable.getValue("size"))
             it.createChildNode(variable.getVariable("header.next"))
         ]
@@ -47,12 +47,12 @@ class LinkedListTransformation extends AbstractDebugTransformation {
     }  
     
     def createChildNode(KNode rootNode, IVariable variable) {
-       rootNode.nextTransformation(variable.element)
+       rootNode.addNewNodeById(variable)?.nextTransformation(variable.element)
        index = index + 1
        if (index < size) {
            val next = variable.getVariable("next")
            rootNode.createChildNode(next)
-           variable.element.createEdgeById(next.element) => [
+           variable.createEdgeById(next) => [
                next.createLabel(it) => [
                      it.addLayoutParam(LayoutOptions::EDGE_LABEL_PLACEMENT, EdgeLabelPlacement::CENTER)
                      it.setLabelSize(50,50)
