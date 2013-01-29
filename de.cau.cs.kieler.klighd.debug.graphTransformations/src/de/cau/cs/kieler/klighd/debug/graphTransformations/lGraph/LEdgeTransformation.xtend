@@ -14,7 +14,6 @@ import de.cau.cs.kieler.kiml.options.LayoutOptions
 import de.cau.cs.kieler.kiml.util.KimlUtil
 import javax.inject.Inject
 import org.eclipse.debug.core.model.IVariable
-import de.cau.cs.kieler.klighd.debug.graphTransformations.GraphTransformationInfo
 import de.cau.cs.kieler.core.krendering.KRendering
 import de.cau.cs.kieler.core.krendering.KContainerRendering
 
@@ -33,18 +32,20 @@ class LEdgeTransformation extends AbstractKielerGraphTransformation {
     @Inject
     extension KColorExtensions
     
-    override transform(IVariable edge) {
+    override transform(IVariable edge, Object transformationInfo) {
         if(transformationInfo instanceof Boolean) {
             detailedView = transformationInfo as Boolean
         }
         detailedView = false
+//TODO: crash if dedailedView: "OGDF error: Process terminated with exit value -1073741676."
+println("LEdge transInfo: " + transformationInfo)
         return KimlUtil::createInitializedNode => [
             it.addLayoutParam(LayoutOptions::ALGORITHM, "de.cau.cs.kieler.kiml.ogdf.planarization")
             it.addLayoutParam(LayoutOptions::SPACING, 75f)
             
             // create KNode for given LEdge
             it.createHeaderNode(edge)
-            
+println("LEdge: headerDone")
             // add node for propertyMap and labels
             if (detailedView) {
                 // add propertyMap
@@ -62,6 +63,7 @@ class LEdgeTransformation extends AbstractKielerGraphTransformation {
                     ]
                 }
             }
+println("LEdge: all done")
         ]
     }
     
