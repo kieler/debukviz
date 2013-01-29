@@ -45,12 +45,6 @@ public class KlighdSelectionListener implements ISelectionListener {
             StructuredSelection treeSelection = (StructuredSelection) selection;
             if (treeSelection.getFirstElement() instanceof IVariable) {
                 IVariable var = (IVariable) treeSelection.getFirstElement();
-                try {
-					System.out.println(((IJavaObject) var).getUniqueId());
-				} catch (DebugException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
                 DiagramViewPart view = null;
                 if (DiagramViewManager.getInstance().getView("Variable") == null)
                     view = DiagramViewManager.getInstance().createView("Variable", "Variable", var,
