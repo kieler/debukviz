@@ -37,7 +37,7 @@ class FGraphTransformation extends AbstractKielerGraphTransformation {
     /**
      * {@inheritDoc}
      */
-    override transform(IVariable graph) {
+    override transform(IVariable graph, Object transformationInfo) {
         return KimlUtil::createInitializedNode=> [
             it.addLayoutParam(LayoutOptions::ALGORITHM, "de.cau.cs.kieler.klay.layered")
 //            it.addLayoutParam(LayoutOptions::ALGORITHM, "de.cau.cs.kieler.graphviz.dot")

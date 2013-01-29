@@ -12,7 +12,6 @@ import org.eclipse.debug.core.model.IVariable
 
 import static de.cau.cs.kieler.klighd.debug.visualization.AbstractDebugTransformation.*
 import de.cau.cs.kieler.klighd.debug.graphTransformations.AbstractKielerGraphTransformation
-import de.cau.cs.kieler.klighd.debug.graphTransformations.GraphTransformationInfo
 import de.cau.cs.kieler.core.kgraph.KNode
 import de.cau.cs.kieler.core.krendering.extensions.KPolylineExtensions
 
@@ -37,12 +36,11 @@ class LNodeTransformation extends AbstractKielerGraphTransformation {
      * @param rootNode The KNode this node is placed into
      * @param variable The IVariable containing the data for this LNode
      */
-    override transform(IVariable node) {
+    override transform(IVariable node, Object transformationInfo) {
 //TODO: transformationInfo is not passed to new transformation
         if(transformationInfo instanceof Boolean) {
             detailedView = transformationInfo as Boolean
         }
-        detailedView = false
         
         return KimlUtil::createInitializedNode => [
             it.addLayoutParam(LayoutOptions::ALGORITHM, "de.cau.cs.kieler.kiml.ogdf.planarization")

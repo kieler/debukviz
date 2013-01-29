@@ -31,7 +31,7 @@ class PNodeTransformation extends AbstractKielerGraphTransformation {
     /**
      * {@inheritDoc}
      */
-    override transform(IVariable node) {
+    override transform(IVariable node, Object transformationInfo) {
         return KimlUtil::createInitializedNode() => [
             it.addLayoutParam(LayoutOptions::ALGORITHM, "de.cau.cs.kieler.klay.layered")
             it.addLayoutParam(LayoutOptions::SPACING, 75f)

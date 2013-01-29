@@ -12,7 +12,6 @@ import de.cau.cs.kieler.kiml.options.LayoutOptions
 import de.cau.cs.kieler.kiml.util.KimlUtil
 import javax.inject.Inject
 import org.eclipse.debug.core.model.IVariable
-import de.cau.cs.kieler.klighd.debug.graphTransformations.GraphTransformationInfo
 import de.cau.cs.kieler.core.krendering.KRendering
 import de.cau.cs.kieler.core.krendering.KContainerRendering
 
@@ -32,7 +31,7 @@ class LPortTransformation extends AbstractKielerGraphTransformation {
     @Inject
     extension KColorExtensions
     
-    override transform(IVariable port) {
+    override transform(IVariable port, Object transformationInfo) {
         if(transformationInfo instanceof Boolean) {
             detailedView = transformationInfo as Boolean
         }
