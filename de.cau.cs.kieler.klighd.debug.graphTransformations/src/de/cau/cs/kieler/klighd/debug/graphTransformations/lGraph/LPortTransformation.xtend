@@ -11,12 +11,11 @@ import de.cau.cs.kieler.core.krendering.extensions.KRenderingExtensions
 import de.cau.cs.kieler.kiml.options.LayoutOptions
 import de.cau.cs.kieler.kiml.util.KimlUtil
 import javax.inject.Inject
-import org.eclipse.debug.core.model.IVariable
 import de.cau.cs.kieler.core.krendering.KRendering
 import de.cau.cs.kieler.core.krendering.KContainerRendering
+import de.cau.cs.kieler.klighd.debug.graphTransformations.AbstractKielerGraphTransformation
 
 import static de.cau.cs.kieler.klighd.debug.visualization.AbstractDebugTransformation.*
-import de.cau.cs.kieler.klighd.debug.graphTransformations.AbstractKielerGraphTransformation
 
 import de.cau.cs.kieler.kiml.options.EdgeLabelPlacement
 import de.cau.cs.kieler.kiml.options.Direction

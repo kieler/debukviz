@@ -13,13 +13,13 @@ import javax.inject.Inject
 import org.eclipse.debug.core.model.IVariable
 import de.cau.cs.kieler.core.krendering.KRendering
 import de.cau.cs.kieler.core.krendering.KContainerRendering
+import de.cau.cs.kieler.klighd.debug.graphTransformations.AbstractKielerGraphTransformation
 
 import de.cau.cs.kieler.kiml.options.EdgeLabelPlacement
 import de.cau.cs.kieler.kiml.options.Direction
 import de.cau.cs.kieler.kiml.options.LayoutOptions
 
 import static de.cau.cs.kieler.klighd.debug.visualization.AbstractDebugTransformation.*
-import de.cau.cs.kieler.klighd.debug.graphTransformations.AbstractKielerGraphTransformation
 import de.cau.cs.kieler.core.krendering.extensions.KLabelExtensions
 
 class LGraphTransformation extends AbstractKielerGraphTransformation {
@@ -126,7 +126,7 @@ class LGraphTransformation extends AbstractKielerGraphTransformation {
 		// the node has to be registered to a specific object.
 		// we are using the layerlessNodes element here
 		val visualization = graph.getVariable("layerlessNodes")
-        rootNode.addNewNodeById(visualization) => [
+        rootNode.addNodeById(visualization) => [
             it.data += renderingFactory.createKRectangle => [
                 it.lineWidth = 4
             ]

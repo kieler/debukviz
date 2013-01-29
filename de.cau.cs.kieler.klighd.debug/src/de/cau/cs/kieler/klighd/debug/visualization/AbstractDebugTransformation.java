@@ -93,40 +93,45 @@ public abstract class AbstractDebugTransformation extends AbstractTransformation
         KNode innerNode = null;
         //int maxNodeCount = -1;
         // Perform transformation if recursion depth less-equal maxDepth
-        if (depth <= maxDepth) {
-            depth++;
-            innerNode = new KlighdDebugTransformation().transform(variable, this.getUsedContext(),
-                    transformationInfo);
-            // Calculate nodeCount
-            //if (nodeCount > maxNodeCount) 
-            //  maxDepth = depth; 
-            //else { 
-            //  int test = countNodes(innerNode); 
-            //  int test2 = nodeCount; nodeCount += countNodes(innerNode); 
-            //}
-            depth--;
-            while (innerNode.getChildren().size() == 1)
-                innerNode = innerNode.getChildren().get(0);
-            //if (kNodeMap.get(getId(variable)) == null)
-                kNodeMap.put(getId(variable), innerNode);                
-            
-            rootNode.getChildren().add(innerNode);
-        } else {
-            innerNode = kNodeExtensions.createNode(variable);
-            kNodeExtensions.setNodeSize(innerNode, 80, 80);
-            
-            KRectangle rec = renderingFactory.createKRectangle();
-            rec.setChildPlacement(renderingFactory.createKGridPlacement());
-            
-            KText type = renderingFactory.createKText();
-            type.setText(variable.getReferenceTypeName());
-            KText name = renderingFactory.createKText();
-            type.setText(variable.getName());
-
-            rec.getChildren().add(type);
-            rec.getChildren().add(name);
-            innerNode.getData().add(rec);
-            rootNode.getChildren().add(innerNode);
+        if (nodeExists(variable)) {
+            addDummyNode(rootNode,variable);
+        }
+        else {
+            if (depth <= maxDepth) {
+                depth++;
+                innerNode = new KlighdDebugTransformation().transform(variable, this.getUsedContext(),
+                        transformationInfo);
+                // Calculate nodeCount
+                //if (nodeCount > maxNodeCount) 
+                //  maxDepth = depth; 
+                //else { 
+                //  int test = countNodes(innerNode); 
+                //  int test2 = nodeCount; nodeCount += countNodes(innerNode); 
+                //}
+                depth--;
+                while (innerNode.getChildren().size() == 1)
+                    innerNode = innerNode.getChildren().get(0);
+                if (kNodeMap.get(getId(variable)) == null)
+                    kNodeMap.put(getId(variable), innerNode);                
+                
+                rootNode.getChildren().add(innerNode);
+            } else {
+                innerNode = kNodeExtensions.createNode(variable);
+                kNodeExtensions.setNodeSize(innerNode, 80, 80);
+                
+                KRectangle rec = renderingFactory.createKRectangle();
+                rec.setChildPlacement(renderingFactory.createKGridPlacement());
+                
+                KText type = renderingFactory.createKText();
+                type.setText(variable.getReferenceTypeName());
+                KText name = renderingFactory.createKText();
+                type.setText(variable.getName());
+    
+                rec.getChildren().add(type);
+                rec.getChildren().add(name);
+                innerNode.getData().add(rec);
+                rootNode.getChildren().add(innerNode);
+            }
         }
         return innerNode;
     }
@@ -251,40 +256,40 @@ public abstract class AbstractDebugTransformation extends AbstractTransformation
             kNodeMap.put(id, node);
         return node;
     }
-
-    public KNode addNewNodeById(KNode node, IVariable variable) throws DebugException {
-        KNode resultNode = null;
+    
+    private void addDummyNode(KNode node, IVariable variable) throws DebugException {
+        KNode variableNode = getNode(variable);
+        // create dummyNode
+        KNode dummyNode = kNodeExtensions.createNode();   
+        kNodeExtensions.setNodeSize(dummyNode, 20, 20);
+        KEllipse ellipse = renderingFactory.createKEllipse();
+        kRenderingExtensions.setForegroundColor(ellipse,255,0,0);
+        dummyNode.getData().add(ellipse);
         
-        if (nodeExists(variable)) {
-            KNode variableNode = getNode(variable);
-            // create dummyNode
-            resultNode = kNodeExtensions.createNode();   
-            kNodeExtensions.setNodeSize(resultNode, 20, 20);
-            KEllipse ellipse = renderingFactory.createKEllipse();
-            kRenderingExtensions.setForegroundColor(ellipse,255,0,0);
-            resultNode.getData().add(ellipse);
-            
-            // create edge dummyNode -> variableNode
-            KEdge edge = kEdgeExtensions.createEdge();
-            edge.setSource(resultNode); 
-            edge.setTarget(variableNode);
-            
-            KPolyline polyline = renderingFactory.createKPolyline(); 
-            kRenderingExtensions.setLineWidth(polyline, 2);
-            kRenderingExtensions.setForegroundColor(polyline,255,0,0);
-            kPolylineExtensions.addArrowDecorator(polyline);
-            
-            edge.getData().add(polyline);
+        // create edge dummyNode -> variableNode
+        KEdge edge = kEdgeExtensions.createEdge();
+        edge.setSource(dummyNode); 
+        edge.setTarget(variableNode);
+        
+        KPolyline polyline = renderingFactory.createKPolyline(); 
+        kRenderingExtensions.setLineWidth(polyline, 2);
+        kRenderingExtensions.setForegroundColor(polyline,255,0,0);
+        kPolylineExtensions.addArrowDecorator(polyline);
+        
+        edge.getData().add(polyline);
 
-            resultNode.setParent(node);
-            dummyNodeMap.put(variable, resultNode);
+        dummyNode.setParent(node);
+        dummyNodeMap.put(variable, dummyNode);
+    }
+
+    public KNode addNodeById(KNode node, IVariable variable) throws DebugException {       
+        if (nodeExists(variable)) {
+            addDummyNode(node, variable);
             return null;
         } else {
-            resultNode = createNodeById(variable);
+            KNode resultNode = createNodeById(variable);
             resultNode.setParent(node);
             return resultNode;
         }
-        
-       
     }
 }

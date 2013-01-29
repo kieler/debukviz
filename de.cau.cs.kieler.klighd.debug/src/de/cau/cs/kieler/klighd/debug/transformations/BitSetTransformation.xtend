@@ -1,6 +1,5 @@
 package de.cau.cs.kieler.klighd.debug.transformations
 
-import de.cau.cs.kieler.core.krendering.extensions.KNodeExtensions
 import de.cau.cs.kieler.core.krendering.extensions.KRenderingExtensions
 import de.cau.cs.kieler.kiml.util.KimlUtil
 import de.cau.cs.kieler.klighd.debug.visualization.AbstractDebugTransformation
@@ -12,8 +11,6 @@ import static de.cau.cs.kieler.klighd.debug.visualization.AbstractDebugTransform
 class BitSetTransformation extends AbstractDebugTransformation {
     
     @Inject
-    extension KNodeExtensions
-    @Inject
     extension KRenderingExtensions
     
     var String bitString = ""
@@ -23,7 +20,7 @@ class BitSetTransformation extends AbstractDebugTransformation {
             model.getVariables("words").forEach[IVariable variable |
                 bitString = bitString + Integer::toBinaryString(Integer::parseInt(variable.value.valueString))
             ]
-            it.addNewNodeById(model) => [
+            it.addNodeById(model) => [
                 it.data += renderingFactory.createKRectangle() => [
                     it.childPlacement = renderingFactory.createKGridPlacement()
                     it.children += renderingFactory.createKText() => [

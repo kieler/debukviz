@@ -22,7 +22,7 @@ class ObjectValueTransformation extends AbstractDebugTransformation {
     override transform(IVariable model, Object transformationInfo) {
         return 
         KimlUtil::createInitializedNode() => [
-        	val node = it.addNewNodeById(model) 
+        	val node = it.addNodeById(model) 
         	if (node != null)
             	node => [
     	            it.setNodeSize(80,80);

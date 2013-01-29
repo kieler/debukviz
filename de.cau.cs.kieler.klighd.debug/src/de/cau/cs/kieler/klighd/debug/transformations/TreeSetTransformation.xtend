@@ -10,10 +10,10 @@ import de.cau.cs.kieler.kiml.util.KimlUtil
 import de.cau.cs.kieler.klighd.debug.visualization.AbstractDebugTransformation
 import javax.inject.Inject
 import org.eclipse.debug.core.model.IVariable
-
-import static de.cau.cs.kieler.klighd.debug.visualization.AbstractDebugTransformation.*
 import de.cau.cs.kieler.kiml.options.EdgeLabelPlacement
 import de.cau.cs.kieler.core.krendering.extensions.KLabelExtensions
+
+import static de.cau.cs.kieler.klighd.debug.visualization.AbstractDebugTransformation.*
 
 class TreeSetTransformation extends AbstractDebugTransformation {
    
@@ -29,9 +29,7 @@ class TreeSetTransformation extends AbstractDebugTransformation {
     override transform(IVariable model, Object transformationInfo) {
         return KimlUtil::createInitializedNode() => [
             it.addLayoutParam(LayoutOptions::ALGORITHM, "de.cau.cs.kieler.klay.layered")
-            it.addLayoutParam(LayoutOptions::SPACING, 75f)
             it.addLayoutParam(LayoutOptions::DIRECTION, Direction::DOWN)
-            //it.addLayoutParam(LayoutOptions::LAYOUT_HIERARCHY, true)
             createTreeNode(model.getVariable("m.root"),"")
         ]
     }
@@ -49,7 +47,7 @@ class TreeSetTransformation extends AbstractDebugTransformation {
         val right = root.getVariable("right")
         val key = root.key
         
-        node.addNewNodeById(key)?.nextTransformation(key)
+        node.nextTransformation(key)
         
         if (right.valueIsNotNull) {
             node.createTreeNode(right,"right")

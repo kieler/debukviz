@@ -19,6 +19,8 @@ import de.cau.cs.kieler.core.kgraph.KNode
 import de.cau.cs.kieler.core.krendering.extensions.KPolylineExtensions
 import de.cau.cs.kieler.core.krendering.extensions.KLabelExtensions
 
+import static de.cau.cs.kieler.klighd.debug.visualization.AbstractDebugTransformation.*
+
 class LNodeTransformation extends AbstractKielerGraphTransformation {
 
 	@Inject 
@@ -173,7 +175,7 @@ class LNodeTransformation extends AbstractKielerGraphTransformation {
     def addPorts(KNode rootNode, IVariable node) {
         // create a node (ports) containing the port elements
         val ports = node.getVariable("ports")
-        rootNode.addNewNodeById(ports) => [
+        rootNode.addNodeById(ports) => [
             it.data += renderingFactory.createKRectangle => [
                 it.lineWidth = 4
             ]
