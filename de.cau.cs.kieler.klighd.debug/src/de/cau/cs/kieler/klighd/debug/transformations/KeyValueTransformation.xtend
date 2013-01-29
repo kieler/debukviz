@@ -30,8 +30,6 @@ class KeyValueTransformation extends AbstractDebugTransformation {
         return KimlUtil::createInitializedNode() => [
             it.addLayoutParam(LayoutOptions::ALGORITHM, "de.cau.cs.kieler.kiml.ogdf.planarization")
             it.addLayoutParam(LayoutOptions::SPACING, 50f)
-            it.addLayoutParam(LayoutOptions::LAYOUT_HIERARCHY, true)
-            it.addLayoutParam(LayoutOptions::DEBUG_MODE, true)
             it.addLayoutParam(LayoutOptions::DIRECTION, Direction::RIGHT)
             model.getVariables("table").filter[variable | variable.valueIsNotNull].forEach[
                 IVariable variable | 
@@ -47,9 +45,9 @@ class KeyValueTransformation extends AbstractDebugTransformation {
        	val key = variable.getVariable("key")
        	val value = variable.getVariable("value")
 
-	   	node.addNewNodeById(key)?.nextTransformation(key)
+	   	node.nextTransformation(key)
 	   	
-	   	node.addNewNodeById(value)?.nextTransformation(value)
+	   	node.nextTransformation(value)
 	
         key.createEdgeById(value) => [
             value.createLabel(it) => [

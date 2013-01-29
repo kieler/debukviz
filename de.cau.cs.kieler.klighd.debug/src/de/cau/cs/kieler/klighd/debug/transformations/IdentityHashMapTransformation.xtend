@@ -47,8 +47,8 @@ class IdentityHashMapTransformation extends AbstractDebugTransformation {
     }
     
     def createKeyValueNode(KNode node, IVariable key, IVariable value) {
-        node.addNewNodeById(key)?.nextTransformation(key)
-        node.addNewNodeById(value)?.nextTransformation(value)
+        node.nextTransformation(key)
+        node.nextTransformation(value)
         
         key.createEdgeById(value) => [
             value.createLabel(it) => [

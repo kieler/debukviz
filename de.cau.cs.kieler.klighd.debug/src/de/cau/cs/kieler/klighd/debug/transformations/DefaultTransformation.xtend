@@ -39,7 +39,6 @@ class DefaultTransformation extends AbstractDebugTransformation {
         return KimlUtil::createInitializedNode() => [
             it.addLayoutParam(LayoutOptions::ALGORITHM, "de.cau.cs.kieler.klay.layered")
             it.addLayoutParam(LayoutOptions::SPACING, 75f)
-            it.addLayoutParam(LayoutOptions::LAYOUT_HIERARCHY, true)
             it.addLayoutParam(LayoutOptions::DIRECTION, Direction::RIGHT)
             // Array
             if (model.isArray)
@@ -102,25 +101,27 @@ class DefaultTransformation extends AbstractDebugTransformation {
                 	]
                 ]         
         } else if (!choice.isPrimitiveOrNull && !choice.isNullObject) {
-            rootNode.addNewNodeById(choice)?.nextTransformation(choice)
+            rootNode.nextTransformation(choice)
         } else
-        	rootNode.addNewNodeById(choice)?.createValueNode(choice)
+        	rootNode.createValueNode(choice)
     }
     
     def createValueNode(KNode rootNode, IVariable choice) {
-        rootNode.children += createNode() => [
-            it.setNodeSize(80,80);
-            it.data += renderingFactory.createKRectangle() => [
-                it.childPlacement = renderingFactory.createKGridPlacement()
-                it.children += renderingFactory.createKText() => [
-                    it.text = "<<"+choice.type+">>"
-                    it.setForegroundColor(120,120,120)
-                ]
-                it.children += renderingFactory.createKText() => [
-                    it.text = choice.value.valueString
+        val node = rootNode.addNewNodeById(choice) 
+        if (node != null) 
+            node => [
+                it.setNodeSize(80,80);
+                it.data += renderingFactory.createKRectangle() => [
+                    it.childPlacement = renderingFactory.createKGridPlacement()
+                    it.children += renderingFactory.createKText() => [
+                        it.text = "<<"+choice.type+">>"
+                        it.setForegroundColor(120,120,120)
+                    ]
+                    it.children += renderingFactory.createKText() => [
+                        it.text = choice.value.valueString
+                    ]
                 ]
             ]
-        ]
     }
     
     def createObjectNode(KNode rootNode, IVariable choice) {

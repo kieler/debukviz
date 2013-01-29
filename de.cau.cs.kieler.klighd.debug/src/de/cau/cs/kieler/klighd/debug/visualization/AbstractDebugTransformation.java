@@ -90,8 +90,8 @@ public abstract class AbstractDebugTransformation extends AbstractTransformation
 
     public KNode nextTransformation(KNode rootNode, IVariable variable, Object transformationInfo)
             throws DebugException {
-        //int maxNodeCount = -1;
         KNode innerNode = null;
+        //int maxNodeCount = -1;
         // Perform transformation if recursion depth less-equal maxDepth
         if (depth <= maxDepth) {
             depth++;
@@ -107,7 +107,7 @@ public abstract class AbstractDebugTransformation extends AbstractTransformation
             depth--;
             while (innerNode.getChildren().size() == 1)
                 innerNode = innerNode.getChildren().get(0);
-            if (kNodeMap.get(getId(variable)) == null)
+            //if (kNodeMap.get(getId(variable)) == null)
                 kNodeMap.put(getId(variable), innerNode);                
             
             rootNode.getChildren().add(innerNode);
