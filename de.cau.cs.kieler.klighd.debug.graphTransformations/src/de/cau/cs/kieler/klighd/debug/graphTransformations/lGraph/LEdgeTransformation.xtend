@@ -1,24 +1,20 @@
 package de.cau.cs.kieler.klighd.debug.graphTransformations.lGraph
 
-import de.cau.cs.kieler.klighd.debug.graphTransformations.AbstractKielerGraphTransformation
-import org.eclipse.debug.core.model.IVariable
-import org.eclipse.debug.core.model.IVariable
 import de.cau.cs.kieler.core.kgraph.KNode
-import de.cau.cs.kieler.core.krendering.LineStyle
 import de.cau.cs.kieler.core.krendering.extensions.KColorExtensions
 import de.cau.cs.kieler.core.krendering.extensions.KEdgeExtensions
+import de.cau.cs.kieler.core.krendering.extensions.KLabelExtensions
 import de.cau.cs.kieler.core.krendering.extensions.KNodeExtensions
 import de.cau.cs.kieler.core.krendering.extensions.KPolylineExtensions
 import de.cau.cs.kieler.core.krendering.extensions.KRenderingExtensions
+import de.cau.cs.kieler.kiml.options.EdgeLabelPlacement
 import de.cau.cs.kieler.kiml.options.LayoutOptions
 import de.cau.cs.kieler.kiml.util.KimlUtil
+import de.cau.cs.kieler.klighd.debug.graphTransformations.AbstractKielerGraphTransformation
 import javax.inject.Inject
 import org.eclipse.debug.core.model.IVariable
-import de.cau.cs.kieler.core.krendering.KRendering
-import de.cau.cs.kieler.core.krendering.KContainerRendering
 
 import static de.cau.cs.kieler.klighd.debug.visualization.AbstractDebugTransformation.*
-import de.cau.cs.kieler.klighd.debug.graphTransformations.AbstractKielerGraphTransformation
 
 class LEdgeTransformation extends AbstractKielerGraphTransformation {
     @Inject
@@ -31,42 +27,66 @@ class LEdgeTransformation extends AbstractKielerGraphTransformation {
     extension KRenderingExtensions
     @Inject
     extension KColorExtensions
+    @Inject
+    extension KLabelExtensions
     
     override transform(IVariable edge, Object transformationInfo) {
-        if(transformationInfo instanceof Boolean) {
-            detailedView = transformationInfo as Boolean
-        }
-println("LEdge detailedView: " +detailedView)
-//        detailedView = false
-//TODO: crash if dedailedView: "OGDF error: Process terminated with exit value -1073741676."
-println("LEdge transInfo: " + transformationInfo)
+        if(transformationInfo instanceof Boolean) detailedView = transformationInfo as Boolean
+
         return KimlUtil::createInitializedNode => [
             it.addLayoutParam(LayoutOptions::ALGORITHM, "de.cau.cs.kieler.kiml.ogdf.planarization")
             it.addLayoutParam(LayoutOptions::SPACING, 75f)
             
             // create KNode for given LEdge
             it.createHeaderNode(edge)
-println("LEdge: headerDone")
-            // add node for propertyMap and labels
+
+            // if in detailedView, add node for propertyMap and labels
             if (detailedView) {
+                
                 // add propertyMap
                 it.addPropertyMapAndEdge(edge.getVariable("propertyMap"), edge)
                 
                 // add labels node
-                val labels = edge.getVariable("labels")
-                if (labels.getValue("size").equals("0")) {
-                    it.createLabels(labels)
-                    edge.createEdgeById(labels) => [
-                        it.data += renderingFactory.createKPolyline => [
-                            it.setLineWidth(2)
-                            it.addArrowDecorator
-                        ]
-                    ]
-                }
+                it.addLabels(edge)
+                
+
             }
-println("LEdge: all done")
         ]
     }
+    
+    def addLabels(KNode rootNode, IVariable edge) {
+        val labels = edge.getVariable("labels")
+        
+        if (!labels.getValue("size").equals("0")) {
+ 
+            // create container node
+            rootNode.addNewNodeById(labels) => [
+                it.data += renderingFactory.createKRectangle => [
+                    if(detailedView) it.lineWidth = 4 else it.lineWidth = 2
+                    it.ChildPlacement = renderingFactory.createKGridPlacement
+                ]
+                    
+                // create all nodes for labels
+                labels.linkedList.forEach [ label |
+                    it.nextTransformation(label, false)
+                ]
+            ]
+            
+            // create edge from header node to labels node
+            edge.createEdgeById(labels) => [
+                it.data += renderingFactory.createKPolyline => [
+                    it.setLineWidth(2)
+                    it.addArrowDecorator
+                ]
+                labels.createLabel(it) => [
+                    it.addLayoutParam(LayoutOptions::EDGE_LABEL_PLACEMENT, EdgeLabelPlacement::CENTER)
+                    it.setLabelSize(50,20)
+                    it.text = "labels"
+                ]
+            ]
+        }        
+    }
+
     
     def createHeaderNode(KNode rootNode, IVariable edge) { 
         rootNode.addNewNodeById(edge) => [
@@ -92,7 +112,7 @@ println("LEdge: all done")
                     ]
                     
                     // list of bendPoints
-                    if (edge.getValue("bendPoints.size") == "0") {
+                    if (edge.getValue("bendPoints.size").equals("0")) {
                         // no bendPoints on edge
                         it.children += renderingFactory.createKText => [
                             it.text = "bendPoints: none"
@@ -104,8 +124,8 @@ println("LEdge: all done")
                         // create list of bendPoints
                         edge.getVariable("bendPoints").linkedList.forEach [ bendPoint |
                             it.children += renderingFactory.createKText => [
-                            it.text = bendPoint.getValue("x").round(1) + " x "
-                                    + bendPoint.getValue("y").round(1) + ")"
+                            it.text = "("+ bendPoint.getValue("x").round + " x "
+                                          + bendPoint.getValue("y").round + ")"
                             ]
                         ]
                     }
@@ -121,21 +141,6 @@ println("LEdge: all done")
                         it.text = "labels (#): " + edge.getValue("labels.size")
                     ]
                 }
-            ]
-        ]
-    }
-
-    def createLabels(KNode rootNode, IVariable labels) { 
-        rootNode.addNewNodeById(labels) => [
-            // create container node
-            it.data += renderingFactory.createKRectangle => [
-                if(detailedView) it.lineWidth = 4 else it.lineWidth = 2
-                it.ChildPlacement = renderingFactory.createKGridPlacement
-                
-                // create nodes for labels
-                labels.linkedList.forEach [ label |
-                    rootNode.nextTransformation(label, false)
-                ]
             ]
         ]
     }

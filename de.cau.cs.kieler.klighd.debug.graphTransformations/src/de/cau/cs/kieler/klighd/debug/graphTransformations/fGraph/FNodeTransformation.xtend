@@ -64,20 +64,20 @@ class FNodeTransformation extends AbstractKielerGraphTransformation {
                     
                     // displacement
                     it.children += renderingFactory.createKText() => [
-                        it.text = "displacement (x,y): (" + node.getValue("displacement.x").round(1) + " x " 
-                                                          + node.getValue("displacement.y").round(1) + ")" 
+                        it.text = "displacement (x,y): (" + node.getValue("displacement.x").round + " x " 
+                                                          + node.getValue("displacement.y").round + ")" 
                     ]
                     
                     // position
                     it.children += renderingFactory.createKText() => [
-                        it.text = "position (x,y): (" + node.getValue("position.x").round(1) + " x " 
-                                                      + node.getValue("position.y").round(1) + ")" 
+                        it.text = "position (x,y): (" + node.getValue("position.x").round + " x " 
+                                                      + node.getValue("position.y").round + ")" 
                     ]
                     
                     // size
                     it.children += renderingFactory.createKText() => [
-                        it.text = "size (x,y): (" + node.getValue("size.x").round(1) + " x " 
-                                                  + node.getValue("size.y").round(1) + ")" 
+                        it.text = "size (x,y): (" + node.getValue("size.x").round + " x " 
+                                                  + node.getValue("size.y").round + ")" 
                     ]
                 ]
             ]

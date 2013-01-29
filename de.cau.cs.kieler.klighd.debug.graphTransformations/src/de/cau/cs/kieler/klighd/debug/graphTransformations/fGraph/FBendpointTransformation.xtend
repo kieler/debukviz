@@ -51,13 +51,13 @@ class FBendpointTransformation extends AbstractKielerGraphTransformation {
                     ]
 
                     it.children += renderingFactory.createKText() => [
-                        it.text = "position (x,y): (" + bendPoint.getValue("position.x").round(1) + " x " 
-                                                      + bendPoint.getValue("position.y").round(1) + ")" 
+                        it.text = "position (x,y): (" + bendPoint.getValue("position.x").round + " x " 
+                                                      + bendPoint.getValue("position.y").round + ")" 
                     ]
                     
                     it.children += renderingFactory.createKText() => [
-                        it.text = "size (x,y): (" + bendPoint.getValue("size.x").round(1) + " x " 
-                                                  + bendPoint.getValue("size.y").round(1) + ")" 
+                        it.text = "size (x,y): (" + bendPoint.getValue("size.x").round + " x " 
+                                                  + bendPoint.getValue("size.y").round + ")" 
                     ]
                 ]
             ]

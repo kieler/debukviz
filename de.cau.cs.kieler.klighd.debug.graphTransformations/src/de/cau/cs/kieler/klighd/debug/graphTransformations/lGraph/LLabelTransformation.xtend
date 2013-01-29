@@ -33,9 +33,8 @@ class LLabelTransformation extends AbstractKielerGraphTransformation {
     extension KColorExtensions
     
     override transform(IVariable label, Object transformationInfo) {
-        if(transformationInfo instanceof Boolean) {
-            detailedView = transformationInfo as Boolean
-        }
+        if(transformationInfo instanceof Boolean) detailedView = transformationInfo as Boolean
+
         return KimlUtil::createInitializedNode => [
             it.addLayoutParam(LayoutOptions::ALGORITHM, "de.cau.cs.kieler.kiml.ogdf.planarization")
             it.addLayoutParam(LayoutOptions::SPACING, 75f)
@@ -66,14 +65,14 @@ class LLabelTransformation extends AbstractKielerGraphTransformation {
                     // show following elements only if detailedView
                     // position of label
                     it.children += renderingFactory.createKText => [
-                        it.text = "pos (x,y): (" + label.getValue("pos.x").round(1) + " x " 
-                                                 + label.getValue("pos.y").round(1) + ")" 
+                        it.text = "pos (x,y): (" + label.getValue("pos.x").round + " x " 
+                                                 + label.getValue("pos.y").round + ")" 
                     ]
 
                     // size of label
                     it.children += renderingFactory.createKText => [
-                        it.text = "size (x,y): (" + label.getValue("size.x").round(1) + " x " 
-                                                  + label.getValue("size.y").round(1) + ")" 
+                        it.text = "size (x,y): (" + label.getValue("size.x").round + " x " 
+                                                  + label.getValue("size.y").round + ")" 
                     ]
 
                     // side of label

@@ -17,6 +17,10 @@ import de.cau.cs.kieler.core.krendering.KText
 import de.cau.cs.kieler.klighd.debug.visualization.AbstractDebugTransformation
 import de.cau.cs.kieler.core.kgraph.KLabel
 import de.cau.cs.kieler.core.kgraph.KLabeledGraphElement
+import de.cau.cs.kieler.core.krendering.extensions.KLabelExtensions
+import de.cau.cs.kieler.kiml.options.EdgeLabelPlacement
+import de.cau.cs.kieler.kiml.options.Direction
+import de.cau.cs.kieler.kiml.options.LayoutOptions
 
 abstract class AbstractKielerGraphTransformation extends AbstractDebugTransformation {
     @Inject
@@ -29,6 +33,8 @@ abstract class AbstractKielerGraphTransformation extends AbstractDebugTransforma
     extension KRenderingExtensions
     @Inject
     extension KColorExtensions
+    @Inject
+    extension KLabelExtensions
 
 //    protected GraphTransformationInfo gtInfo = new GraphTransformationInfo
     protected Boolean detailedView = true
@@ -47,9 +53,12 @@ abstract class AbstractKielerGraphTransformation extends AbstractDebugTransforma
     }
     
     def round(String number, int decimalPositions) {
-        return Math::round(Double::valueOf(number) 
-                         * Math::pow(10, decimalPositions)) 
-             / Math::pow(10, decimalPositions)
+        return Math::round(Double::valueOf(number) * Math::pow(10, decimalPositions)) 
+                    / Math::pow(10, decimalPositions)
+    }
+    
+    def round(String number) {
+        return Math::round(Double::valueOf(number))
     }
     
     def KText createKText(IVariable variable, String valueText, String prefix, String delimiter) {
@@ -160,15 +169,19 @@ abstract class AbstractKielerGraphTransformation extends AbstractDebugTransforma
             } 
             case "KNodeImpl" :
                 container.children += renderingFactory.createKText =>[
-                    it.text = prefix + remainder + "KNode " + element.getValue.getValueString
+                    it.text = prefix + remainder + "KNodeImpl " + element.getValue.getValueString
                 ]
             case "KLabelImpl" :
                 container.children += renderingFactory.createKText =>[
-                    it.text = prefix + remainder + "KLabel " + element.getValue.getValueString
+                    it.text = prefix + remainder + "KLabelImpl " + element.getValue.getValueString
+                ]
+            case "KEdgeImpl" :
+                container.children += renderingFactory.createKText =>[
+                    it.text = prefix + remainder + "KEdgeImpl " + element.getValue.getValueString
                 ]
             case "LNode" : 
                 container.children += renderingFactory.createKText =>[
-                    it.text = prefix + remainder + "LNode " + element.getValue("id") + element.getValue.getValueString
+                    it.text = prefix + remainder + "LNodeImpl " + element.getValue("id") + element.getValue.getValueString
                 ]
             case "Random" :
                 container.children += renderingFactory.createKText => [
@@ -194,9 +207,13 @@ abstract class AbstractKielerGraphTransformation extends AbstractDebugTransforma
                 container.children += renderingFactory.createKText => [
                     it.text = prefix + remainder + element.getValue("name")
                 ]
+            case "EdgeLabelPlacement" :
+                container.children += renderingFactory.createKText => [
+                    it.text = prefix + remainder + element.getValue("name")
+                ]
             default : 
                 container.children += renderingFactory.createKText =>[
-                    it.text = prefix + remainder + "<? " + element.getType + "?>"
+                    it.text = prefix + remainder + "<? " + element.getType + element.getValue.getValueString + "?>"
                 ]
         }
     }
@@ -233,10 +250,13 @@ abstract class AbstractKielerGraphTransformation extends AbstractDebugTransforma
                     it.setLineWidth(2)
                     it.addArrowDecorator
                 ]
-                it.addLabel("Property Map")
-    //            KimlUtil::createInitializedLabel(it) => [
-    //                it.setText("Property Map")
-    //            ]
+                
+                // add label
+                propertyMap.createLabel(it) => [
+                    it.addLayoutParam(LayoutOptions::EDGE_LABEL_PLACEMENT, EdgeLabelPlacement::CENTER)
+                    it.setLabelSize(50,20)
+                    it.text = "Property Map"
+                ]
             ]
         }
     }
@@ -313,12 +333,6 @@ abstract class AbstractKielerGraphTransformation extends AbstractDebugTransforma
         ]    
     }
     
-    def addLabel(KLabeledGraphElement labeledElement, String text) {
-        KimlUtil::createInitializedLabel(labeledElement) => [
-            it.setText(text)
-        ]
-    }
-    
     def headerNodeBasics(KContainerRendering container, Boolean detailedView, IVariable variable) {
         container.ChildPlacement = renderingFactory.createKGridPlacement
 
@@ -326,7 +340,7 @@ abstract class AbstractKielerGraphTransformation extends AbstractDebugTransforma
             // bold line in detailed view
             container.lineWidth = 4
             
-            // type of the graph
+            // type of the variable
             container.addShortType(variable)
 
             // name of the variable

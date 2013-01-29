@@ -14,8 +14,13 @@ import org.eclipse.debug.core.model.IVariable
 import de.cau.cs.kieler.core.krendering.KRendering
 import de.cau.cs.kieler.core.krendering.KContainerRendering
 
+import de.cau.cs.kieler.kiml.options.EdgeLabelPlacement
+import de.cau.cs.kieler.kiml.options.Direction
+import de.cau.cs.kieler.kiml.options.LayoutOptions
+
 import static de.cau.cs.kieler.klighd.debug.visualization.AbstractDebugTransformation.*
 import de.cau.cs.kieler.klighd.debug.graphTransformations.AbstractKielerGraphTransformation
+import de.cau.cs.kieler.core.krendering.extensions.KLabelExtensions
 
 class LGraphTransformation extends AbstractKielerGraphTransformation {
     
@@ -29,15 +34,13 @@ class LGraphTransformation extends AbstractKielerGraphTransformation {
     extension KRenderingExtensions
     @Inject
     extension KColorExtensions
-    
+    @Inject
+    extension KLabelExtensions
     /**
      * {@inheritDoc}
      */
 	override transform(IVariable graph, Object transformationInfo) {
-        if(transformationInfo instanceof Boolean) {
-            detailedView = transformationInfo as Boolean
-        }
-println("LGraph detailedView: " +detailedView)
+        if(transformationInfo instanceof Boolean) detailedView = transformationInfo as Boolean
         
         return KimlUtil::createInitializedNode => [
             it.addLayoutParam(LayoutOptions::ALGORITHM, "de.cau.cs.kieler.kiml.ogdf.planarization")
@@ -82,22 +85,22 @@ println("LGraph detailedView: " +detailedView)
                     
                     // size of graph
                     it.children += renderingFactory.createKText => [
-                        it.text = "size (x,y): (" + graph.getValue("size.x").round(1) + " x " 
-                                                  + graph.getValue("size.y").round(1) + ")" 
+                        it.text = "size (x,y): (" + graph.getValue("size.x").round + " x " 
+                                                  + graph.getValue("size.y").round + ")" 
                     ]
                     
                     // insets of graph
                     it.children += renderingFactory.createKText => [
-                        it.text = "insets (t,r,b,l): (" + graph.getValue("insets.top").round(1) + " x "
-                                                        + graph.getValue("insets.right").round(1) + " x "
-                                                        + graph.getValue("insets.bottom").round(1) + " x "
-                                                        + graph.getValue("insets.left").round(1) + ")"
+                        it.text = "insets (t,r,b,l): (" + graph.getValue("insets.top").round + " x "
+                                                        + graph.getValue("insets.right").round + " x "
+                                                        + graph.getValue("insets.bottom").round + " x "
+                                                        + graph.getValue("insets.left").round + ")"
                     ]
                     
                     // offset of graph
                     it.children += renderingFactory.createKText => [
-                        it.text = "offset (x,y): (" + graph.getValue("offset.x").round(1) + " x "
-                                                    + graph.getValue("offset.y").round(1) + ")"
+                        it.text = "offset (x,y): (" + graph.getValue("offset.x").round + " x "
+                                                    + graph.getValue("offset.y").round + ")"
                     ]
     			} else {
     			    // # of nodes
@@ -133,15 +136,17 @@ println("LGraph detailedView: " +detailedView)
 	  		    it.createNodes(layer.getVariable("nodes"))
 	  		}
   		]
-	    // create edge from graph to propertyMap
+	    // create edge from graph to visualization
         graph.createEdgeById(visualization) => [
             it.data += renderingFactory.createKPolyline => [
                 it.setLineWidth(2)
                 it.addArrowDecorator
                 it.setLineStyle(LineStyle::SOLID)
             ]
-            KimlUtil::createInitializedLabel(it) => [
-                it.setText("visualization")
+            visualization.createLabel(it) => [
+                it.addLayoutParam(LayoutOptions::EDGE_LABEL_PLACEMENT, EdgeLabelPlacement::CENTER)
+                it.setLabelSize(50,20)
+                it.text = "visualization"
             ]
         ]   
 	}

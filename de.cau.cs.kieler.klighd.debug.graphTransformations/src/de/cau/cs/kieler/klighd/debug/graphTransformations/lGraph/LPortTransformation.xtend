@@ -18,6 +18,11 @@ import de.cau.cs.kieler.core.krendering.KContainerRendering
 import static de.cau.cs.kieler.klighd.debug.visualization.AbstractDebugTransformation.*
 import de.cau.cs.kieler.klighd.debug.graphTransformations.AbstractKielerGraphTransformation
 
+import de.cau.cs.kieler.kiml.options.EdgeLabelPlacement
+import de.cau.cs.kieler.kiml.options.Direction
+import de.cau.cs.kieler.kiml.options.LayoutOptions
+import de.cau.cs.kieler.core.krendering.extensions.KLabelExtensions
+
 class LPortTransformation extends AbstractKielerGraphTransformation {
     
     @Inject
@@ -30,19 +35,17 @@ class LPortTransformation extends AbstractKielerGraphTransformation {
     extension KRenderingExtensions
     @Inject
     extension KColorExtensions
+    @Inject
+    extension KLabelExtensions
     
     /**
      * {@inheritDoc}
      */
     override transform(IVariable port, Object transformationInfo) {
-        if(transformationInfo instanceof Boolean) {
-            detailedView = transformationInfo as Boolean
-        }
-println("LPort detailedView: " +detailedView)
-//TODO: crash if detailedView is true. "OGDF error: Process terminated with exit value -1073741676."
+        if(transformationInfo instanceof Boolean) detailedView = transformationInfo as Boolean
+
         return KimlUtil::createInitializedNode => [
             it.addLayoutParam(LayoutOptions::ALGORITHM, "de.cau.cs.kieler.kiml.ogdf.planarization")
-//            it.addLayoutParam(LayoutOptions::ALGORITHM, "de.cau.cs.kieler.klay.layered")
             it.addLayoutParam(LayoutOptions::SPACING, 75f)
             
             // create KNode for given LPort
@@ -83,16 +86,16 @@ println("LPort detailedView: " +detailedView)
                     // show following elements only if detailedView
                     // anchor of port
                     it.children += renderingFactory.createKText => [
-                        it.text = "anchor (x,y): (" + port.getValue("anchor.x").round(1) + " x " 
-                                                    + port.getValue("anchor.y").round(1) + ")" 
+                        it.text = "anchor (x,y): (" + port.getValue("anchor.x").round + " x " 
+                                                    + port.getValue("anchor.y").round + ")" 
                     ]
                     
                     // margin of port
                     it.children += renderingFactory.createKText => [
-                        it.text = "margin (t,r,b,l): (" + port.getValue("margin.top").round(1) + " x "
-                                                        + port.getValue("margin.right").round(1) + " x "
-                                                        + port.getValue("margin.bottom").round(1) + " x "
-                                                        + port.getValue("margin.left").round(1) + ")"
+                        it.text = "margin (t,r,b,l): (" + port.getValue("margin.top").round + " x "
+                                                        + port.getValue("margin.right").round + " x "
+                                                        + port.getValue("margin.bottom").round + " x "
+                                                        + port.getValue("margin.left").round + ")"
                     ]
                     
                     // owner of port
@@ -102,8 +105,8 @@ println("LPort detailedView: " +detailedView)
 
                     // position of port
                     it.children += renderingFactory.createKText => [
-                        it.text = "pos (x,y): (" + port.getValue("pos.x").round(1) + " x "
-                                                 + port.getValue("pos.y").round(1) + ")"
+                        it.text = "pos (x,y): (" + port.getValue("pos.x").round + " x "
+                                                 + port.getValue("pos.y").round + ")"
                     ]
                     
                     // size of port
@@ -113,8 +116,8 @@ println("LPort detailedView: " +detailedView)
                     
                     // size of port
                     it.children += renderingFactory.createKText => [
-                        it.text = "size (x,y): (" + port.getValue("size.x").round(1) + " x "
-                                                  + port.getValue("size.y").round(1) + ")"
+                        it.text = "size (x,y): (" + port.getValue("size.x").round + " x "
+                                                  + port.getValue("size.y").round + ")"
                     ]
                 } else {
                     // if not detailedView, show a summary of following elements
@@ -140,48 +143,57 @@ println("LPort detailedView: " +detailedView)
     def addListOfLabels(KNode rootNode, IVariable port) {
         // create a node (labels) containing the label elements
         val labels = port.getVariable("labels")
-        rootNode.addNewNodeById(labels) => [
-            it.data += renderingFactory.createKRectangle => [
-                it.lineWidth = 4
+        if (!labels.getValue("size").equals("0")) {
+            rootNode.addNewNodeById(labels) => [
+                it.data += renderingFactory.createKRectangle => [
+                    it.lineWidth = 4
+                ]
+                // create all labels
+                labels.linkedList.forEach [ label |
+                    it.nextTransformation(label, false)
+                ]
             ]
-            // create all labels
-            labels.linkedList.forEach [ label |
-                it.nextTransformation(label, false)
-            ]
-        ]
-        // create edge from header node to labels node
-        port.createEdgeById(labels) => [
-            it.data += renderingFactory.createKPolyline => [
-                it.setLineWidth(2)
-                it.addArrowDecorator
-            ]
-            KimlUtil::createInitializedLabel(it) => [
-                it.setText("labels")
-            ]
-        ]   
+            // create edge from header node to labels node
+            port.createEdgeById(labels) => [
+                it.data += renderingFactory.createKPolyline => [
+                    it.setLineWidth(2)
+                    it.addArrowDecorator
+                ]
+                // add label
+                labels.createLabel(it) => [
+                    it.addLayoutParam(LayoutOptions::EDGE_LABEL_PLACEMENT, EdgeLabelPlacement::CENTER)
+                    it.setLabelSize(50,20)
+                    it.text = "labels"
+                ]
+            ]               
+        }
     }
     
     def addListOfEdges(KNode rootNode, IVariable port, IVariable edges) {
         // create a node (edges) containing the edges elements
-        println(edges.getValue.getValueString)
-        rootNode.addNewNodeById(edges) => [
-            it.data += renderingFactory.createKRectangle => [
-                it.lineWidth = 4
+        if (!edges.getValue("size").equals("0")) {
+            rootNode.addNewNodeById(edges) => [
+                it.data += renderingFactory.createKRectangle => [
+                    it.lineWidth = 4
+                ]
+                // create all edges
+                edges.linkedList.forEach [ edge |
+                    it.nextTransformation(edge, false)
+                ]
             ]
-            // create all edges
-            edges.linkedList.forEach [ edge |
-                it.nextTransformation(edge, false)
-            ]
-        ]
-        // create edge from header node to edges node
-        port.createEdgeById(edges) => [
-            it.data += renderingFactory.createKPolyline => [
-                it.setLineWidth(2)
-                it.addArrowDecorator
-            ]
-            KimlUtil::createInitializedLabel(it) => [
-                it.setText(edges.getValue.getValueString)
-            ]
-        ]   
+            // create edge from header node to edges node
+            port.createEdgeById(edges) => [
+                it.data += renderingFactory.createKPolyline => [
+                    it.setLineWidth(2)
+                    it.addArrowDecorator
+                ]
+                // add label
+                edges.createLabel(it) => [
+                    it.addLayoutParam(LayoutOptions::EDGE_LABEL_PLACEMENT, EdgeLabelPlacement::CENTER)
+                    it.setLabelSize(50,20)
+                    it.text = edges.name
+                ]
+            ]   
+        }    
     }
 }

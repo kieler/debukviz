@@ -17,9 +17,13 @@ import de.cau.cs.kieler.kiml.klayoutdata.impl.KShapeLayoutImpl
 import javax.swing.text.Position
 import de.cau.cs.kieler.core.kgraph.KLabeledGraphElement
 import de.cau.cs.kieler.core.util.Pair
+import de.cau.cs.kieler.kiml.options.EdgeLabelPlacement
+import de.cau.cs.kieler.kiml.options.Direction
+import de.cau.cs.kieler.kiml.options.LayoutOptions
 
 import static de.cau.cs.kieler.klighd.debug.graphTransformations.lGraph.LGraphTransformation.*
 import de.cau.cs.kieler.klighd.debug.graphTransformations.AbstractKielerGraphTransformation
+import de.cau.cs.kieler.core.krendering.extensions.KLabelExtensions
 
 class FGraphTransformation extends AbstractKielerGraphTransformation {
     
@@ -33,15 +37,14 @@ class FGraphTransformation extends AbstractKielerGraphTransformation {
     extension KRenderingExtensions
     @Inject
     extension KColorExtensions
-    
+    @Inject
+    extension KLabelExtensions
     /**
      * {@inheritDoc}
      */
     override transform(IVariable graph, Object transformationInfo) {
-        if(transformationInfo instanceof Boolean) {
-            detailedView = transformationInfo as Boolean
-        }
-        detailedView = true
+        if(transformationInfo instanceof Boolean) detailedView = transformationInfo as Boolean
+
         return KimlUtil::createInitializedNode=> [
             it.addLayoutParam(LayoutOptions::ALGORITHM, "de.cau.cs.kieler.kiml.ogdf.planarization")
             it.addLayoutParam(LayoutOptions::SPACING, 75f)
@@ -135,7 +138,10 @@ class FGraphTransformation extends AbstractKielerGraphTransformation {
                 it.addArrowDecorator
                 it.setLineStyle(LineStyle::SOLID)
             ]
-            it.addLabel("visualization")
+            nodes.createLabel(it) => [
+                it.addLayoutParam(LayoutOptions::EDGE_LABEL_PLACEMENT, EdgeLabelPlacement::CENTER)
+                it.text = "nodes"
+            ]            
         ]
         rootNode.children += newNode
         return newNode
@@ -204,15 +210,24 @@ class FGraphTransformation extends AbstractKielerGraphTransformation {
                     it.addArrowDecorator
                     it.setLineStyle(LineStyle::SOLID)
                 ]
-                // add labels 
+                // add all labels to tail of first edge  
                 edge.getVariable("labels").linkedList.forEach[IVariable label |
-                    it.addLabel(label.getValue("text"))
+                    label.createLabel(it) => [
+                        it.addLayoutParam(LayoutOptions::EDGE_LABEL_PLACEMENT, EdgeLabelPlacement::TAIL)
+                        it.setLabelSize(50,20)
+                        it.text = label.getValue("text")
+                    ]                    
                 ]
-                // add label with adjacency value
+                
+                // add adjacency label to head of first edge  
                 val bla = adjacency.get(sourceID)
                 val fasel = bla.getValue.getVariables
                 
-                it.addLabel("Adjacency: ") //+ fasel.get(targetID))
+                fasel.createLabel(it) => [
+                    it.addLayoutParam(LayoutOptions::EDGE_LABEL_PLACEMENT, EdgeLabelPlacement::HEAD)
+                    it.setLabelSize(50,20)
+                    it.text = ("Adjacency: " + fasel.get(targetID))
+                ]                    
             ]
         ]
     }
