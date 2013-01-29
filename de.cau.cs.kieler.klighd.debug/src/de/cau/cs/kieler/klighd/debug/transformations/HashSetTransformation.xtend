@@ -20,14 +20,10 @@ class HashSetTransformation extends AbstractDebugTransformation {
             it.addLayoutParam(LayoutOptions::DIRECTION, Direction::RIGHT)
             model.getVariables("map.table").filter[variable | variable.valueIsNotNull].forEach[
                 IVariable variable | 
-               	it.children += variable.createNodeById() => [
-               		it.nextTransformation(variable.getVariable("key"))
-               	]
+               	it.nextTransformation(variable.getVariable("key"))
                	val next = variable.getVariable("next");
                	if (next.valueIsNotNull)
-                   	it.children += next.createNodeById() => [
-                        it.nextTransformation(next.getVariable("key"))
-                    ]
+                    it.nextTransformation(next.getVariable("key"))
        		] 
 		]
     }

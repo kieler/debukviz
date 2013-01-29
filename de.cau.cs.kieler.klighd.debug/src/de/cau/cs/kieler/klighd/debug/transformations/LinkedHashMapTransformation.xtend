@@ -46,9 +46,9 @@ class LinkedHashMapTransformation extends AbstractDebugTransformation {
         
         index = index + 1
         
-        node.addNewNodeById(key)?.nextTransformation(key)
+        node.nextTransformation(key)
         
-        node.addNewNodeById(value)?.nextTransformation(value)
+        node.nextTransformation(value)
     
         key.createEdgeById(value) => [
             value.createLabel(it) => [

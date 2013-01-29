@@ -45,7 +45,7 @@ class LinkedHashSetTransformation extends AbstractDebugTransformation {
         
         index = index + 1
         
-        node.addNewNodeById(key)?.nextTransformation(key)
+        node.nextTransformation(key)
     
         if (index < size) {
             node.createKeyValueNode(after)

@@ -50,13 +50,14 @@ class EnumMapTransformation extends AbstractDebugTransformation {
 		]
 		
 		// Add value node
-		node.addNewNodeById(value)?.nextTransformation(value)
+		node.nextTransformation(value)
 		
 		// Add edge between key node and value node
 		key.createEdgeById(value) => [
             value.createLabel(it) => [
                 it.addLayoutParam(LayoutOptions::EDGE_LABEL_PLACEMENT,EdgeLabelPlacement::CENTER)
                 it.text = "value";
+                it.setLabelSize(50,50)
             ]
         	it.data += renderingFactory.createKPolyline() => [
             	it.setLineWidth(2);

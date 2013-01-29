@@ -20,22 +20,23 @@ class ObjectValueTransformation extends AbstractDebugTransformation {
     private static val KRenderingFactory renderingFactory = KRenderingFactory::eINSTANCE   
     
     override transform(IVariable model, Object transformationInfo) {
-        println(transformationInfo)
         return 
         KimlUtil::createInitializedNode() => [
-        	it.children += createNode() => [
-	            it.setNodeSize(80,80);
-	            it.data += renderingFactory.createKRectangle() => [
-	                it.childPlacement = renderingFactory.createKGridPlacement()
-	                it.children += renderingFactory.createKText() => [
-                        it.text = "<<"+model.type+">>"
-                        it.setForegroundColor(120,120,120)
-                    ]
-                    it.children += renderingFactory.createKText() => [
-                        it.text = model.getValue("value")
-                    ]
-	            ]
-            ]
+        	val node = it.addNewNodeById(model) 
+        	if (node != null)
+            	node => [
+    	            it.setNodeSize(80,80);
+    	            it.data += renderingFactory.createKRectangle() => [
+    	                it.childPlacement = renderingFactory.createKGridPlacement()
+    	                it.children += renderingFactory.createKText() => [
+                            it.text = "<<"+model.type+">>"
+                            it.setForegroundColor(120,120,120)
+                        ]
+                        it.children += renderingFactory.createKText() => [
+                            it.text = model.getValue("value")
+                        ]
+    	            ]
+                ]
         ]
     }
    

@@ -12,6 +12,8 @@ import javax.inject.Inject
 import org.eclipse.debug.core.model.IVariable
 
 import static de.cau.cs.kieler.klighd.debug.visualization.AbstractDebugTransformation.*
+import de.cau.cs.kieler.core.krendering.extensions.KLabelExtensions
+import de.cau.cs.kieler.kiml.options.EdgeLabelPlacement
 
 class LinkedListTransformation extends AbstractDebugTransformation {
     
@@ -21,6 +23,8 @@ class LinkedListTransformation extends AbstractDebugTransformation {
     extension KPolylineExtensions 
     @Inject
     extension KRenderingExtensions
+    @Inject
+    extension KLabelExtensions
    
    
     var index = 0
@@ -30,7 +34,7 @@ class LinkedListTransformation extends AbstractDebugTransformation {
      */
     override transform(IVariable variable, Object transformationInfo) {
         return KimlUtil::createInitializedNode() => [
-            it.addLayoutParam(LayoutOptions::ALGORITHM, "de.cau.cs.kieler.klay.layered")
+            it.addLayoutParam(LayoutOptions::ALGORITHM, "de.cau.cs.kieler.kiml.ogdf.planarization")
             it.addLayoutParam(LayoutOptions::SPACING, 75f)
             it.addLayoutParam(LayoutOptions::DIRECTION, Direction::UP)
             size = Integer::parseInt(variable.getValue("size"))
@@ -43,12 +47,17 @@ class LinkedListTransformation extends AbstractDebugTransformation {
     }  
     
     def createChildNode(KNode rootNode, IVariable variable) {
-       rootNode.addNewNodeById(variable)?.nextTransformation(variable.element)
+       rootNode.nextTransformation(variable.element)
        index = index + 1
        if (index < size) {
-           var next = variable.getVariable("next")
+           val next = variable.getVariable("next")
            rootNode.createChildNode(next)
            variable.createEdgeById(next) => [
+               next.createLabel(it) => [
+                     it.addLayoutParam(LayoutOptions::EDGE_LABEL_PLACEMENT, EdgeLabelPlacement::CENTER)
+                     it.setLabelSize(50,50)
+                     it.text = "next"
+                 ]
                 it.data += renderingFactory.createKPolyline() => [
                     it.setLineWidth(2)
                     it.addArrowDecorator();

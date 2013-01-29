@@ -20,6 +20,7 @@ import org.eclipse.jdt.debug.core.IJavaPrimitiveValue
 import org.eclipse.jdt.debug.core.IJavaValue
 
 import static de.cau.cs.kieler.klighd.debug.visualization.AbstractDebugTransformation.*
+import de.cau.cs.kieler.core.krendering.extensions.KEdgeExtensions
 
 class DefaultTransformation extends AbstractDebugTransformation {
        
@@ -28,15 +29,17 @@ class DefaultTransformation extends AbstractDebugTransformation {
     @Inject
     extension KNodeExtensions
     @Inject
+    extension KEdgeExtensions
+    @Inject
     extension KRenderingExtensions
     @Inject
     extension KLabelExtensions
 
     override transform(IVariable model, Object transformationInfo) {
         return KimlUtil::createInitializedNode() => [
-            it.addLayoutParam(LayoutOptions::ALGORITHM, "de.cau.cs.kieler.klay.layered");
-            it.addLayoutParam(LayoutOptions::SPACING, 75f);
-            it.addLayoutParam(LayoutOptions::DIRECTION, Direction::RIGHT);
+            it.addLayoutParam(LayoutOptions::ALGORITHM, "de.cau.cs.kieler.klay.layered")
+            it.addLayoutParam(LayoutOptions::SPACING, 75f)
+            it.addLayoutParam(LayoutOptions::DIRECTION, Direction::RIGHT)
             // Array
             if (model.isArray)
                 it.createArrayNode(model)
@@ -68,9 +71,11 @@ class DefaultTransformation extends AbstractDebugTransformation {
         return variable.value instanceof IJavaObject
     }
     
-    def createArrayNode(KNode node, IVariable choice) {
+    def createArrayNode(KNode rootNode, IVariable choice) {
             if (choice.value instanceof IJavaArray) {
-	            node.addNewNodeById(choice)=> [
+	            val node = rootNode.addNewNodeById(choice)
+	         	if (node != null)
+	         	node => [
 	         		it.setNodeSize(80,80);
 	            	it.data += renderingFactory.createKRectangle() => [
 	                	it.childPlacement = renderingFactory.createKGridPlacement()
@@ -82,7 +87,7 @@ class DefaultTransformation extends AbstractDebugTransformation {
 	            
             	choice.value.variables.forEach[
                 	IVariable variable |
-                	node.createArrayNode(variable)
+                	rootNode.createArrayNode(variable)
                 	choice.createEdgeById(variable) => [
                 		variable.createLabel(it) => [
                             it.addLayoutParam(LayoutOptions::EDGE_LABEL_PLACEMENT, EdgeLabelPlacement::CENTER)
@@ -96,30 +101,33 @@ class DefaultTransformation extends AbstractDebugTransformation {
                 	]
                 ]         
         } else if (!choice.isPrimitiveOrNull && !choice.isNullObject) {
-            node.addNewNodeById(choice)?.nextTransformation(choice)
+            rootNode.nextTransformation(choice)
         } else
-        	node.addNewNodeById(choice)?.createValueNode(choice)
+        	rootNode.createValueNode(choice)
     }
     
     def createValueNode(KNode rootNode, IVariable choice) {
-        rootNode.children += createNode() => [
-            it.setNodeSize(80,80);
-            it.data += renderingFactory.createKRectangle() => [
-                it.childPlacement = renderingFactory.createKGridPlacement()
-                it.children += renderingFactory.createKText() => [
-                    it.text = "<<"+choice.type+">>"
-                    it.setForegroundColor(120,120,120)
-                ]
-                it.children += renderingFactory.createKText() => [
-                    it.text = choice.value.valueString
+        val node = rootNode.addNewNodeById(choice) 
+        if (node != null) 
+            node => [
+                it.setNodeSize(80,80);
+                it.data += renderingFactory.createKRectangle() => [
+                    it.childPlacement = renderingFactory.createKGridPlacement()
+                    it.children += renderingFactory.createKText() => [
+                        it.text = "<<"+choice.type+">>"
+                        it.setForegroundColor(120,120,120)
+                    ]
+                    it.children += renderingFactory.createKText() => [
+                        it.text = choice.value.valueString
+                    ]
                 ]
             ]
-        ]
     }
     
     def createObjectNode(KNode rootNode, IVariable choice) {
-        if (choice.isNullObject) {}
-        else {
+        if (!nodeExists(choice)) {
+            val thisNode = createNode()
+            rootNode.children += thisNode
             val primitiveList = new LinkedList<KText>()
             choice.value.variables.forEach[IVariable variable |
                 if (variable.isPrimitiveOrNull)
@@ -131,13 +139,31 @@ class DefaultTransformation extends AbstractDebugTransformation {
                         it.text = text  
                     ]
                 else {
-                    rootNode.addNewNodeById(variable)?.nextTransformation(variable)
+                    val node = createNode()
+                    rootNode.children += node
+                    //node.nextTransformation(variable)
+
+                    createEdge() => [
+                        it.source = thisNode
+                        it.target = node
+                        variable.createLabel(it) => [
+                             it.addLayoutParam(LayoutOptions::EDGE_LABEL_PLACEMENT, EdgeLabelPlacement::CENTER)
+                             it.setLabelSize(50,50)
+                             it.text = variable.name
+                         ]
+                         it.data += renderingFactory.createKPolyline() => [
+                             it.setLineWidth(2)
+                             it.addArrowDecorator()
+                         ]
+                    ]
                 }
             ]
-            rootNode.children += createNode() => [
-                it.addLayoutParam(LayoutOptions::BORDER_SPACING, 5.0f);
+            thisNode => [
                 it.data += renderingFactory.createKRectangle() => [
                     it.childPlacement = renderingFactory.createKGridPlacement()
+                    it.children += renderingFactory.createKText() => [
+                        it.text = choice.name
+                    ]
                     it.children += renderingFactory.createKText() => [
                         it.text = "Variables without id"
                     ]
@@ -149,6 +175,6 @@ class DefaultTransformation extends AbstractDebugTransformation {
                     ]
                 ]
             ]
-         }   
-    }       
+        } 
+    }   
 }

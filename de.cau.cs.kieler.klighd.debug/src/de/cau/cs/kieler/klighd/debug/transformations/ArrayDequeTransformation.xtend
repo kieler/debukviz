@@ -38,7 +38,7 @@ class ArrayDequeTransformation extends AbstractDebugTransformation {
             var int index = head;
             while (index <= tail) {
                 val variable = elements.get(index)
-                it.addNewNodeById(variable)?.nextTransformation(variable)
+                it.nextTransformation(variable)
                 
                 if (previous != null) {
                     val edge = previous.createEdgeById(variable) => [
@@ -47,9 +47,15 @@ class ArrayDequeTransformation extends AbstractDebugTransformation {
                             it.addArrowDecorator();
                         ]
                     ]
-                    if (index == head)
+                    if (index == head+1)
                         previous.createLabel(edge) => [
                             it.text = "head";
+                            it.addLayoutParam(LayoutOptions::EDGE_LABEL_PLACEMENT, EdgeLabelPlacement::CENTER)
+                            it.setLabelSize(50,50)
+                        ]
+                    if (index == tail)
+                        previous.createLabel(edge) => [
+                            it.text = "tail";
                             it.addLayoutParam(LayoutOptions::EDGE_LABEL_PLACEMENT, EdgeLabelPlacement::CENTER)
                             it.setLabelSize(50,50)
                         ]

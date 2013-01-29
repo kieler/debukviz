@@ -49,7 +49,7 @@ public abstract class AbstractDebugTransformation extends AbstractTransformation
     private static final HashMap<IVariable, KNode> dummyNodeMap = new HashMap<IVariable, KNode>();
     private static Integer depth = 0;
     //private static Integer nodeCount = 0;
-    private static Integer maxDepth = 5;
+    private static Integer maxDepth = 10;
 
     public Object getTransformationInfo() {
         return transformationInfo;
@@ -90,8 +90,8 @@ public abstract class AbstractDebugTransformation extends AbstractTransformation
 
     public KNode nextTransformation(KNode rootNode, IVariable variable, Object transformationInfo)
             throws DebugException {
-        //int maxNodeCount = -1;
         KNode innerNode = null;
+        //int maxNodeCount = -1;
         // Perform transformation if recursion depth less-equal maxDepth
         if (depth <= maxDepth) {
             depth++;
@@ -107,7 +107,7 @@ public abstract class AbstractDebugTransformation extends AbstractTransformation
             depth--;
             while (innerNode.getChildren().size() == 1)
                 innerNode = innerNode.getChildren().get(0);
-            if (kNodeMap.get(getId(variable)) == null)
+            //if (kNodeMap.get(getId(variable)) == null)
                 kNodeMap.put(getId(variable), innerNode);                
             
             rootNode.getChildren().add(innerNode);
@@ -245,16 +245,10 @@ public abstract class AbstractDebugTransformation extends AbstractTransformation
      * @throws DebugException
      */
     public KNode createNodeById(IVariable variable) throws DebugException {
-        KNode node = null;
         Long id = getId(variable);
-        if (id != -2) {
-            node = kNodeMap.get(id);
-            if (node == null) {
-                node = kNodeExtensions.getNode(variable);
-                kNodeMap.put(id, node);
-            }
-        } else
-            node = kNodeExtensions.getNode(variable);
+        KNode node = kNodeExtensions.getNode(variable);
+        if (id != -2)
+            kNodeMap.put(id, node);
         return node;
     }
 
