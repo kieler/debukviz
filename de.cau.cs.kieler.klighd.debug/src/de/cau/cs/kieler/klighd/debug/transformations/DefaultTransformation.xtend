@@ -124,8 +124,9 @@ class DefaultTransformation extends AbstractDebugTransformation {
     }
     
     def createObjectNode(KNode rootNode, IVariable choice) {
-        val thisNode = rootNode.addNewNodeById(choice)
-        if (thisNode != null) {
+        if (!nodeExists(choice)) {
+            val thisNode = createNode()
+            rootNode.children += thisNode
             val primitiveList = new LinkedList<KText>()
             choice.value.variables.forEach[IVariable variable |
                 if (variable.isPrimitiveOrNull)
@@ -137,39 +138,23 @@ class DefaultTransformation extends AbstractDebugTransformation {
                         it.text = text  
                     ]
                 else {
-                    if (nodeExists(variable)) {
-                        rootNode.addNewNodeById(variable)
-                        choice.createEdgeById(variable) => [
-                            variable.createLabel(it) => [
-                                 it.addLayoutParam(LayoutOptions::EDGE_LABEL_PLACEMENT, EdgeLabelPlacement::CENTER)
-                                 it.setLabelSize(50,50)
-                                 it.text = variable.name
-                             ]
-                             it.data += renderingFactory.createKPolyline() => [
-                                   it.setLineWidth(2)
-                                   it.addArrowDecorator()
-                             ] 
-                        ]
-                    }
-                    else {
-                        val node = createNode()
-                        rootNode.children += node
-                        node.nextTransformation(variable)
-    
-                        createEdge() => [
-                            it.source = thisNode
-                            it.target = node
-                            variable.createLabel(it) => [
-                                 it.addLayoutParam(LayoutOptions::EDGE_LABEL_PLACEMENT, EdgeLabelPlacement::CENTER)
-                                 it.setLabelSize(50,50)
-                                 it.text = variable.name
-                             ]
-                             it.data += renderingFactory.createKPolyline() => [
-                                 it.setLineWidth(2)
-                                 it.addArrowDecorator()
-                             ]
-                        ]
-                    }
+                    val node = createNode()
+                    rootNode.children += node
+                    //node.nextTransformation(variable)
+
+                    createEdge() => [
+                        it.source = thisNode
+                        it.target = node
+                        variable.createLabel(it) => [
+                             it.addLayoutParam(LayoutOptions::EDGE_LABEL_PLACEMENT, EdgeLabelPlacement::CENTER)
+                             it.setLabelSize(50,50)
+                             it.text = variable.name
+                         ]
+                         it.data += renderingFactory.createKPolyline() => [
+                             it.setLineWidth(2)
+                             it.addArrowDecorator()
+                         ]
+                    ]
                 }
             ]
             thisNode => [

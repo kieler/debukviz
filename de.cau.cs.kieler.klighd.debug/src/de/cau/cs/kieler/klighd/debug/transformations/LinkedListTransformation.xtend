@@ -12,6 +12,8 @@ import javax.inject.Inject
 import org.eclipse.debug.core.model.IVariable
 
 import static de.cau.cs.kieler.klighd.debug.visualization.AbstractDebugTransformation.*
+import de.cau.cs.kieler.core.krendering.extensions.KLabelExtensions
+import de.cau.cs.kieler.kiml.options.EdgeLabelPlacement
 
 class LinkedListTransformation extends AbstractDebugTransformation {
     
@@ -21,6 +23,8 @@ class LinkedListTransformation extends AbstractDebugTransformation {
     extension KPolylineExtensions 
     @Inject
     extension KRenderingExtensions
+    @Inject
+    extension KLabelExtensions
    
    
     var index = 0
@@ -46,9 +50,14 @@ class LinkedListTransformation extends AbstractDebugTransformation {
        rootNode.addNewNodeById(variable.element)?.nextTransformation(variable.element)
        index = index + 1
        if (index < size) {
-           var next = variable.getVariable("next")
+           val next = variable.getVariable("next")
            rootNode.createChildNode(next)
            variable.element.createEdgeById(next.element) => [
+               next.element.createLabel(it) => [
+                     it.addLayoutParam(LayoutOptions::EDGE_LABEL_PLACEMENT, EdgeLabelPlacement::CENTER)
+                     it.setLabelSize(50,50)
+                     it.text = "next"
+                 ]
                 it.data += renderingFactory.createKPolyline() => [
                     it.setLineWidth(2)
                     it.addArrowDecorator();
