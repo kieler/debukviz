@@ -1,6 +1,9 @@
 package de.cau.cs.kieler.klighd.debug.graphTransformations.pGraph
 
 import de.cau.cs.kieler.core.kgraph.KNode
+import de.cau.cs.kieler.kiml.options.EdgeLabelPlacement
+import de.cau.cs.kieler.kiml.options.Direction
+import de.cau.cs.kieler.kiml.options.LayoutOptions
 import de.cau.cs.kieler.core.krendering.KRenderingFactory
 import de.cau.cs.kieler.core.krendering.extensions.KColorExtensions
 import de.cau.cs.kieler.core.krendering.extensions.KEdgeExtensions
@@ -14,6 +17,7 @@ import de.cau.cs.kieler.core.krendering.LineStyle
 import de.cau.cs.kieler.core.properties.IProperty
 import de.cau.cs.kieler.core.krendering.extensions.KPolylineExtensions
 import de.cau.cs.kieler.klighd.debug.graphTransformations.AbstractKielerGraphTransformation
+import de.cau.cs.kieler.core.krendering.extensions.KLabelExtensions
 
 class PGraphTransformation extends AbstractKielerGraphTransformation {
     
@@ -27,6 +31,8 @@ class PGraphTransformation extends AbstractKielerGraphTransformation {
     extension KRenderingExtensions
     @Inject
     extension KColorExtensions
+    @Inject
+    extension KLabelExtensions
     
     /**
      * {@inheritDoc}
@@ -74,14 +80,14 @@ class PGraphTransformation extends AbstractKielerGraphTransformation {
                 
                 // position
                 it.children += renderingFactory.createKText => [
-                    it.text = "pos (x,y): (" + graph.getValue("pos.x").round(1) + " x " 
-                                              + graph.getValue("pos.y").round(1) + ")" 
+                    it.text = "pos (x,y): (" + graph.getValue("pos.x").round + " x " 
+                                              + graph.getValue("pos.y").round + ")" 
                 ]
                 
                 // size
                 it.children += renderingFactory.createKText => [
-                    it.text = "size (x,y): (" + graph.getValue("size.x").round(1) + " x " 
-                                              + graph.getValue("size.y").round(1) + ")" 
+                    it.text = "size (x,y): (" + graph.getValue("size.x").round + " x " 
+                                              + graph.getValue("size.y").round + ")" 
                 ]
 
                 // graph type
@@ -100,12 +106,20 @@ class PGraphTransformation extends AbstractKielerGraphTransformation {
             it.data += renderingFactory.createKRectangle => [
                 it.lineWidth = 4
             ]
-            it.addLabel("Graph visualization")
+
+            // add label
+            nodes.createLabel(it) => [
+                it.addLayoutParam(LayoutOptions::EDGE_LABEL_PLACEMENT, EdgeLabelPlacement::CENTER)
+                it.setLabelSize(50,20)
+                it.text = "visualization"
+            ]
+
             // create all nodes
             nodes.getVariable("map").getVariables("table").filter[e | e.valueIsNotNull].forEach[IVariable node |
                 it.nextTransformation(node.getVariable("key"))
             ]
         ]
+
         // create edge from root node to the nodes node
         graph.createEdge(nodes) => [
             it.data += renderingFactory.createKPolyline => [
@@ -207,8 +221,8 @@ class PGraphTransformation extends AbstractKielerGraphTransformation {
                 
                 // position
                 it.children += renderingFactory.createKText => [
-                    it.text = "pos (x,y): (" + bendPoint.getValue("pos.x").round(1) + " x " 
-                                             + bendPoint.getValue("pos.y").round(1) + ")" 
+                    it.text = "pos (x,y): (" + bendPoint.getValue("pos.x").round + " x " 
+                                             + bendPoint.getValue("pos.y").round + ")" 
                 ]
             ]
         ]        
@@ -216,13 +230,19 @@ class PGraphTransformation extends AbstractKielerGraphTransformation {
 
     def createFaces(KNode rootNode, IVariable graph) {
         val faces = graph.getVariable("faces")
+        
         // create outer faces node
         faces.createNode => [
-            // create outer faces rectangle
             it.data += renderingFactory.createKRectangle => [
                 it.lineWidth = 4
             ]
-            it.addLabel("Faces")
+            
+            // add label
+            faces.createLabel(it) => [
+                it.addLayoutParam(LayoutOptions::EDGE_LABEL_PLACEMENT, EdgeLabelPlacement::CENTER)
+                it.setLabelSize(50,20)
+                it.text = "faces"
+            ]
             
             val filteredFaces = faces.getVariable("map").getVariables("table").filter[e | e.valueIsNotNull]
 

@@ -17,6 +17,13 @@ import de.cau.cs.kieler.core.krendering.KText
 import de.cau.cs.kieler.klighd.debug.visualization.AbstractDebugTransformation
 import de.cau.cs.kieler.core.kgraph.KLabel
 import de.cau.cs.kieler.core.kgraph.KLabeledGraphElement
+import de.cau.cs.kieler.core.krendering.extensions.KLabelExtensions
+import de.cau.cs.kieler.kiml.options.EdgeLabelPlacement
+import de.cau.cs.kieler.kiml.options.Direction
+import de.cau.cs.kieler.kiml.options.LayoutOptions
+import de.cau.cs.kieler.core.krendering.extensions.KNodeExtensions
+import de.cau.cs.kieler.klighd.krendering.PlacementUtil
+import de.cau.cs.kieler.core.krendering.HorizontalAlignment
 
 abstract class AbstractKielerGraphTransformation extends AbstractDebugTransformation {
     @Inject
@@ -29,6 +36,8 @@ abstract class AbstractKielerGraphTransformation extends AbstractDebugTransforma
     extension KRenderingExtensions
     @Inject
     extension KColorExtensions
+    @Inject
+    extension KLabelExtensions
 
 //    protected GraphTransformationInfo gtInfo = new GraphTransformationInfo
     protected Boolean detailedView = true
@@ -47,9 +56,12 @@ abstract class AbstractKielerGraphTransformation extends AbstractDebugTransforma
     }
     
     def round(String number, int decimalPositions) {
-        return Math::round(Double::valueOf(number) 
-                         * Math::pow(10, decimalPositions)) 
-             / Math::pow(10, decimalPositions)
+        return Math::round(Double::valueOf(number) * Math::pow(10, decimalPositions)) 
+                    / Math::pow(10, decimalPositions)
+    }
+    
+    def round(String number) {
+        return Math::round(Double::valueOf(number))
     }
     
     def KText createKText(IVariable variable, String valueText, String prefix, String delimiter) {
@@ -128,47 +140,49 @@ abstract class AbstractKielerGraphTransformation extends AbstractDebugTransforma
             case "LayoutOptionData<T>" : 
                 return key.getValue("name") + ": "
             case "KNodeImpl" :
-                return "KNode" + key.getValue.getValueString + ": "
+                return "KNode" + key.getValue.getValueString + " -> "
         }
         // a default statement in the switch results in a missing return statement in generated 
         // java code, so I added the default return value here
         return "<? " + key.getType +" ?> : "
     }
 
-    def flattenStruct(IVariable element, KContainerRendering container, String remainder, String prefix) {
+    def flattenStruct(KContainerRendering container, IVariable element, String remainder, String prefix) {
         switch element.getType {
             case "HashMap<K,V>" : {
-                // write the remainder to the container ("header" of following elements)
-                if(remainder.length > 0) {
-                    container.children += renderingFactory.createKText =>[
-                        it.text = prefix + remainder
-                    ]
-                }
+                container.addRemainer(prefix, remainder)
                 // create all child elements
                 element.hashMapToLinkedList.forEach [
-                    it.getVariable("value").flattenStruct(container, it.getVariable("key").keyString, prefix + "- ")
+                    container.flattenStruct(it.getVariable("value"), it.getVariable("key").keyString, prefix + "- ")
                 ]
             }
             case "RegularEnumSet<E>" : {
-                // write the remainder to the container
-                if(remainder.length > 0)
-                    container.children += renderingFactory.createKText =>[
-                        it.text = prefix + remainder
-                    ]
+                container.addRemainer(prefix, remainder)
                 // create the enumSet elements
                 container.enumSetToKText(element, prefix + "- ")
             } 
+            case "NodeGroup" : {
+                container.addRemainer(prefix, remainder)
+                // create all child elements
+                element.getVariables("nodes").forEach [
+                    container.flattenStruct(it, "", prefix + "- ")
+                ]
+            } 
             case "KNodeImpl" :
                 container.children += renderingFactory.createKText =>[
-                    it.text = prefix + remainder + "KNode " + element.getValue.getValueString
+                    it.text = prefix + remainder + "KNodeImpl " + element.getValue.getValueString
                 ]
             case "KLabelImpl" :
                 container.children += renderingFactory.createKText =>[
-                    it.text = prefix + remainder + "KLabel " + element.getValue.getValueString
+                    it.text = prefix + remainder + "KLabelImpl " + element.getValue.getValueString
+                ]
+            case "KEdgeImpl" :
+                container.children += renderingFactory.createKText =>[
+                    it.text = prefix + remainder + "KEdgeImpl " + element.getValue.getValueString
                 ]
             case "LNode" : 
                 container.children += renderingFactory.createKText =>[
-                    it.text = prefix + remainder + "LNode " + element.getValue("id") + element.getValue.getValueString
+                    it.text = prefix + remainder + "LNodeImpl " + element.getValue("id") + element.getValue.getValueString
                 ]
             case "Random" :
                 container.children += renderingFactory.createKText => [
@@ -194,49 +208,69 @@ abstract class AbstractKielerGraphTransformation extends AbstractDebugTransforma
                 container.children += renderingFactory.createKText => [
                     it.text = prefix + remainder + element.getValue("name")
                 ]
+            case "EdgeLabelPlacement" :
+                container.children += renderingFactory.createKText => [
+                    it.text = prefix + remainder + element.getValue("name")
+                ]
             default : 
                 container.children += renderingFactory.createKText =>[
-                    it.text = prefix + remainder + "<? " + element.getType + "?>"
+                    it.text = prefix + remainder + "<? " + element.getType + element.getValue.getValueString + "?>"
                 ]
         }
     }
     
+    def addRemainer(KContainerRendering container, String prefix, String remainder) {
+        if(remainder.length > 0)
+            container.children += renderingFactory.createKText =>[
+                it.text = prefix + remainder
+            ]
+    }
+
     def addPropertyMapAndEdge(KNode rootNode, IVariable propertyMap, IVariable headerNode) {
-        // create propertyMap node
-        rootNode.addNodeById(propertyMap) => [
-            it.data += renderingFactory.createKRectangle => [
-                it.lineWidth = 4
-                it.ChildPlacement = renderingFactory.createKGridPlacement 
-//                it.ChildPlacement = renderingFactory.createKStackPlacement
+        if(rootNode != null && propertyMap.valueIsNotNull && headerNode.valueIsNotNull) {
+
+            // create propertyMap node
+            rootNode.addNodeById(propertyMap) => [
+                it.data += renderingFactory.createKRectangle => [
+                    it.lineWidth = 4
+                    it.ChildPlacement = renderingFactory.createKGridPlacement
+
 //TODO: warum geht das hier nicht?
-                it.placementData = renderingFactory.createKGridPlacementData => [
-                    it.setInsetRight(20)
-                    it.setInsetLeft(20)
-                    it.setInsetTop(20)
-                    it.setInsetBottom(20)
+                    it.setHorizontalAlignment( HorizontalAlignment::LEFT) 
+                    it.placementData = renderingFactory.createKGridPlacementData => [
+                        it.setInsetRight(20)
+                        it.setInsetLeft(20)
+                        it.setInsetTop(20)
+                        it.setInsetBottom(20)
+                    ]
+                    
+                    // add type of the propertyMap
+                    it.children += renderingFactory.createKText => [
+                        it.setForegroundColor(120,120,120)
+                        it.text = propertyMap.getType
+                    ]
+            
+                    // add all properties
+                    it.flattenStruct(propertyMap, "", "")
+                ]
+            ]
+                            
+            //create edge from header to propertyMap node
+            headerNode.createEdgeById(propertyMap) => [
+                it.data += renderingFactory.createKPolyline => [
+                    it.setLineWidth(2)
+                    it.addArrowDecorator
                 ]
                 
-                // add type of the propertyMap
-                it.children += renderingFactory.createKText => [
-                    it.setForegroundColor(120,120,120)
-                    it.text = propertyMap.getType
+                // add label
+                propertyMap.createLabel(it) => [
+                    it.addLayoutParam(LayoutOptions::EDGE_LABEL_PLACEMENT, EdgeLabelPlacement::CENTER)
+                    it.text = "Property Map"
+                    val dim = PlacementUtil::estimateTextSize(it)
+                    it.setLabelSize(dim.width,dim.height)
                 ]
-        
-                // add all properties
-                propertyMap.flattenStruct(it, "PROPERTY MAP", "")
             ]
-        ]
-                        
-        //create edge from header to propertyMap node
-        headerNode.createEdgeById(propertyMap) => [
-            it.data += renderingFactory.createKPolyline => [
-                it.setLineWidth(2)
-                it.addArrowDecorator
-            ]
-            KimlUtil::createInitializedLabel(it) => [
-                it.setText("Property Map")
-            ]
-        ]
+        }
     }
     
     /**
@@ -311,10 +345,32 @@ abstract class AbstractKielerGraphTransformation extends AbstractDebugTransforma
         ]    
     }
     
-    def addLabel(KLabeledGraphElement labeledElement, String text) {
-        labeledElement.labels += KimlUtil::createInitializedLabel(labeledElement) => [
-            it.setText(text)
-        ]
+    def debugID(IVariable variable) {
+        return variable.getValue.getValueString
     }
+    
+    def headerNodeBasics(KContainerRendering container, Boolean detailedView, IVariable variable) {
+        container.ChildPlacement = renderingFactory.createKGridPlacement
+
+        if(detailedView) {
+            // bold line in detailed view
+            container.lineWidth = 4
+            
+            // type of the variable
+            container.addShortType(variable)
+
+            // name of the variable
+            container.children += renderingFactory.createKText => [
+                it.text = "Variable: " + variable.name + variable.getValue.getValueString 
+            ]
+            
+            // coloring of main element
+            container.setBackgroundColor("lemon".color);
+        } else {
+            // slim line in not detailed view
+            container.lineWidth = 2
+        }
+    }
+
     
 }

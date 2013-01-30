@@ -76,14 +76,14 @@ class PNodeTransformation extends AbstractKielerGraphTransformation {
                 
                 // position
                 container.children += renderingFactory.createKText() => [
-                    it.text = "position (x,y): (" + node.getValue("pos.x").round(1) + " x " 
-                                                  + node.getValue("pos.y").round(1) + ")" 
+                    it.text = "position (x,y): (" + node.getValue("pos.x").round + " x " 
+                                                  + node.getValue("pos.y").round + ")" 
                 ]
                 
                 // size
                 container.children += renderingFactory.createKText() => [
-                    it.text = "size (x,y): (" + node.getValue("size.x").round(1) + " x " 
-                                              + node.getValue("size.y").round(1) + ")" 
+                    it.text = "size (x,y): (" + node.getValue("size.x").round + " x " 
+                                              + node.getValue("size.y").round + ")" 
                 ]
                 
                 it.data += container

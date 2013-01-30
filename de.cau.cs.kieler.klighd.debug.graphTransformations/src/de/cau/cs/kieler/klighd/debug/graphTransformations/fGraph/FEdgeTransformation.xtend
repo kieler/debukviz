@@ -1,4 +1,4 @@
-package de.cau.cs.kieler.klighd.debug.graphTransformations.lGraph
+package de.cau.cs.kieler.klighd.debug.graphTransformations.fGraph
 
 import de.cau.cs.kieler.core.kgraph.KNode
 import de.cau.cs.kieler.core.krendering.extensions.KColorExtensions
@@ -16,8 +16,9 @@ import org.eclipse.debug.core.model.IVariable
 
 import static de.cau.cs.kieler.klighd.debug.visualization.AbstractDebugTransformation.*
 
-class LEdgeTransformation extends AbstractKielerGraphTransformation {
-    @Inject
+
+class FEdgeTransformation extends AbstractKielerGraphTransformation {
+        @Inject
     extension KNodeExtensions
     @Inject
     extension KEdgeExtensions
@@ -37,7 +38,7 @@ class LEdgeTransformation extends AbstractKielerGraphTransformation {
             it.addLayoutParam(LayoutOptions::ALGORITHM, "de.cau.cs.kieler.kiml.ogdf.planarization")
             it.addLayoutParam(LayoutOptions::SPACING, 75f)
             
-            // create KNode for given LEdge
+            // create KNode for given FEdge
             it.createHeaderNode(edge)
 
             // if in detailedView, add node for propertyMap and labels
@@ -49,8 +50,43 @@ class LEdgeTransformation extends AbstractKielerGraphTransformation {
                 // add labels node
                 it.addLabels(edge)
                 
+                // add bendpoints node
+                it.addBendPoints(edge)
 
             }
+        ]
+    }
+    
+    def createHeaderNode(KNode rootNode, IVariable edge) { 
+        rootNode.addNodeById(edge) => [
+            it.data += renderingFactory.createKRectangle => [
+                it.headerNodeBasics(detailedView, edge)
+                
+                if(detailedView) {
+                    // show following elements only if detailedView
+                    // source of edge
+                    it.children += renderingFactory.createKText => [
+                        it.text = "source: FNode " + edge.getValue("source.id") + " " + edge.getVariable("source").debugID
+                    ]
+
+                    // target of edge
+                    it.children += renderingFactory.createKText => [
+                        it.text = "source: FNode " + edge.getValue("target.id") + " " + edge.getVariable("target").debugID
+                    ]
+                    
+                } else {
+                    // if not detailedView, show a summary of following elements
+                    // # of bendPoints
+                    it.children += renderingFactory.createKText => [
+                        it.text = "bendPoints (#): " + edge.getValue("bendpoints.size")
+                    ]
+                    
+                    // # of labels of port
+                    it.children += renderingFactory.createKText => [
+                        it.text = "labels (#): " + edge.getValue("labels.size")
+                    ]
+                }
+            ]
         ]
     }
     
@@ -87,61 +123,38 @@ class LEdgeTransformation extends AbstractKielerGraphTransformation {
         }        
     }
 
-    
-    def createHeaderNode(KNode rootNode, IVariable edge) { 
-        rootNode.addNodeById(edge) => [
-            it.data += renderingFactory.createKRectangle => [
-                it.headerNodeBasics(detailedView, edge)
-                
-                // id of edge
-                it.children += createKText(edge, "id", "", ": ")
-
-                // hashCode of edge
-                it.children += createKText(edge, "hashCode", "", ": ")
-   
-                if(detailedView) {
-                    // show following elements only if detailedView
-                    // source of edge
-                    it.children += renderingFactory.createKText => [
-                        it.text = "source: LNode " + edge.getValue("source.id") + " " + edge.getVariable("source").debugID 
-                    ]
-
-                    // target of edge
-                    it.children += renderingFactory.createKText => [
-                        it.text = "source: LNode " + edge.getValue("target.id") + " " + edge.getVariable("target").debugID
-                    ]
-//TODO: bendpoints evtl. auch hier als eigener node?                    
-                    // list of bendPoints
-                    if (edge.getValue("bendPoints.size").equals("0")) {
-                        // no bendPoints on edge
-                        it.children += renderingFactory.createKText => [
-                            it.text = "bendPoints: none"
-                        ]
-                    } else {
-                        it.children += renderingFactory.createKText => [
-                            it.text = "bendPoints (x,y):"
-                        ]
-                        // create list of bendPoints
-                        edge.getVariable("bendPoints").linkedList.forEach [ bendPoint |
-                            it.children += renderingFactory.createKText => [
-                            it.text = "("+ bendPoint.getValue("x").round + " x "
-                                          + bendPoint.getValue("y").round + ")"
-                            ]
-                        ]
-                    }
-                } else {
-                    // if not detailedView, show a summary of following elements
-                    // # of bendPoints
-                    it.children += renderingFactory.createKText => [
-                        it.text = "bendPoints (#): " + edge.getValue("bendPoints.size")
-                    ]
+    def addBendPoints(KNode rootNode, IVariable edge) {
+        val bendPoints = edge.getVariable("bendpoints")
+        
+        if (!bendPoints.getValue("size").equals("0")) {
+            
+            // create container node
+            rootNode.addNodeById(bendPoints) => [
+                it.data += renderingFactory.createKRectangle => [
+                    if(detailedView) it.lineWidth = 4 else it.lineWidth = 2
+                    it.ChildPlacement = renderingFactory.createKGridPlacement
+                ]
                     
-                    // # of labels of port
-                    it.children += renderingFactory.createKText => [
-                        it.text = "labels (#): " + edge.getValue("labels.size")
-                    ]
-                }
+                // create all nodes for bendPoints
+                bendPoints.linkedList.forEach [ bendPoint |
+                    it.nextTransformation(bendPoint, false)
+                ]
             ]
-        ]
+            
+            // create edge from header node to labels node
+            edge.createEdgeById(bendPoints) => [
+                it.data += renderingFactory.createKPolyline => [
+                    it.setLineWidth(2)
+                    it.addArrowDecorator
+                ]
+                labels.createLabel(it) => [
+                    it.addLayoutParam(LayoutOptions::EDGE_LABEL_PLACEMENT, EdgeLabelPlacement::CENTER)
+                    it.setLabelSize(50,20)
+                    it.text = "bendpoints"
+                ]
+            ]
+        } 
     }
+
+
 }

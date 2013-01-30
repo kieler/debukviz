@@ -9,6 +9,10 @@ import org.eclipse.debug.core.model.IVariable
 
 import static de.cau.cs.kieler.klighd.debug.visualization.AbstractDebugTransformation.*
 import de.cau.cs.kieler.klighd.debug.graphTransformations.AbstractKielerGraphTransformation
+import de.cau.cs.kieler.core.kgraph.KNode
+import de.cau.cs.kieler.core.krendering.extensions.KColorExtensions
+import de.cau.cs.kieler.core.krendering.extensions.KPolylineExtensions
+import de.cau.cs.kieler.core.krendering.extensions.KEdgeExtensions
 
 class FBendpointTransformation extends AbstractKielerGraphTransformation {
     
@@ -16,51 +20,51 @@ class FBendpointTransformation extends AbstractKielerGraphTransformation {
     extension KNodeExtensions
     @Inject
     extension KRenderingExtensions
-//    @Inject
-//    extension KEdgeExtensions
-//    @Inject 
-//    extension KPolylineExtensions 
-//    @Inject
-//    extension KColorExtensions
+    @Inject
+    extension KEdgeExtensions
+    @Inject 
+    extension KPolylineExtensions 
+    @Inject
+    extension KColorExtensions
     
     override transform(IVariable bendPoint, Object transformationInfo) {
-         return KimlUtil::createInitializedNode() => [
-            it.addLayoutParam(LayoutOptions::ALGORITHM, "de.cau.cs.kieler.klay.layered")
+        if(transformationInfo instanceof Boolean) detailedView = transformationInfo as Boolean    
+        
+         return KimlUtil::createInitializedNode=> [
+            it.addLayoutParam(LayoutOptions::ALGORITHM, "de.cau.cs.kieler.kiml.ogdf.planarization")
             it.addLayoutParam(LayoutOptions::SPACING, 75f)
+
+            // create KNode for given FEdge
+            it.createHeaderNode(bendPoint)
             
-            it.children += bendPoint.createNodeById => [
-//                it.setNodeSize(120,80)
-                
-//                it.addLayoutParam(LayoutOptions::LABEL_SPACING, 75f)
-//                it.addLayoutParam(LayoutOptions::SPACING, 75f)
-                
-                it.data += renderingFactory.createKEllipse => [
-                    it.lineWidth = 2
-                    it.ChildPlacement = renderingFactory.createKGridPlacement()
-                    
-                    // Type of bendpoint
-                    it.children += renderingFactory.createKText() => [
-                        it.setForegroundColor(120,120,120)
-                        it.text = bendPoint.getType
-                    ]
+            // if in detailedView, add node for propertyMap
+            if (detailedView) it.addPropertyMapAndEdge(bendPoint.getVariable("propertyMap"), bendPoint)
+        ]
+    }
 
-                    // associated edge
-                    it.children += renderingFactory.createKText() => [
-                        it.text = "edge: (" + bendPoint.getValue("edge.source.label") + " -> " 
-                                            + bendPoint.getValue("edge.target.label") + ")" 
-                    ]
+    def createHeaderNode(KNode rootNode, IVariable bendPoint) {
+        rootNode.addNodeById(bendPoint) => [
+            it.data += renderingFactory.createKEllipse => [
+                it.headerNodeBasics(detailedView, bendPoint)
 
-                    it.children += renderingFactory.createKText() => [
-                        it.text = "position (x,y): (" + bendPoint.getValue("position.x").round(1) + " x " 
-                                                      + bendPoint.getValue("position.y").round(1) + ")" 
-                    ]
-                    
-                    it.children += renderingFactory.createKText() => [
-                        it.text = "size (x,y): (" + bendPoint.getValue("size.x").round(1) + " x " 
-                                                  + bendPoint.getValue("size.y").round(1) + ")" 
-                    ]
+                // associated edge
+                it.children += renderingFactory.createKText() => [
+                    it.text = "edge: FEdge " + bendPoint.getVariable("edge").debugID 
                 ]
+
+                if(detailedView) {
+                    it.children += renderingFactory.createKText() => [
+                        it.text = "position (x,y): (" + bendPoint.getValue("position.x").round + " x " 
+                                                      + bendPoint.getValue("position.y").round + ")" 
+                    ]
+                    
+                    it.children += renderingFactory.createKText() => [
+                        it.text = "size (x,y): (" + bendPoint.getValue("size.x").round + " x " 
+                                                  + bendPoint.getValue("size.y").round + ")" 
+                    ]
+                }
             ]
         ]
-    }    
+    }
+    
 }

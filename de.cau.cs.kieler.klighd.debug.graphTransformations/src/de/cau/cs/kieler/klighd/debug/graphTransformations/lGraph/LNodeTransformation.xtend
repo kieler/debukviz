@@ -9,9 +9,15 @@ import de.cau.cs.kieler.kiml.options.LayoutOptions
 import de.cau.cs.kieler.kiml.util.KimlUtil
 import javax.inject.Inject
 import org.eclipse.debug.core.model.IVariable
+import de.cau.cs.kieler.kiml.options.EdgeLabelPlacement
+import de.cau.cs.kieler.kiml.options.Direction
+import de.cau.cs.kieler.kiml.options.LayoutOptions
+
+import static de.cau.cs.kieler.klighd.debug.visualization.AbstractDebugTransformation.*
 import de.cau.cs.kieler.klighd.debug.graphTransformations.AbstractKielerGraphTransformation
 import de.cau.cs.kieler.core.kgraph.KNode
 import de.cau.cs.kieler.core.krendering.extensions.KPolylineExtensions
+import de.cau.cs.kieler.core.krendering.extensions.KLabelExtensions
 
 import static de.cau.cs.kieler.klighd.debug.visualization.AbstractDebugTransformation.*
 
@@ -27,20 +33,14 @@ class LNodeTransformation extends AbstractKielerGraphTransformation {
     extension KRenderingExtensions
 	@Inject 
     extension KColorExtensions
-
-    //TODO: create ports
-    //TODO: add all labels
+    @Inject
+    extension KLabelExtensions
 
     /**
-     * Creates a representation of a LNode
-     * @param rootNode The KNode this node is placed into
-     * @param variable The IVariable containing the data for this LNode
+     * {@inheritDoc}
      */
     override transform(IVariable node, Object transformationInfo) {
-//TODO: transformationInfo is not passed to new transformation
-        if(transformationInfo instanceof Boolean) {
-            detailedView = transformationInfo as Boolean
-        }
+        if(transformationInfo instanceof Boolean) detailedView = transformationInfo as Boolean
         
         return KimlUtil::createInitializedNode => [
             it.addLayoutParam(LayoutOptions::ALGORITHM, "de.cau.cs.kieler.kiml.ogdf.planarization")
@@ -61,7 +61,7 @@ class LNodeTransformation extends AbstractKielerGraphTransformation {
     }
     
     def createHeaderNode(KNode rootNode, IVariable node) {
-        rootNode.children += node.createNodeById => [
+        rootNode.addNodeById(node) => [
             // Get the nodeType
             val nodeType = node.nodeType
 
@@ -94,20 +94,9 @@ class LNodeTransformation extends AbstractKielerGraphTransformation {
                 ]
             }
 
-            if(detailedView) container.lineWidth = 4 else container.lineWidth = 2
+            container.headerNodeBasics(detailedView, node)
+
             container.setForegroundColor(node)
-            container.ChildPlacement = renderingFactory.createKGridPlacement
-
-            if(detailedView){
-                // Type of node
-                container.addShortType(node)                
-
-                // name of the variable
-                container.children += renderingFactory.createKText => [
-                    it.text = "VarName: " + node.name 
-                ]
-            }
-
 
             // Name of the node is the first label
             container.children += renderingFactory.createKText => [
@@ -135,18 +124,18 @@ class LNodeTransformation extends AbstractKielerGraphTransformation {
             if(detailedView) {
                 // insets
                 container.children += renderingFactory.createKText => [
-                    it.text = "insets (b,l,r,t): (" + node.getValue("insets.bottom").round(1) + " x "
-                                                    + node.getValue("insets.left").round(1) + " x "
-                                                    + node.getValue("insets.right").round(1) + " x "
-                                                    + node.getValue("insets.top").round(1) + ")" 
+                    it.text = "insets (b,l,r,t): (" + node.getValue("insets.bottom").round + " x "
+                                                    + node.getValue("insets.left").round + " x "
+                                                    + node.getValue("insets.right").round + " x "
+                                                    + node.getValue("insets.top").round + ")" 
                 ]
                 
                 //margin
                 container.children += renderingFactory.createKText => [
-                    it.text = "margin (b,l,r,t): (" + node.getValue("margin.bottom").round(1) + " x "
-                                                    + node.getValue("margin.left").round(1) + " x "
-                                                    + node.getValue("margin.right").round(1) + " x "
-                                                    + node.getValue("margin.top").round(1) + ")" 
+                    it.text = "margin (b,l,r,t): (" + node.getValue("margin.bottom").round + " x "
+                                                    + node.getValue("margin.left").round + " x "
+                                                    + node.getValue("margin.right").round + " x "
+                                                    + node.getValue("margin.top").round + ")" 
                 ]
     
                 //owner (layer)
@@ -156,14 +145,14 @@ class LNodeTransformation extends AbstractKielerGraphTransformation {
     
                 // position
                 container.children += renderingFactory.createKText => [
-                    it.text = "pos (x,y): (" + node.getValue("pos.x").round(1) + " x " 
-                                                  + node.getValue("pos.y").round(1) + ")" 
+                    it.text = "pos (x,y): (" + node.getValue("pos.x").round + " x " 
+                                                  + node.getValue("pos.y").round + ")" 
                 ]
             
                 // size
                 container.children += renderingFactory.createKText => [
-                    it.text = "size (x,y): (" + node.getValue("size.x").round(1) + " x " 
-                                              + node.getValue("size.y").round(1) + ")" 
+                    it.text = "size (x,y): (" + node.getValue("size.x").round + " x " 
+                                              + node.getValue("size.y").round + ")" 
                 ]
             } else {
                 // # of labels
@@ -201,8 +190,10 @@ class LNodeTransformation extends AbstractKielerGraphTransformation {
                 it.setLineWidth(2)
                 it.addArrowDecorator
             ]
-            KimlUtil::createInitializedLabel(it) => [
-                it.setText("ports")
+            ports.createLabel(it) => [
+                it.addLayoutParam(LayoutOptions::EDGE_LABEL_PLACEMENT, EdgeLabelPlacement::CENTER)
+                it.setLabelSize(50,20)
+                it.text = "ports"
             ]
         ]   
     }
