@@ -53,7 +53,7 @@ class FLabelTransformation extends AbstractKielerGraphTransformation {
                 it.headerNodeBasics(detailedView, label)
                 
                 // text of label
-                it.children += createKText(label, "text", "", ": ")
+                it.addKText(label, "text", "", ": ")
 
                 if(detailedView) {
                     // show following elements only if detailedView

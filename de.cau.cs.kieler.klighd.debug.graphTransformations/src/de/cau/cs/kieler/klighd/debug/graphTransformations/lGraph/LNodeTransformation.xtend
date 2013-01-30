@@ -115,10 +115,10 @@ class LNodeTransformation extends AbstractKielerGraphTransformation {
             ]
             
             // id of node
-            container.children += createKText(node, "id", "", ": ") 
+            container.addKText(node, "id", "", ": ") 
 
             // hashCode of node
-            container.children += createKText(node, "hashCode", "", ": ")
+            container.addKText(node, "hashCode", "", ": ")
 
             // following data only if detailedView
             if(detailedView) {

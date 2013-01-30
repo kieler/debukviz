@@ -71,10 +71,10 @@ class LPortTransformation extends AbstractKielerGraphTransformation {
                 it.headerNodeBasics(detailedView, port)
                 
                 // id of port
-                it.children += createKText(port, "id", "", ": ")
+                it.addKText(port, "id", "", ": ")
    
                 // hashCode of port
-                it.children += createKText(port, "hashCode", "", ": ")
+                it.addKText(port, "hashCode", "", ": ")
             
                 // side of port
                 it.children += renderingFactory.createKText => [

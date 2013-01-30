@@ -72,7 +72,7 @@ class PNodeTransformation extends AbstractKielerGraphTransformation {
                                         
                 // PNodes don't have a name or labels
                 // id of node
-                container.children += node.createKText("id", "", ": ")
+                container.addKText(node, "id", "", ": ")
                 
                 // position
                 container.children += renderingFactory.createKText() => [

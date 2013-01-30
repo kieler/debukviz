@@ -94,10 +94,10 @@ class LEdgeTransformation extends AbstractKielerGraphTransformation {
                 it.headerNodeBasics(detailedView, edge)
                 
                 // id of edge
-                it.children += createKText(edge, "id", "", ": ")
+                it.addKText(edge, "id", "", ": ")
 
                 // hashCode of edge
-                it.children += createKText(edge, "hashCode", "", ": ")
+                it.addKText(edge, "hashCode", "", ": ")
    
                 if(detailedView) {
                     // show following elements only if detailedView

@@ -36,6 +36,7 @@ class LGraphTransformation extends AbstractKielerGraphTransformation {
     extension KColorExtensions
     @Inject
     extension KLabelExtensions
+    
     /**
      * {@inheritDoc}
      */
@@ -55,13 +56,8 @@ class LGraphTransformation extends AbstractKielerGraphTransformation {
                 it.addPropertyMapAndEdge(graph.getVariable("propertyMap"), graph)
                 
                 // create the visualization
-          		it.createAllNodes(graph)
+                it.createVisualization(graph)
     
-                // create all edges, first for all layerlessNodes, then iterate through all layers
-          		it.createEdges(graph.getVariable("layerlessNodes"))
-          		graph.getVariable("layers").linkedList.forEach[IVariable layer |
-          			it.createEdges(layer)	
-          		]
             }
         ]
 	}
@@ -72,10 +68,10 @@ class LGraphTransformation extends AbstractKielerGraphTransformation {
     		    it.headerNodeBasics(detailedView, graph)
                 
                 // id of graph
-                it.children += createKText(graph, "id", "", ": ")
+                it.addKText(graph, "id", "", ": ")
                 
                 // hashCode of graph
-                it.children += createKText(graph, "hashCode", "", ": ")
+                it.addKText(graph, "hashCode", "", ": ")
     			
     			if(detailedView) {
                     // hashCodeCounter of graph
@@ -122,7 +118,7 @@ class LGraphTransformation extends AbstractKielerGraphTransformation {
 	}
 
     // create a node (visualization) containing the graphical visualisation of the LGraph
-	def createAllNodes(KNode rootNode, IVariable graph) {
+	def createVisualization(KNode rootNode, IVariable graph) {
 		val visualization = graph.getVariable("layerlessNodes")
 		
         rootNode.addNodeById(visualization) => [
@@ -135,7 +131,16 @@ class LGraphTransformation extends AbstractKielerGraphTransformation {
 	  		for (layer : graph.getVariable("layers").linkedList) {
 	  		    it.createNodes(layer.getVariable("nodes"))
 	  		}
+
+            // create all edges
+            // first for all layerlessNodes ...
+            it.createEdges(graph.getVariable("layerlessNodes"))
+            // ... then iterate through all layers
+            graph.getVariable("layers").linkedList.forEach[IVariable layer |
+                it.createEdges(layer)   
+            ]
   		]
+  		
 	    // create edge from header node to visualization
         graph.createEdgeById(visualization) => [
             it.data += renderingFactory.createKPolyline => [
@@ -179,6 +184,7 @@ class LGraphTransformation extends AbstractKielerGraphTransformation {
         ]
     }
     
+//TODO: defaultwert ist wohl überflüssig... !?!
     def getEdgeType(IVariable edge) {
     	val type = edge.getVariable("propertyMap").getValFromHashMap("EDGE_TYPE")
     	if (type == null) {

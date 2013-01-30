@@ -64,16 +64,6 @@ abstract class AbstractKielerGraphTransformation extends AbstractDebugTransforma
         return Math::round(Double::valueOf(number))
     }
     
-    def KText createKText(IVariable variable, String valueText, String prefix, String delimiter) {
-        val retVal = renderingFactory.createKText
-        try {
-            retVal.setText(prefix + valueText + delimiter + variable.getValue(valueText))
-        } catch (DebugException e) {
-            return null
-        }
-        return retVal
-    }
-    
     /**
      * Constructs a LinkedList<IVariable> from an IVariable that is containing a LinkedList
      * 
@@ -371,6 +361,26 @@ abstract class AbstractKielerGraphTransformation extends AbstractDebugTransforma
             container.lineWidth = 2
         }
     }
-
     
+    
+    def addKText(KContainerRendering container, IVariable variable, String valueText, String prefix, String delimiter) {
+        container.children +=  renderingFactory.createKText => [
+            if (variable.valueIsNotNull) {
+                it.text = prefix + valueText + delimiter + variable.getValue(valueText)
+            } else {
+                it.text = prefix + valueText + delimiter + "null"
+            }
+        ]
+    }
+    
+    def addTypeAndIdKText(KContainerRendering container, IVariable iVar, String variable) {
+        val v = iVar.getVariable(variable)
+        container.children += renderingFactory.createKText => [
+            if (v.valueIsNotNull) {
+                it.text = variable + ": " + v.type + " " + v.debugID
+            } else {
+                it.text = variable + ": null"
+            }
+        ]
+    }
 }

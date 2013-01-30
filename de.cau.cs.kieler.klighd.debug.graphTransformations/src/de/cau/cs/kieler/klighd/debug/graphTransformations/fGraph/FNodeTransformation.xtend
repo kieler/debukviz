@@ -73,10 +73,10 @@ class FNodeTransformation extends AbstractKielerGraphTransformation {
                 it.headerNodeBasics(detailedView, node)
                 
                 // id of node
-                it.children += node.createKText("id", "", ": ")
+                it.addKText(node, "id", "", ": ")
                 
                 // label of node (there is only one)
-                it.children += node.createKText("label", "", ": ")
+                it.addKText(node, "label", "", ": ")
                 
                 if (detailedView) {
                     // parent

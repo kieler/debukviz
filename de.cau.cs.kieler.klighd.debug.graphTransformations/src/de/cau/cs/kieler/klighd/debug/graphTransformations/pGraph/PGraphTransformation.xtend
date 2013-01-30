@@ -38,64 +38,78 @@ class PGraphTransformation extends AbstractKielerGraphTransformation {
      * {@inheritDoc}
      */
     override transform(IVariable graph, Object transformationInfo) {
-        return KimlUtil::createInitializedNode=> [
+        if(transformationInfo instanceof Boolean) detailedView = transformationInfo as Boolean
+        
+        return KimlUtil::createInitializedNode => [
             it.addLayoutParam(LayoutOptions::ALGORITHM, "de.cau.cs.kieler.klay.layered")
             it.addLayoutParam(LayoutOptions::SPACING, 75f)
             
+            // create header node
             it.createHeaderNode(graph)
-            val graphNode = it.createNodes(graph)
 
-            graphNode.createEdges(graph.getVariable("edges",false))
+            // add the propertyMap and visualization, if in detailed mode
+            if (detailedView) {
+                // add propertyMap
+                it.addPropertyMapAndEdge(graph.getVariable("propertyMap"), graph)
+
+                // create the visualization
+                it.createVisualization(graph)
+
+                val graphNode = it.createNodes(graph)
+                graphNode.createEdges(graph.getVariable("edges",false))
                             
-            it.createFaces(graph)
+                // create the faces visualization
+                it.createFaces(graph)
+                
+            }
         ]
     }
     
     def createHeaderNode(KNode rootNode, IVariable graph) {
-        rootNode.children += graph.createNode => [
-//          it.setNodeSize(120,80)
+        rootNode.addNodeById(graph) => [
             it.data += renderingFactory.createKRectangle => [
-                it.lineWidth = 4
-                it.backgroundColor = "lemon".color
-                it.ChildPlacement = renderingFactory.createKGridPlacement
+                it.headerNodeBasics(detailedView, graph)
 
-                // type of graph
-                it.children += renderingFactory.createKText => [
-                    it.setForegroundColor(120,120,120)
-                    it.text = graph.getType
-                ]
+                // id of graph
+                it.addKText(graph, "id", "", ": ")
                 
-                // name of variable
-                it.children += renderingFactory.createKText => [
-                    it.text = "VarName: " + graph.name 
-                ]
+                if(detailedView) {
+                    // various graph variables
+                    it.addKText(graph, "parent", "", ": ")
+                    it.addKText(graph, "changedFaces", "", ": ")
 
-                // various graph variables
-                it.children += createKText(graph, "faceIndex", "", ": ")
-                it.children += createKText(graph, "changedFaces", "", ": ")
-                it.children += createKText(graph, "externalFace", "", ": ")
-                it.children += createKText(graph, "edgeIndex", "", ": ")
-                it.children += createKText(graph, "nodeIndex", "", ": ")
-                it.children += createKText(graph, "parent", "", ": ")
-                
-                // position
-                it.children += renderingFactory.createKText => [
-                    it.text = "pos (x,y): (" + graph.getValue("pos.x").round + " x " 
-                                              + graph.getValue("pos.y").round + ")" 
-                ]
-                
-                // size
-                it.children += renderingFactory.createKText => [
-                    it.text = "size (x,y): (" + graph.getValue("size.x").round + " x " 
-                                              + graph.getValue("size.y").round + ")" 
-                ]
-
-                // graph type
-                it.children += renderingFactory.createKText => [
-                    it.text = "type: " + graph.getValue("type.name")
-                ]
+                    // external face
+                    it.addTypeAndIdKText(graph, "externalFace")
+                    
+                    it.addKText(graph, "faceIndex", "", ": ")
+                    it.addKText(graph, "edgeIndex", "", ": ")
+                    it.addKText(graph, "nodeIndex", "", ": ")
+                    
+                    // position
+                    it.children += renderingFactory.createKText => [
+                        it.text = "pos (x,y): (" + graph.getValue("pos.x").round + " x " 
+                                                  + graph.getValue("pos.y").round + ")" 
+                    ]
+                    
+                    // size
+                    it.children += renderingFactory.createKText => [
+                        it.text = "size (x,y): (" + graph.getValue("size.x").round + " x " 
+                                                  + graph.getValue("size.y").round + ")" 
+                    ]
+    
+                    // graph type
+                    it.children += renderingFactory.createKText => [
+                        it.text = "type: " + graph.getValue("type.name")
+                    ]
+                }
             ]
         ]
+    }
+    
+    
+
+    def createVisualization(KNode rootNode, IVariable graph) {
+        
     }
 
     def createNodes(KNode rootNode, IVariable graph) {
