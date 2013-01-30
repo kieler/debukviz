@@ -109,11 +109,9 @@ class FNodeTransformation extends AbstractKielerGraphTransformation {
             ]
 
 //TODO: childArea verstehen
-/*          val bla = renderingFactory.createKChildArea => [
+/*          it.data += renderingFactory.createKChildArea => [
                 it.setBackgroundColor("cadetBlue1".color)
             ]
-            it.data += bla
-            
             
             it.children += node.getVariable("displacement").createNode => [
                 it.setNodeSize(15,15)
