@@ -121,22 +121,22 @@ class LGraphTransformation extends AbstractKielerGraphTransformation {
 		]
 	}
 
+    // create a node (visualization) containing the graphical visualisation of the LGraph
 	def createAllNodes(KNode rootNode, IVariable graph) {
-	    // create a node (visualization) containing the graphical visualisation of the LGraph
-		// the node has to be registered to a specific object.
-		// we are using the layerlessNodes element here
 		val visualization = graph.getVariable("layerlessNodes")
+		
         rootNode.addNodeById(visualization) => [
             it.data += renderingFactory.createKRectangle => [
                 it.lineWidth = 4
             ]
+            
             // create all nodes (layerless and layered)
 	  		it.createNodes(graph.getVariable("layerlessNodes"))
 	  		for (layer : graph.getVariable("layers").linkedList) {
 	  		    it.createNodes(layer.getVariable("nodes"))
 	  		}
   		]
-	    // create edge from graph to visualization
+	    // create edge from header node to visualization
         graph.createEdgeById(visualization) => [
             it.data += renderingFactory.createKPolyline => [
                 it.setLineWidth(2)

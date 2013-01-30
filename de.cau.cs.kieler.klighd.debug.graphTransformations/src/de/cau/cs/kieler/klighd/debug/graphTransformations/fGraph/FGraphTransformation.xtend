@@ -57,30 +57,21 @@ class FGraphTransformation extends AbstractKielerGraphTransformation {
                 // add mropertyMap
                 it.addPropertyMapAndEdge(graph.getVariable("propertyMap"), graph)
                 
-                // create all nodes
+                // create all nodes (in a new visualization node)
                 val visualizationNode = it.createNodes(graph)
                 
-                // create all edges
+                // create all edges (in the given visualization node) 
                 visualizationNode.createEdges(graph)
             }
         ]
     }
     
     def createHeaderNode(KNode rootNode, IVariable graph) {
-        rootNode.children += graph.createNodeById => [
+        rootNode.addNodeById(graph) => [
             it.data += renderingFactory.createKRectangle => [
-                if (detailedView) it.lineWidth = 4 else it.lineWidth = 2
-                it.ChildPlacement = renderingFactory.createKGridPlacement
+                it.headerNodeBasics(detailedView, graph)
 
                 if (detailedView) {
-                    // Type of graph
-                    it.addShortType(graph)
-                    
-                    // name of variable
-                    it.children += renderingFactory.createKText => [
-                        it.text = "VarName: " + graph.name 
-                    ]
-
                     // noOf labels
                     it.children += renderingFactory.createKText => [
                         it.text = "labels (#): " + graph.getValue("labels.size")
@@ -118,10 +109,7 @@ class FGraphTransformation extends AbstractKielerGraphTransformation {
     def createNodes(KNode rootNode, IVariable graph) {
         val nodes = graph.getVariable("nodes")
 
-        // create outer nodes rectangle
-         val newNode = nodes.createNodeById => [
-            it.addLayoutParam(LayoutOptions::ALGORITHM, "de.cau.cs.kieler.kiml.ogdf.planarization")
-            it.addLayoutParam(LayoutOptions::SPACING, 75f)
+        val newNode = rootNode.addNodeById(nodes) => [
             it.data += renderingFactory.createKRectangle => [
                 it.lineWidth = 4
             ]
@@ -131,7 +119,8 @@ class FGraphTransformation extends AbstractKielerGraphTransformation {
                 it.nextTransformation(node, false)
             ]
         ]
-        // create edge from root node to the nodes node
+
+        // create edge from header node to visualization
         graph.createEdgeById(nodes) => [
             it.data += renderingFactory.createKPolyline => [
                 it.setLineWidth(2)
@@ -140,20 +129,27 @@ class FGraphTransformation extends AbstractKielerGraphTransformation {
             ]
             nodes.createLabel(it) => [
                 it.addLayoutParam(LayoutOptions::EDGE_LABEL_PLACEMENT, EdgeLabelPlacement::CENTER)
-                it.text = "nodes"
-            ]            
+                it.setLabelSize(50,20)
+                it.text = "visualization"
+            ]
         ]
         rootNode.children += newNode
         return newNode
     }
     
+    /**
+     * Creates all edges in a given visualization node. By adding the corresponding value, the adjacency
+     * matrix is also displayed
+     * 
+     * @param rootNode
+     *              the visualization node the edges will be inserted into
+     * @param graph
+     *              the FGraph containing the edges to insert
+     */
     def createEdges(KNode rootNode, IVariable graph) {
         val adjacency = graph.getVariables("adjacency")
         
         graph.getVariable("edges").linkedList.forEach[IVariable edge |
-            // get the bendPoints assigned to the edge
-            val bendPoints = edge.getVariable("bendpoints")
-            val bendCount = Integer::parseInt(bendPoints.getValue("size"))
             
             // IVariables the edge has to connect
             val source = edge.getVariable("source")
@@ -163,22 +159,26 @@ class FGraphTransformation extends AbstractKielerGraphTransformation {
             val sourceID = Integer::parseInt(source.getValue("id"))
             val targetID = Integer::parseInt(target.getValue("id"))
             
+            // get the bendPoints assigned to the edge
+            val bendPoints = edge.getVariable("bendpoints")
+            val bendCount = Integer::parseInt(bendPoints.getValue("size"))
+
             // create bendPoint nodes
             if(bendCount > 0) {
                 if(bendCount > 1) {
                     // more than one bendpoint: create a node containing bendPoints
-                    rootNode.children += bendPoints.createNodeById => [
+                    rootNode.addNodeById(bendPoints)  => [
                         // create container rectangle 
                         it.data += renderingFactory.createKRectangle => [
                             it.lineWidth = 2
                         ]
-                        // create all bendPoint nodes
+                        // create all bendPoint nodes in the new bendPoint node
                         bendPoints.linkedList.forEach[IVariable bendPoint |
                             it.nextTransformation(bendPoint, false)
                         ]
                     ]
                     // create the edge from the new created node to the target node
-                    bendPoints.createEdge(target) => [
+                    bendPoints.createEdgeById(target) => [
                         it.data += renderingFactory.createKPolyline => [
                             it.setLineWidth(2)
                             it.addInheritanceTriangleArrowDecorator
@@ -187,10 +187,12 @@ class FGraphTransformation extends AbstractKielerGraphTransformation {
                     ]
                     // set target for the "default" edge to the new created container node
                     target = bendPoints  
+                    
                 } else {
                     // EXACTLY one bendpoint, create a single bendpoint node
                     val bendPoint = bendPoints.linkedList.get(0)
                     rootNode.nextTransformation(bendPoint, false)
+                    
                     // create the edge from the new created node to the target node
                     bendPoint.createEdgeById(target) => [
                         it.data += renderingFactory.createKPolyline => [
@@ -203,31 +205,31 @@ class FGraphTransformation extends AbstractKielerGraphTransformation {
                     target = bendPoint                        
                 }
             }
-            // create first edge, from source to either new or target node
+            // create first edge, from source to target node
             source.createEdgeById(target) => [
                 it.data += renderingFactory.createKPolyline => [
                     it.setLineWidth(2)
                     it.addArrowDecorator
                     it.setLineStyle(LineStyle::SOLID)
                 ]
-                // add all labels to tail of first edge  
-                edge.getVariable("labels").linkedList.forEach[IVariable label |
-                    label.createLabel(it) => [
-                        it.addLayoutParam(LayoutOptions::EDGE_LABEL_PLACEMENT, EdgeLabelPlacement::TAIL)
-                        it.setLabelSize(50,20)
-                        it.text = label.getValue("text")
-                    ]                    
-                ]
+//                // add all labels to tail of first edge  
+//                edge.getVariable("labels").linkedList.forEach[IVariable label |
+//                    label.createLabel(it) => [
+//                        it.addLayoutParam(LayoutOptions::EDGE_LABEL_PLACEMENT, EdgeLabelPlacement::TAIL)
+//                        it.setLabelSize(50,20)
+//                        it.text = label.getValue("text")
+//                    ]                    
+//                ]
                 
                 // add adjacency label to head of first edge  
-                val bla = adjacency.get(sourceID)
-                val fasel = bla.getValue.getVariables
-                
-                fasel.createLabel(it) => [
-                    it.addLayoutParam(LayoutOptions::EDGE_LABEL_PLACEMENT, EdgeLabelPlacement::HEAD)
-                    it.setLabelSize(50,20)
-                    it.text = ("Adjacency: " + fasel.get(targetID))
-                ]                    
+                if (!adjacency.nullOrEmpty) {
+                    val value = adjacency.get(sourceID).getValue.getVariables
+                    value.createLabel(it) => [
+                        it.addLayoutParam(LayoutOptions::EDGE_LABEL_PLACEMENT, EdgeLabelPlacement::CENTER)
+                        it.setLabelSize(50,20)
+                        it.text = ("Adjacency: " + value.get(targetID).getValue.getValueString)
+                    ]                    
+                }
             ]
         ]
     }

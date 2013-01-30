@@ -21,6 +21,9 @@ import de.cau.cs.kieler.core.krendering.extensions.KLabelExtensions
 import de.cau.cs.kieler.kiml.options.EdgeLabelPlacement
 import de.cau.cs.kieler.kiml.options.Direction
 import de.cau.cs.kieler.kiml.options.LayoutOptions
+import de.cau.cs.kieler.core.krendering.extensions.KNodeExtensions
+import de.cau.cs.kieler.klighd.krendering.PlacementUtil
+import de.cau.cs.kieler.core.krendering.HorizontalAlignment
 
 abstract class AbstractKielerGraphTransformation extends AbstractDebugTransformation {
     @Inject
@@ -135,22 +138,22 @@ abstract class AbstractKielerGraphTransformation extends AbstractDebugTransforma
             case "Property<T>" : 
                 return key.getValue("id") + ": "
             case "LayoutOptionData<T>" : 
-                return key.getValue("name") + " -> "
+                return key.getValue("name") + ": "
             case "KNodeImpl" :
-                return "KNode" + key.getValue.getValueString + ": "
+                return "KNode" + key.getValue.getValueString + " -> "
         }
         // a default statement in the switch results in a missing return statement in generated 
         // java code, so I added the default return value here
         return "<? " + key.getType +" ?> : "
     }
 
-    def flattenStruct(IVariable element, KContainerRendering container, String remainder, String prefix) {
+    def flattenStruct(KContainerRendering container, IVariable element, String remainder, String prefix) {
         switch element.getType {
             case "HashMap<K,V>" : {
                 container.addRemainer(prefix, remainder)
                 // create all child elements
                 element.hashMapToLinkedList.forEach [
-                    it.getVariable("value").flattenStruct(container, it.getVariable("key").keyString, prefix + "- ")
+                    container.flattenStruct(it.getVariable("value"), it.getVariable("key").keyString, prefix + "- ")
                 ]
             }
             case "RegularEnumSet<E>" : {
@@ -162,7 +165,7 @@ abstract class AbstractKielerGraphTransformation extends AbstractDebugTransforma
                 container.addRemainer(prefix, remainder)
                 // create all child elements
                 element.getVariables("nodes").forEach [
-                    it.flattenStruct(container, "", prefix + "- ")
+                    container.flattenStruct(it, "", prefix + "- ")
                 ]
             } 
             case "KNodeImpl" :
@@ -225,12 +228,15 @@ abstract class AbstractKielerGraphTransformation extends AbstractDebugTransforma
 
     def addPropertyMapAndEdge(KNode rootNode, IVariable propertyMap, IVariable headerNode) {
         if(rootNode != null && propertyMap.valueIsNotNull && headerNode.valueIsNotNull) {
+
             // create propertyMap node
             rootNode.addNodeById(propertyMap) => [
                 it.data += renderingFactory.createKRectangle => [
                     it.lineWidth = 4
-                    it.ChildPlacement = renderingFactory.createKGridPlacement 
+                    it.ChildPlacement = renderingFactory.createKGridPlacement
+
 //TODO: warum geht das hier nicht?
+                    it.setHorizontalAlignment( HorizontalAlignment::LEFT) 
                     it.placementData = renderingFactory.createKGridPlacementData => [
                         it.setInsetRight(20)
                         it.setInsetLeft(20)
@@ -245,7 +251,7 @@ abstract class AbstractKielerGraphTransformation extends AbstractDebugTransforma
                     ]
             
                     // add all properties
-                    propertyMap.flattenStruct(it, "", "")
+                    it.flattenStruct(propertyMap, "", "")
                 ]
             ]
                             
@@ -259,8 +265,9 @@ abstract class AbstractKielerGraphTransformation extends AbstractDebugTransforma
                 // add label
                 propertyMap.createLabel(it) => [
                     it.addLayoutParam(LayoutOptions::EDGE_LABEL_PLACEMENT, EdgeLabelPlacement::CENTER)
-                    it.setLabelSize(50,20)
                     it.text = "Property Map"
+                    val dim = PlacementUtil::estimateTextSize(it)
+                    it.setLabelSize(dim.width,dim.height)
                 ]
             ]
         }
@@ -336,6 +343,10 @@ abstract class AbstractKielerGraphTransformation extends AbstractDebugTransforma
             it.setForegroundColor(120,120,120)
             it.text = variable.getType
         ]    
+    }
+    
+    def debugID(IVariable variable) {
+        return variable.getValue.getValueString
     }
     
     def headerNodeBasics(KContainerRendering container, Boolean detailedView, IVariable variable) {

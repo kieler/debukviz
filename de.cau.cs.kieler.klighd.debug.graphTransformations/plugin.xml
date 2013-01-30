@@ -43,6 +43,14 @@
       		class="de.cau.cs.kieler.klay.force.graph.FNode" 
       		transformation="de.cau.cs.kieler.klighd.debug.graphTransformations.fGraph.FNodeTransformation">
       </visualization>
+      <visualization
+            class="de.cau.cs.kieler.klay.force.graph.FEdge"
+            transformation="de.cau.cs.kieler.klighd.debug.graphTransformations.fGraph.FEdgeTransformation">
+      </visualization>
+      <visualization
+            class="de.cau.cs.kieler.klay.force.graph.FLabel"
+            transformation="de.cau.cs.kieler.klighd.debug.graphTransformations.fGraph.FLabelTransformation">
+      </visualization>
    </extension>
 
 </plugin>
