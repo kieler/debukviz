@@ -29,7 +29,9 @@ class ArrayDequeTransformation extends AbstractDebugTransformation {
     
     override transform(IVariable model, Object transformationInfo) {
         return KimlUtil::createInitializedNode() => [
-            it.addLayoutParam(LayoutOptions::ALGORITHM, "de.cau.cs.kieler.klay.layered")
+            //it.addLayoutParam(LayoutOptions::ALGORITHM, "de.cau.cs.kieler.klay.layered")
+            it.addLayoutParam(LayoutOptions::ALGORITHM, "de.cau.cs.kieler.kiml.ogdf.planarization")
+            it.addLayoutParam(LayoutOptions::SPACING, 50f)
             it.addLayoutParam(LayoutOptions::DIRECTION, Direction::RIGHT);
             val head = Integer::parseInt(model.getValue("head"));
             val tail = Integer::parseInt(model.getValue("tail"));
@@ -37,7 +39,7 @@ class ArrayDequeTransformation extends AbstractDebugTransformation {
             var int index = head;
             while (index <= tail) {
                 val variable = elements.get(index)
-                it.nextTransformation(variable)
+                it.children += variable.nextTransformation
                 
                 if (previous != null) {
                     val edge = previous.createEdgeById(variable) => [

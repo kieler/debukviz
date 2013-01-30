@@ -28,7 +28,9 @@ class EnumMapTransformation extends AbstractDebugTransformation {
     
     override transform(IVariable model, Object transformationInfo) {
         return KimlUtil::createInitializedNode() => [
-            it.addLayoutParam(LayoutOptions::ALGORITHM, "de.cau.cs.kieler.klay.layered")
+            //it.addLayoutParam(LayoutOptions::ALGORITHM, "de.cau.cs.kieler.klay.layered")
+            it.addLayoutParam(LayoutOptions::ALGORITHM, "de.cau.cs.kieler.kiml.ogdf.planarization")
+            it.addLayoutParam(LayoutOptions::SPACING, 50f)
             it.addLayoutParam(LayoutOptions::DIRECTION, Direction::RIGHT)
             val keyUniverse = model.getVariables("keyUniverse")
             var index = 0;
@@ -49,7 +51,7 @@ class EnumMapTransformation extends AbstractDebugTransformation {
 		]
 		
 		// Add value node
-		node.nextTransformation(value)
+		node.children += value.nextTransformation
 		
 		// Add edge between key node and value node
 		key.createEdgeById(value) => [

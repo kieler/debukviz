@@ -75,8 +75,8 @@ public abstract class AbstractDebugTransformation extends AbstractTransformation
         maxDepth = 5;
     }
 
-    public KNode nextTransformation(KNode rootNode, IVariable variable) throws DebugException {
-        return nextTransformation(rootNode, variable, null);
+    public KNode nextTransformation(IVariable variable) throws DebugException {
+        return nextTransformation(variable, null);
     }
 
 //    private int countNodes(KNode rootNode) {
@@ -88,18 +88,17 @@ public abstract class AbstractDebugTransformation extends AbstractTransformation
 //        return count;
 //    }
 
-    public KNode nextTransformation(KNode rootNode, IVariable variable, Object transformationInfo)
+    public KNode nextTransformation(IVariable variable, Object transformationInfo)
             throws DebugException {
-        KNode innerNode = null;
         //int maxNodeCount = -1;
-        // Perform transformation if recursion depth less-equal maxDepth
         if (nodeExists(variable)) {
-            addDummyNode(rootNode,variable);
+            return createDummyNode(variable);
         }
         else {
+         // Perform transformation if recursion depth less-equal maxDepth
             if (depth <= maxDepth) {
                 depth++;
-                innerNode = new KlighdDebugTransformation().transform(variable, this.getUsedContext(),
+                KNode innerNode = new KlighdDebugTransformation().transform(variable, this.getUsedContext(),
                         transformationInfo);
                 // Calculate nodeCount
                 //if (nodeCount > maxNodeCount) 
@@ -114,9 +113,12 @@ public abstract class AbstractDebugTransformation extends AbstractTransformation
                 if (kNodeMap.get(getId(variable)) == null)
                     kNodeMap.put(getId(variable), innerNode);                
                 
-                rootNode.getChildren().add(innerNode);
+                KText type = renderingFactory.createKText();
+                type.setText(variable.getReferenceTypeName());
+                
+                return innerNode;
             } else {
-                innerNode = kNodeExtensions.createNode(variable);
+                KNode innerNode = kNodeExtensions.createNode(variable);
                 kNodeExtensions.setNodeSize(innerNode, 80, 80);
                 
                 KRectangle rec = renderingFactory.createKRectangle();
@@ -130,10 +132,10 @@ public abstract class AbstractDebugTransformation extends AbstractTransformation
                 rec.getChildren().add(type);
                 rec.getChildren().add(name);
                 innerNode.getData().add(rec);
-                rootNode.getChildren().add(innerNode);
+                
+                return innerNode;
             }
-        }
-        return innerNode;
+        }   
     }
 
     public String getValue(IVariable variable, String fieldPath) throws DebugException {
@@ -257,7 +259,7 @@ public abstract class AbstractDebugTransformation extends AbstractTransformation
         return node;
     }
     
-    private void addDummyNode(KNode node, IVariable variable) throws DebugException {
+    private KNode createDummyNode(IVariable variable) throws DebugException {
         KNode variableNode = getNode(variable);
         // create dummyNode
         KNode dummyNode = kNodeExtensions.createNode();   
@@ -278,13 +280,13 @@ public abstract class AbstractDebugTransformation extends AbstractTransformation
         
         edge.getData().add(polyline);
 
-        dummyNode.setParent(node);
         dummyNodeMap.put(variable, dummyNode);
+        return dummyNode;
     }
 
     public KNode addNodeById(KNode node, IVariable variable) throws DebugException {       
         if (nodeExists(variable)) {
-            addDummyNode(node, variable);
+            createDummyNode(variable).setParent(node);
             return null;
         } else {
             KNode resultNode = createNodeById(variable);

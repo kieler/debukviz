@@ -31,7 +31,9 @@ class LinkedHashMapTransformation extends AbstractDebugTransformation {
     
     override transform(IVariable model, Object transformationInfo) {
         return KimlUtil::createInitializedNode() => [
-            it.addLayoutParam(LayoutOptions::ALGORITHM, "de.cau.cs.kieler.klay.layered")
+            //it.addLayoutParam(LayoutOptions::ALGORITHM, "de.cau.cs.kieler.klay.layered")
+            it.addLayoutParam(LayoutOptions::ALGORITHM, "de.cau.cs.kieler.kiml.ogdf.planarization")
+            it.addLayoutParam(LayoutOptions::SPACING, 50f)
             it.addLayoutParam(LayoutOptions::DIRECTION, Direction::RIGHT)
             size = Integer::parseInt(model.getValue("size"))
             it.createKeyValueNode(model.getVariable("header.after"))
@@ -45,9 +47,9 @@ class LinkedHashMapTransformation extends AbstractDebugTransformation {
         
         index = index + 1
         
-        node.nextTransformation(key)
+        node.children += key.nextTransformation
         
-        node.nextTransformation(value)
+        node.children += value.nextTransformation
     
         key.createEdgeById(value) => [
             value.createLabel(it) => [

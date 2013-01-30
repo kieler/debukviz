@@ -18,11 +18,11 @@ import org.eclipse.jdt.debug.core.IJavaArray
 import org.eclipse.jdt.debug.core.IJavaObject
 import org.eclipse.jdt.debug.core.IJavaPrimitiveValue
 import org.eclipse.jdt.debug.core.IJavaValue
-
-import static de.cau.cs.kieler.klighd.debug.visualization.AbstractDebugTransformation.*
 import org.eclipse.jdt.debug.core.IJavaModifiers
 
-class DefaultTransformation2 extends AbstractDebugTransformation {
+import static de.cau.cs.kieler.klighd.debug.visualization.AbstractDebugTransformation.*
+
+class DefaultTransformation extends AbstractDebugTransformation {
        
     @Inject 
     extension KPolylineExtensions   
@@ -43,7 +43,7 @@ class DefaultTransformation2 extends AbstractDebugTransformation {
             if (model.isArray)
                 it.createArrayNode(model)
             // primitive datatypes or null or null object
-            else if (model.isPrimitiveOrNull || model.isNullObject)
+            else if (model.isPrimitiveOrNull || model.isNullObject || model.type.equals("String"))
                	it.createValueNode(model)
             // objecttypes
             else if (model.isObject) {
@@ -132,52 +132,54 @@ class DefaultTransformation2 extends AbstractDebugTransformation {
     }
     
     def createObjectNode(KNode rootNode, IVariable choice) {
-            val thisNode = rootNode.addNodeById(choice)
-            if (thisNode != null) {
-                val primitiveList = new LinkedList<KText>()
-                choice.value.variables.filter[it.filterVariable].forEach[IVariable variable |
-                    if (variable.isPrimitiveOrNull)
-                        primitiveList += renderingFactory.createKText() => [
-                            var text = ""
-                            if (!variable.type.equals("null"))
-                                text = text + variable.type + " "
-                            text = text + variable.name + ": " + variable.value.valueString 
-                            it.text = text  
-                        ]
-                    else {
-                        rootNode.children += variable.nextTransformation
-                        choice.createEdgeById(variable) => [
-                            variable.createLabel(it) => [
-                                 val String name = variable.name
-                                 it.addLayoutParam(LayoutOptions::EDGE_LABEL_PLACEMENT, EdgeLabelPlacement::CENTER)
-                                 it.setLabelSize(name.length*10,50)
-                                 it.text = name
-                             ]
-                             it.data += renderingFactory.createKPolyline() => [
-                                 it.setLineWidth(2)
-                                 it.addArrowDecorator()
-                             ]
-                        ]
-                    }
-                ]
-                thisNode => [
-                    it.data += renderingFactory.createKRectangle() => [
-                        it.childPlacement = renderingFactory.createKGridPlacement()
-                        it.children += renderingFactory.createKText() => [
-                            it.text = choice.name
-                        ]
-                        it.children += renderingFactory.createKText() => [
-                            it.text = "Variables without id"
-                        ]
+        val thisNode = rootNode.addNodeById(choice)
+        if (thisNode != null) {
+            val primitiveList = new LinkedList<KText>()
+            choice.value.variables.filter[it.filterVariable].forEach[IVariable variable |
+                if (variable.isPrimitiveOrNull)
+                    primitiveList += renderingFactory.createKText() => [
+                        var text = ""
+                        if (!variable.type.equals("null"))
+                            text = text + variable.type + " "
+                        text = text + variable.name + ": " + variable.value.valueString 
+                        it.text = text  
+                    ]
+                else {
+                    rootNode.createObjectNode(variable)
+                    choice.createEdgeById(variable) => [
+                        variable.createLabel(it) => [
+                             val String name = variable.name
+                             it.addLayoutParam(LayoutOptions::EDGE_LABEL_PLACEMENT, EdgeLabelPlacement::CENTER)
+                             it.setLabelSize(name.length*20,50)
+                             it.text = name
+                         ]
+                         it.data += renderingFactory.createKPolyline() => [
+                             it.setLineWidth(2)
+                             it.addArrowDecorator()
+                         ]
+                    ]
+                }
+            ]
+            thisNode => [
+                it.data += renderingFactory.createKRectangle() => [
+                    it.childPlacement = renderingFactory.createKGridPlacement()
+                    it.children += renderingFactory.createKText() => [
+                        it.text = "<<"+choice.type+">>"
+                        it.setForegroundColor(120,120,120)
+                    ]
+                    it.children += renderingFactory.createKText() => [
+                        it.text = choice.name
+                    ]
+                    if (!primitiveList.empty) {
                         it.children += renderingFactory.createKText() => [
                             it.text = "--------------------"
                         ]
                         primitiveList.forEach[KText text |
                             it.children += text
-                        ]
-                    ]
+                        ]                      
+                    }
                 ]
-            }
-        
-        } 
+            ]
+        }
+    } 
 }
