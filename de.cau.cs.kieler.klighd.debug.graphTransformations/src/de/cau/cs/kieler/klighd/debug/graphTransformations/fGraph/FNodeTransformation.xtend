@@ -70,6 +70,10 @@ class FNodeTransformation extends AbstractKielerGraphTransformation {
         rootNode.addNodeById(node) => [
             
             it.data += renderingFactory.createKRectangle => [
+            	it.childPlacement = renderingFactory.createKGridPlacement => [
+            		it.numColumns = 1;
+            	];
+            	
                 it.headerNodeBasics(detailedView, node)
                 
                 // id of node
@@ -78,6 +82,7 @@ class FNodeTransformation extends AbstractKielerGraphTransformation {
                 // label of node (there is only one)
                 it.addKText(node, "label", "", ": ")
                 
+            	
                 if (detailedView) {
                     // parent
                     val parent = node.getVariable("parent")
@@ -106,12 +111,32 @@ class FNodeTransformation extends AbstractKielerGraphTransformation {
                                                   + node.getValue("size.y").round + ")" 
                     ]
                 }
+                
+                it.children += renderingFactory.createKRectangle => [
+                	it.lineStyle = LineStyle::DASHDOT;
+                	
+                	it.placementData = renderingFactory.createKGridPlacementData => [
+                		it.widthHint = 100;
+                		it.heightHint = 100;                		
+                	];
+                	
+	                it.children += renderingFactory.createKRectangle => [
+	                	it.backgroundColor = "red".color;	                	
+		                it.children += renderingFactory.createKRectangle => [
+                			it.children += renderingFactory.createKChildArea => [
+                			];
+                				it.placementData = renderingFactory.createKDirectPlacementData => [
+                					it.topLeft = createKPosition(LEFT, 0, 0, TOP, 15, 0)
+                					it.bottomRight = createKPosition(RIGHT, 0, 0, BOTTOM, 20, 0);
+                				
+                				];
+                		];
+                	];
+            	];
             ]
 
 //TODO: childArea verstehen
-/*          it.data += renderingFactory.createKChildArea => [
-                it.setBackgroundColor("cadetBlue1".color)
-            ]
+          	
             
             it.children += node.getVariable("displacement").createNode => [
                 it.setNodeSize(15,15)
@@ -119,7 +144,91 @@ class FNodeTransformation extends AbstractKielerGraphTransformation {
                     it.lineWidth = 4
                 ]
             ]
-*/        ]
+            it.children += createNode => [
+                it.setNodeSize(15,15)
+                it.data += renderingFactory.createKRectangle => [
+                    it.lineWidth = 4
+                ]
+            ]
+            it.children += createNode => [
+                it.setNodeSize(15,15)
+                it.data += renderingFactory.createKRectangle => [
+                    it.lineWidth = 4
+                ]
+            ]
+            it.children += createNode => [
+                it.setNodeSize(15,15)
+                it.data += renderingFactory.createKRectangle => [
+                    it.lineWidth = 4
+                ]
+            ]
+            it.children += createNode => [
+                it.setNodeSize(15,15)
+                it.data += renderingFactory.createKRectangle => [
+                    it.lineWidth = 4
+                ]
+            ]
+            it.children += createNode => [
+                it.setNodeSize(15,15)
+                it.data += renderingFactory.createKRectangle => [
+                    it.lineWidth = 4
+                ]
+            ]
+            it.children += createNode => [
+                it.setNodeSize(15,15)
+                it.data += renderingFactory.createKRectangle => [
+                    it.lineWidth = 4
+                ]
+            ]
+            it.children += createNode => [
+                it.setNodeSize(15,15)
+                it.data += renderingFactory.createKRectangle => [
+                    it.lineWidth = 4
+                ]
+            ]
+            it.children += createNode => [
+                it.setNodeSize(15,15)
+                it.data += renderingFactory.createKRectangle => [
+                    it.lineWidth = 4
+                ]
+            ]
+            it.children += createNode => [
+                it.setNodeSize(15,15)
+                it.data += renderingFactory.createKRectangle => [
+                    it.lineWidth = 4
+                ]
+            ]
+            it.children += createNode => [
+                it.setNodeSize(15,15)
+                it.data += renderingFactory.createKRectangle => [
+                    it.lineWidth = 4
+                ]
+            ]
+            it.children += createNode => [
+                it.setNodeSize(15,15)
+                it.data += renderingFactory.createKRectangle => [
+                    it.lineWidth = 4
+                ]
+            ]
+            it.children += createNode => [
+                it.setNodeSize(15,15)
+                it.data += renderingFactory.createKRectangle => [
+                    it.lineWidth = 4
+                ]
+            ]
+            it.children += createNode => [
+                it.setNodeSize(15,15)
+                it.data += renderingFactory.createKRectangle => [
+                    it.lineWidth = 4
+                ]
+            ]
+            it.children += createNode => [
+                it.setNodeSize(15,15)
+                it.data += renderingFactory.createKRectangle => [
+                    it.lineWidth = 4
+                ]
+            ]
+        ]
     }
 }
 

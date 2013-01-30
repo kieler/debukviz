@@ -223,10 +223,11 @@ abstract class AbstractKielerGraphTransformation extends AbstractDebugTransforma
             rootNode.addNodeById(propertyMap) => [
                 it.data += renderingFactory.createKRectangle => [
                     it.lineWidth = 4
-                    it.ChildPlacement = renderingFactory.createKGridPlacement
+                    it.ChildPlacement = renderingFactory.createKGridPlacement => [
+                    	it.numColumns = 2;
+                    ];
 
 //TODO: warum geht das hier nicht?
-                    it.setHorizontalAlignment( HorizontalAlignment::LEFT) 
                     it.placementData = renderingFactory.createKGridPlacementData => [
                         it.setInsetRight(20)
                         it.setInsetLeft(20)
@@ -236,6 +237,7 @@ abstract class AbstractKielerGraphTransformation extends AbstractDebugTransforma
                     
                     // add type of the propertyMap
                     it.children += renderingFactory.createKText => [
+	                    it.setHorizontalAlignment( HorizontalAlignment::LEFT) 
                         it.setForegroundColor(120,120,120)
                         it.text = propertyMap.getType
                     ]
@@ -364,7 +366,8 @@ abstract class AbstractKielerGraphTransformation extends AbstractDebugTransforma
     
     
     def addKText(KContainerRendering container, IVariable variable, String valueText, String prefix, String delimiter) {
-        container.children +=  renderingFactory.createKText => [
+        return renderingFactory.createKText => [
+        	container.children += it;
             if (variable.valueIsNotNull) {
                 it.text = prefix + valueText + delimiter + variable.getValue(valueText)
             } else {
