@@ -49,13 +49,16 @@ class FGraphTransformation extends AbstractKielerGraphTransformation {
             it.addLayoutParam(LayoutOptions::ALGORITHM, "de.cau.cs.kieler.kiml.ogdf.planarization")
             it.addLayoutParam(LayoutOptions::SPACING, 75f)
             
+println("start")
             // create header node
             it.createHeaderNode(graph)
+println("header done")
             
             // add the propertyMap and visualization if in detailed mode
             if (detailedView) {
-                // add mropertyMap
-                it.addPropertyMapAndEdge(graph.getVariable("propertyMap"), graph)
+                // add propertyMap
+//                it.addPropertyMapAndEdge(graph.getVariable("propertyMap"), graph)
+println("property done")
                 
                 // create all nodes (in a new visualization node)
                 val visualizationNode = it.createNodes(graph)
@@ -68,25 +71,27 @@ class FGraphTransformation extends AbstractKielerGraphTransformation {
     
     def createHeaderNode(KNode rootNode, IVariable graph) {
         rootNode.addNodeById(graph) => [
+println("node added")
             it.data += renderingFactory.createKRectangle => [
+println("rectangled done")                
                 it.headerNodeBasics(detailedView, graph)
-
+println("basics done")
                 if (detailedView) {
                     // noOf labels
                     it.children += renderingFactory.createKText => [
                         it.text = "labels (#): " + graph.getValue("labels.size")
                     ]
-                    
+println("labels done")                    
                     // noOf bendPpoints
                     it.children += renderingFactory.createKText => [
                         it.text = "bendPoints (#): " + graph.getValue("bendPoints.size")
                     ]
-    
+println("bend done")    
                     // noOf edges
                     it.children += renderingFactory.createKText => [
                         it.text = "edges (#): " + graph.getValue("edges.size")
                     ]
-                    
+println("noof done")                    
                     // size of adjacency matrix
                     it.children += renderingFactory.createKText => [
                         val x = graph.getVariables("adjacency")
@@ -96,6 +101,7 @@ class FGraphTransformation extends AbstractKielerGraphTransformation {
                         }
                         it.text = "adjacency matrix: " + x.size + " x " + y
                     ]
+println("adjy done")                    
                 } else {
                     // noOf nodes
                     it.children += renderingFactory.createKText => [
