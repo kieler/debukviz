@@ -12,7 +12,6 @@ import de.cau.cs.kieler.core.krendering.extensions.KEdgeExtensions
 import de.cau.cs.kieler.core.krendering.extensions.KPolylineExtensions
 import de.cau.cs.kieler.core.krendering.extensions.KColorExtensions
 import de.cau.cs.kieler.kiml.util.KimlUtil
-import java.math.*
 import de.cau.cs.kieler.core.krendering.KText
 import de.cau.cs.kieler.klighd.debug.visualization.AbstractDebugTransformation
 import de.cau.cs.kieler.core.kgraph.KLabel
@@ -243,7 +242,6 @@ abstract class AbstractKielerGraphTransformation extends AbstractDebugTransforma
  */
 // Version 2
                      val totalColumns = 1 + propertyMap.calcPropertyMapWidth(0)
-println("map size: " + totalColumns)
                    it.ChildPlacement = renderingFactory.createKGridPlacement => [
                         it.numColumns = totalColumns
                    ]
@@ -366,7 +364,7 @@ println("map size: " + totalColumns)
             case "HashMap<K,V>" : {
                 var maxSize = size
                 for (e : element.hashMapToLinkedList) {
-                    maxSize = maxSize.max(calcPropertyMapWidth(e.getVariable("value"), size))
+                    maxSize = Math::max(maxSize, calcPropertyMapWidth(e.getVariable("value"), size))
                 } 
                 return maxSize + 2
             }
@@ -375,10 +373,6 @@ println("map size: " + totalColumns)
         }
         // default value
         return size
-    }
-    
-    def max(int i, int j) {
-        if(i>j) i else j
     }
 
     def addEnumSet(KContainerRendering container, IVariable set, int totalCols, int blankCols) {
@@ -515,6 +509,12 @@ println("map size: " + totalColumns)
             container.children += it
             it.text = text
         ]        
+    }
+    
+    def addKText(KContainerRendering container, KTextIterableField kTextField) {
+        kTextField.forEach [
+            container.children += it
+        ]
     }
     
     def addKText(KContainerRendering container, IVariable variable, String valueText, String prefix, String delimiter) {
