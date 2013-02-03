@@ -1,34 +1,29 @@
 package de.cau.cs.kieler.klighd.debug.graphTransformations
 
 import de.cau.cs.kieler.core.kgraph.KNode
-import org.eclipse.debug.core.model.IVariable
-import javax.inject.Inject
-import de.cau.cs.kieler.core.krendering.extensions.KRenderingExtensions
 import de.cau.cs.kieler.core.krendering.KContainerRendering
+import de.cau.cs.kieler.kiml.options.EdgeLabelPlacement
+import de.cau.cs.kieler.kiml.options.LayoutOptions
+import de.cau.cs.kieler.klighd.debug.visualization.AbstractDebugTransformation
+import de.cau.cs.kieler.klighd.krendering.PlacementUtil
 import java.util.LinkedList
+import javax.inject.Inject
 import org.eclipse.debug.core.DebugException
+import org.eclipse.debug.core.model.IVariable
+
+import static de.cau.cs.kieler.klighd.debug.visualization.AbstractDebugTransformation.*
 import de.cau.cs.kieler.core.krendering.extensions.KNodeExtensions
 import de.cau.cs.kieler.core.krendering.extensions.KEdgeExtensions
 import de.cau.cs.kieler.core.krendering.extensions.KPolylineExtensions
+import de.cau.cs.kieler.core.krendering.extensions.KRenderingExtensions
 import de.cau.cs.kieler.core.krendering.extensions.KColorExtensions
-import de.cau.cs.kieler.kiml.util.KimlUtil
-import de.cau.cs.kieler.core.krendering.KText
-import de.cau.cs.kieler.klighd.debug.visualization.AbstractDebugTransformation
-import de.cau.cs.kieler.core.kgraph.KLabel
-import de.cau.cs.kieler.core.kgraph.KLabeledGraphElement
 import de.cau.cs.kieler.core.krendering.extensions.KLabelExtensions
-import de.cau.cs.kieler.kiml.options.EdgeLabelPlacement
-import de.cau.cs.kieler.kiml.options.Direction
-import de.cau.cs.kieler.kiml.options.LayoutOptions
-import de.cau.cs.kieler.core.krendering.extensions.KNodeExtensions
-import de.cau.cs.kieler.klighd.krendering.PlacementUtil
-import de.cau.cs.kieler.core.krendering.HorizontalAlignment
 
 abstract class AbstractKielerGraphTransformation extends AbstractDebugTransformation {
-    @Inject
-    extension KNodeExtensions
-    @Inject
-    extension KEdgeExtensions
+//    @Inject
+//    extension KNodeExtensions
+//    @Inject
+//    extension KEdgeExtensions
     @Inject 
     extension KPolylineExtensions 
     @Inject
@@ -136,88 +131,6 @@ abstract class AbstractKielerGraphTransformation extends AbstractDebugTransforma
         return "<? " + key.getType +" ?> : "
     }
 
-    def flattenStruct(KContainerRendering container, IVariable element, String remainder, String prefix) {
-        switch element.getType {
-            case "HashMap<K,V>" : {
-                container.addRemainer(prefix, remainder)
-                container.addKTextBlank(1)
-                // create all child elements
-                element.hashMapToLinkedList.forEach [
-                    container.flattenStruct(it.getVariable("value"), it.getVariable("key").keyString, prefix + "- ")
-                ]
-            }
-            case "RegularEnumSet<E>" : {
-                container.addRemainer(prefix, remainder)
-                // create the enumSet elements
-                container.enumSetToKText(element, prefix + "- ")
-            } 
-            case "NodeGroup" : {
-                container.addRemainer(prefix, remainder)
-                // create all child elements
-                element.getVariables("nodes").forEach [
-                    container.flattenStruct(it, "", prefix + "- ")
-                ]
-            } 
-            case "KNodeImpl" :
-                container.children += renderingFactory.createKText =>[
-                    it.text = prefix + remainder + "KNodeImpl " + element.getValue.getValueString
-                ]
-            case "KLabelImpl" :
-                container.children += renderingFactory.createKText =>[
-                    it.text = prefix + remainder + "KLabelImpl " + element.getValue.getValueString
-                ]
-            case "KEdgeImpl" :
-                container.children += renderingFactory.createKText =>[
-                    it.text = prefix + remainder + "KEdgeImpl " + element.getValue.getValueString
-                ]
-            case "LNode" : 
-                container.children += renderingFactory.createKText =>[
-                    it.text = prefix + remainder + "LNodeImpl " + element.getValue("id") + element.getValue.getValueString
-                ]
-            case "Random" :
-                container.children += renderingFactory.createKText => [
-                    it.text = prefix + remainder + "seed " + element.getValue("seed.value") 
-                ]
-            case "String" :
-                container.children += renderingFactory.createKText => [
-                    it.text = prefix + remainder + element.getValue.getValueString 
-                ]
-            case "Direction" :
-                container.children += renderingFactory.createKText =>[
-                    it.text = prefix + remainder + element.getValue("name")
-                ]
-            case "Boolean" :
-                container.children += renderingFactory.createKText => [
-                    it.text = prefix + remainder + element.getValue("value")
-                ]
-            case "Float" :
-                container.children += renderingFactory.createKText => [
-                    it.text = prefix + remainder + element.getValue("value")
-                ]
-            case "PortConstraints" : 
-                container.children += renderingFactory.createKText => [
-                    it.text = prefix + remainder + element.getValue("name")
-                ]
-            case "EdgeLabelPlacement" :
-                container.children += renderingFactory.createKText => [
-                    it.text = prefix + remainder + element.getValue("name")
-                ]
-            default : 
-                container.children += renderingFactory.createKText =>[
-                    it.text = prefix + remainder + "<? " + element.getType + element.getValue.getValueString + "?>"
-                ]
-        }
-    }
-    
-    def addRemainer(KContainerRendering container, String prefix, String remainder) {
-        if(remainder.length > 0)
-            renderingFactory.createKText =>[
-                container.children += it
-                it.text = prefix + remainder
-//                it.setHorizontalAlignment( HorizontalAlignment::LEFT) 
-            ]
-    }
-
     def addPropertyMapAndEdge(KNode rootNode, IVariable propertyMap, IVariable headerNode) {
         if(rootNode != null && propertyMap.valueIsNotNull && headerNode.valueIsNotNull) {
 
@@ -225,30 +138,17 @@ abstract class AbstractKielerGraphTransformation extends AbstractDebugTransforma
             rootNode.addNodeById(propertyMap) => [
                 it.data += renderingFactory.createKRectangle => [
                     it.lineWidth = 4
-/*
-// Version 1 (is working)
-                    // add type of the propertyMap
-                    it.children += renderingFactory.createKText => [
-//                      it.setHorizontalAlignment( HorizontalAlignment::LEFT) 
+
+                    val kTextField = new KTextIterableField();
+                    val kText = renderingFactory.createKText => [
                         it.setForegroundColor(120,120,120)
                         it.text = propertyMap.getType
                     ]
+                    kTextField.setHeader(kText)
                     
-                    // create empty field
-                    it.addKTextBlank(1)
-            
-                    // add all properties
-                    it.flattenStruct(propertyMap, "", "")
- */
-// Version 2
-                     val totalColumns = 1 + propertyMap.calcPropertyMapWidth(0)
-                   it.ChildPlacement = renderingFactory.createKGridPlacement => [
-                        it.numColumns = totalColumns
-                   ]
-                   it.addPropertyTable(propertyMap, totalColumns, 0, false)
+                    kTextField.addAll(propertyMap, 0, 0)
                 ]
-            ]
-                            
+            ]                            
             //create edge from header to propertyMap node
             headerNode.createEdgeById(propertyMap) => [
                 it.data += renderingFactory.createKPolyline => [
@@ -266,142 +166,126 @@ abstract class AbstractKielerGraphTransformation extends AbstractDebugTransforma
             ]
         }
     }
-
-
     
-    def void addPropertyTable(KContainerRendering container, IVariable element, int totalCols, int blankCols, Boolean doBlanks) {
-        if (doBlanks) container.addKTextBlank(blankCols)
-            
+    def addAll(KTextIterableField field, IVariable element, int oldRow, int column) {
+        var int row = oldRow
         switch element.getType {
             case "HashMap<K,V>" : {
                 // add the header element
-                container.addKText(element.name + ": ")
+                field.set(element.name + ": ", row, column, KTextIterableField$TextAlignment::RIGHT_TEXT)
+                
                 // create all child elements
                 if(element.valueIsNotNull) {
                     val childs = element.hashMapToLinkedList
                     
                     if (childs.size == 0) {
-                        container.addKText("(empty)")
-                        container.addKTextBlank(totalCols - blankCols - 2)
+                        field.set("(empty)", row, column + 1)
+                        row = row + 1
                     } else {
-                        
-                        // add first element
-                        container.addMapKey(childs.head.getVariable("key"))
-                        container.addPropertyTable(childs.head.getVariable("value"), totalCols, blankCols+2, false)
-                        // add following elements
-                       childs.tail.forEach [
-                            container.addKTextBlank(blankCols + 1)
-                            container.addMapKey(it.getVariable("key"))
-                            container.addPropertyTable(it.getVariable("value"), totalCols, blankCols+2, false)
-                        ]
+                        for (child : childs) {
+                            field.set(child.getVariable("key").keyString, row, column + 1)
+                            row = row + field.addAll(child.getVariable("value"), row, column + 2)
+                        }
                     }
                 } else {
-                    container.addKText("(null)")
-                    container.addKTextBlank(totalCols - blankCols - 2)
+                    field.set("(null)", row, column + 1)
+                    row = row + 1
                 }
             }
+            
             case "RegularEnumSet<E>" : {
                 // create the enumSet elements
-                container.addEnumSet(element, totalCols, blankCols)
+                row = row + field.addEnumSet(element, row, column)
             } 
+            
             case "NodeGroup" : {
                 // create all child elements
                 val childs = element.getVariables("nodes")
                 if(childs.nullOrEmpty) {
-                    container.addKText("(empty)")
-                    container.addKTextBlank(totalCols - blankCols - 1)
+                    field.set("(empty)", row, column + 1)
+                    row = row + 1
                 } else {
-                    // first element
-                    container.addPropertyTable(childs.head, totalCols, blankCols + 1, false)
-                    // all following elements
-                    childs.tail.forEach [
-                        container.addPropertyTable(it, totalCols, blankCols + 1, true)
-                    ]
+                    // add all elements
+                    for (child : childs) {
+                        row = field.addAll(child, row, column) + row
+                    }
                 }
             } 
-            case "KNodeImpl" :
-                container.addKText("KNodeImpl " + element.getValue.getValueString)
-            case "KLabelImpl" :
-                container.addKText("KLabelImpl " + element.getValue.getValueString)
-            case "KEdgeImpl" :
-                container.addKText("KEdgeImpl " + element.getValue.getValueString)
-            case "LNode" : 
-                container.addKText("LNodeImpl " + element.getValue("id") + element.getValue.getValueString)
-            case "Random" :
-                container.addKText("seed " + element.getValue("seed.value"))
-            case "String" :
-                container.addKText(element.getValue.getValueString)
-            case "Direction" :
-                container.addKText(element.getValue("name"))
-            case "Boolean" :
-                container.addKText(element.getValue("value"))
-            case "Float" :
-                container.addKText(element.getValue("value"))
-            case "PortConstraints" : 
-                container.addKText(element.getValue("name"))
-            case "EdgeLabelPlacement" :
-                container.addKText(element.getValue("name"))
-            default : 
-                container.addKText("<? " + element.getType + element.getValue.getValueString + "?>")
-        }
-    }
-
-    def addMapKey(KContainerRendering container, IVariable key) {
-        switch key.getType {
-            case "Property<T>" : 
-                container.addKText(key.getValue("id") + ": ")
-            case "LayoutOptionData<T>" : 
-                container.addKText(key.getValue("name") + ": ")
-            case "KNodeImpl" :
-                container.addKText("KNode" + key.getValue.getValueString)
-            default : 
-                container.addKText("<? " + key.getType +" ?> : ")
-        }
-    }
-    
-    def calcPropertyMapWidth (IVariable element, int size) {
-        switch element.getType {
-            case "HashMap<K,V>" : {
-                var maxSize = size
-                for (e : element.hashMapToLinkedList) {
-                    maxSize = Math::max(maxSize, calcPropertyMapWidth(e.getVariable("value"), size))
-                } 
-                return maxSize + 2
+            case "KNodeImpl" : {
+                field.set("KNodeImpl " + element.getValue.getValueString, row, column)
+                row = row + 1
             }
-//            case "RegularEnumSet<E>" : return size + 1
-//            case "NodeGroup" : return size + 1
+            case "KLabelImpl" : {
+                field.set("KLabelImpl " + element.getValue.getValueString, row, column)
+                row = row + 1
+            }
+            case "KEdgeImpl" : {
+                field.set("KEdgeImpl " + element.getValue.getValueString, row, column)
+                row = row + 1
+            }
+            case "LNode" : {
+                field.set("LNodeImpl " + element.getValue("id") + element.getValue.getValueString, row, column)
+                row = row + 1
+            }
+            case "Random" : {
+                field.set("seed " + element.getValue("seed.value"), row, column)
+                row = row + 1
+            }
+            case "String" : {
+                field.set(element.getValue.getValueString, row, column)
+                row = row + 1
+            }
+            case "Direction" : {
+                field.set(element.getValue("name"), row, column)
+                row = row + 1
+            }
+            case "Boolean" : {
+                field.set(element.getValue("value"), row, column)
+                row = row + 1
+            }
+            case "Float" : {
+                field.set(element.getValue("value"), row, column)
+                row = row + 1
+            }
+            case "PortConstraints" : {
+                field.set(element.getValue("name"), row, column)
+                row = row + 1
+            }
+            case "EdgeLabelPlacement" : {
+                field.set(element.getValue("name"), row, column)
+                row = row + 1
+            }
+            default : {
+                field.set("<? " + element.getType + element.getValue.getValueString + "?>", row, column)
+                row = row + 1
+            }
         }
-        // default value
-        return size
+        return row
     }
 
-    def addEnumSet(KContainerRendering container, IVariable set, int totalCols, int blankCols) {
+    def addEnumSet(KTextIterableField container, IVariable set, int oldRow, int column) {
+        var row = oldRow
         // the mask representing the elements that are set
         val elemMask = Integer::parseInt(set.getValue("elements"))
         if (elemMask == 0) {
             // no elements are set at all
-            container.addKText("(none)")
+            container.set("(none)", row, column)
         } else {
             // the elements available
             val elements = set.getVariables("universe")
             var i = 0
-            var first = true
             // go through all elements and check if corresponding bit is set in elemMask
             while(i < elements.size) {
                 var mask = Integer::parseInt(elements.get(i).getValue("ordinal")).pow2
                 if(elemMask.bitwiseAnd(mask) > 0) {
                     // bit is set 
-                    if (first) {
-                        first = false
-                    } else {
-                        container.addKTextBlank(blankCols)
-                    }
-                    container.addKText(elements.get(i).getValue("name"))
+                    container.set(elements.get(i).getValue("name"), row, column)
                 }
                 i = i + 1
+                row = row + 1
             }
         }
-        container.addKTextBlank(totalCols - blankCols - 1)
+        return row
     }
     
     /**
@@ -538,16 +422,5 @@ abstract class AbstractKielerGraphTransformation extends AbstractDebugTransforma
             }
             container.children += it
         ]
-    }
-
-    def addKTextBlank(KContainerRendering container, int i) {
-        // if second value is smaller than first: xtend sets the step to -1 !
-        if (i > 0) {
-            for (int j: 1..i) {
-                container.children += renderingFactory.createKText => [
-                    it.text = ""
-                ]
-            }  
-        }
     }
 }
