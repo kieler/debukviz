@@ -139,6 +139,7 @@ class FNodeTransformation extends AbstractKielerGraphTransformation {
 
                 val myKText = new KTextIterableField( topMargin, rightMargin, bottomMargin, leftMargin, 3, 3)
         
+                myKText.setHeader("Überschrift")
                 myKText.set("My first Text", 0, 0)
                 myKText.set("my last Text", 5, 5)
                 myKText.set("1.111", 1, 1, LEFT_ALIGN)
@@ -148,6 +149,13 @@ class FNodeTransformation extends AbstractKielerGraphTransformation {
                 myKText.set("4.4", 4, 4)
                 
                 it.addKText(myKText)
+
+                it.children += renderingFactory.createKChildArea => [
+                    it.placementData = renderingFactory.createKDirectPlacementData => [
+                        it.topLeft = createKPosition(LEFT, myKText.width, 0, TOP, 0, 0)
+                        it.bottomRight = createKPosition(RIGHT, rightMargin, 0, BOTTOM, bottomMargin, 0)
+                    ]
+                ]            
             ]
                             
             val  einz = node.getVariable("displacement")
@@ -195,27 +203,6 @@ class FNodeTransformation extends AbstractKielerGraphTransformation {
                     it.addArrowDecorator
                 ]
             ]
- 
-            it.children += createNode => [
-                it.setNodeSize(15,15)
-                it.data += renderingFactory.createKRectangle => [
-                    it.lineWidth = 0
-                ]
-            ] 
-
-            it.children += createNode => [
-                it.setNodeSize(15,15)
-                it.data += renderingFactory.createKRectangle => [
-                    it.lineWidth = 0
-                ]
-            ] 
-
-            it.children += createNode => [
-                it.setNodeSize(15,15)
-                it.data += renderingFactory.createKRectangle => [
-                    it.lineWidth = 0
-                ]
-            ]                                     
         ]
     } 
 }

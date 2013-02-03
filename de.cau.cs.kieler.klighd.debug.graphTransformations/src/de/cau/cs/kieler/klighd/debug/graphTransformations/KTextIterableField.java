@@ -29,6 +29,7 @@ import de.cau.cs.kieler.core.krendering.extensions.KRenderingExtensions;
 import de.cau.cs.kieler.core.krendering.extensions.PositionReferenceX;
 import de.cau.cs.kieler.core.krendering.extensions.PositionReferenceY;
 import de.cau.cs.kieler.klighd.krendering.PlacementUtil;
+import de.cau.cs.kieler.klighd.debug.graphTransformations.TableElement;
 
 /**
  * @author Privat
@@ -38,12 +39,9 @@ public class KTextIterableField implements Iterable<KText>, Iterator<KText> {
 
     @Inject
     private KRenderingExtensions kRenderingExtensions = new KRenderingExtensions();
-
-    
     
     public TextAlignment LEFT_ALIGN = TextAlignment.LEFT_TEXT;
     public TextAlignment RIGHT_ALIGN = TextAlignment.RIGHT_TEXT;    
-    
     
     // the field holding the KTexts
     private ArrayList<ArrayList<TableElement>> a = new ArrayList<ArrayList<TableElement>>();
@@ -71,122 +69,13 @@ public class KTextIterableField implements Iterable<KText>, Iterator<KText> {
     private int totalColumns = 0;
 
     // counter for the Iterator
-    private int countRow = 0;
+    private int countRow = -1;
     private int countColumn = 0;
+
+    private TableElement header = new TableElement();
 
     public enum TextAlignment {
         LEFT_TEXT, RIGHT_TEXT
-    }
-    
-    private class TableElement {
-        private KText kText;
-        private float width;
-        private float height;
-        private TextAlignment align;
-
-        /**
-         * @return the text
-         */
-        public KText getKtext() {
-            return kText;
-        }
-
-        /**
-         * @param text
-         *            the text to set
-         */
-        public void setKtext(KText kText) {
-            this.kText = kText;
-        }
-
-        /**
-         * @return the align
-         */
-        public TextAlignment getAlign() {
-            return align;
-        }
-
-        /**
-         * @param align
-         *            the align to set
-         */
-        public void setAlign(TextAlignment align) {
-            this.align = align;
-        }
-
-        /**
-         * @return the width
-         */
-        public float getWidth() {
-            return width;
-        }
-
-        /**
-         * @return the height
-         */
-        public float getHeight() {
-            return height;
-        }
-
-        /**
-         * 
-         */
-        public TableElement() {
-            this.kText = null;
-            this.width = 0;
-            this.height = 0;
-            this.align = null;
-        }
-        
-
-        /**
-         * @param kText
-         */
-        public TableElement(KText kText) {
-            super();
-            kRenderingExtensions.setHorizontalAlignment(kText, HorizontalAlignment.LEFT);
-            kRenderingExtensions.setVerticalAlignment(kText, VerticalAlignment.TOP);
-            this.kText = kText;
-            this.width = PlacementUtil.estimateTextSize(kText).getWidth();
-            this.height = PlacementUtil.estimateTextSize(kText).getHeight();
-            this.align = TextAlignment.LEFT_TEXT;
-        }
-
-        /**
-         * @param kText
-         * @param align
-         */
-        public TableElement(KText kText, TextAlignment align) {
-            super();
-            kRenderingExtensions.setHorizontalAlignment(kText, HorizontalAlignment.LEFT);
-            kRenderingExtensions.setVerticalAlignment(kText, VerticalAlignment.TOP);
-            this.kText = kText;
-            this.width = PlacementUtil.estimateTextSize(kText).getWidth();
-            this.height = PlacementUtil.estimateTextSize(kText).getHeight();
-            this.align = align;
-        }
-
-        /**
-         * @param kText
-         */
-        public TableElement(String text) {
-            this(text, TextAlignment.LEFT_TEXT);
-        }
-
-        /**
-         * @param kText
-         * @param align
-         */
-        public TableElement(String text, TextAlignment align) {
-            KText kText = renderingFactory.createKText();
-            kText.setText(text);
-            kRenderingExtensions.setHorizontalAlignment(kText, HorizontalAlignment.LEFT);
-            kRenderingExtensions.setVerticalAlignment(kText, VerticalAlignment.TOP);
-            this.kText = kText;
-            this.width = PlacementUtil.estimateTextSize(kText).getWidth();
-            this.height = PlacementUtil.estimateTextSize(kText).getHeight();
-            this.align = align;
-        }
     }
 
     protected static final KRenderingFactory renderingFactory = KRenderingFactory.eINSTANCE;
@@ -200,6 +89,20 @@ public class KTextIterableField implements Iterable<KText>, Iterator<KText> {
      * | 4.0 4.1 4.2 4.3 
      * V
      */
+    
+    /**
+     * @param header the header to set
+     */
+    public void setHeader(KText header) {
+        this.header = new TableElement(header);
+    }
+    
+    /**
+     * @param header the header to set
+     */
+    public void setHeader(String header) {
+        this.header = new TableElement(header);
+    }
 
     public void set(KText kText, int row, int column) {
         ensureSize(row, column);
@@ -240,7 +143,8 @@ public class KTextIterableField implements Iterable<KText>, Iterator<KText> {
         maxHeight.set(row, max);
 
         // update toTop table
-        float topGap = topMargin;
+        float topGap;
+        topGap = topMargin + ((header.getKtext() == null) ? 0 :  (header.getHeight() + vGap));
         for (int i = 0; i < totalRows; i++) {
             toTop[i] = topGap;
             topGap += toFloat(maxHeight.get(i)) + vGap;
@@ -424,6 +328,15 @@ public class KTextIterableField implements Iterable<KText>, Iterator<KText> {
      */
     public boolean hasNext() {
         int j = countColumn;
+        
+        if (countRow == -1) {
+            if (header.getkText() != null) {
+                return true;
+            }
+            countRow = 0;
+            countColumn = 0;
+        }
+
         for (int i = countRow; i < totalRows; i++) {
             while (j < totalColumns) {
                 if (a.get(i).get(j) != null) {
@@ -446,7 +359,25 @@ public class KTextIterableField implements Iterable<KText>, Iterator<KText> {
         boolean hit = false;
         TableElement elem = null;
         float minniGap = 0;
-
+        
+        if (countRow == -1) {
+            if (header.getkText() != null) {
+                placement = renderingFactory.createKDirectPlacementData();
+                float outerGap = (width() - header.getWidth() - leftMargin - rightMargin) / 2;
+                positionTL = kRenderingExtensions.createKPosition(PositionReferenceX.LEFT,
+                        outerGap + leftMargin, 0, PositionReferenceY.TOP, topMargin, 0);
+                positionBR = kRenderingExtensions.createKPosition(PositionReferenceX.RIGHT,
+                        outerGap + rightMargin, 0, PositionReferenceY.BOTTOM, bottomMargin, 0);
+                placement.setTopLeft(positionTL);
+                placement.setBottomRight(positionBR);
+                header.getkText().setPlacementData(placement);
+                
+                countRow = 0;
+                countColumn = 0;
+                return header.getkText();
+            }
+        }
+        
         while (countRow < totalRows && !hit) {
             while (countColumn < totalColumns && !hit) {
                 elem = a.get(countRow).get(countColumn);
@@ -487,19 +418,27 @@ public class KTextIterableField implements Iterable<KText>, Iterator<KText> {
         throw new UnsupportedOperationException();
     }
 
-    public float totalWidth() {
-        float width = leftMargin;
+    public float width() {
+        float width = 0;
         for (int i = 0; i < totalColumns; i++) {
             width += vGap + toFloat(maxWidth.get(i));
         }
-        return width + rightMargin - vGap;
+        width -= vGap;
+        width = Math.max(width, header.getWidth());
+        return leftMargin + width + rightMargin;
     }
 
-    public float totalHeight() {
+    public float height() {
         float height = topMargin;
+        
+        if(header.getkText() != null) {
+            height += header.getHeight() + vGap;
+        }
+        
         for (int i = 0; i < totalRows; i++) {
             height += hGap + toFloat(maxHeight.get(i));
         }
+        
         return height + bottomMargin - hGap;
     }
 
@@ -511,8 +450,8 @@ public class KTextIterableField implements Iterable<KText>, Iterator<KText> {
         System.out.println("-----------");
         System.out.println("Stats");
         System.out.println("-----------");
-        System.out.println("total width: " + totalWidth());
-        System.out.println("total height: " + totalHeight());
+        System.out.println("total width: " + width());
+        System.out.println("total height: " + height());
         
         System.out.println("a rows     : " + a.size());
         for (int i = 0; i < a.size(); i++) {
