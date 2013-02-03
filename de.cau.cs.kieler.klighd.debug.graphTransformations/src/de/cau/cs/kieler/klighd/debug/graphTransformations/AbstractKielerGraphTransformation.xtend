@@ -20,8 +20,8 @@ import de.cau.cs.kieler.core.krendering.extensions.KColorExtensions
 import de.cau.cs.kieler.core.krendering.extensions.KLabelExtensions
 
 abstract class AbstractKielerGraphTransformation extends AbstractDebugTransformation {
-//    @Inject
-//    extension KNodeExtensions
+    @Inject
+    extension KNodeExtensions
 //    @Inject
 //    extension KEdgeExtensions
     @Inject 
@@ -120,9 +120,9 @@ abstract class AbstractKielerGraphTransformation extends AbstractDebugTransforma
     def String keyString(IVariable key) {
         switch key.getType {
             case "Property<T>" : 
-                return key.getValue("id") + ": "
+                return key.getValue("id") + ":"
             case "LayoutOptionData<T>" : 
-                return key.getValue("name") + ": "
+                return key.getValue("name") + ":"
             case "KNodeImpl" :
                 return "KNode" + key.getValue.getValueString + " -> "
         }
@@ -139,14 +139,17 @@ abstract class AbstractKielerGraphTransformation extends AbstractDebugTransforma
                 it.data += renderingFactory.createKRectangle => [
                     it.lineWidth = 4
 
-                    val kTextField = new KTextIterableField();
+                    val kTextField = new KTextIterableField(4, 5, 5, 4, 3, 5)
                     val kText = renderingFactory.createKText => [
                         it.setForegroundColor(120,120,120)
                         it.text = propertyMap.getType
                     ]
                     kTextField.setHeader(kText)
                     
-                    kTextField.addAll(propertyMap, 0, 0)
+                    kTextField.addValue(propertyMap, 0, 0)
+                    kTextField.forEach [ text |
+                        it.children += text
+                    ]
                 ]
             ]                            
             //create edge from header to propertyMap node
@@ -167,97 +170,94 @@ abstract class AbstractKielerGraphTransformation extends AbstractDebugTransforma
         }
     }
     
-    def addAll(KTextIterableField field, IVariable element, int oldRow, int column) {
+    def addValue(KTextIterableField field, IVariable element, int oldRow, int oldColumn) {
         var int row = oldRow
+        var int column = oldColumn
+
         switch element.getType {
             case "HashMap<K,V>" : {
+                //TODO: this is a bit ugly, but I don't know a better solution:
+                // the very first header element is the name of the table and we don't want it here
                 // add the header element
-                field.set(element.name + ": ", row, column, KTextIterableField$TextAlignment::RIGHT_TEXT)
+                if(oldRow != 0 || column != 0) {
+                    field.set(element.name + ": ", row, column, KTextIterableField$TextAlignment::RIGHT)
+                    column = column + 1
+                }
                 
                 // create all child elements
                 if(element.valueIsNotNull) {
                     val childs = element.hashMapToLinkedList
                     
                     if (childs.size == 0) {
-                        field.set("(empty)", row, column + 1)
-                        row = row + 1
+                        field.set("(empty)", row, column)
                     } else {
                         for (child : childs) {
-                            field.set(child.getVariable("key").keyString, row, column + 1)
-                            row = row + field.addAll(child.getVariable("value"), row, column + 2)
+                            field.set(child.getVariable("key").keyString, row, column, KTextIterableField$TextAlignment::RIGHT)
+                            row = field.addValue(child.getVariable("value"), row, column + 1)
+                            row = row + 1
                         }
+                        row = row - 1
                     }
                 } else {
-                    field.set("(null)", row, column + 1)
-                    row = row + 1
+                    field.set("(null)", row, column)
                 }
             }
             
             case "RegularEnumSet<E>" : {
                 // create the enumSet elements
-                row = row + field.addEnumSet(element, row, column)
+                row = field.addEnumSet(element, row, column)
             } 
             
             case "NodeGroup" : {
                 // create all child elements
                 val childs = element.getVariables("nodes")
                 if(childs.nullOrEmpty) {
-                    field.set("(empty)", row, column + 1)
+                    field.set("(empty)", row, column)
                     row = row + 1
                 } else {
                     // add all elements
                     for (child : childs) {
-                        row = field.addAll(child, row, column) + row
+                        row = field.addValue(child, row, column)
+                        row = row + 1
                     }
+                    row = row - 1
                 }
             } 
             case "KNodeImpl" : {
                 field.set("KNodeImpl " + element.getValue.getValueString, row, column)
-                row = row + 1
             }
             case "KLabelImpl" : {
                 field.set("KLabelImpl " + element.getValue.getValueString, row, column)
-                row = row + 1
             }
             case "KEdgeImpl" : {
                 field.set("KEdgeImpl " + element.getValue.getValueString, row, column)
-                row = row + 1
             }
             case "LNode" : {
                 field.set("LNodeImpl " + element.getValue("id") + element.getValue.getValueString, row, column)
-                row = row + 1
             }
             case "Random" : {
                 field.set("seed " + element.getValue("seed.value"), row, column)
-                row = row + 1
             }
             case "String" : {
                 field.set(element.getValue.getValueString, row, column)
-                row = row + 1
             }
             case "Direction" : {
                 field.set(element.getValue("name"), row, column)
-                row = row + 1
             }
             case "Boolean" : {
                 field.set(element.getValue("value"), row, column)
-                row = row + 1
             }
             case "Float" : {
                 field.set(element.getValue("value"), row, column)
-                row = row + 1
             }
             case "PortConstraints" : {
                 field.set(element.getValue("name"), row, column)
-                row = row + 1
             }
             case "EdgeLabelPlacement" : {
                 field.set(element.getValue("name"), row, column)
-                row = row + 1
             }
             default : {
                 field.set("<? " + element.getType + element.getValue.getValueString + "?>", row, column)
-                row = row + 1
             }
         }
         return row
@@ -280,10 +280,11 @@ abstract class AbstractKielerGraphTransformation extends AbstractDebugTransforma
                 if(elemMask.bitwiseAnd(mask) > 0) {
                     // bit is set 
                     container.set(elements.get(i).getValue("name"), row, column)
+                    row = row + 1
                 }
                 i = i + 1
-                row = row + 1
             }
+            row = row - 1
         }
         return row
     }
@@ -353,11 +354,10 @@ abstract class AbstractKielerGraphTransformation extends AbstractDebugTransforma
      * @param variable
      *          The IVariable whose type will be added
      */
-    def addShortType(KContainerRendering container, IVariable variable) {
+    def shortType(IVariable variable) {
         return renderingFactory.createKText => [
             it.setForegroundColor(120,120,120)
             it.text = variable.getType
-            container.children += it
         ]    
     }
     
@@ -365,20 +365,18 @@ abstract class AbstractKielerGraphTransformation extends AbstractDebugTransforma
         return variable.getValue.getValueString
     }
     
-    def headerNodeBasics(KContainerRendering container, Boolean detailedView, IVariable variable) {
+    def headerNodeBasics(KContainerRendering container, KTextIterableField field, Boolean detailedView, IVariable variable) {
         container.ChildPlacement = renderingFactory.createKGridPlacement
-
+        
         if(detailedView) {
             // bold line in detailed view
             container.lineWidth = 4
             
             // type of the variable
-            container.addShortType(variable)
+            field.setHeader(variable.shortType)
 
             // name of the variable
-            container.children += renderingFactory.createKText => [
-                it.text = "Variable: " + variable.name + variable.getValue.getValueString 
-            ]
+            field.set("Variable: " + variable.name + variable.getValue.getValueString, field.rowCount, 0) 
             
             // coloring of main element
             container.setBackgroundColor("lemon".color);
@@ -401,26 +399,27 @@ abstract class AbstractKielerGraphTransformation extends AbstractDebugTransforma
         ]
     }
     
+    def nullOrValue(IVariable variable, String valueName) {
+            if (variable.valueIsNotNull) {
+                return variable.getValue(valueName)
+            } else {
+                return "null"
+            }
+    }
+    
     def addKText(KContainerRendering container, IVariable variable, String valueText, String prefix, String delimiter) {
         return renderingFactory.createKText => [
-            if (variable.valueIsNotNull) {
-                it.text = prefix + valueText + delimiter + variable.getValue(valueText)
-            } else {
-                it.text = prefix + valueText + delimiter + "null"
-            }
+            it.text = prefix + valueText + delimiter + nullOrValue(variable, valueText)
             container.children += it
         ]
     }
     
-    def addTypeAndIdKText(KContainerRendering container, IVariable iVar, String variable) {
+    def typeAndId(IVariable iVar, String variable) {
         val v = iVar.getVariable(variable)
-        return renderingFactory.createKText => [
-            if (v.valueIsNotNull) {
-                it.text = variable + ": " + v.type + " " + v.debugID
-            } else {
-                it.text = variable + ": null"
-            }
-            container.children += it
-        ]
+        if (v.valueIsNotNull) {
+            return variable + ": " + v.type + " " + v.debugID
+        } else {
+            return variable + ": null"
+        }
     }
 }

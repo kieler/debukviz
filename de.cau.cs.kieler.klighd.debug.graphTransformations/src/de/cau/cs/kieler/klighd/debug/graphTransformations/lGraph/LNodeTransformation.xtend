@@ -18,6 +18,7 @@ import de.cau.cs.kieler.klighd.debug.graphTransformations.AbstractKielerGraphTra
 import de.cau.cs.kieler.core.kgraph.KNode
 import de.cau.cs.kieler.core.krendering.extensions.KPolylineExtensions
 import de.cau.cs.kieler.core.krendering.extensions.KLabelExtensions
+import de.cau.cs.kieler.klighd.debug.graphTransformations.KTextIterableField
 
 import static de.cau.cs.kieler.klighd.debug.visualization.AbstractDebugTransformation.*
 
@@ -35,7 +36,18 @@ class LNodeTransformation extends AbstractKielerGraphTransformation {
     extension KColorExtensions
     @Inject
     extension KLabelExtensions
-
+    
+    val layoutAlgorithm = "de.cau.cs.kieler.kiml.ogdf.planarization"
+    val spacing = 75f
+    val leftColumnAlignment = KTextIterableField$TextAlignment::RIGHT
+    val rightColumnAlignment = KTextIterableField$TextAlignment::LEFT
+    val topGap = 4
+    val rightGap = 5
+    val bottomGap = 5
+    val leftGap = 4
+    val vGap = 3
+    val hGap = 5
+    
     /**
      * {@inheritDoc}
      */
@@ -43,8 +55,8 @@ class LNodeTransformation extends AbstractKielerGraphTransformation {
         if(transformationInfo instanceof Boolean) detailedView = transformationInfo as Boolean
         
         return KimlUtil::createInitializedNode => [
-            it.addLayoutParam(LayoutOptions::ALGORITHM, "de.cau.cs.kieler.kiml.ogdf.planarization")
-            it.addLayoutParam(LayoutOptions::SPACING, 75f)
+            it.addLayoutParam(LayoutOptions::ALGORITHM, layoutAlgorithm)
+            it.addLayoutParam(LayoutOptions::SPACING, spacing)
             
             // create KNode for given LNode
             it.createHeaderNode(node)
@@ -65,6 +77,8 @@ class LNodeTransformation extends AbstractKielerGraphTransformation {
             // Get the nodeType
             val nodeType = node.nodeType
 
+            val field = new KTextIterableField(topGap, rightGap, bottomGap, leftGap, vGap, hGap)
+
             var KContainerRendering container
             
             if (nodeType == "NORMAL" ) {
@@ -82,89 +96,100 @@ class LNodeTransformation extends AbstractKielerGraphTransformation {
                  */
                 container = renderingFactory.createKEllipse => [
                     if (nodeType == "NORTH_SOUTH_PORT") {
-                        it.children += renderingFactory.createKText => [
-                            val origin = node.getVariable("propertyMap").getValFromHashMap("origin")
-                            if (origin.getType == "LNode") {
-                                it.children += renderingFactory.createKText => [
-                                    it.setText("Origin: " + origin.getVariable("labels").linkedList.get(0))
-                                ]   
-                            }
-                        ]
+                        val origin = node.getVariable("propertyMap").getValFromHashMap("origin")
+                        if (origin.getType == "LNode") {
+                            field.set("origin:", 0, 0, leftColumnAlignment)
+//TOD: dass stimmt hier nocht nicht!!!!
+                            field.set("" + origin.getVariable("labels").linkedList.get(0), 0, 1, rightColumnAlignment)
+                        }
                     }
                 ]
             }
 
-            container.headerNodeBasics(detailedView, node)
+            container.headerNodeBasics(field, detailedView, node)
+            var row = field.rowCount
 
             container.setForegroundColor(node)
 
             // Name of the node is the first label
-            container.children += renderingFactory.createKText => [
+            field.set("name (first label):", row, 0, leftColumnAlignment)
             val labels = node.getVariable("labels").linkedList
+            var labelText = ""
                 if(labels.isEmpty) {
                     // no name given, so display the node id instead
-                    it.setText("name (first label): -")
+                    labelText = "-"
                 } else {
                     val label = labels.get(0).getValue("text")
                     if(label.length == 0) {
-                        it.setText("name (first label): (empty)")
+                        labelText = "(empty)"
                     } else {
-                        it.setText("name (first label): " + label)
+                        labelText = "label"
                     }
                 }
-            ]
-            
+            field.set(labelText, row, 1, rightColumnAlignment)
+            row = row + 1
+
             // id of node
-            container.addKText(node, "id", "", ": ") 
+            field.set("id:", row, 0, leftColumnAlignment)
+            field.set(nullOrValue(node, "id"), row, 1, rightColumnAlignment)
+            row = row + 1
+            
 
             // hashCode of node
-            container.addKText(node, "hashCode", "", ": ")
+            field.set("hashCode:", row, 0, leftColumnAlignment)
+            field.set(nullOrValue(node, "hashCode"), row, 1, rightColumnAlignment)
+            row = row + 1
 
             // following data only if detailedView
             if(detailedView) {
                 // insets
-                container.children += renderingFactory.createKText => [
-                    it.text = "insets (b,l,r,t): (" + node.getValue("insets.bottom").round + " x "
-                                                    + node.getValue("insets.left").round + " x "
-                                                    + node.getValue("insets.right").round + " x "
-                                                    + node.getValue("insets.top").round + ")" 
-                ]
+                field.set("insets (b,l,r,t):", row, 0, leftColumnAlignment)
+                field.set("(" + node.getValue("insets.bottom").round + " x "
+                              + node.getValue("insets.left").round + " x "
+                              + node.getValue("insets.right").round + " x "
+                              + node.getValue("insets.top").round + ")", row, 1, rightColumnAlignment)
+                row = row + 1
                 
                 //margin
-                container.children += renderingFactory.createKText => [
-                    it.text = "margin (b,l,r,t): (" + node.getValue("margin.bottom").round + " x "
-                                                    + node.getValue("margin.left").round + " x "
-                                                    + node.getValue("margin.right").round + " x "
-                                                    + node.getValue("margin.top").round + ")" 
-                ]
-    
+                field.set("margin (b,l,r,t):", row, 0, leftColumnAlignment)
+                field.set("(" + node.getValue("margin.bottom").round + " x "
+                              + node.getValue("margin.left").round + " x "
+                              + node.getValue("margin.right").round + " x "
+                              + node.getValue("margin.top").round + ")", row, 1, rightColumnAlignment)
+                row = row + 1
+
                 //owner (layer)
-                container.children += renderingFactory.createKText => [
-                    it.text = "owner: layer(" + node.getValue("owner.id") + ")"
-                ]
+                field.set("owner:", row, 0, leftColumnAlignment)
+                field.set("layer (" + node.getValue("owner.id") + ")", row, 1, rightColumnAlignment)
+                row = row + 1
     
                 // position
-                container.children += renderingFactory.createKText => [
-                    it.text = "pos (x,y): (" + node.getValue("pos.x").round + " x " 
-                                                  + node.getValue("pos.y").round + ")" 
-                ]
-            
+                field.set("pos (x,y):", row, 0, leftColumnAlignment)
+                field.set("(" + node.getValue("pos.x").round + " x " 
+                              + node.getValue("pos.y").round + ")", row, 1, rightColumnAlignment)
+                row = row + 1
+                
                 // size
-                container.children += renderingFactory.createKText => [
-                    it.text = "size (x,y): (" + node.getValue("size.x").round + " x " 
-                                              + node.getValue("size.y").round + ")" 
-                ]
+                field.set("size (x,y):", row, 0, leftColumnAlignment)
+                field.set("(" + node.getValue("size.x").round + " x " 
+                              + node.getValue("size.y").round + ")", row, 1, rightColumnAlignment)
+                row = row + 1
+
             } else {
                 // # of labels
-                container.children += renderingFactory.createKText => [
-                    it.text = "labels (#): " + node.getValue("labels.size")
-                ]
+                field.set("labels (#):", row, 0, leftColumnAlignment)
+                field.set(node.getValue("labels.size"), row, 1, rightColumnAlignment)
+                row = row + 1
 
                 // # of ports
-                container.children += renderingFactory.createKText => [
-                    it.text = "ports (#): " + node.getValue("ports.size")
-                ]
-                
+                field.set("ports (#):", row, 0, leftColumnAlignment)
+                field.set(node.getValue("ports.size"), row, 1, rightColumnAlignment)
+                row = row + 1
+            }
+            
+            // fill the KText into the ContainerRendering
+            for (text : field) {
+                container.children += text
             }
             
             // add the node-symbol to the surrounding KNode
@@ -181,7 +206,7 @@ class LNodeTransformation extends AbstractKielerGraphTransformation {
             ]
             // create all ports
             ports.linkedList.forEach [ port |
-                it.nextTransformation(port, false)
+                it.children += nextTransformation(port, false)
             ]
         ]
         // create edge from header node to ports node

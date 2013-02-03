@@ -40,8 +40,8 @@ public class KTextIterableField implements Iterable<KText>, Iterator<KText> {
     @Inject
     private KRenderingExtensions kRenderingExtensions = new KRenderingExtensions();
     
-    public TextAlignment LEFT_ALIGN = TextAlignment.LEFT_TEXT;
-    public TextAlignment RIGHT_ALIGN = TextAlignment.RIGHT_TEXT;    
+//    public TextAlignment LEFT_ALIGN = TextAlignment.LEFT;
+//    public TextAlignment RIGHT_ALIGN = TextAlignment.RIGHT;    
     
     // the field holding the KTexts
     private ArrayList<ArrayList<TableElement>> a = new ArrayList<ArrayList<TableElement>>();
@@ -75,7 +75,7 @@ public class KTextIterableField implements Iterable<KText>, Iterator<KText> {
     private TableElement header = new TableElement();
 
     public enum TextAlignment {
-        LEFT_TEXT, RIGHT_TEXT
+        LEFT, RIGHT, CENTER
     }
 
     protected static final KRenderingFactory renderingFactory = KRenderingFactory.eINSTANCE;
@@ -295,8 +295,6 @@ public class KTextIterableField implements Iterable<KText>, Iterator<KText> {
      * @param leftMargin
      * @param vGap
      * @param hGap
-     * @param totalRows
-     * @param totalColumns
      */
     public KTextIterableField(float topMargin, float rightMargin, float bottomMargin,
             float leftMargin, float vGap, float hGap) {
@@ -383,8 +381,10 @@ public class KTextIterableField implements Iterable<KText>, Iterator<KText> {
                 elem = a.get(countRow).get(countColumn);
                 if (elem.getKtext() != null) {
                     hit = true;
-                    if(elem.getAlign() == TextAlignment.RIGHT_TEXT) {
+                    if(elem.getAlign() == TextAlignment.RIGHT) {
                         minniGap = maxWidth.get(countColumn) - elem.getWidth();
+                    } else if(elem.getAlign() == TextAlignment.CENTER) {
+                        minniGap = (maxWidth.get(countColumn) - elem.getWidth()) / 2;
                     } else {
                         minniGap = 0;
                     }
@@ -478,5 +478,17 @@ public class KTextIterableField implements Iterable<KText>, Iterator<KText> {
         System.out.println("-");
         System.out.println("MaxHeight: " + maxHeight);
         System.out.println("MaxWidth: " + maxWidth);
+    }
+    
+    public int columnCount() {
+        if (a.size() == 0) {
+            return 0;
+        } else {
+            return a.get(0).size();
+        }
+    }
+
+    public int rowCount() {
+        return a.size();
     }
 }

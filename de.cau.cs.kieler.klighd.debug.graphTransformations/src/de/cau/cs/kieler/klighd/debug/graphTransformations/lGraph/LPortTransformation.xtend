@@ -21,6 +21,7 @@ import de.cau.cs.kieler.kiml.options.EdgeLabelPlacement
 import de.cau.cs.kieler.kiml.options.Direction
 import de.cau.cs.kieler.kiml.options.LayoutOptions
 import de.cau.cs.kieler.core.krendering.extensions.KLabelExtensions
+import de.cau.cs.kieler.klighd.debug.graphTransformations.KTextIterableField
 
 class LPortTransformation extends AbstractKielerGraphTransformation {
     
@@ -37,6 +38,17 @@ class LPortTransformation extends AbstractKielerGraphTransformation {
     @Inject
     extension KLabelExtensions
     
+    val layoutAlgorithm = "de.cau.cs.kieler.kiml.ogdf.planarization"
+    val spacing = 75f
+    val leftColumnAlignment = KTextIterableField$TextAlignment::RIGHT
+    val rightColumnAlignment = KTextIterableField$TextAlignment::LEFT
+    val topGap = 4
+    val rightGap = 5
+    val bottomGap = 5
+    val leftGap = 4
+    val vGap = 3
+    val hGap = 5
+    
     /**
      * {@inheritDoc}
      */
@@ -44,8 +56,8 @@ class LPortTransformation extends AbstractKielerGraphTransformation {
         if(transformationInfo instanceof Boolean) detailedView = transformationInfo as Boolean
 
         return KimlUtil::createInitializedNode => [
-            it.addLayoutParam(LayoutOptions::ALGORITHM, "de.cau.cs.kieler.kiml.ogdf.planarization")
-            it.addLayoutParam(LayoutOptions::SPACING, 75f)
+            it.addLayoutParam(LayoutOptions::ALGORITHM, layoutAlgorithm)
+            it.addLayoutParam(LayoutOptions::SPACING, spacing)
             
             // create KNode for given LPort
             it.createHeaderNode(port)
@@ -68,72 +80,84 @@ class LPortTransformation extends AbstractKielerGraphTransformation {
     def createHeaderNode(KNode rootNode, IVariable port) { 
         rootNode.addNodeById(port) => [
             it.data += renderingFactory.createKRectangle => [
-                it.headerNodeBasics(detailedView, port)
+
+                var field = new KTextIterableField(topGap, rightGap, bottomGap, leftGap, vGap, hGap)
+                it.headerNodeBasics(field, detailedView, port)
+                var row = field.rowCount
                 
                 // id of port
-                it.addKText(port, "id", "", ": ")
+                field.set("id:", row, 0, leftColumnAlignment)
+                field.set(nullOrValue(port, "id"), row, 1, rightColumnAlignment)
+                row = row + 1
    
                 // hashCode of port
-                it.addKText(port, "hashCode", "", ": ")
+                field.set("hashCode:", row, 0, leftColumnAlignment)
+                field.set(nullOrValue(port, "hashCode"), row, 1, rightColumnAlignment)
+                row = row + 1
             
                 // side of port
-                it.children += renderingFactory.createKText => [
-                    it.text = "side: " + port.getValue("side.name")
-                ]
-                
+                field.set("side:", row, 0, leftColumnAlignment)
+                field.set(port.getValue("side.name"), row, 1, rightColumnAlignment)
+                row = row + 1
+
                 if(detailedView) {
                     // show following elements only if detailedView
                     // anchor of port
-                    it.children += renderingFactory.createKText => [
-                        it.text = "anchor (x,y): (" + port.getValue("anchor.x").round + " x " 
-                                                    + port.getValue("anchor.y").round + ")" 
-                    ]
+                    field.set("anchor (x,y):", row, 0, leftColumnAlignment)
+                    field.set("(" + port.getValue("anchor.x").round + " x " 
+                                  + port.getValue("anchor.y").round + ")", row, 1, rightColumnAlignment)
+                    row = row + 1
                     
                     // margin of port
-                    it.children += renderingFactory.createKText => [
-                        it.text = "margin (t,r,b,l): (" + port.getValue("margin.top").round + " x "
-                                                        + port.getValue("margin.right").round + " x "
-                                                        + port.getValue("margin.bottom").round + " x "
-                                                        + port.getValue("margin.left").round + ")"
-                    ]
-                    
+                    field.set("margin (t,r,b,l):", row, 0, leftColumnAlignment)
+                    field.set("(" + port.getValue("margin.top").round + " x "
+                                  + port.getValue("margin.right").round + " x "
+                                  + port.getValue("margin.bottom").round + " x "
+                                  + port.getValue("margin.left").round + ")", row, 1, rightColumnAlignment)
+                    row = row + 1
+
                     // owner of port
-                    it.children += renderingFactory.createKText => [
-                        it.text = "owner: LNode " + port.getValue("owner.id") 
-                    ]
+                    field.set("owner:", row, 0, leftColumnAlignment)
+                    field.set("LNode " + port.getValue("owner.id") , row, 1, rightColumnAlignment)
+                    row = row + 1
 
                     // position of port
-                    it.children += renderingFactory.createKText => [
-                        it.text = "pos (x,y): (" + port.getValue("pos.x").round + " x "
-                                                 + port.getValue("pos.y").round + ")"
-                    ]
+                    field.set("pos (x,y):", row, 0, leftColumnAlignment)
+                    field.set("(" + port.getValue("pos.x").round + " x "
+                                  + port.getValue("pos.y").round + ")", row, 1, rightColumnAlignment)
+                    row = row + 1
+                    
+                    // side of port
+                    field.set("side:", row, 0, leftColumnAlignment)
+                    field.set(port.getValue("side.name"), row, 1, rightColumnAlignment)
+                    row = row + 1
                     
                     // size of port
-                    it.children += renderingFactory.createKText => [
-                        it.text = "side: " + port.getValue("side.name") 
-                    ]
-                    
-                    // size of port
-                    it.children += renderingFactory.createKText => [
-                        it.text = "size (x,y): (" + port.getValue("size.x").round + " x "
-                                                  + port.getValue("size.y").round + ")"
-                    ]
+                    field.set("size (x,y):", row, 0, leftColumnAlignment)
+                    field.set("(" + port.getValue("size.x").round + " x "
+                                  + port.getValue("size.y").round + ")", row, 1, rightColumnAlignment)
+                    row = row + 1
                 } else {
                     // if not detailedView, show a summary of following elements
                     // # of incoming edges of port
-                    it.children += renderingFactory.createKText => [
-                        it.text = "incomingEdges (#): " + port.getValue("incomingEdges.size")
-                    ]
+                    field.set("incomingEdges (#):", row, 0, leftColumnAlignment)
+                    field.set(port.getValue("incomingEdges.size"), row, 1, rightColumnAlignment)
+                    row = row + 1
 
                     // # of outgoing edges of port
-                    it.children += renderingFactory.createKText => [
-                        it.text = "outgoingEdges (#): " + port.getValue("outgoingEdges.size")
-                    ]
-                    
+                    field.set("outgoingEdges (#):", row, 0, leftColumnAlignment)
+                    field.set(port.getValue("outgoingEdges.size"), row, 1, rightColumnAlignment)
+                    row = row + 1
+
                     // # of labels of port
-                    it.children += renderingFactory.createKText => [
-                        it.text = "labels (#): " + port.getValue("labels.size")
-                    ]
+                    field.set("labels (#):", row, 0, leftColumnAlignment)
+                    field.set(port.getValue("labels.size"), row, 1, rightColumnAlignment)
+                    row = row + 1
+                }
+
+                // fill the KText into the ContainerRendering
+                for (text : field) {
+                    it.children += text
                 }
             ]
         ]
@@ -149,7 +173,7 @@ class LPortTransformation extends AbstractKielerGraphTransformation {
                 ]
                 // create all labels
                 labels.linkedList.forEach [ label |
-                    it.nextTransformation(label, false)
+                    it.children += nextTransformation(label, false)
                 ]
             ]
             // create edge from header node to labels node
@@ -177,7 +201,7 @@ class LPortTransformation extends AbstractKielerGraphTransformation {
                 ]
                 // create all edges
                 edges.linkedList.forEach [ edge |
-                    it.nextTransformation(edge, false)
+                    it.children += nextTransformation(edge, false)
                 ]
             ]
             // create edge from header node to edges node

@@ -27,9 +27,6 @@ import java.util.ArrayList
 import de.cau.cs.kieler.klighd.debug.graphTransformations.KTextIterableField
 
 class FNodeTransformation extends AbstractKielerGraphTransformation {
-    float height
-    float width
-    
     @Inject 
     extension KNodeExtensions
     @Inject 
@@ -45,6 +42,17 @@ class FNodeTransformation extends AbstractKielerGraphTransformation {
     @Inject
     extension KTextIterableField
     
+    val layoutAlgorithm = "de.cau.cs.kieler.kiml.ogdf.planarization"
+    val spacing = 75f
+    val leftColumnAlignment = KTextIterableField$TextAlignment::RIGHT
+    val rightColumnAlignment = KTextIterableField$TextAlignment::LEFT
+    val topGap = 4
+    val rightGap = 5
+    val bottomGap = 5
+    val leftGap = 4
+    val vGap = 3
+    val hGap = 5
+    
     /**
      * {@inheritDoc}
      */
@@ -52,25 +60,14 @@ class FNodeTransformation extends AbstractKielerGraphTransformation {
         if(transformationInfo instanceof Boolean) detailedView = transformationInfo as Boolean
 
         return KimlUtil::createInitializedNode => [
-            it.addLayoutParam(LayoutOptions::ALGORITHM, "de.cau.cs.kieler.kiml.ogdf.planarization")
-            it.addLayoutParam(LayoutOptions::SPACING, 75f)
+            it.addLayoutParam(LayoutOptions::ALGORITHM, layoutAlgorithm)
+            it.addLayoutParam(LayoutOptions::SPACING, spacing)
             
             // create KNode for given LNode
             it.createHeaderNode(node)
             
-            
-            it.addTestNode(node)
-            
-            
-            // add nodes for propertyMap and ports, if in detailed mode
-            if (detailedView) {
-                // add propertyMap
-                it.addPropertyMapAndEdge(node.getVariable("propertyMap"), node)
-                
-                //add node for ports
-//                it.addPorts(node)
-            }        
-
+            // add propertyMap
+            if (detailedView) it.addPropertyMapAndEdge(node.getVariable("propertyMap"), node)
         ]
     }
     
@@ -79,132 +76,61 @@ class FNodeTransformation extends AbstractKielerGraphTransformation {
      */
     def createHeaderNode(KNode rootNode, IVariable node) { 
         rootNode.addNodeById(node) => [
-            
             it.data += renderingFactory.createKRectangle => [
-            	it.childPlacement = renderingFactory.createKGridPlacement => [
-            		it.numColumns = 1;
-            	];
-            	
-                it.headerNodeBasics(detailedView, node)
+                
+                val field = new KTextIterableField(topGap, rightGap, bottomGap, leftGap, vGap, hGap)
+                it.headerNodeBasics(field, detailedView, node)
+                var row = field.rowCount
                 
                 // id of node
-                it.addKText(node, "id", "", ": ")
+                field.set("id:", row, 0, leftColumnAlignment)
+                field.set(nullOrValue(node, "id"), row, 1, rightColumnAlignment)
+                row = row + 1
                 
                 // label of node (there is only one)
-                it.addKText(node, "label", "", ": ")
+                field.set("label:", row, 0, leftColumnAlignment)
+                field.set(nullOrValue(node, "label"), row, 1, rightColumnAlignment)
+                row = row + 1
                 
             	
                 if (detailedView) {
                     // parent
                     val parent = node.getVariable("parent")
-                    it.children += renderingFactory.createKText => [
-                        if(parent.valueIsNotNull) {
-                            it.text = "parent: FNode " + parent.getValue("id") + " " + parent.getValue.getValueString
-                        } else {
-                            it.text = "parent: null"
-                        }
-                    ]
-                    // displacement
-                    it.children += renderingFactory.createKText => [
-                        it.text = "displacement (x,y): (" + node.getValue("displacement.x").round + " x " 
-                                                          + node.getValue("displacement.y").round + ")" 
-                    ]
+                    field.set("parent:", row, 0, leftColumnAlignment)
+                    if(parent.valueIsNotNull) {
+                        field.set("FNode " + parent.getValue("id") + " " 
+                                           + parent.getValue.getValueString, row, 1, rightColumnAlignment)
+                    } else {
+                        field.set("null", row, 1, rightColumnAlignment)
+                    }
+                    row = row + 1
                     
+                    // displacement
+                    field.set("displacement (x,y):", row, 0, leftColumnAlignment)
+                    field.set("(" + node.getValue("displacement.x").round + " x " 
+                                  + node.getValue("displacement.y").round + ")", row, 1, rightColumnAlignment)
+                    row = row + 1
+
                     // position
-                    it.children += renderingFactory.createKText => [
-                        it.text = "position (x,y): (" + node.getValue("position.x").round + " x " 
-                                                      + node.getValue("position.y").round + ")" 
-                    ]
+                    field.set("position (x,y):", row, 0, leftColumnAlignment)
+                    field.set("(" + node.getValue("position.x").round + " x " 
+                                  + node.getValue("position.y").round + ")", row, 1, rightColumnAlignment)
+                    row = row + 1
                     
                     // size
-                    it.children += renderingFactory.createKText => [
-                        it.text = "size (x,y): (" + node.getValue("size.x").round + " x " 
-                                                  + node.getValue("size.y").round + ")" 
-                    ]
+                    field.set("size (x,y):", row, 0, leftColumnAlignment)
+                    field.set("(" + node.getValue("size.x").round + " x " 
+                                  + node.getValue("size.y").round + ")", row, 1, rightColumnAlignment)
+                    row = row + 1
+                }
+
+                // fill the KText into the ContainerRendering
+                for (text : field) {
+                    it.children += text
                 }
             ]
         ]
     }
-    
-    def addTestNode(KNode rootNode, IVariable node) {
-        
-        val float leftMargin = 5
-        val float topMargin = 5
-        val float rightMargin = 5
-        val float bottomMargin = 5 
-        
-        rootNode.children += createNode => [
-            it.data += renderingFactory.createKRectangle => [
-                it.lineWidth = 1       
-
-                val myKText = new KTextIterableField( topMargin, rightMargin, bottomMargin, leftMargin, 3, 3)
-        
-                myKText.setHeader("Überschrift")
-                myKText.set("My first Text", 0, 0)
-                myKText.set("my last Text", 5, 5)
-                myKText.set("1.111", 1, 1, LEFT_ALIGN)
-                myKText.set("1.1", 2, 1, RIGHT_ALIGN)
-                myKText.set("1.1", 3, 1, LEFT_ALIGN)
-                myKText.set("3.3", 3, 3)
-                myKText.set("4.4", 4, 4)
-                
-                it.addKText(myKText)
-
-                it.children += renderingFactory.createKChildArea => [
-                    it.placementData = renderingFactory.createKDirectPlacementData => [
-                        it.topLeft = createKPosition(LEFT, myKText.width, 0, TOP, 0, 0)
-                        it.bottomRight = createKPosition(RIGHT, rightMargin, 0, BOTTOM, bottomMargin, 0)
-                    ]
-                ]            
-            ]
-                            
-            val  einz = node.getVariable("displacement")
-            val  zwei = node.getVariable("label")
-            val  drei = node.getVariable("position")
-        
-            it.children += createNodeById(einz) => [
-                it.setNodeSize(15,15)
-                it.data += renderingFactory.createKRectangle => [
-                    it.lineWidth = 0
-                ]
-            ]
-            
-            it.children += createNodeById(zwei) => [
-                it.setNodeSize(15,15)
-                it.data += renderingFactory.createKRectangle => [
-                    it.lineWidth = 0
-                ]
-            ] 
-
-            it.children += createNodeById(drei) => [
-                it.setNodeSize(15,15)
-                it.data += renderingFactory.createKRectangle => [
-                    it.lineWidth = 0
-                ]
-            ] 
-            
-            einz.createEdgeById(zwei) => [
-                it.data += renderingFactory.createKPolyline => [
-                    it.setLineWidth(2)
-                    it.addArrowDecorator
-                ]
-            ]
-
-            einz.createEdgeById(drei) => [
-                it.data += renderingFactory.createKPolyline => [
-                    it.setLineWidth(2)
-                    it.addArrowDecorator
-                ]
-            ]
-
-            zwei.createEdgeById(drei) => [
-                it.data += renderingFactory.createKPolyline => [
-                    it.setLineWidth(2)
-                    it.addArrowDecorator
-                ]
-            ]
-        ]
-    } 
 }
 
 

@@ -13,12 +13,13 @@ import de.cau.cs.kieler.kiml.util.KimlUtil
 import de.cau.cs.kieler.klighd.debug.graphTransformations.AbstractKielerGraphTransformation
 import javax.inject.Inject
 import org.eclipse.debug.core.model.IVariable
+import de.cau.cs.kieler.klighd.debug.graphTransformations.KTextIterableField
 
 import static de.cau.cs.kieler.klighd.debug.visualization.AbstractDebugTransformation.*
 
 
 class FEdgeTransformation extends AbstractKielerGraphTransformation {
-        @Inject
+    @Inject
     extension KNodeExtensions
     @Inject
     extension KEdgeExtensions
@@ -30,13 +31,27 @@ class FEdgeTransformation extends AbstractKielerGraphTransformation {
     extension KColorExtensions
     @Inject
     extension KLabelExtensions
+        
+    val layoutAlgorithm = "de.cau.cs.kieler.kiml.ogdf.planarization"
+    val spacing = 75f
+    val leftColumnAlignment = KTextIterableField$TextAlignment::RIGHT
+    val rightColumnAlignment = KTextIterableField$TextAlignment::LEFT
+    val topGap = 4
+    val rightGap = 5
+    val bottomGap = 5
+    val leftGap = 4
+    val vGap = 3
+    val hGap = 5
     
+    /**
+     * {@inheritDoc}
+     */
     override transform(IVariable edge, Object transformationInfo) {
         if(transformationInfo instanceof Boolean) detailedView = transformationInfo as Boolean
 
         return KimlUtil::createInitializedNode => [
-            it.addLayoutParam(LayoutOptions::ALGORITHM, "de.cau.cs.kieler.kiml.ogdf.planarization")
-            it.addLayoutParam(LayoutOptions::SPACING, 75f)
+            it.addLayoutParam(LayoutOptions::ALGORITHM, layoutAlgorithm)
+            it.addLayoutParam(LayoutOptions::SPACING, spacing)
             
             // create KNode for given FEdge
             it.createHeaderNode(edge)
@@ -60,31 +75,40 @@ class FEdgeTransformation extends AbstractKielerGraphTransformation {
     def createHeaderNode(KNode rootNode, IVariable edge) { 
         rootNode.addNodeById(edge) => [
             it.data += renderingFactory.createKRectangle => [
-                it.headerNodeBasics(detailedView, edge)
+
+                val field = new KTextIterableField(topGap, rightGap, bottomGap, leftGap, vGap, hGap)
+                it.headerNodeBasics(field, detailedView, edge)
+                var row = field.rowCount
                 
                 if(detailedView) {
                     // show following elements only if detailedView
                     // source of edge
-                    it.children += renderingFactory.createKText => [
-                        it.text = "source: FNode " + edge.getValue("source.id") + " " + edge.getVariable("source").debugID
-                    ]
+                    field.set("source:", row, 0, leftColumnAlignment)
+                    field.set("FNode " + edge.getValue("source.id") + " " 
+                                       + edge.getVariable("source").debugID, row, 1, rightColumnAlignment)
+                    row = row + 1
 
                     // target of edge
-                    it.children += renderingFactory.createKText => [
-                        it.text = "source: FNode " + edge.getValue("target.id") + " " + edge.getVariable("target").debugID
-                    ]
-                    
+                    field.set("target:", row, 0, leftColumnAlignment)
+                    field.set("FNode " + edge.getValue("target.id") + " " 
+                                       + edge.getVariable("target").debugID, row, 1, rightColumnAlignment)
+                    row = row + 1
                 } else {
                     // if not detailedView, show a summary of following elements
                     // # of bendPoints
-                    it.children += renderingFactory.createKText => [
-                        it.text = "bendPoints (#): " + edge.getValue("bendpoints.size")
-                    ]
+                    field.set("bendPoints (#):", row, 0, leftColumnAlignment)
+                    field.set(edge.getValue("bendpoints.size"), row, 1, rightColumnAlignment)
+                    row = row + 1
                     
                     // # of labels of port
-                    it.children += renderingFactory.createKText => [
-                        it.text = "labels (#): " + edge.getValue("labels.size")
-                    ]
+                    field.set("labels (#):", row, 0, leftColumnAlignment)
+                    field.set(edge.getValue("labels.size"), row, 1, rightColumnAlignment)
+                    row = row + 1
+                }
+
+                // fill the KText into the ContainerRendering
+                for (text : field) {
+                    it.children += text
                 }
             ]
         ]
@@ -104,7 +128,8 @@ class FEdgeTransformation extends AbstractKielerGraphTransformation {
                     
                 // create all nodes for labels
                 labels.linkedList.forEach [ label |
-                    it.nextTransformation(label, false)
+                    it.children += nextTransformation(label, false)
+                    
                 ]
             ]
             
@@ -137,7 +162,7 @@ class FEdgeTransformation extends AbstractKielerGraphTransformation {
                     
                 // create all nodes for bendPoints
                 bendPoints.linkedList.forEach [ bendPoint |
-                    it.nextTransformation(bendPoint, false)
+                    it.children += nextTransformation(bendPoint, false)
                 ]
             ]
             

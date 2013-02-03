@@ -16,6 +16,7 @@ import de.cau.cs.kieler.core.krendering.KEllipse
 import de.cau.cs.kieler.core.krendering.KContainerRendering
 import de.cau.cs.kieler.klay.planar.graph.*
 import de.cau.cs.kieler.klighd.debug.graphTransformations.AbstractKielerGraphTransformation
+import de.cau.cs.kieler.klighd.debug.graphTransformations.KTextIterableField
 
 class PNodeTransformation extends AbstractKielerGraphTransformation {
     
@@ -27,14 +28,25 @@ class PNodeTransformation extends AbstractKielerGraphTransformation {
     extension KRenderingExtensions
     @Inject
     extension KColorExtensions
+        
+    val layoutAlgorithm = "de.cau.cs.kieler.kiml.ogdf.planarization"
+    val spacing = 75f
+    val leftColumnAlignment = KTextIterableField$TextAlignment::RIGHT
+    val rightColumnAlignment = KTextIterableField$TextAlignment::LEFT
+    val topGap = 4
+    val rightGap = 5
+    val bottomGap = 5
+    val leftGap = 4
+    val vGap = 3
+    val hGap = 5
     
     /**
      * {@inheritDoc}
      */
     override transform(IVariable node, Object transformationInfo) {
-        return KimlUtil::createInitializedNode() => [
-            it.addLayoutParam(LayoutOptions::ALGORITHM, "de.cau.cs.kieler.klay.layered")
-            it.addLayoutParam(LayoutOptions::SPACING, 75f)
+        return KimlUtil::createInitializedNode => [
+            it.addLayoutParam(LayoutOptions::ALGORITHM, layoutAlgorithm)
+            it.addLayoutParam(LayoutOptions::SPACING, spacing)
             
             it.children += node.createNode => [
                 // either an ellipse or a rectangle
@@ -62,29 +74,32 @@ class PNodeTransformation extends AbstractKielerGraphTransformation {
                     }
                 }
                 
-                container.ChildPlacement = renderingFactory.createKGridPlacement                    
+                val field = new KTextIterableField(topGap, rightGap, bottomGap, leftGap, vGap, hGap)
+                container.headerNodeBasics(field, detailedView, node)
+                var row = field.rowCount
 
-                // Type of node
-                container.children += renderingFactory.createKText() => [
-                    it.setForegroundColor(120,120,120)
-                    it.text = node.getType
-                ]
-                                        
                 // PNodes don't have a name or labels
                 // id of node
-                container.addKText(node, "id", "", ": ")
-                
+                field.set("id:", row, 0, leftColumnAlignment)
+                field.set(nullOrValue(node, "id"), row, 1, rightColumnAlignment)
+                row = row + 1
+
                 // position
-                container.children += renderingFactory.createKText() => [
-                    it.text = "position (x,y): (" + node.getValue("pos.x").round + " x " 
-                                                  + node.getValue("pos.y").round + ")" 
-                ]
+                field.set("pos (x,y):", row, 0, leftColumnAlignment)
+                field.set("(" + node.getValue("pos.x").round + " x " 
+                              + node.getValue("pos.y").round + ")", row, 1, rightColumnAlignment)
+                row = row + 1
                 
                 // size
-                container.children += renderingFactory.createKText() => [
-                    it.text = "size (x,y): (" + node.getValue("size.x").round + " x " 
-                                              + node.getValue("size.y").round + ")" 
-                ]
+                field.set("size (x,y):", row, 0, leftColumnAlignment)
+                field.set("(" + node.getValue("size.x").round + " x " 
+                              + node.getValue("size.y").round + ")", row, 1, rightColumnAlignment)
+                row = row + 1
+
+                // fill the KText into the ContainerRendering
+                for (text : field) {
+                    container.children += text
+                }
                 
                 it.data += container
             ]

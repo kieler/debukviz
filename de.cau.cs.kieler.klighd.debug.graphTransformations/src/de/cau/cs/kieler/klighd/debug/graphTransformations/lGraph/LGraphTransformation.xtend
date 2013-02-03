@@ -16,6 +16,7 @@ import javax.inject.Inject
 import org.eclipse.debug.core.model.IVariable
 
 import static de.cau.cs.kieler.klighd.debug.visualization.AbstractDebugTransformation.*
+import de.cau.cs.kieler.klighd.debug.graphTransformations.KTextIterableField
 
 class LGraphTransformation extends AbstractKielerGraphTransformation {
     
@@ -32,6 +33,17 @@ class LGraphTransformation extends AbstractKielerGraphTransformation {
     @Inject
     extension KLabelExtensions
     
+    val layoutAlgorithm = "de.cau.cs.kieler.kiml.ogdf.planarization"
+    val spacing = 75f
+    val leftColumnAlignment = KTextIterableField$TextAlignment::RIGHT
+    val rightColumnAlignment = KTextIterableField$TextAlignment::LEFT
+    val topGap = 4
+    val rightGap = 5
+    val bottomGap = 5
+    val leftGap = 4
+    val vGap = 3
+    val hGap = 5
+        
     /**
      * {@inheritDoc}
      */
@@ -39,8 +51,8 @@ class LGraphTransformation extends AbstractKielerGraphTransformation {
         if(transformationInfo instanceof Boolean) detailedView = transformationInfo as Boolean
         
         return KimlUtil::createInitializedNode => [
-            it.addLayoutParam(LayoutOptions::ALGORITHM, "de.cau.cs.kieler.kiml.ogdf.planarization")
-            it.addLayoutParam(LayoutOptions::SPACING, 75f)
+            it.addLayoutParam(LayoutOptions::ALGORITHM, layoutAlgorithm)
+            it.addLayoutParam(LayoutOptions::SPACING, spacing)
             
             // create header node
      		it.createHeaderNode(graph)
@@ -60,54 +72,66 @@ class LGraphTransformation extends AbstractKielerGraphTransformation {
 	def createHeaderNode(KNode rootNode, IVariable graph) {
 		rootNode.addNodeById(graph) => [
     		it.data += renderingFactory.createKRectangle => [
-    		    it.headerNodeBasics(detailedView, graph)
+
+                val field = new KTextIterableField(topGap, rightGap, bottomGap, leftGap, vGap, hGap)
+                it.headerNodeBasics(field, detailedView, graph)
+                var row = field.rowCount
                 
                 // id of graph
-                it.addKText(graph, "id", "", ": ")
+                field.set("id:", row, 0, leftColumnAlignment)
+                field.set(nullOrValue(graph, "id"), row, 1, rightColumnAlignment)
+                row = row + 1
                 
                 // hashCode of graph
-                it.addKText(graph, "hashCode", "", ": ")
+                field.set("hashCode:", row, 0, leftColumnAlignment)
+                field.set(nullOrValue(graph, "hashCode"), row, 1, rightColumnAlignment)
+                row = row + 1
     			
     			if(detailedView) {
                     // hashCodeCounter of graph
-                    it.children += renderingFactory.createKText => [
-                        it.text = "hashCodeCounter: " + graph.getValue("hashCodeCounter.count")
-                    ]
+                    field.set("hashCodeCounter:", row, 0, leftColumnAlignment)
+                    field.set(graph.getValue("hashCodeCounter.count"), row, 1, rightColumnAlignment)
+                    row = row + 1
                     
                     // size of graph
-                    it.children += renderingFactory.createKText => [
-                        it.text = "size (x,y): (" + graph.getValue("size.x").round + " x " 
-                                                  + graph.getValue("size.y").round + ")" 
-                    ]
+                    // size
+                    field.set("size (x,y):", row, 0, leftColumnAlignment)
+                    field.set("(" + graph.getValue("size.x").round + " x " 
+                                  + graph.getValue("size.y").round + ")", row, 1, rightColumnAlignment)
+                    row = row + 1
                     
                     // insets of graph
-                    it.children += renderingFactory.createKText => [
-                        it.text = "insets (t,r,b,l): (" + graph.getValue("insets.top").round + " x "
-                                                        + graph.getValue("insets.right").round + " x "
-                                                        + graph.getValue("insets.bottom").round + " x "
-                                                        + graph.getValue("insets.left").round + ")"
-                    ]
-                    
+                    field.set("insets (t,r,b,l):", row, 0, leftColumnAlignment)
+                    field.set("(" + graph.getValue("insets.top").round + " x "
+                                  + graph.getValue("insets.right").round + " x "
+                                  + graph.getValue("insets.bottom").round + " x "
+                                  + graph.getValue("insets.left").round + ")", row, 1, rightColumnAlignment)
+                    row = row + 1
+
                     // offset of graph
-                    it.children += renderingFactory.createKText => [
-                        it.text = "offset (x,y): (" + graph.getValue("offset.x").round + " x "
-                                                    + graph.getValue("offset.y").round + ")"
-                    ]
+                    field.set("offset (x,y):", row, 0, leftColumnAlignment)
+                    field.set("(" + graph.getValue("offset.x").round + " x " 
+                                  + graph.getValue("offset.y").round + ")", row, 1, rightColumnAlignment)
+                    row = row + 1
     			} else {
     			    // # of nodes
-                    it.children += renderingFactory.createKText => [
-                        var count = Integer::parseInt(graph.getValue("layerlessNodes.size"))
-                        for(layer : graph.getVariable("layers").linkedList) {
-                            count = count + Integer::parseInt(layer.getValue("nodes.size"))
-                        }
-                        it.text = "nodes (#): " + count
-                    ]
-    			    
+                    var count = Integer::parseInt(graph.getValue("layerlessNodes.size"))
+                    for(layer : graph.getVariable("layers").linkedList) {
+                        count = count + Integer::parseInt(layer.getValue("nodes.size"))
+                    }
+                    field.set("nodes (#):", row, 0, leftColumnAlignment)
+                    field.set("" + count, row, 1, rightColumnAlignment)
+                    row = row + 1
+
     			    // # of layers
-                    it.children += renderingFactory.createKText => [
-                        it.text = "layers (#): " + graph.getValue("layers.size")
-                    ]
+                    field.set("layers (#):", row, 0, leftColumnAlignment)
+                    field.set(graph.getValue("layers.size"), row, 1, rightColumnAlignment)
     			}
+
+                // fill the KText into the ContainerRendering
+                for (text : field) {
+                    it.children += text
+                }
             ]
 		]
 	}
@@ -153,7 +177,7 @@ class LGraphTransformation extends AbstractKielerGraphTransformation {
 	
 	def createNodes(KNode rootNode, IVariable nodes) {
 	    nodes.linkedList.forEach[IVariable node |
-          rootNode.nextTransformation(node, false)
+          rootNode.children += nextTransformation(node, false)
         ]
 	}
 
@@ -179,7 +203,7 @@ class LGraphTransformation extends AbstractKielerGraphTransformation {
         ]
     }
     
-//TODO: defaultwert ist wohl Ã¼berflÃ¼ssig... !?!
+//TODO: defaultwert ist wohl überflüssig... !?!
     def getEdgeType(IVariable edge) {
     	val type = edge.getVariable("propertyMap").getValFromHashMap("EDGE_TYPE")
     	if (type == null) {

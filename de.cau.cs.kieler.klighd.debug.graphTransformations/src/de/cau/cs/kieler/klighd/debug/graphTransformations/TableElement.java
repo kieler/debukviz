@@ -37,7 +37,7 @@ public class TableElement {
     private KText kText;
     private float width;
     private float height;
-    private TextAlignment align = TextAlignment.LEFT_TEXT;
+    private TextAlignment align = TextAlignment.LEFT;
 
     /**
      * @return the text
@@ -94,7 +94,7 @@ public class TableElement {
      * @param kText
      */
     public TableElement(KText kText) {
-        this(kText, TextAlignment.LEFT_TEXT);
+        this(kText, TextAlignment.LEFT);
     }
 
     /**
@@ -111,7 +111,7 @@ public class TableElement {
      * @param kText
      */
     public TableElement(String text) {
-        this(text, TextAlignment.LEFT_TEXT);
+        this(text, TextAlignment.LEFT);
     }
 
     /**

@@ -20,6 +20,7 @@ import de.cau.cs.kieler.core.util.Pair
 import de.cau.cs.kieler.kiml.options.EdgeLabelPlacement
 import de.cau.cs.kieler.kiml.options.Direction
 import de.cau.cs.kieler.kiml.options.LayoutOptions
+import de.cau.cs.kieler.klighd.debug.graphTransformations.KTextIterableField
 
 import static de.cau.cs.kieler.klighd.debug.graphTransformations.lGraph.LGraphTransformation.*
 import de.cau.cs.kieler.klighd.debug.graphTransformations.AbstractKielerGraphTransformation
@@ -39,6 +40,18 @@ class FGraphTransformation extends AbstractKielerGraphTransformation {
     extension KColorExtensions
     @Inject
     extension KLabelExtensions
+    
+    val layoutAlgorithm = "de.cau.cs.kieler.kiml.ogdf.planarization"
+    val spacing = 75f
+    val leftColumnAlignment = KTextIterableField$TextAlignment::RIGHT
+    val rightColumnAlignment = KTextIterableField$TextAlignment::LEFT
+    val topGap = 4
+    val rightGap = 5
+    val bottomGap = 5
+    val leftGap = 4
+    val vGap = 3
+    val hGap = 5
+    
     /**
      * {@inheritDoc}
      */
@@ -46,19 +59,16 @@ class FGraphTransformation extends AbstractKielerGraphTransformation {
         if(transformationInfo instanceof Boolean) detailedView = transformationInfo as Boolean
 
         return KimlUtil::createInitializedNode=> [
-            it.addLayoutParam(LayoutOptions::ALGORITHM, "de.cau.cs.kieler.kiml.ogdf.planarization")
-            it.addLayoutParam(LayoutOptions::SPACING, 75f)
+            it.addLayoutParam(LayoutOptions::ALGORITHM, layoutAlgorithm)
+            it.addLayoutParam(LayoutOptions::SPACING, spacing)
             
-//println("start")
             // create header node
             it.createHeaderNode(graph)
-//println("header done")
             
             // add the propertyMap and visualization if in detailed mode
             if (detailedView) {
                 // add propertyMap
                 it.addPropertyMapAndEdge(graph.getVariable("propertyMap"), graph)
-//println("property done")
                 
                 // create all nodes (in a new visualization node)
                 val visualizationNode = it.createNodes(graph)
@@ -71,42 +81,48 @@ class FGraphTransformation extends AbstractKielerGraphTransformation {
     
     def createHeaderNode(KNode rootNode, IVariable graph) {
         rootNode.addNodeById(graph) => [
-//println("node added")
             it.data += renderingFactory.createKRectangle => [
-//println("rectangled done")                
-                it.headerNodeBasics(detailedView, graph)
-//println("basics done")
+                
+                val field = new KTextIterableField(topGap, rightGap, bottomGap, leftGap, vGap, hGap)
+                it.headerNodeBasics(field, detailedView, graph)
+                var row = field.rowCount
+                
                 if (detailedView) {
                     // noOf labels
-                    it.children += renderingFactory.createKText => [
-                        it.text = "labels (#): " + graph.getValue("labels.size")
-                    ]
-//println("labels done")                    
+                    field.set("labels (#):", row, 0, leftColumnAlignment)
+                    field.set(graph.getValue("labels.size"), row, 1, rightColumnAlignment)
+                    row = row + 1
+
                     // noOf bendPpoints
-                    it.children += renderingFactory.createKText => [
-                        it.text = "bendPoints (#): " + graph.getValue("bendPoints.size")
-                    ]
-//println("bend done")    
+                    field.set("bendPoints (#):", row, 0, leftColumnAlignment)
+                    field.set(graph.getValue("bendPoints.size"), row, 1, rightColumnAlignment)
+                    row = row + 1
+
                     // noOf edges
-                    it.children += renderingFactory.createKText => [
-                        it.text = "edges (#): " + graph.getValue("edges.size")
-                    ]
-//println("noof done")                    
+                    field.set("edges (#):", row, 0, leftColumnAlignment)
+                    field.set(graph.getValue("edges.size"), row, 1, rightColumnAlignment)
+                    row = row + 1
+
                     // size of adjacency matrix
-                    it.children += renderingFactory.createKText => [
-                        val x = graph.getVariables("adjacency")
-                        var y = 0
-                        if (x.size > 0) {
-                            y = x.get(0).getValue.getVariables.size
-                        }
-                        it.text = "adjacency matrix: " + x.size + " x " + y
-                    ]
-//println("adjy done")                    
+                    val x = graph.getVariables("adjacency")
+                    var y = 0
+                    if (x.size > 0) {
+                        y = x.get(0).getValue.getVariables.size
+                    }
+                    field.set("adjacency matrix:", row, 0, leftColumnAlignment)
+                    field.set(x.size + " x " + y, row, 1, rightColumnAlignment)
+                    row = row + 1
+                    
                 } else {
                     // noOf nodes
-                    it.children += renderingFactory.createKText => [
-                        it.text = "nodes (#): " + graph.getValue("nodes.size")
-                    ]
+                    field.set("nodes (#):", row, 0, leftColumnAlignment)
+                    field.set(graph.getValue("nodes.size"), row, 1, rightColumnAlignment)
+                    row = row + 1
+                }
+
+                // fill the KText into the ContainerRendering
+                for (text : field) {
+                    it.children += text
                 }
             ]
         ]
@@ -122,7 +138,7 @@ class FGraphTransformation extends AbstractKielerGraphTransformation {
 
             // create all nodes
             nodes.linkedList.forEach[IVariable node |
-                it.nextTransformation(node, false)
+                it.children += nextTransformation(node, false)
             ]
         ]
 
@@ -180,7 +196,7 @@ class FGraphTransformation extends AbstractKielerGraphTransformation {
                         ]
                         // create all bendPoint nodes in the new bendPoint node
                         bendPoints.linkedList.forEach[IVariable bendPoint |
-                            it.nextTransformation(bendPoint, false)
+                            it.children += nextTransformation(bendPoint, false)
                         ]
                     ]
                     // create the edge from the new created node to the target node
@@ -197,7 +213,7 @@ class FGraphTransformation extends AbstractKielerGraphTransformation {
                 } else {
                     // EXACTLY one bendpoint, create a single bendpoint node
                     val bendPoint = bendPoints.linkedList.get(0)
-                    rootNode.nextTransformation(bendPoint, false)
+                    rootNode.children += nextTransformation(bendPoint, false)
                     
                     // create the edge from the new created node to the target node
                     bendPoint.createEdgeById(target) => [
@@ -218,14 +234,6 @@ class FGraphTransformation extends AbstractKielerGraphTransformation {
                     it.addArrowDecorator
                     it.setLineStyle(LineStyle::SOLID)
                 ]
-//                // add all labels to tail of first edge  
-//                edge.getVariable("labels").linkedList.forEach[IVariable label |
-//                    label.createLabel(it) => [
-//                        it.addLayoutParam(LayoutOptions::EDGE_LABEL_PLACEMENT, EdgeLabelPlacement::TAIL)
-//                        it.setLabelSize(50,20)
-//                        it.text = label.getValue("text")
-//                    ]                    
-//                ]
                 
                 // add adjacency label to head of first edge  
                 if (!adjacency.nullOrEmpty) {
