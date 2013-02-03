@@ -28,7 +28,9 @@ class TreeSetTransformation extends AbstractDebugTransformation {
     
     override transform(IVariable model, Object transformationInfo) {
         return KimlUtil::createInitializedNode() => [
-            it.addLayoutParam(LayoutOptions::ALGORITHM, "de.cau.cs.kieler.klay.layered")
+            //it.addLayoutParam(LayoutOptions::ALGORITHM, "de.cau.cs.kieler.klay.layered")
+            it.addLayoutParam(LayoutOptions::ALGORITHM, "de.cau.cs.kieler.kiml.ogdf.planarization")
+            it.addLayoutParam(LayoutOptions::SPACING, 50f)
             it.addLayoutParam(LayoutOptions::DIRECTION, Direction::DOWN)
             createTreeNode(model.getVariable("m.root"),"")
         ]
@@ -47,7 +49,7 @@ class TreeSetTransformation extends AbstractDebugTransformation {
         val right = root.getVariable("right")
         val key = root.key
         
-        node.nextTransformation(key)
+        node.children += key.nextTransformation
         
         if (right.valueIsNotNull) {
             node.createTreeNode(right,"right")

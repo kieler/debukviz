@@ -17,7 +17,9 @@ class EnumSetTransformation extends AbstractDebugTransformation {
     
     override transform(IVariable model, Object transformationInfo) {
         return KimlUtil::createInitializedNode() => [
-            it.addLayoutParam(LayoutOptions::ALGORITHM, "de.cau.cs.kieler.klay.layered")
+            //it.addLayoutParam(LayoutOptions::ALGORITHM, "de.cau.cs.kieler.klay.layered")
+            it.addLayoutParam(LayoutOptions::ALGORITHM, "de.cau.cs.kieler.kiml.ogdf.planarization")
+            it.addLayoutParam(LayoutOptions::SPACING, 50f)
             val universe = model.getVariables("universe")
             val elements = Integer::toBinaryString(Integer::parseInt(model.getValue("elements")))
             var index = 0

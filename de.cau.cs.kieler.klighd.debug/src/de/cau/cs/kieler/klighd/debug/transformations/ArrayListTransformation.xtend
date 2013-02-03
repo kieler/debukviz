@@ -30,12 +30,14 @@ class ArrayListTransformation extends AbstractDebugTransformation {
     
     override transform(IVariable model, Object transformationInfo) {
         return KimlUtil::createInitializedNode() => [
-            it.addLayoutParam(LayoutOptions::ALGORITHM, "de.cau.cs.kieler.klay.layered")
+            //it.addLayoutParam(LayoutOptions::ALGORITHM, "de.cau.cs.kieler.klay.layered")
+            it.addLayoutParam(LayoutOptions::ALGORITHM, "de.cau.cs.kieler.kiml.ogdf.planarization")
+            it.addLayoutParam(LayoutOptions::SPACING, 50f)
             it.addLayoutParam(LayoutOptions::DIRECTION, Direction::RIGHT)
             val size = Integer::parseInt(model.getValue("size"))
             model.getVariables("elementData").subList(0,size).forEach[
                 IVariable variable |
-                it.nextTransformation(variable)
+                it.children += variable.nextTransformation
                 if (previous != null)
                     previous.createEdgeById(variable) => [
                         variable.createLabel(it) => [
