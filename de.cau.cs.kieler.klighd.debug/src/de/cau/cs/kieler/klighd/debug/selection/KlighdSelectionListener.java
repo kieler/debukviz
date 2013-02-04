@@ -17,6 +17,8 @@ public class KlighdSelectionListener implements ISelectionListener {
     // Singleton implementation of selection listener
     private final static KlighdSelectionListener INSTANCE = new KlighdSelectionListener();
 
+    private static IVariable currentVariable = null;
+    
     private KlighdSelectionListener() {
     }
 
@@ -40,19 +42,22 @@ public class KlighdSelectionListener implements ISelectionListener {
 
     public void selectionChanged(IWorkbenchPart part, ISelection selection) {
         if (selection instanceof StructuredSelection) {
-            StructuredSelection treeSelection = (StructuredSelection) selection;
-            if (treeSelection.getFirstElement() instanceof IVariable) {
-                IVariable var = (IVariable) treeSelection.getFirstElement();
-                DiagramViewPart view = null;
-                if (DiagramViewManager.getInstance().getView("Variable") == null)
-                    view = DiagramViewManager.getInstance().createView("Variable", "Variable", var,
-                            null);
-                else
-                    view = DiagramViewManager.getInstance().updateView("Variable", "Variable", var,
-                            null);
-                
-                if (view != null && view.getContextViewer() != null) {
-                    view.getContextViewer().getCurrentViewContext().setSourceWorkbenchPart(part);
+            StructuredSelection structuredSelection = (StructuredSelection) selection;
+            if (structuredSelection.getFirstElement() instanceof IVariable) {
+                IVariable var = (IVariable) structuredSelection.getFirstElement();
+                if (!var.equals(currentVariable)) {
+	                currentVariable = var;
+                	DiagramViewPart view = null;
+	                if (DiagramViewManager.getInstance().getView("Variable") == null)
+	                    view = DiagramViewManager.getInstance().createView("Variable", "Variable", var,
+	                            null);
+	                else
+	                    view = DiagramViewManager.getInstance().updateView("Variable", "Variable", var,
+	                            null);
+	                
+	                if (view != null && view.getContextViewer() != null) {
+	                    view.getContextViewer().getCurrentViewContext().setSourceWorkbenchPart(part);
+	                }
                 }
             }
         }
