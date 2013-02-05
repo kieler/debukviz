@@ -75,7 +75,7 @@ class PNodeTransformation extends AbstractKielerGraphTransformation {
                 }
                 
                 val field = new KTextIterableField(topGap, rightGap, bottomGap, leftGap, vGap, hGap)
-                container.headerNodeBasics(field, detailedView, node)
+                container.headerNodeBasics(field, detailedView, node, leftColumnAlignment, rightColumnAlignment)
                 var row = field.rowCount
 
                 // PNodes don't have a name or labels

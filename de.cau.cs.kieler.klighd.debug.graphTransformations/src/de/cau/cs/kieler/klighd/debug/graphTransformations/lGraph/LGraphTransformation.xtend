@@ -74,7 +74,7 @@ class LGraphTransformation extends AbstractKielerGraphTransformation {
     		it.data += renderingFactory.createKRectangle => [
 
                 val field = new KTextIterableField(topGap, rightGap, bottomGap, leftGap, vGap, hGap)
-                it.headerNodeBasics(field, detailedView, graph)
+                it.headerNodeBasics(field, detailedView, graph, leftColumnAlignment, rightColumnAlignment)
                 var row = field.rowCount
                 
                 // id of graph
@@ -203,7 +203,7 @@ class LGraphTransformation extends AbstractKielerGraphTransformation {
         ]
     }
     
-//TODO: defaultwert ist wohl überflüssig... !?!
+//TODO: defaultwert ist wohl ï¿½berflï¿½ssig... !?!
     def getEdgeType(IVariable edge) {
     	val type = edge.getVariable("propertyMap").getValFromHashMap("EDGE_TYPE")
     	if (type == null) {

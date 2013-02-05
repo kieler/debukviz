@@ -105,7 +105,7 @@ class LEdgeTransformation extends AbstractKielerGraphTransformation {
             it.data += renderingFactory.createKRectangle => [
                 
                 val field = new KTextIterableField(topGap, rightGap, bottomGap, leftGap, vGap, hGap)
-                it.headerNodeBasics(field, detailedView, edge)
+                it.headerNodeBasics(field, detailedView, edge, leftColumnAlignment, rightColumnAlignment)
                 var row = field.rowCount
                 
                 // id of edge

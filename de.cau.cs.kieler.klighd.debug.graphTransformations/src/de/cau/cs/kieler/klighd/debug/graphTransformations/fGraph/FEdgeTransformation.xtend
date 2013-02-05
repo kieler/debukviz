@@ -77,7 +77,7 @@ class FEdgeTransformation extends AbstractKielerGraphTransformation {
             it.data += renderingFactory.createKRectangle => [
 
                 val field = new KTextIterableField(topGap, rightGap, bottomGap, leftGap, vGap, hGap)
-                it.headerNodeBasics(field, detailedView, edge)
+                it.headerNodeBasics(field, detailedView, edge, leftColumnAlignment, rightColumnAlignment)
                 var row = field.rowCount
                 
                 if(detailedView) {

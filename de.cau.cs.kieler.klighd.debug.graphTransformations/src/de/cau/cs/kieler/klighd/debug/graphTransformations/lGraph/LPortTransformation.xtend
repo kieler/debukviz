@@ -82,7 +82,7 @@ class LPortTransformation extends AbstractKielerGraphTransformation {
             it.data += renderingFactory.createKRectangle => [
 
                 var field = new KTextIterableField(topGap, rightGap, bottomGap, leftGap, vGap, hGap)
-                it.headerNodeBasics(field, detailedView, port)
+                it.headerNodeBasics(field, detailedView, port, leftColumnAlignment, rightColumnAlignment)
                 var row = field.rowCount
                 
                 // id of port

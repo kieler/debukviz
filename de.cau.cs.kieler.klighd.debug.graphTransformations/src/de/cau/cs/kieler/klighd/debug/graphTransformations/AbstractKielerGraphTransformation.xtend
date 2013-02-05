@@ -20,6 +20,7 @@ import de.cau.cs.kieler.core.krendering.extensions.KColorExtensions
 import de.cau.cs.kieler.core.krendering.extensions.KLabelExtensions
 
 abstract class AbstractKielerGraphTransformation extends AbstractDebugTransformation {
+	
     @Inject
     extension KNodeExtensions
 //    @Inject
@@ -33,6 +34,13 @@ abstract class AbstractKielerGraphTransformation extends AbstractDebugTransforma
     @Inject
     extension KLabelExtensions
 
+    val topGap = 4
+    val rightGap = 7
+    val bottomGap = 5
+    val leftGap = 4
+    val vGap = 3
+    val hGap = 5
+    
 //    protected GraphTransformationInfo gtInfo = new GraphTransformationInfo
     protected Boolean detailedView = true
     
@@ -139,7 +147,8 @@ abstract class AbstractKielerGraphTransformation extends AbstractDebugTransforma
                 it.data += renderingFactory.createKRectangle => [
                     it.lineWidth = 4
 
-                    val kTextField = new KTextIterableField(4, 5, 5, 4, 3, 5)
+                    val kTextField = new KTextIterableField(topGap, rightGap, bottomGap, leftGap, vGap, hGap)
+
                     val kText = renderingFactory.createKText => [
                         it.setForegroundColor(120,120,120)
                         it.text = propertyMap.getType
@@ -162,7 +171,7 @@ abstract class AbstractKielerGraphTransformation extends AbstractDebugTransforma
                 // add label to edge
                 propertyMap.createLabel(it) => [
                     it.addLayoutParam(LayoutOptions::EDGE_LABEL_PLACEMENT, EdgeLabelPlacement::CENTER)
-                    it.text = "Property Map"
+                    it.text = "propertyMap"
                     val dim = PlacementUtil::estimateTextSize(it)
                     it.setLabelSize(dim.width,dim.height)
                 ]
@@ -365,9 +374,9 @@ abstract class AbstractKielerGraphTransformation extends AbstractDebugTransforma
         return variable.getValue.getValueString
     }
     
-    def headerNodeBasics(KContainerRendering container, KTextIterableField field, Boolean detailedView, IVariable variable) {
-        container.ChildPlacement = renderingFactory.createKGridPlacement
-        
+    def headerNodeBasics(KContainerRendering container, KTextIterableField field, Boolean detailedView, 
+    			IVariable variable, KTextIterableField$TextAlignment leftColumn, 
+    								KTextIterableField$TextAlignment rightColumn) {
         if(detailedView) {
             // bold line in detailed view
             container.lineWidth = 4
@@ -376,8 +385,9 @@ abstract class AbstractKielerGraphTransformation extends AbstractDebugTransforma
             field.setHeader(variable.shortType)
 
             // name of the variable
-            field.set("Variable: " + variable.name + variable.getValue.getValueString, field.rowCount, 0) 
-            
+            field.set("Variable:", field.rowCount, 0, leftColumn) 
+            field.set(variable.name + variable.getValue.getValueString, field.rowCount - 1, 1, rightColumn) 
+
             // coloring of main element
             container.setBackgroundColor("lemon".color);
         } else {

@@ -62,7 +62,7 @@ class FBendpointTransformation extends AbstractKielerGraphTransformation {
             it.data += renderingFactory.createKEllipse => [
                 
                 val field = new KTextIterableField(topGap, rightGap, bottomGap, leftGap, vGap, hGap)
-                it.headerNodeBasics(field, detailedView, bendPoint)
+                it.headerNodeBasics(field, detailedView, bendPoint, leftColumnAlignment, rightColumnAlignment)
                 var row = field.rowCount
                 
                 // associated edge

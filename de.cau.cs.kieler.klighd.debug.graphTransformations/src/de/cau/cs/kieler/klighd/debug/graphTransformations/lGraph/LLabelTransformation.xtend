@@ -64,7 +64,7 @@ class LLabelTransformation extends AbstractKielerGraphTransformation {
             it.data += renderingFactory.createKRectangle => [
 
                 val field = new KTextIterableField(topGap, rightGap, bottomGap, leftGap, vGap, hGap)
-                it.headerNodeBasics(field, detailedView, label)
+                it.headerNodeBasics(field, detailedView, label, leftColumnAlignment, rightColumnAlignment)
                 var row = field.rowCount
                 
                 // id of label

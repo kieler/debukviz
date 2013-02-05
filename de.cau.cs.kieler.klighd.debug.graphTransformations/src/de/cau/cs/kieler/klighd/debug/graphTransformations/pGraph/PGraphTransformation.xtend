@@ -82,7 +82,7 @@ class PGraphTransformation extends AbstractKielerGraphTransformation {
             it.data += renderingFactory.createKRectangle => [
 
                 val field = new KTextIterableField(topGap, rightGap, bottomGap, leftGap, vGap, hGap)
-                it.headerNodeBasics(field, detailedView, graph)
+                it.headerNodeBasics(field, detailedView, graph, leftColumnAlignment, rightColumnAlignment)
                 var row = field.rowCount
 
                 // id of graph

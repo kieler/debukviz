@@ -105,7 +105,8 @@ public class KTextIterableField implements Iterable<KText>, Iterator<KText> {
     }
 
     public void set(KText kText, int row, int column) {
-        ensureSize(row, column);
+    	System.out.println("inserting to row " + row + " column " + column);
+    	ensureSize(row, column);
         a.get(row).set(column, new TableElement(kText));
 
         updateHorizontalAlign(row, column);
@@ -113,6 +114,7 @@ public class KTextIterableField implements Iterable<KText>, Iterator<KText> {
     }
 
     public void set(String text, int row, int column) {
+    	System.out.println("inserting to row " + row + " column " + column);
         ensureSize(row, column);
         a.get(row).set(column, new TableElement(text));
 
@@ -365,7 +367,7 @@ public class KTextIterableField implements Iterable<KText>, Iterator<KText> {
                 positionTL = kRenderingExtensions.createKPosition(PositionReferenceX.LEFT,
                         outerGap + leftMargin, 0, PositionReferenceY.TOP, topMargin, 0);
                 positionBR = kRenderingExtensions.createKPosition(PositionReferenceX.RIGHT,
-                        outerGap + rightMargin, 0, PositionReferenceY.BOTTOM, bottomMargin, 0);
+                        rightMargin, 0, PositionReferenceY.BOTTOM, bottomMargin, 0);
                 placement.setTopLeft(positionTL);
                 placement.setBottomRight(positionBR);
                 header.getkText().setPlacementData(placement);
@@ -390,12 +392,13 @@ public class KTextIterableField implements Iterable<KText>, Iterator<KText> {
                     }
                     placement = renderingFactory.createKDirectPlacementData();
                     positionTL = kRenderingExtensions.createKPosition(PositionReferenceX.LEFT,
-                            toLeft[countColumn] + minniGap, 0, PositionReferenceY.TOP, toTop[countRow], 0);
+                    		toLeft[countColumn] + minniGap, 0, PositionReferenceY.TOP, toTop[countRow], 0);
                     positionBR = kRenderingExtensions.createKPosition(PositionReferenceX.RIGHT,
-                            rightMargin, 0, PositionReferenceY.BOTTOM, bottomMargin, 0);
+                    		rightMargin, 0, PositionReferenceY.BOTTOM, bottomMargin, 0);
                     placement.setTopLeft(positionTL);
                     placement.setBottomRight(positionBR);
                     elem.getKtext().setPlacementData(placement);
+
                 }
                 countColumn++;
             }
@@ -405,7 +408,7 @@ public class KTextIterableField implements Iterable<KText>, Iterator<KText> {
             }
         }
         if (hit) {
-            return elem.getKtext();
+        	return elem.getKtext();
         } else {
             throw new NoSuchElementException();
         }

@@ -46,7 +46,7 @@ class FGraphTransformation extends AbstractKielerGraphTransformation {
     val leftColumnAlignment = KTextIterableField$TextAlignment::RIGHT
     val rightColumnAlignment = KTextIterableField$TextAlignment::LEFT
     val topGap = 4
-    val rightGap = 5
+    val rightGap = 7
     val bottomGap = 5
     val leftGap = 4
     val vGap = 3
@@ -82,9 +82,9 @@ class FGraphTransformation extends AbstractKielerGraphTransformation {
     def createHeaderNode(KNode rootNode, IVariable graph) {
         rootNode.addNodeById(graph) => [
             it.data += renderingFactory.createKRectangle => [
-                
-                val field = new KTextIterableField(topGap, rightGap, bottomGap, leftGap, vGap, hGap)
-                it.headerNodeBasics(field, detailedView, graph)
+    	                	
+            	val field = new KTextIterableField(topGap, rightGap, bottomGap, leftGap, vGap, hGap)
+                it.headerNodeBasics(field, detailedView, graph, leftColumnAlignment, rightColumnAlignment)
                 var row = field.rowCount
                 
                 if (detailedView) {
@@ -120,7 +120,7 @@ class FGraphTransformation extends AbstractKielerGraphTransformation {
                     row = row + 1
                 }
 
-                // fill the KText into the ContainerRendering
+				// fill the KText into the ContainerRendering
                 for (text : field) {
                     it.children += text
                 }

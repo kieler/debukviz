@@ -106,7 +106,7 @@ class LNodeTransformation extends AbstractKielerGraphTransformation {
                 ]
             }
 
-            container.headerNodeBasics(field, detailedView, node)
+            container.headerNodeBasics(field, detailedView, node, leftColumnAlignment, rightColumnAlignment)
             var row = field.rowCount
 
             container.setForegroundColor(node)

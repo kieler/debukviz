@@ -79,7 +79,7 @@ class FNodeTransformation extends AbstractKielerGraphTransformation {
             it.data += renderingFactory.createKRectangle => [
                 
                 val field = new KTextIterableField(topGap, rightGap, bottomGap, leftGap, vGap, hGap)
-                it.headerNodeBasics(field, detailedView, node)
+                it.headerNodeBasics(field, detailedView, node, leftColumnAlignment, rightColumnAlignment)
                 var row = field.rowCount
                 
                 // id of node
