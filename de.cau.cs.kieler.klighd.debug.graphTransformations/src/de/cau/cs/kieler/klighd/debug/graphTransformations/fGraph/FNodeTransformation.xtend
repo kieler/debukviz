@@ -66,8 +66,26 @@ class FNodeTransformation extends AbstractKielerGraphTransformation {
             // create KNode for given LNode
             it.createHeaderNode(node)
             
-            // add propertyMap
+
+	            // add propertyMap
             if (detailedView) it.addPropertyMapAndEdge(node.getVariable("propertyMap"), node)
+
+			val childs = node.getVariable("children")
+			if (children.valueNotNull) {
+				if ( children.getVariable("size")) {
+					
+				}
+			}
+            if (detailedView) {
+	            // add propertyMap
+            	it.createChildNode()
+            	
+	            // add child-node
+
+            } else {
+            	
+            }
+            
         ]
     }
     
