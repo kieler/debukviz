@@ -54,7 +54,7 @@ class PFaceTransformation extends AbstractKielerGraphTransformation {
     //          it.setNodeSize(120,80)
                 it.data += renderingFactory.createKRectangle => [
                     it.lineWidth = 4
-                    it.backgroundColor = "lemon".color
+                    it.background = "lemon".color
                     it.ChildPlacement = renderingFactory.createKGridPlacement
 
                     // type of graph

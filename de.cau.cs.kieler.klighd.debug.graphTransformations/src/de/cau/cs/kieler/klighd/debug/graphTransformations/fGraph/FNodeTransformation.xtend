@@ -76,16 +76,16 @@ class FNodeTransformation extends AbstractKielerGraphTransformation {
 		            if (detailedView) {
 			            // add a node for the children
 		            	it.createChildNodeAndEdge(children)
-		            	it.addChildren(children)
+//		            	it.addChildren(children)
 		            } else {
 			            // add child-area to header-node
 			            headerNode.data += renderingFactory.createKChildArea => [
-			            	it.placementData = renderingFactory.createKDirectPlacementData => [
+			            	it.placementData = renderingFactory.createKAreaPlacementData => [
 								it.topLeft = createKPosition(LEFT, field.width, 0, TOP, 5, 0)
 								it.bottomRight = createKPosition(RIGHT, 0, 0, BOTTOM, 5, 0)
 							]
 			            ]
-			            headernode.addChildren(children)
+//			            headernode.addChildren(children)
 		            }
 				}
 			}

@@ -18,6 +18,7 @@ import de.cau.cs.kieler.core.krendering.extensions.KPolylineExtensions
 import de.cau.cs.kieler.core.krendering.extensions.KRenderingExtensions
 import de.cau.cs.kieler.core.krendering.extensions.KColorExtensions
 import de.cau.cs.kieler.core.krendering.extensions.KLabelExtensions
+import de.cau.cs.kieler.core.krendering.HorizontalAlignment
 
 abstract class AbstractKielerGraphTransformation extends AbstractDebugTransformation {
 	
@@ -147,7 +148,7 @@ abstract class AbstractKielerGraphTransformation extends AbstractDebugTransforma
                 it.data += renderingFactory.createKRectangle => [
                     it.lineWidth = 4
 
-                    val kTextField = new KTextIterableField(topGap, rightGap, bottomGap, leftGap, vGap, hGap)
+/*                    val kTextField = new KTextIterableField(topGap, rightGap, bottomGap, leftGap, vGap, hGap)
 
                     val kText = renderingFactory.createKText => [
                         it.setForegroundColor(120,120,120)
@@ -159,8 +160,17 @@ abstract class AbstractKielerGraphTransformation extends AbstractDebugTransforma
                     kTextField.forEach [ text |
                         it.children += text
                     ]
+ */
+ 
+// 					it.ChildPlacement = renderingFactory.createKGridPlacement
+ 					it.addHashValueElement(propertyMap)
+println("hashmap done")
                 ]
-            ]                            
+            ]
+            
+            
+ 			
+			 
             //create edge from header to propertyMap node
             headerNode.createEdgeById(propertyMap) => [
                 it.data += renderingFactory.createKPolyline => [
@@ -176,6 +186,156 @@ abstract class AbstractKielerGraphTransformation extends AbstractDebugTransforma
                     it.setLabelSize(dim.width,dim.height)
                 ]
             ]
+        }
+    }
+    
+    def addHashValueElement(KContainerRendering container, IVariable element) {
+println(element.getType)
+        switch element.getType {
+             case "HashMap<K,V>" : {
+                if(element.valueIsNotNull) {
+                    val childs = element.hashMapToLinkedList
+
+                    if (childs.size == 0) {
+                    	container.children += renderingFactory.createKText => [
+                    		it.text = "(empty)"
+                    		it.setHorizontalAlignment(HorizontalAlignment::LEFT)
+                    	]
+                    } else {
+						// create a new invisible rectangle containing the key and value rectangles
+						val hashContainer = renderingFactory.createKRectangle => [
+							container.children += it
+							it.setInvisible(false)
+							it.ChildPlacement = renderingFactory.createKGridPlacement => [
+								it.numColumns = 2
+							]
+							it.setHorizontalAlignment(HorizontalAlignment::LEFT)
+						]
+		
+		            	// add a new invisible rectangle containing the keys
+						val keyContainer = renderingFactory.createKRectangle => [
+							hashContainer.children += it
+							it.setInvisible(false)
+                    		it.setGridPlacementData(0f, 0f,
+                    			createKPosition(LEFT, 50f, 0f, TOP, 30f, 0f),
+                    			createKPosition(RIGHT, 10f, 0f, BOTTOM, 3f, 0f)
+                    		);
+							it.ChildPlacement = renderingFactory.createKGridPlacement => [
+								it.numColumns = 1
+							]
+							it.setHorizontalAlignment(HorizontalAlignment::RIGHT)
+						]
+		
+		            	// add a new invisible rectangle containing the values
+						val valueContainer = renderingFactory.createKRectangle => [
+							hashContainer.children += it
+							it.setInvisible(false)
+//                    		it.setGridPlacementData(0f, 0f,
+//                    			createKPosition(LEFT, 10f, 0f, TOP, 3f, 0f),
+//                    			createKPosition(RIGHT, 10f, 0f, BOTTOM, 3f, 0f)
+//                    		);
+							it.ChildPlacement = renderingFactory.createKGridPlacement => [
+								it.numColumns = 1
+							]
+							it.setHorizontalAlignment(HorizontalAlignment::LEFT)
+						]
+		
+		                // add all child elements
+                        for (child : childs) {
+                        	// add the key
+                        	keyContainer.children += renderingFactory.createKText => [
+                        		it.text = child.getVariable("key").keyString
+                        		it.setHorizontalAlignment(HorizontalAlignment::RIGHT)
+                        		it.setGridPlacementData(0f, 0f,
+                        			createKPosition(LEFT, 10f, 0f, TOP, 3f, 0f),
+                        			createKPosition(RIGHT, 10f, 0f, BOTTOM, 3f, 0f)
+                        		);
+                        	];
+                        	
+                        	// add the value
+                        	valueContainer.addHashValueElement(child.getVariable("value"))
+                        }
+                    }
+                 } else {
+                	// hashTable is null
+                	container.children += renderingFactory.createKText => [
+                		it.text = "(null)"
+                		it.setHorizontalAlignment(HorizontalAlignment::LEFT)
+                	]
+                }
+            }
+            case "RegularEnumSet<E>" : 
+                	container.children += renderingFactory.createKText => [
+                		it.text = "(TODO)"
+                 		it.setHorizontalAlignment(HorizontalAlignment::LEFT)
+                	]
+
+            case "NodeGroup" :                 	
+            			container.children += renderingFactory.createKText => [
+                		it.text = "(TODO)"
+                		it.setHorizontalAlignment(HorizontalAlignment::LEFT)
+                	]
+
+            case "KNodeImpl" :
+            	container.children += renderingFactory.createKText => [
+        			it.text = "KNodeImpl " + element.getValue.getValueString
+        			it.setHorizontalAlignment(HorizontalAlignment::LEFT)
+    			]
+            case "KLabelImpl" :
+            	container.children += renderingFactory.createKText => [
+            		it.text = "KLabelImpl " + element.getValue.getValueString
+            		it.setHorizontalAlignment(HorizontalAlignment::LEFT)
+    			]
+            case "KEdgeImpl" :
+            	container.children += renderingFactory.createKText => [
+            		it.text = "KEdgeImpl " + element.getValue.getValueString
+            		it.setHorizontalAlignment(HorizontalAlignment::LEFT)
+    			]
+            case "LNode" :
+            	container.children += renderingFactory.createKText => [
+            		it.text = "LNodeImpl " + element.getValue("id") + element.getValue.getValueString
+            		it.setHorizontalAlignment(HorizontalAlignment::LEFT)
+    			]
+            case "Random" :
+            	container.children += renderingFactory.createKText => [
+            		it.text = "seed " + element.getValue("seed.value")
+            		it.setHorizontalAlignment(HorizontalAlignment::LEFT)
+    			]
+            case "String" :
+            	container.children += renderingFactory.createKText => [
+            		it.text = element.getValue.getValueString
+            		it.setHorizontalAlignment(HorizontalAlignment::LEFT)
+    			]
+            case "Direction" :
+            	container.children += renderingFactory.createKText => [
+            		it.text = element.getValue("name")
+            		it.setHorizontalAlignment(HorizontalAlignment::LEFT)
+    			]
+            case "Boolean" :
+            	container.children += renderingFactory.createKText => [
+            		it.text = element.getValue("value")
+            		it.setHorizontalAlignment(HorizontalAlignment::LEFT)
+    			]
+            case "Float" :
+            	container.children += renderingFactory.createKText => [
+            		it.text = "KNodeImpl " + element.getValue.getValueString
+            		it.setHorizontalAlignment(HorizontalAlignment::LEFT)
+    			]
+            case "PortConstraints" :
+            	container.children += renderingFactory.createKText => [
+            		it.text = element.getValue("name")
+            		it.setHorizontalAlignment(HorizontalAlignment::LEFT)
+    			]
+            case "EdgeLabelPlacement" :
+            	container.children += renderingFactory.createKText => [
+            		it.text = element.getValue("name")
+            		it.setHorizontalAlignment(HorizontalAlignment::LEFT)
+    			]
+            default :
+            	container.children += renderingFactory.createKText => [
+            		it.text = "<? " + element.getType + element.getValue.getValueString + "?>"
+            		it.setHorizontalAlignment(HorizontalAlignment::LEFT)
+    			]
         }
     }
     
@@ -389,7 +549,7 @@ abstract class AbstractKielerGraphTransformation extends AbstractDebugTransforma
             field.set(variable.name + variable.getValue.getValueString, field.rowCount - 1, 1, rightColumn) 
 
             // coloring of main element
-            container.setBackgroundColor("lemon".color);
+            container.setBackground("lemon".color);
         } else {
             // slim line in not detailed view
             container.lineWidth = 2

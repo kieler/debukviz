@@ -20,7 +20,7 @@ import java.util.NoSuchElementException;
 import javax.inject.Inject;
 
 import de.cau.cs.kieler.core.krendering.HorizontalAlignment;
-import de.cau.cs.kieler.core.krendering.KDirectPlacementData;
+import de.cau.cs.kieler.core.krendering.KAreaPlacementData;
 import de.cau.cs.kieler.core.krendering.KPosition;
 import de.cau.cs.kieler.core.krendering.KRenderingFactory;
 import de.cau.cs.kieler.core.krendering.KText;
@@ -353,7 +353,7 @@ public class KTextIterableField implements Iterable<KText>, Iterator<KText> {
      * {@inheritDoc}
      */
     public KText next() {
-        KDirectPlacementData placement;
+    	KAreaPlacementData placement;
         KPosition positionTL;
         KPosition positionBR;
         boolean hit = false;
@@ -362,7 +362,7 @@ public class KTextIterableField implements Iterable<KText>, Iterator<KText> {
         
         if (countRow == -1) {
             if (header.getkText() != null) {
-                placement = renderingFactory.createKDirectPlacementData();
+                placement = renderingFactory.createKAreaPlacementData();
                 float outerGap = (width() - header.getWidth() - leftMargin - rightMargin) / 2;
                 positionTL = kRenderingExtensions.createKPosition(PositionReferenceX.LEFT,
                         outerGap + leftMargin, 0, PositionReferenceY.TOP, topMargin, 0);
@@ -390,7 +390,7 @@ public class KTextIterableField implements Iterable<KText>, Iterator<KText> {
                     } else {
                         minniGap = 0;
                     }
-                    placement = renderingFactory.createKDirectPlacementData();
+                    placement = renderingFactory.createKAreaPlacementData();
                     positionTL = kRenderingExtensions.createKPosition(PositionReferenceX.LEFT,
                     		toLeft[countColumn] + minniGap, 0, PositionReferenceY.TOP, toTop[countRow], 0);
                     positionBR = kRenderingExtensions.createKPosition(PositionReferenceX.RIGHT,
