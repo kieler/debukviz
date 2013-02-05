@@ -10,8 +10,6 @@ import java.util.LinkedList
 import javax.inject.Inject
 import org.eclipse.debug.core.DebugException
 import org.eclipse.debug.core.model.IVariable
-
-import static de.cau.cs.kieler.klighd.debug.visualization.AbstractDebugTransformation.*
 import de.cau.cs.kieler.core.krendering.extensions.KNodeExtensions
 import de.cau.cs.kieler.core.krendering.extensions.KEdgeExtensions
 import de.cau.cs.kieler.core.krendering.extensions.KPolylineExtensions
@@ -19,6 +17,8 @@ import de.cau.cs.kieler.core.krendering.extensions.KRenderingExtensions
 import de.cau.cs.kieler.core.krendering.extensions.KColorExtensions
 import de.cau.cs.kieler.core.krendering.extensions.KLabelExtensions
 import de.cau.cs.kieler.core.krendering.HorizontalAlignment
+
+import static de.cau.cs.kieler.klighd.debug.visualization.AbstractDebugTransformation.*
 
 abstract class AbstractKielerGraphTransformation extends AbstractDebugTransformation {
 	
@@ -148,29 +148,11 @@ abstract class AbstractKielerGraphTransformation extends AbstractDebugTransforma
                 it.data += renderingFactory.createKRectangle => [
                     it.lineWidth = 4
 
-/*                    val kTextField = new KTextIterableField(topGap, rightGap, bottomGap, leftGap, vGap, hGap)
-
-                    val kText = renderingFactory.createKText => [
-                        it.setForegroundColor(120,120,120)
-                        it.text = propertyMap.getType
-                    ]
-                    kTextField.setHeader(kText)
-                    
-                    kTextField.addValue(propertyMap, 0, 0)
-                    kTextField.forEach [ text |
-                        it.children += text
-                    ]
- */
- 
 // 					it.ChildPlacement = renderingFactory.createKGridPlacement
  					it.addHashValueElement(propertyMap)
-println("hashmap done")
                 ]
             ]
-            
-            
- 			
-			 
+
             //create edge from header to propertyMap node
             headerNode.createEdgeById(propertyMap) => [
                 it.data += renderingFactory.createKPolyline => [
@@ -190,7 +172,6 @@ println("hashmap done")
     }
     
     def addHashValueElement(KContainerRendering container, IVariable element) {
-println(element.getType)
         switch element.getType {
              case "HashMap<K,V>" : {
                 if(element.valueIsNotNull) {
@@ -203,57 +184,29 @@ println(element.getType)
                     	]
                     } else {
 						// create a new invisible rectangle containing the key and value rectangles
-						val hashContainer = renderingFactory.createKRectangle => [
-							container.children += it
-							it.setInvisible(false)
-							it.ChildPlacement = renderingFactory.createKGridPlacement => [
-								it.numColumns = 2
-							]
-							it.setHorizontalAlignment(HorizontalAlignment::LEFT)
-						]
-		
-		            	// add a new invisible rectangle containing the keys
-						val keyContainer = renderingFactory.createKRectangle => [
-							hashContainer.children += it
-							it.setInvisible(false)
-                    		it.setGridPlacementData(0f, 0f,
-                    			createKPosition(LEFT, 50f, 0f, TOP, 30f, 0f),
-                    			createKPosition(RIGHT, 10f, 0f, BOTTOM, 3f, 0f)
-                    		);
-							it.ChildPlacement = renderingFactory.createKGridPlacement => [
-								it.numColumns = 1
-							]
-							it.setHorizontalAlignment(HorizontalAlignment::RIGHT)
-						]
-		
-		            	// add a new invisible rectangle containing the values
-						val valueContainer = renderingFactory.createKRectangle => [
-							hashContainer.children += it
-							it.setInvisible(false)
-//                    		it.setGridPlacementData(0f, 0f,
-//                    			createKPosition(LEFT, 10f, 0f, TOP, 3f, 0f),
-//                    			createKPosition(RIGHT, 10f, 0f, BOTTOM, 3f, 0f)
-//                    		);
-							it.ChildPlacement = renderingFactory.createKGridPlacement => [
-								it.numColumns = 1
-							]
-							it.setHorizontalAlignment(HorizontalAlignment::LEFT)
-						]
-		
+                        val hashContainer = renderingFactory.createKRectangle => [
+                            container.children += it
+                            it.setInvisible(true)
+                            it.ChildPlacement = renderingFactory.createKGridPlacement => [
+                                it.numColumns = 2
+                            ]
+                            it.setHorizontalAlignment(HorizontalAlignment::LEFT)
+                        ]
+
 		                // add all child elements
                         for (child : childs) {
                         	// add the key
-                        	keyContainer.children += renderingFactory.createKText => [
+                        	hashContainer.children += renderingFactory.createKText => [
                         		it.text = child.getVariable("key").keyString
                         		it.setHorizontalAlignment(HorizontalAlignment::RIGHT)
                         		it.setGridPlacementData(0f, 0f,
-                        			createKPosition(LEFT, 10f, 0f, TOP, 3f, 0f),
-                        			createKPosition(RIGHT, 10f, 0f, BOTTOM, 3f, 0f)
+                        			createKPosition(LEFT, 5f, 0f, TOP, 5f, 0f),
+                        			createKPosition(RIGHT, 5f, 0f, BOTTOM, 5f, 0f)
                         		);
                         	];
                         	
                         	// add the value
-                        	valueContainer.addHashValueElement(child.getVariable("value"))
+                        	hashContainer.addHashValueElement(child.getVariable("value"))
                         }
                     }
                  } else {
@@ -339,107 +292,21 @@ println(element.getType)
         }
     }
     
-    def addValue(KTextIterableField field, IVariable element, int oldRow, int oldColumn) {
-        var int row = oldRow
-        var int column = oldColumn
-
-        switch element.getType {
-            case "HashMap<K,V>" : {
-                //TODO: this is a bit ugly, but I don't know a better solution:
-                // the very first header element is the name of the table and we don't want it here
-                // add the header element
-                if(oldRow != 0 || column != 0) {
-                    field.set(element.name + ": ", row, column, KTextIterableField$TextAlignment::RIGHT)
-                    column = column + 1
-                }
-                
-                // create all child elements
-                if(element.valueIsNotNull) {
-                    val childs = element.hashMapToLinkedList
-                    
-                    if (childs.size == 0) {
-                        field.set("(empty)", row, column)
-                    } else {
-                        for (child : childs) {
-                            field.set(child.getVariable("key").keyString, row, column, KTextIterableField$TextAlignment::RIGHT)
-                            row = field.addValue(child.getVariable("value"), row, column + 1)
-                            row = row + 1
-                        }
-                        row = row - 1
-                    }
-                } else {
-                    field.set("(null)", row, column)
-                }
-            }
-            
-            case "RegularEnumSet<E>" : {
-                // create the enumSet elements
-                row = field.addEnumSet(element, row, column)
-            } 
-            
-            case "NodeGroup" : {
-                // create all child elements
-                val childs = element.getVariables("nodes")
-                if(childs.nullOrEmpty) {
-                    field.set("(empty)", row, column)
-                    row = row + 1
-                } else {
-                    // add all elements
-                    for (child : childs) {
-                        row = field.addValue(child, row, column)
-                        row = row + 1
-                    }
-                    row = row - 1
-                }
-            } 
-            case "KNodeImpl" : {
-                field.set("KNodeImpl " + element.getValue.getValueString, row, column)
-            }
-            case "KLabelImpl" : {
-                field.set("KLabelImpl " + element.getValue.getValueString, row, column)
-            }
-            case "KEdgeImpl" : {
-                field.set("KEdgeImpl " + element.getValue.getValueString, row, column)
-            }
-            case "LNode" : {
-                field.set("LNodeImpl " + element.getValue("id") + element.getValue.getValueString, row, column)
-            }
-            case "Random" : {
-                field.set("seed " + element.getValue("seed.value"), row, column)
-            }
-            case "String" : {
-                field.set(element.getValue.getValueString, row, column)
-            }
-            case "Direction" : {
-                field.set(element.getValue("name"), row, column)
-            }
-            case "Boolean" : {
-                field.set(element.getValue("value"), row, column)
-            }
-            case "Float" : {
-                field.set(element.getValue("value"), row, column)
-            }
-            case "PortConstraints" : {
-                field.set(element.getValue("name"), row, column)
-            }
-            case "EdgeLabelPlacement" : {
-                field.set(element.getValue("name"), row, column)
-            }
-            default : {
-                field.set("<? " + element.getType + element.getValue.getValueString + "?>", row, column)
-            }
-        }
-        return row
-    }
-
-    def addEnumSet(KTextIterableField container, IVariable set, int oldRow, int column) {
-        var row = oldRow
+    def addEnumSet(KContainerRendering container, IVariable set) {
         // the mask representing the elements that are set
         val elemMask = Integer::parseInt(set.getValue("elements"))
         if (elemMask == 0) {
             // no elements are set at all
-            container.set("(none)", row, column)
+            return container.addKTextLeft("(none)")
         } else {
+            val hashContainer = renderingFactory.createKRectangle => [
+                container.children += it
+                it.setInvisible(true)
+                it.ChildPlacement = renderingFactory.createKGridPlacement => [
+                    it.numColumns = 1
+                ]
+                it.setHorizontalAlignment(HorizontalAlignment::LEFT)
+            ]
             // the elements available
             val elements = set.getVariables("universe")
             var i = 0
@@ -448,14 +315,23 @@ println(element.getType)
                 var mask = Integer::parseInt(elements.get(i).getValue("ordinal")).pow2
                 if(elemMask.bitwiseAnd(mask) > 0) {
                     // bit is set 
-                    container.set(elements.get(i).getValue("name"), row, column)
-                    row = row + 1
+                    hashContainer.addKTextLeft(elements.get(i).getValue("name"))
                 }
-                i = i + 1
             }
-            row = row - 1
+            return hashContainer
         }
-        return row
+    }
+    
+    
+    
+    
+    
+    def addKTextLeft(KContainerRendering container, String text) {
+        return renderingFactory.createKText => [
+            container.children += it
+            it.text = text
+            it.setHorizontalAlignment(HorizontalAlignment::LEFT)
+        ]
     }
     
     /**
@@ -569,14 +445,6 @@ println(element.getType)
         ]
     }
     
-    def nullOrValue(IVariable variable, String valueName) {
-            if (variable.valueIsNotNull) {
-                return variable.getValue(valueName)
-            } else {
-                return "null"
-            }
-    }
-    
     def addKText(KContainerRendering container, IVariable variable, String valueText, String prefix, String delimiter) {
         return renderingFactory.createKText => [
             it.text = prefix + valueText + delimiter + nullOrValue(variable, valueText)
@@ -592,4 +460,14 @@ println(element.getType)
             return variable + ": null"
         }
     }
+
+    def nullOrValue(IVariable variable, String valueName) {
+            if (variable.valueIsNotNull) {
+                return variable.getValue(valueName)
+            } else {
+                return "null"
+            }
+    }
+    
+
 }
