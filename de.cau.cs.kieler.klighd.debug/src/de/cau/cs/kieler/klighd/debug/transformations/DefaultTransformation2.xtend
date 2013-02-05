@@ -37,12 +37,12 @@ class DefaultTransformation extends AbstractDebugTransformation {
     extension KLabelExtensions
     
     var nodeCount = 0
-    val maxNodeCount = 20
+    val maxNodeCount = 100
 
     override transform(IVariable model, Object transformationInfo) {
         return KimlUtil::createInitializedNode() => [
-            //it.addLayoutParam(LayoutOptions::ALGORITHM, "de.cau.cs.kieler.klay.layered")
-            it.addLayoutParam(LayoutOptions::ALGORITHM, "de.cau.cs.kieler.kiml.ogdf.planarization")
+            it.addLayoutParam(LayoutOptions::ALGORITHM, "de.cau.cs.kieler.klay.layered")
+            //it.addLayoutParam(LayoutOptions::ALGORITHM, "de.cau.cs.kieler.kiml.ogdf.planarization")
             it.addLayoutParam(LayoutOptions::SPACING, 50f)
             it.addLayoutParam(LayoutOptions::DIRECTION, Direction::RIGHT)
             // Array
@@ -165,7 +165,7 @@ class DefaultTransformation extends AbstractDebugTransformation {
 	                        variable.createLabel(it) => [
 	                             val String name = variable.name
 	                             it.addLayoutParam(LayoutOptions::EDGE_LABEL_PLACEMENT, EdgeLabelPlacement::CENTER)
-	                             it.setLabelSize(name.length*20,50)
+	                             it.setLabelSize(name.length*30,50)
 	                             it.text = name
 	                         ]
 	                         it.data += renderingFactory.createKPolyline() => [
