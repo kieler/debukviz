@@ -124,13 +124,13 @@ class LEdgeTransformation extends AbstractKielerGraphTransformation {
                     // source of edge
                     field.set("source:", row, 0, leftColumnAlignment)
                     field.set("LNode " + edge.getValue("source.id") + " " 
-                                       + edge.getVariable("source").debugID, row, 1, rightColumnAlignment)
+                                       + edge.getVariable("source").getValueString, row, 1, rightColumnAlignment)
                     row = row + 1
 
                     // target of edge
                     field.set("target:", row, 0, leftColumnAlignment)
                     field.set("LNode " + edge.getValue("target.id") + " " 
-                                       + edge.getVariable("target").debugID, row, 1, rightColumnAlignment)
+                                       + edge.getVariable("target").getValueString, row, 1, rightColumnAlignment)
                     row = row + 1
 
 //TODO: bendpoints evtl. auch hier als eigener node?                    

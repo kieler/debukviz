@@ -80,7 +80,7 @@ class FLabelTransformation extends AbstractKielerGraphTransformation {
                     // show following elements only if detailedView
                     // edge of label
                     field.set("edge:", row, 0, leftColumnAlignment)
-                    field.set("FEdge " + label.getVariable("edge").debugID, row, 1, rightColumnAlignment)
+                    field.set("FEdge " + label.getVariable("edge").getValueString, row, 1, rightColumnAlignment)
                     row = row + 1
                 
                     // position of label

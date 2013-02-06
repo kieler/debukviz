@@ -25,6 +25,7 @@ import de.cau.cs.kieler.klighd.debug.graphTransformations.KTextIterableField
 import static de.cau.cs.kieler.klighd.debug.graphTransformations.lGraph.LGraphTransformation.*
 import de.cau.cs.kieler.klighd.debug.graphTransformations.AbstractKielerGraphTransformation
 import de.cau.cs.kieler.core.krendering.extensions.KLabelExtensions
+import java.util.LinkedList
 
 class FGraphTransformation extends AbstractKielerGraphTransformation {
     
@@ -75,9 +76,67 @@ class FGraphTransformation extends AbstractKielerGraphTransformation {
                 
                 // create all edges (in the given visualization node) 
                 visualizationNode.createEdges(graph)
+                
+                // add adjacency matrix\
+                it.addAdjacency(graph)
             }
         ]
     }
+	def void addAdjacency(KNode rootNode, IVariable graph) {
+		val adjacency = graph.getVariable("adjacency")
+		val adja = adjacency.getValue.getVariables
+		val size = adja.size
+		
+		rootNode.addNodeById(adjacency) => [
+			it.data += renderingFactory.createKRectangle => [
+                it.lineWidth = 4
+				if (size > 0) {
+	            	it.ChildPlacement = renderingFactory.createKGridPlacement => [
+	                    it.numColumns = size + 2
+	                ]
+/*            		it.setGridPlacementData(0f, 0f,
+	        			createKPosition(LEFT, 5f, 0f, TOP, 5f, 0f),
+            			createKPosition(RIGHT, 5f, 0f, BOTTOM, 5f, 0f)
+            		)
+ */
+					it.children += renderingFactory.createKRectangle => [
+		                it.setInvisible(true)
+		            ]
+		            	it.addKText("|")
+		            
+		            for(Integer i: 0..size-1){
+			            it.addKText(i.toString)  
+	    			}
+		            for(Integer i: 0..size+1){
+		            	it.addKText("-")
+	    			}
+		            for (Integer i : 0..size-1) {
+		            	it.addKText(i.toString)
+		            	it.addKText("|")
+
+		            	val row = adja.get(i).getValue.getVariables
+		            	for (elem : row) {
+		            		it.addKText(elem.getValueString)
+		            	}
+		            }
+				} else {
+					it.addKText("null")
+				}
+			]
+		]
+        graph.createEdgeById(adjacency) => [
+            it.data += renderingFactory.createKPolyline => [
+                it.setLineWidth(2)
+                it.addArrowDecorator
+                it.setLineStyle(LineStyle::SOLID)
+            ]
+            adjacency.createLabel(it) => [
+                it.addLayoutParam(LayoutOptions::EDGE_LABEL_PLACEMENT, EdgeLabelPlacement::CENTER)
+                it.setLabelSize(50,20)
+                it.text = "adjacency"
+            ]
+        ]			
+	}
     
     def createHeaderNode(KNode rootNode, IVariable graph) {
         rootNode.addNodeById(graph) => [

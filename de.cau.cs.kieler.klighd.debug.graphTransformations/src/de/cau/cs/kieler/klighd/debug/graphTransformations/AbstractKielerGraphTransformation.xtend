@@ -133,7 +133,7 @@ abstract class AbstractKielerGraphTransformation extends AbstractDebugTransforma
             case "LayoutOptionData<T>" : 
                 return key.getValue("name") + ":"
             case "KNodeImpl" :
-                return "KNode" + key.getValue.getValueString + " -> "
+                return "KNode" + key.getValueString + " -> "
         }
         // a default statement in the switch results in a missing return statement in generated 
         // java code, so I added the default return value here
@@ -190,7 +190,11 @@ abstract class AbstractKielerGraphTransformation extends AbstractDebugTransforma
                             it.ChildPlacement = renderingFactory.createKGridPlacement => [
                                 it.numColumns = 2
                             ]
-                            it.setHorizontalAlignment(HorizontalAlignment::LEFT)
+/*                        		it.setGridPlacementData(0f, 0f,
+                        			createKPosition(LEFT, 5f, 0f, TOP, 5f, 0f),
+                        			createKPosition(RIGHT, 5f, 0f, BOTTOM, 5f, 0f)
+                        		)
+ */                            it.setHorizontalAlignment(HorizontalAlignment::LEFT)
                         ]
 
 		                // add all child elements
@@ -199,11 +203,12 @@ abstract class AbstractKielerGraphTransformation extends AbstractDebugTransforma
                         	hashContainer.children += renderingFactory.createKText => [
                         		it.text = child.getVariable("key").keyString
                         		it.setHorizontalAlignment(HorizontalAlignment::RIGHT)
+
                         		it.setGridPlacementData(0f, 0f,
                         			createKPosition(LEFT, 5f, 0f, TOP, 5f, 0f),
                         			createKPosition(RIGHT, 5f, 0f, BOTTOM, 5f, 0f)
-                        		);
-                        	];
+                        		)
+                        	]
                         	
                         	// add the value
                         	hashContainer.addHashValueElement(child.getVariable("value"))
@@ -231,22 +236,22 @@ abstract class AbstractKielerGraphTransformation extends AbstractDebugTransforma
 
             case "KNodeImpl" :
             	container.children += renderingFactory.createKText => [
-        			it.text = "KNodeImpl " + element.getValue.getValueString
+        			it.text = "KNodeImpl " + element.getValueString
         			it.setHorizontalAlignment(HorizontalAlignment::LEFT)
     			]
             case "KLabelImpl" :
             	container.children += renderingFactory.createKText => [
-            		it.text = "KLabelImpl " + element.getValue.getValueString
+            		it.text = "KLabelImpl " + element.getValueString
             		it.setHorizontalAlignment(HorizontalAlignment::LEFT)
     			]
             case "KEdgeImpl" :
             	container.children += renderingFactory.createKText => [
-            		it.text = "KEdgeImpl " + element.getValue.getValueString
+            		it.text = "KEdgeImpl " + element.getValueString
             		it.setHorizontalAlignment(HorizontalAlignment::LEFT)
     			]
             case "LNode" :
             	container.children += renderingFactory.createKText => [
-            		it.text = "LNodeImpl " + element.getValue("id") + element.getValue.getValueString
+            		it.text = "LNodeImpl " + element.getValue("id") + element.getValueString
             		it.setHorizontalAlignment(HorizontalAlignment::LEFT)
     			]
             case "Random" :
@@ -256,7 +261,7 @@ abstract class AbstractKielerGraphTransformation extends AbstractDebugTransforma
     			]
             case "String" :
             	container.children += renderingFactory.createKText => [
-            		it.text = element.getValue.getValueString
+            		it.text = element.getValueString
             		it.setHorizontalAlignment(HorizontalAlignment::LEFT)
     			]
             case "Direction" :
@@ -271,7 +276,7 @@ abstract class AbstractKielerGraphTransformation extends AbstractDebugTransforma
     			]
             case "Float" :
             	container.children += renderingFactory.createKText => [
-            		it.text = "KNodeImpl " + element.getValue.getValueString
+            		it.text = element.getValue("value")
             		it.setHorizontalAlignment(HorizontalAlignment::LEFT)
     			]
             case "PortConstraints" :
@@ -286,7 +291,7 @@ abstract class AbstractKielerGraphTransformation extends AbstractDebugTransforma
     			]
             default :
             	container.children += renderingFactory.createKText => [
-            		it.text = "<? " + element.getType + element.getValue.getValueString + "?>"
+            		it.text = "<? " + element.getType + element.getValueString + "?>"
             		it.setHorizontalAlignment(HorizontalAlignment::LEFT)
     			]
         }
@@ -406,7 +411,7 @@ abstract class AbstractKielerGraphTransformation extends AbstractDebugTransforma
         ]    
     }
     
-    def debugID(IVariable variable) {
+    def getValueString(IVariable variable) {
         return variable.getValue.getValueString
     }
     
@@ -422,7 +427,7 @@ abstract class AbstractKielerGraphTransformation extends AbstractDebugTransforma
 
             // name of the variable
             field.set("Variable:", field.rowCount, 0, leftColumn) 
-            field.set(variable.name + variable.getValue.getValueString, field.rowCount - 1, 1, rightColumn) 
+            field.set(variable.name + variable.getValueString, field.rowCount - 1, 1, rightColumn) 
 
             // coloring of main element
             container.setBackground("lemon".color);
@@ -455,7 +460,7 @@ abstract class AbstractKielerGraphTransformation extends AbstractDebugTransforma
     def typeAndId(IVariable iVar, String variable) {
         val v = iVar.getVariable(variable)
         if (v.valueIsNotNull) {
-            return variable + ": " + v.type + " " + v.debugID
+            return variable + ": " + v.type + " " + v.getValueString
         } else {
             return variable + ": null"
         }
