@@ -156,7 +156,7 @@ class LGraphTransformation extends AbstractKielerGraphTransformation {
             it.createEdges(graph.getVariable("layerlessNodes"))
             // ... then iterate through all layers
             graph.getVariable("layers").linkedList.forEach[IVariable layer |
-                it.createEdges(layer)   
+                it.createEdges(layer.getVariable("nodes"))   
             ]
   		]
   		

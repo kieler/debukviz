@@ -99,7 +99,7 @@ class LNodeTransformation extends AbstractKielerGraphTransformation {
                         val origin = node.getVariable("propertyMap").getValFromHashMap("origin")
                         if (origin.getType == "LNode") {
                             field.set("origin:", 0, 0, leftColumnAlignment)
-//TOD: dass stimmt hier nocht nicht!!!!
+//TODO: dass stimmt hier nocht nicht!!!!
                             field.set("" + origin.getVariable("labels").linkedList.get(0), 0, 1, rightColumnAlignment)
                         }
                     }
@@ -115,17 +115,17 @@ class LNodeTransformation extends AbstractKielerGraphTransformation {
             field.set("name (first label):", row, 0, leftColumnAlignment)
             val labels = node.getVariable("labels").linkedList
             var labelText = ""
-                if(labels.isEmpty) {
-                    // no name given, so display the node id instead
-                    labelText = "-"
+            if(labels.isEmpty) {
+                // no name given
+                labelText = "-"
+            } else {
+                val label = labels.get(0).getValue("text")
+                if(label.length == 0) {
+                    labelText = "(empty)"
                 } else {
-                    val label = labels.get(0).getValue("text")
-                    if(label.length == 0) {
-                        labelText = "(empty)"
-                    } else {
-                        labelText = "label"
-                    }
+                    labelText = "label"
                 }
+            }
             field.set(labelText, row, 1, rightColumnAlignment)
             row = row + 1
 
@@ -134,14 +134,19 @@ class LNodeTransformation extends AbstractKielerGraphTransformation {
             field.set(nullOrValue(node, "id"), row, 1, rightColumnAlignment)
             row = row + 1
             
-
-            // hashCode of node
-            field.set("hashCode:", row, 0, leftColumnAlignment)
-            field.set(nullOrValue(node, "hashCode"), row, 1, rightColumnAlignment)
+            //owner (layer)
+            field.set("owner:", row, 0, leftColumnAlignment)
+            field.set("layer (" + node.getValue("owner.id") + ")", row, 1, rightColumnAlignment)
             row = row + 1
+
 
             // following data only if detailedView
             if(detailedView) {
+	            // hashCode of node
+	            field.set("hashCode:", row, 0, leftColumnAlignment)
+	            field.set(nullOrValue(node, "hashCode"), row, 1, rightColumnAlignment)
+	            row = row + 1
+
                 // insets
                 field.set("insets (b,l,r,t):", row, 0, leftColumnAlignment)
                 field.set("(" + node.getValue("insets.bottom").round + " x "
@@ -158,11 +163,6 @@ class LNodeTransformation extends AbstractKielerGraphTransformation {
                               + node.getValue("margin.top").round + ")", row, 1, rightColumnAlignment)
                 row = row + 1
 
-                //owner (layer)
-                field.set("owner:", row, 0, leftColumnAlignment)
-                field.set("layer (" + node.getValue("owner.id") + ")", row, 1, rightColumnAlignment)
-                row = row + 1
-    
                 // position
                 field.set("pos (x,y):", row, 0, leftColumnAlignment)
                 field.set("(" + node.getValue("pos.x").round + " x " 

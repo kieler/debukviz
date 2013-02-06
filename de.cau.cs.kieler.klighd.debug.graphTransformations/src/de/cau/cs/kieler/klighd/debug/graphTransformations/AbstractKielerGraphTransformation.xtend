@@ -173,9 +173,6 @@ abstract class AbstractKielerGraphTransformation extends AbstractDebugTransforma
     }
     
     def addHashValueElement(KContainerRendering container, IVariable element) {
-    	
-println(element.getType)
-    	
         switch element.getType {
              case "HashMap<K,V>" : {
                 if(element.valueIsNotNull) {
@@ -194,7 +191,7 @@ println(element.getType)
 		                // add all child elements
                         for (child : childs) {
                         	// add the key
-                        	container.addGridElement(child.getVariable("key").keyString, HorizontalAlignment::RIGHT)
+                        	hashContainer.addGridElement(child.getVariable("key").keyString, HorizontalAlignment::RIGHT)
                         	
                         	// add the value
                         	hashContainer.addHashValueElement(child.getVariable("value"))
@@ -208,10 +205,7 @@ println(element.getType)
             case "RegularEnumSet<E>" : 
                 	container.addEnumSet(element)
             case "NodeGroup" :                 	
-				container.children += renderingFactory.createKText => [
-            		it.text = "(TODO)"
-            		it.setHorizontalAlignment(HorizontalAlignment::LEFT)
-            	]
+				container.addGridElement("(TODO)", HorizontalAlignment::LEFT)
             case "KNodeImpl" :
             	container.addGridElement("KNodeImpl " + element.getValueString, HorizontalAlignment::LEFT)
             case "KLabelImpl" :
@@ -289,7 +283,7 @@ println(element.getType)
         	container.children += it
             it.setInvisible(true)
             it.ChildPlacement = renderingFactory.createKGridPlacement => [
-                it.numColumns = 1
+                it.numColumns = columns
             ]
             it.setVerticalAlignment(VerticalAlignment::TOP)    	
             it.setHorizontalAlignment(HorizontalAlignment::LEFT)    	
