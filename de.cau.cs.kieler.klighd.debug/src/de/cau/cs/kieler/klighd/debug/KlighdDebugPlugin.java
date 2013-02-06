@@ -30,6 +30,10 @@ public class KlighdDebugPlugin extends AbstractUIPlugin implements IStartup {
 	 *  The plug-in ID
 	 */
 	public static final String PLUGIN_ID = "de.cau.cs.kieler.klighd.debug"; //$NON-NLS-1$
+	
+	public static final String LAYOUT = "layoutRadioButtonGroup";
+	public static final String HIERARCHY_DEPTH = "hierarchyDepthScale";
+	public static final String MAX_NODE_COUNT = "maxNodeCountScale";
 
 	// The shared instance
 	private static KlighdDebugPlugin plugin;

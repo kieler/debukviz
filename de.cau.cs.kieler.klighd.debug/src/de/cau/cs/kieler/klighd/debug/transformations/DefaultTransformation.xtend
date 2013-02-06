@@ -35,7 +35,7 @@ import org.eclipse.jdt.debug.core.IJavaValue
 import static de.cau.cs.kieler.klighd.debug.visualization.AbstractDebugTransformation.*
 import org.eclipse.jdt.debug.core.IJavaModifiers
 
-class DefaultTransformation2 extends AbstractDebugTransformation {
+class DefaultTransformation extends AbstractDebugTransformation {
        
     @Inject 
     extension KPolylineExtensions   
@@ -51,18 +51,15 @@ class DefaultTransformation2 extends AbstractDebugTransformation {
 	 */
     override transform(IVariable model, Object transformationInfo) {
         return KimlUtil::createInitializedNode() => [
-            //it.addLayoutParam(LayoutOptions::ALGORITHM, "de.cau.cs.kieler.klay.layered")
-            it.addLayoutParam(LayoutOptions::ALGORITHM, "de.cau.cs.kieler.kiml.ogdf.planarization")
+            it.addLayoutParam(LayoutOptions::ALGORITHM, "de.cau.cs.kieler.klay.layered")
+            //it.addLayoutParam(LayoutOptions::ALGORITHM, "de.cau.cs.kieler.kiml.ogdf.planarization")
             it.addLayoutParam(LayoutOptions::SPACING, 50f)
             it.addLayoutParam(LayoutOptions::DIRECTION, Direction::RIGHT)
             
             it.data += renderingFactory.createKRectangle()
-            
-            // Array
-            if (model.isArray)
-                it.createArrayNode(model)
+      
             // primitive datatypes or null or null object
-            else if (model.isPrimitiveOrNull || model.isNullObject)
+            if (model.isPrimitiveOrNull || model.isNullObject)
                	it.createValueNode(model)
             // objecttypes
             else if (model.isObject) {
@@ -75,10 +72,6 @@ class DefaultTransformation2 extends AbstractDebugTransformation {
         return variable.type.equals("Object")
     }
     
-    def boolean isArray(IVariable variable) {
-        return variable.value instanceof IJavaArray
-    }
-    
     def boolean isPrimitiveOrNull(IVariable variable) {
         val value = variable.value
         return value instanceof IJavaPrimitiveValue || 
@@ -87,42 +80,6 @@ class DefaultTransformation2 extends AbstractDebugTransformation {
     
     def boolean isObject(IVariable variable) {
         return variable.value instanceof IJavaObject
-    }
-    
-    def createArrayNode(KNode rootNode, IVariable choice) {
-            if (choice.value instanceof IJavaArray) {
-	            val node = rootNode.addNodeById(choice)
-	         	if (node != null) {
-    	         	node => [
-    	         		it.setNodeSize(80,80);
-    	            	it.data += renderingFactory.createKRectangle() => [
-    	                	it.childPlacement = renderingFactory.createKGridPlacement()
-    	                	it.children += renderingFactory.createKText() => [
-    	                		it.text = choice.type
-    	            		]
-    	            	]
-    	            ]
-    	            
-                	choice.value.variables.forEach[
-                    	IVariable variable |
-                    	rootNode.createArrayNode(variable)
-                    	choice.createEdgeById(variable) => [
-                    		variable.createLabel(it) => [
-                                it.addLayoutParam(LayoutOptions::EDGE_LABEL_PLACEMENT, EdgeLabelPlacement::CENTER)
-                                it.setLabelSize(50,50)
-                                it.text = variable.name.replaceAll("[\\[\\]]","");
-                    		]
-        	                it.data += renderingFactory.createKPolyline() => [
-                                it.setLineWidth(2)
-                                it.addArrowDecorator()
-                            ]
-                    	]
-                    ]       
-                }  
-        } else if (!choice.isPrimitiveOrNull && !choice.isNullObject) {
-                rootNode.children += choice.nextTransformation
-        } else
-        	rootNode.createValueNode(choice)
     }
     
     def createValueNode(KNode rootNode, IVariable choice) {
@@ -164,19 +121,23 @@ class DefaultTransformation2 extends AbstractDebugTransformation {
                             it.text = text  
                         ]
                     else {
-                        rootNode.children += variable.nextTransformation
-                        choice.createEdgeById(variable) => [
-                            variable.createLabel(it) => [
-                                 val String name = variable.name
-                                 it.addLayoutParam(LayoutOptions::EDGE_LABEL_PLACEMENT, EdgeLabelPlacement::CENTER)
-                                 it.setLabelSize(name.length*10,50)
-                                 it.text = name
-                             ]
-                             it.data += renderingFactory.createKPolyline() => [
-                                 it.setLineWidth(2)
-                                 it.addArrowDecorator()
-                             ]
-                        ]
+                    	if (variable.transformationExists)
+                        	rootNode.children += variable.nextTransformation
+                        else
+                        	rootNode.createObjectNode(variable)
+                        if (variable.nodeExists)
+	                        choice.createEdgeById(variable) => [
+	                            variable.createLabel(it) => [
+	                                 val String name = variable.name
+	                                 it.addLayoutParam(LayoutOptions::EDGE_LABEL_PLACEMENT, EdgeLabelPlacement::CENTER)
+	                                 it.setLabelSize(name.length*10,50)
+	                                 it.text = name
+	                             ]
+	                             it.data += renderingFactory.createKPolyline() => [
+	                                 it.setLineWidth(2)
+	                                 it.addArrowDecorator()
+	                             ]
+	                        ]
                     }
                 ]
                 thisNode => [
