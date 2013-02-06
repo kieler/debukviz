@@ -1,3 +1,16 @@
+/*
+ * KIELER - Kiel Integrated Environment for Layout Eclipse RichClient
+ *
+ * http://www.informatik.uni-kiel.de/rtsys/kieler/
+ * 
+ * Copyright 2013 by
+ * + Christian-Albrechts-University of Kiel
+ *   + Department of Computer Science
+ *     + Real-Time and Embedded Systems Group
+ * 
+ * This code is provided under the terms of the Eclipse Public License (EPL).
+ * See the file epl-v10.html for the license text.
+ */
 package de.cau.cs.kieler.klighd.debug.transformations;
 
 import javax.inject.Inject;
@@ -11,49 +24,66 @@ import de.cau.cs.kieler.klighd.debug.KlighdDebugExtension;
 import de.cau.cs.kieler.klighd.debug.visualization.AbstractDebugTransformation;
 import de.cau.cs.kieler.klighd.transformations.AbstractTransformation;
 
-public class KlighdDebugTransformation extends AbstractTransformation<IVariable, KNode> {
-	
-    
-    @Inject 
-    private KNodeExtensions kNodeExtensions;
-    /**
-     * {@inheritDoc}
-     */
-    public KNode transform(IVariable model, TransformationContext<IVariable,KNode> transformationContext) {
-        // perform Transformation
-        KNode node = transform(model,transformationContext,null);
+/**
+ * Basic transformation used as an extension to the extensionPoint
+ * "de.cau.cs.kieler.klighd.modelTransformations"
+ * 
+ * @author hwi
+ */
+public class KlighdDebugTransformation extends
+		AbstractTransformation<IVariable, KNode> {
 
-        // reset stored information
-        AbstractDebugTransformation.resetKNodeMap();
-        AbstractDebugTransformation.resetDummyNodeMap();
-        //AbstractDebugTransformation.resetNodeCount();
-        AbstractDebugTransformation.resetMaxDepth();
-        return node;
-    }
-    
-    /**
-     * Search for a registred transformation, if none found DefaultTransformation is used
-     * transformationInfo is use to realize communication between two transformations.
-     * Perform the transformation 
-     * 
-     * @param model model to be transformed
-     * @param transformationContext transformation context in which the transformation is done
-     * @param transformationInfo further information to the transformation
-     * @return result of the transformation
-     */
-    @SuppressWarnings("unchecked")
-    public KNode transform(IVariable model, TransformationContext<IVariable,KNode>transformationContext,Object transformationInfo) {
-        // get transformation if registred for model, null instead
-        AbstractDebugTransformation transformation = KlighdDebugExtension.INSTANCE.getTransformation(model);
-        
-        // use default transformation if no transformation was found
-        if (transformation == null)
-            transformation = new DefaultTransformation();
-        
-        //use proxy for injection
-        transformation = new ReinitializingTransformationProxy(
-                (Class<AbstractDebugTransformation>) transformation.getClass());
-        
-        return transformation.transform(model,transformationContext, transformationInfo);
-    }
+	@Inject
+	private KNodeExtensions kNodeExtensions;
+
+	/**
+	 * {@inheritDoc}
+	 * 
+	 * Perform the transformation to the given model and reset stored
+	 * informations
+	 */
+	public KNode transform(IVariable model,
+			TransformationContext<IVariable, KNode> transformationContext) {
+		// perform Transformation
+		KNode node = transform(model, transformationContext, null);
+
+		// reset stored information
+		AbstractDebugTransformation.resetKNodeMap();
+		AbstractDebugTransformation.resetDummyNodeMap();
+		AbstractDebugTransformation.resetMaxDepth();
+		return node;
+	}
+
+	/**
+	 * Search for a registered transformation, if none found
+	 * DefaultTransformation is used transformationInfo is use to realize
+	 * communication between two transformations. Perform the transformation
+	 * 
+	 * @param model
+	 *            model to be transformed
+	 * @param transformationContext
+	 *            transformation context in which the transformation is done
+	 * @param transformationInfo
+	 *            further information used by transformation
+	 * @return result of the transformation
+	 */
+	@SuppressWarnings("unchecked")
+	public KNode transform(IVariable model,
+			TransformationContext<IVariable, KNode> transformationContext,
+			Object transformationInfo) {
+		// get transformation if registered for model, null instead
+		AbstractDebugTransformation transformation = KlighdDebugExtension.INSTANCE
+				.getTransformation(model);
+
+		// use default transformation if no transformation was found
+		if (transformation == null)
+			transformation = new DefaultTransformation();
+
+		// use proxy for injection
+		transformation = new ReinitializingTransformationProxy(
+				(Class<AbstractDebugTransformation>) transformation.getClass());
+
+		return transformation.transform(model, transformationContext,
+				transformationInfo);
+	}
 }

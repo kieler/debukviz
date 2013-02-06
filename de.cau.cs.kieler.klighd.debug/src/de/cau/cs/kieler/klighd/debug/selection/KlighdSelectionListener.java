@@ -1,3 +1,16 @@
+/*
+ * KIELER - Kiel Integrated Environment for Layout Eclipse RichClient
+ *
+ * http://www.informatik.uni-kiel.de/rtsys/kieler/
+ * 
+ * Copyright 2013 by
+ * + Christian-Albrechts-University of Kiel
+ *   + Department of Computer Science
+ *     + Real-Time and Embedded Systems Group
+ * 
+ * This code is provided under the terms of the Eclipse Public License (EPL).
+ * See the file epl-v10.html for the license text.
+ */
 package de.cau.cs.kieler.klighd.debug.selection;
 
 import org.eclipse.debug.core.model.IVariable;
@@ -11,22 +24,27 @@ import org.eclipse.ui.PlatformUI;
 import de.cau.cs.kieler.klighd.views.DiagramViewManager;
 import de.cau.cs.kieler.klighd.views.DiagramViewPart;
 
+/**
+ * A listener that listens to selections being done.
+ * 
+ * @author hwi
+ */
 public class KlighdSelectionListener implements ISelectionListener {
 
-	// Singleton implementation of selection listener
-	private final static KlighdSelectionListener INSTANCE = new KlighdSelectionListener();
+	/** The singleton instance of the {@code KlighdSelectionListener} class */
+	public final static KlighdSelectionListener INSTANCE = new KlighdSelectionListener();
 
-	private static IVariable currentVariable = null;
+	/** last selected variable */
+	private static IVariable lastSelectedVariable = null;
 
+	/**
+	 * Hidden default constructor
+	 */
 	private KlighdSelectionListener() {
 	}
 
-	public static KlighdSelectionListener getInstance() {
-		return INSTANCE;
-	}
-
 	/**
-	 * Register selection to selection service
+	 * Register selection listener to selection service
 	 */
 	public void register() {
 		final KlighdSelectionListener sl = this;
@@ -39,19 +57,28 @@ public class KlighdSelectionListener implements ISelectionListener {
 		});
 	}
 
+	/**
+	 * {@inheritDoc}
+	 * 
+	 * if selection is an instance of {@link StructuredSelection} and the first
+	 * element is an instance of {@link IVariable} a new KlighD view will be
+	 * created or if the selection has changed the KlighD view will be updated
+	 */
 	public void selectionChanged(IWorkbenchPart part, ISelection selection) {
 		if (selection instanceof StructuredSelection) {
-			StructuredSelection structuredSelection = (StructuredSelection) selection;
-			if (structuredSelection.getFirstElement() instanceof IVariable) {
-				IVariable var = (IVariable) structuredSelection
-						.getFirstElement();
+			Object firstElement = ((StructuredSelection) selection)
+					.getFirstElement();
+			if (firstElement instanceof IVariable) {
+				IVariable var = (IVariable) firstElement;
 				DiagramViewPart view = null;
+				// Create a new view if none exists
 				if (DiagramViewManager.getInstance().getView("Variable") == null) {
 					view = DiagramViewManager.getInstance().createView(
 							"Variable", "Variable", var, null);
 				}
-				else if (!var.equals(currentVariable)) {
-					currentVariable = var;
+				// Only update the view if selection has changed
+				else if (!var.equals(lastSelectedVariable)) {
+					lastSelectedVariable = var;
 					view = DiagramViewManager.getInstance().updateView(
 							"Variable", "Variable", var, null);
 

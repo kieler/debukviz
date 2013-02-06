@@ -1,3 +1,16 @@
+/*
+ * KIELER - Kiel Integrated Environment for Layout Eclipse RichClient
+ *
+ * http://www.informatik.uni-kiel.de/rtsys/kieler/
+ * 
+ * Copyright 2013 by
+ * + Christian-Albrechts-University of Kiel
+ *   + Department of Computer Science
+ *     + Real-Time and Embedded Systems Group
+ * 
+ * This code is provided under the terms of the Eclipse Public License (EPL).
+ * See the file epl-v10.html for the license text.
+ */
 package de.cau.cs.kieler.klighd.debug.transformations
 
 import de.cau.cs.kieler.core.kgraph.KNode
@@ -15,6 +28,9 @@ import de.cau.cs.kieler.kiml.options.EdgeLabelPlacement
 
 import static de.cau.cs.kieler.klighd.debug.visualization.AbstractDebugTransformation.*
 
+/**
+* Transformation for a variable which is representing a variable of type "EnumMap"
+*/
 class EnumMapTransformation extends AbstractDebugTransformation {
    
     @Inject
@@ -26,32 +42,70 @@ class EnumMapTransformation extends AbstractDebugTransformation {
     @Inject 
     extension KLabelExtensions 
     
+    /**
+	 * Transformation for a variable which is representing a variable of type "EnumMap"
+	 * 
+	 * {@inheritDoc}
+	 */
     override transform(IVariable model, Object transformationInfo) {
         return KimlUtil::createInitializedNode() => [
             //it.addLayoutParam(LayoutOptions::ALGORITHM, "de.cau.cs.kieler.klay.layered")
             it.addLayoutParam(LayoutOptions::ALGORITHM, "de.cau.cs.kieler.kiml.ogdf.planarization")
             it.addLayoutParam(LayoutOptions::SPACING, 50f)
             it.addLayoutParam(LayoutOptions::DIRECTION, Direction::RIGHT)
+            
+            it.data += renderingFactory.createKRectangle()
+            
+            // Gather necessary information
             val keyUniverse = model.getVariables("keyUniverse")
+            val size = Integer::parseInt(model.getValue("size"))
             var index = 0;
-            for (value : model.getVariables("vals")) {
-            	if (value.valueIsNotNull)
-                	it.createKeyValueNode(keyUniverse.get(index),value)
-                index = index + 1;
-            }
+            
+            if (size > 0)
+	            // Iterate over the list of values "vals" and add a pair of nodes for key and value
+	            for (value : model.getVariables("vals")) {
+	            	if (value.valueIsNotNull)
+	                	it.addKeyValueNode(keyUniverse.get(index),value)
+	                index = index + 1;
+	            }
+			 else
+	         {
+	         	it.children += createNode() => [
+	         		it.setNodeSize(80,80)
+	         		it.data += renderingFactory.createKRectangle() => [
+	         			it.children += renderingFactory.createKText() => [
+	         				it.text = "empty"
+	         			]
+	         		]
+	         	]
+	         	
+	         }
         ]
     }
     
-    def createKeyValueNode(KNode node, IVariable key, IVariable value) {
+    /**
+     * Creates and adds a pair of nodes associated with the given key and with the given value to the given rootNode
+     * The pair is connected by an edge
+     * @param rootNode node to which die pair of nodes will be added
+     * @param key variable representing the key of the current entry
+     * @param value variable representing the value of the current entry
+     */
+    def addKeyValueNode(KNode rootNode, IVariable key, IVariable value) {
 		// Add key node
-		node.addNodeById(key)?.children += createNode() => [
-			it.data += renderingFactory.createKText() => [
-				it.text = key.getValue("name")
+		val node = rootNode.addNodeById(key)
+		if (node != null)
+			node => [
+				val name= key.getValue("name")
+				it.setNodeSize(name.length * 10,50)
+				it.data += renderingFactory.createKRectangle() => [
+					it.children += renderingFactory.createKText() => [
+						it.text = name
+					]
+				] 	
 			]
-		]
-		
+
 		// Add value node
-		node.children += value.nextTransformation
+		rootNode.children += value.nextTransformation
 		
 		// Add edge between key node and value node
 		key.createEdgeById(value) => [

@@ -22,35 +22,11 @@
             transformation="de.cau.cs.kieler.klighd.debug.transformations.ArrayDequeTransformation">
       </visualization>
       <visualization
-            class="java.lang.Integer"
-            transformation="de.cau.cs.kieler.klighd.debug.transformations.ObjectValueTransformation">
-      </visualization>
-      <visualization
             class="java.lang.Boolean"
             transformation="de.cau.cs.kieler.klighd.debug.transformations.ObjectValueTransformation">
       </visualization>
       <visualization
             class="java.lang.Character"
-            transformation="de.cau.cs.kieler.klighd.debug.transformations.ObjectValueTransformation">
-      </visualization>
-      <visualization
-            class="java.lang.Float"
-            transformation="de.cau.cs.kieler.klighd.debug.transformations.ObjectValueTransformation">
-      </visualization>
-      <visualization
-            class="java.lang.Long"
-            transformation="de.cau.cs.kieler.klighd.debug.transformations.ObjectValueTransformation">
-      </visualization>
-      <visualization
-            class="java.lang.Double"
-            transformation="de.cau.cs.kieler.klighd.debug.transformations.ObjectValueTransformation">
-      </visualization>
-      <visualization
-            class="java.lang.Byte"
-            transformation="de.cau.cs.kieler.klighd.debug.transformations.ObjectValueTransformation">
-      </visualization>
-      <visualization
-            class="java.lang.Short"
             transformation="de.cau.cs.kieler.klighd.debug.transformations.ObjectValueTransformation">
       </visualization>
       <visualization
@@ -116,6 +92,10 @@
       <visualization
             class="java.util.WeakHashMap"
             transformation="de.cau.cs.kieler.klighd.debug.transformations.WeakHashMapTransformation">
+      </visualization>
+      <visualization
+            class="java.lang.Number"
+            transformation="de.cau.cs.kieler.klighd.debug.transformations.ObjectValueTransformation">
       </visualization>
    </extension>
 

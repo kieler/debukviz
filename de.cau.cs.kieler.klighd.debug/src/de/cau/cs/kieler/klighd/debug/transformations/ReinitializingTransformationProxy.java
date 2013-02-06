@@ -3,7 +3,7 @@
  *
  * http://www.informatik.uni-kiel.de/rtsys/kieler/
  * 
- * Copyright 2011 by
+ * Copyright 2013 by
  * + Christian-Albrechts-University of Kiel
  *   + Department of Computer Science
  *     + Real-Time and Embedded Systems Group
@@ -43,19 +43,10 @@ import de.cau.cs.kieler.klighd.transformations.AbstractTransformation;
  * initialization by means of Guice.<br>
  * <br>
  * 
- * Transformations that shall be wrapped with an instance of this class must be registered by
- * prefixing their class name with the string <code>
- * "de.cau.cs.kieler.klighd/de.cau.cs.kieler.klighd.transformations.GuiceBasedTransformationFactory:"
- * </code>.
- * 
  * This class shall not be instantiated by any user program but only by the runtime.
+ * This class is mostly copied from the plugin "de.cau.cs.kieler.klighd"
  * 
- * @param <S>
- *            type of the input models
- * @param <T>
- *            type of the created models
- * 
- * @author chsch
+ * @author chsch, hwi
  */
 public class ReinitializingTransformationProxy extends AbstractDebugTransformation {
 

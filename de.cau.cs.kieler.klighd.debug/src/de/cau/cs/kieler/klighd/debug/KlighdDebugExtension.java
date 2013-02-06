@@ -1,3 +1,16 @@
+/*
+ * KIELER - Kiel Integrated Environment for Layout Eclipse RichClient
+ *
+ * http://www.informatik.uni-kiel.de/rtsys/kieler/
+ * 
+ * Copyright 2013 by
+ * + Christian-Albrechts-University of Kiel
+ *   + Department of Computer Science
+ *     + Real-Time and Embedded Systems Group
+ * 
+ * This code is provided under the terms of the Eclipse Public License (EPL).
+ * See the file epl-v10.html for the license text.
+ */
 package de.cau.cs.kieler.klighd.debug;
 
 import java.util.HashMap;
@@ -27,7 +40,7 @@ public class KlighdDebugExtension {
     public final static String EXTENSION_POINT_ID = "de.cau.cs.kieler.klighd.debugVisualization";
     /** The singleton instance of the {@code KlighdDebugExtension} class */
     public final static KlighdDebugExtension INSTANCE = new KlighdDebugExtension();
-    /** map of visualization class to the runtime instances of their transformation. */
+    /** map of visualization class name to the runtime instances of their transformation. */
     private Map<String, AbstractDebugTransformation> transformationMap = new HashMap<String, AbstractDebugTransformation>();
 
     /**
@@ -54,30 +67,27 @@ public class KlighdDebugExtension {
     }
 
     /**
-     * Returns the transformation instance for the given class.
+     * Returns the transformation instance for the given {@link IVariable}.
      * 
-     * @param clazz
-     *            identifier of class
-     * @return the associated transformation
-     * @throws DebugException
-     * @throws ClassNotFoundException
+     * @param model
+     *            IVariable to be transformed
+     * @return transformation instance for the given model
      */
-    @SuppressWarnings("all")
     public AbstractDebugTransformation getTransformation(IVariable model) {
         AbstractDebugTransformation result = null;
         try {
             IJavaValue value = (IJavaValue)model.getValue();
-            // If value doesn't represent an object or the value represents the null object return null
+            // If value doesn't represent an object or value represents the null object return null
             if (!(value instanceof IJavaObject) || ((IJavaObject)value).isNull())
                 return null;
             
-            // If no transformation is registred for current class
-            // search for transformation registred for the superclass if exists
+            // If no transformation is stored for current class
+            // search for transformation stored for the superclass if exists
             IJavaType type = value.getJavaType();
             if (type instanceof IJavaClassType) {
                 IJavaClassType superClass = (IJavaClassType) type;
                 while (result == null && superClass != null) {
-                    String test = superClass.getName().replaceAll("\\$", ".");
+                	//replace '$' by '.' to find inner classes
                     result = transformationMap.get(superClass.getName().replaceAll("\\$", "."));
                     superClass = superClass.getSuperclass();
                 }
