@@ -1,3 +1,16 @@
+/*
+ * KIELER - Kiel Integrated Environment for Layout Eclipse RichClient
+ *
+ * http://www.informatik.uni-kiel.de/rtsys/kieler/
+ * 
+ * Copyright 2013 by
+ * + Christian-Albrechts-University of Kiel
+ *   + Department of Computer Science
+ *     + Real-Time and Embedded Systems Group
+ * 
+ * This code is provided under the terms of the Eclipse Public License (EPL).
+ * See the file epl-v10.html for the license text.
+ */
 package de.cau.cs.kieler.klighd.debug.transformations
 
 import de.cau.cs.kieler.core.krendering.extensions.KNodeExtensions
@@ -7,23 +20,48 @@ import de.cau.cs.kieler.klighd.debug.visualization.AbstractDebugTransformation
 import javax.inject.Inject
 import org.eclipse.debug.core.model.IVariable
 
+/**
+ * Transformation for a variable which is representing a variable of type "HashSet"
+ */
 class HashSetTransformation extends AbstractDebugTransformation {
    
     @Inject
     extension KNodeExtensions
     
+    /**
+	 * Transformation for a variable which is representing a variable of type "HashSet"
+	 * 
+	 * {@inheritDoc}
+	 */
     override transform(IVariable model, Object transformationInfo) {
         return KimlUtil::createInitializedNode() => [
             //it.addLayoutParam(LayoutOptions::ALGORITHM, "de.cau.cs.kieler.klay.layered")
             it.addLayoutParam(LayoutOptions::ALGORITHM, "de.cau.cs.kieler.kiml.ogdf.planarization")
             it.addLayoutParam(LayoutOptions::SPACING, 50f)
-            model.getVariables("map.table").filter[variable | variable.valueIsNotNull].forEach[
-                IVariable variable | 
-               	it.children += variable.getVariable("key").nextTransformation
-               	val next = variable.getVariable("next");
-               	if (next.valueIsNotNull)
-                    it.children += next.getVariable("key").nextTransformation
-       		] 
+            
+            it.data += renderingFactory.createKRectangle()
+            
+            val size = Integer::parseInt(model.getValue("map.size"))
+            if (size > 0)
+	            // Iterate over the table of the map and perform nextTransformation for every not null value
+	            model.getVariables("map.table").filter[variable | variable.valueIsNotNull].forEach[
+	                IVariable variable | 
+	               	it.children += variable.getVariable("key").nextTransformation
+	               	val next = variable.getVariable("next");
+	               	if (next.valueIsNotNull)
+	                    it.children += next.getVariable("key").nextTransformation
+	       		]
+	       	else
+			{
+				it.children += createNode() => [
+					it.setNodeSize(80,80)
+					it.data += renderingFactory.createKRectangle() => [
+						it.children += renderingFactory.createKText() => [
+							it.text = "empty"
+						]
+					]
+				]
+			}
 		]
     }
 }

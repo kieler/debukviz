@@ -1,3 +1,16 @@
+/*
+ * KIELER - Kiel Integrated Environment for Layout Eclipse RichClient
+ *
+ * http://www.informatik.uni-kiel.de/rtsys/kieler/
+ * 
+ * Copyright 2013 by
+ * + Christian-Albrechts-University of Kiel
+ *   + Department of Computer Science
+ *     + Real-Time and Embedded Systems Group
+ * 
+ * This code is provided under the terms of the Eclipse Public License (EPL).
+ * See the file epl-v10.html for the license text.
+ */
 package de.cau.cs.kieler.klighd.debug.transformations
 
 import de.cau.cs.kieler.core.kgraph.KNode
@@ -15,6 +28,9 @@ import de.cau.cs.kieler.kiml.options.EdgeLabelPlacement
 
 import static de.cau.cs.kieler.klighd.debug.visualization.AbstractDebugTransformation.*
 
+/**
+ * Transformation for a variable which is representing a variable of type "LinkedList"
+ */
 class LinkedListTransformation extends AbstractDebugTransformation {
     
     @Inject
@@ -25,34 +41,66 @@ class LinkedListTransformation extends AbstractDebugTransformation {
     extension KRenderingExtensions
     @Inject
     extension KLabelExtensions
-   
-   
-    var index = 0
-    var size = 0
-    /**
-     * {@inheritDoc}
-     */
+    
+	/**
+	 * Transformation for a variable which is representing a variable of type "LinkedList"
+	 * 
+	 * {@inheritDoc}
+	 */
     override transform(IVariable variable, Object transformationInfo) {
         return KimlUtil::createInitializedNode() => [
             //it.addLayoutParam(LayoutOptions::ALGORITHM, "de.cau.cs.kieler.klay.layered")
             it.addLayoutParam(LayoutOptions::ALGORITHM, "de.cau.cs.kieler.kiml.ogdf.planarization")
             it.addLayoutParam(LayoutOptions::SPACING, 50f)
             it.addLayoutParam(LayoutOptions::DIRECTION, Direction::RIGHT)
-            size = Integer::parseInt(variable.getValue("size"))
-            it.createChildNode(variable.getVariable("header.next"))
+            
+            it.data += renderingFactory.createKRectangle()
+            
+            val size = Integer::parseInt(variable.getValue("size"))
+            if (size > 0)
+              it.addChildNode(variable.getVariable("header.next"),size-1)
+            else
+			{
+				it.children += createNode() => [
+					it.setNodeSize(80,80)
+					it.data += renderingFactory.createKRectangle() => [
+						it.children += renderingFactory.createKText() => [
+							it.text = "empty"
+						]
+					]
+				]
+			}
         ]
     }
     
+    /**
+     * Gets the variable with name "element" which is stored in a given variable.
+     * Just syntactic sugar
+     * @param variable variable in which the variable with name "element" is stored
+     * @return variable with name "element"
+     */
     def getElement(IVariable variable) {
     	return variable.getVariable("element")
     }  
     
-    def createChildNode(KNode rootNode, IVariable variable) {
-       rootNode.addNodeById(variable)?.children += variable.element.nextTransformation
-       index = index + 1
-       if (index < size) {
+    
+    /**
+     * Creates and adds a node associated with an entry and adds an edge between this and the next entry to a given node
+     * @param rootNode node to which the created node will be added
+     * @param variable variable representing the actual entry
+     * @param size remaining count of elements that had to be transformed
+     */
+    def addChildNode(KNode rootNode, IVariable variable, int size) {
+       val node = rootNode.addNodeById(variable)
+       if (node != null) {
+       		 node => [
+	       		it.data += renderingFactory.createKRectangle
+	            it.children += variable.element.nextTransformation
+       		]
+       }
+       if (size > 0) {
            val next = variable.getVariable("next")
-           rootNode.createChildNode(next)
+           rootNode.addChildNode(next,size-1)
            variable.createEdgeById(next) => [
                next.createLabel(it) => [
                      it.addLayoutParam(LayoutOptions::EDGE_LABEL_PLACEMENT, EdgeLabelPlacement::CENTER)

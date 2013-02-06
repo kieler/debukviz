@@ -1,3 +1,16 @@
+/*
+ * KIELER - Kiel Integrated Environment for Layout Eclipse RichClient
+ *
+ * http://www.informatik.uni-kiel.de/rtsys/kieler/
+ * 
+ * Copyright 2013 by
+ * + Christian-Albrechts-University of Kiel
+ *   + Department of Computer Science
+ *     + Real-Time and Embedded Systems Group
+ * 
+ * This code is provided under the terms of the Eclipse Public License (EPL).
+ * See the file epl-v10.html for the license text.
+ */
 package de.cau.cs.kieler.klighd.debug.transformations
 
 import de.cau.cs.kieler.core.krendering.extensions.KNodeExtensions
@@ -12,6 +25,9 @@ import org.eclipse.debug.core.model.IVariable
 
 import static de.cau.cs.kieler.klighd.debug.visualization.AbstractDebugTransformation.*
 
+/**
+ * Transformation for a variable which is representing a variable of type "PriorityQueue"
+ */
 class PriorityQueueTransformation extends AbstractDebugTransformation {
     
     @Inject
@@ -23,26 +39,50 @@ class PriorityQueueTransformation extends AbstractDebugTransformation {
     
     var IVariable previous = null
     
+	/**
+	 * Transformation for a variable which is representing a variable of type "PriorityQueue"
+	 * 
+	 * {@inheritDoc}
+	 */    
     override transform(IVariable model, Object transformationInfo) {
        return KimlUtil::createInitializedNode() => [
             //it.addLayoutParam(LayoutOptions::ALGORITHM, "de.cau.cs.kieler.klay.layered")
             it.addLayoutParam(LayoutOptions::ALGORITHM, "de.cau.cs.kieler.kiml.ogdf.planarization")
             it.addLayoutParam(LayoutOptions::SPACING, 50f)
             it.addLayoutParam(LayoutOptions::DIRECTION, Direction::RIGHT)
+            
+            it.data += renderingFactory.createKRectangle()
+            
+            // Gather necessary information
             val size = Integer::parseInt(model.getValue("size"))
-            model.getVariables("queue").subList(0,size).forEach[
-                IVariable variable |
-                    it.children += variable.nextTransformation
-                    if (previous != null)
-                        previous.createEdgeById(variable) => [
-                            it.data += renderingFactory.createKPolyline() => [
-                                it.setLineWidth(2)
-                                it.addArrowDecorator();
-                            ]
-                        ]
-                    previous = variable
-                ]
-            ]
+            
+            if (size > 0)
+	            // Perform nextTransformation and add an edge to the previous element for every element in the queue
+	            model.getVariables("queue").subList(0,size).forEach[
+	                IVariable variable |
+	                    it.children += variable.nextTransformation
+	                    if (previous != null)
+	                        previous.createEdgeById(variable) => [
+	                            it.data += renderingFactory.createKPolyline() => [
+	                                it.setLineWidth(2)
+	                                it.addArrowDecorator();
+	                            ]
+	                        ]
+	                    previous = variable
+	                ]
+	        else
+			{
+				it.children += createNode() => [
+					it.setNodeSize(80,80)
+					it.data += renderingFactory.createKRectangle() => [
+						it.children += renderingFactory.createKText() => [
+							it.text = "empty"
+						]
+					]
+				]
+			}
+	         ]
+
     }
     
 }

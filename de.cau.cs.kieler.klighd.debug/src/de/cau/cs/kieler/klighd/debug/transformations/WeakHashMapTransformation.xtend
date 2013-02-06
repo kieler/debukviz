@@ -1,3 +1,16 @@
+/*
+ * KIELER - Kiel Integrated Environment for Layout Eclipse RichClient
+ *
+ * http://www.informatik.uni-kiel.de/rtsys/kieler/
+ * 
+ * Copyright 2013 by
+ * + Christian-Albrechts-University of Kiel
+ *   + Department of Computer Science
+ *     + Real-Time and Embedded Systems Group
+ * 
+ * This code is provided under the terms of the Eclipse Public License (EPL).
+ * See the file epl-v10.html for the license text.
+ */
 package de.cau.cs.kieler.klighd.debug.transformations
 
 import de.cau.cs.kieler.core.kgraph.KNode
@@ -15,6 +28,9 @@ import de.cau.cs.kieler.kiml.options.EdgeLabelPlacement
 
 import static de.cau.cs.kieler.klighd.debug.visualization.AbstractDebugTransformation.*
 
+/**
+ * Transformation for a variable which is representing a variable of type "WeakHashMap"
+ */
 class WeakHashMapTransformation extends AbstractDebugTransformation {
    
     @Inject
@@ -26,19 +42,39 @@ class WeakHashMapTransformation extends AbstractDebugTransformation {
     @Inject 
     extension KLabelExtensions 
     
+	/**
+	 * Transformation for a variable which is representing a variable of type "WeakHashMap"
+	 * 
+	 * {@inheritDoc}
+	 */    
     override transform(IVariable model, Object transformationInfo) {
         return KimlUtil::createInitializedNode() => [
             //it.addLayoutParam(LayoutOptions::ALGORITHM, "de.cau.cs.kieler.klay.layered")
             it.addLayoutParam(LayoutOptions::ALGORITHM, "de.cau.cs.kieler.kiml.ogdf.planarization")
             it.addLayoutParam(LayoutOptions::SPACING, 50f)
             it.addLayoutParam(LayoutOptions::DIRECTION, Direction::RIGHT)
-            model.getVariables("table").filter[variable | variable.valueIsNotNull].forEach[
-                IVariable variable | 
-                    it.createKeyValueNode(variable)
-                    val next = variable.getVariable("next");
-                    if (next.valueIsNotNull)
-                        it.createKeyValueNode(next)
-            ]
+            
+            it.data += renderingFactory.createKRectangle()
+            
+            if (Integer::parseInt(model.getValue("size")) > 0)   
+	            model.getVariables("table").filter[variable | variable.valueIsNotNull].forEach[
+	                IVariable variable | 
+	                    it.createKeyValueNode(variable)
+	                    val next = variable.getVariable("next");
+	                    if (next.valueIsNotNull)
+	                        it.createKeyValueNode(next)
+	            ]
+	        else
+			{
+				it.children += createNode() => [
+					it.setNodeSize(80,80)
+					it.data += renderingFactory.createKRectangle() => [
+						it.children += renderingFactory.createKText() => [
+							it.text = "empty"
+						]
+					]
+				]
+			}
         ]
     }
     

@@ -1,3 +1,16 @@
+/*
+ * KIELER - Kiel Integrated Environment for Layout Eclipse RichClient
+ *
+ * http://www.informatik.uni-kiel.de/rtsys/kieler/
+ * 
+ * Copyright 2013 by
+ * + Christian-Albrechts-University of Kiel
+ *   + Department of Computer Science
+ *     + Real-Time and Embedded Systems Group
+ * 
+ * This code is provided under the terms of the Eclipse Public License (EPL).
+ * See the file epl-v10.html for the license text.
+ */
 package de.cau.cs.kieler.klighd.debug.visualization;
 
 import java.util.Arrays;
@@ -25,273 +38,487 @@ import de.cau.cs.kieler.core.krendering.extensions.KPolylineExtensions;
 import de.cau.cs.kieler.core.krendering.extensions.KRenderingExtensions;
 import de.cau.cs.kieler.klighd.TransformationContext;
 import de.cau.cs.kieler.klighd.debug.IKlighdDebug;
+import de.cau.cs.kieler.klighd.debug.KlighdDebugExtension;
 import de.cau.cs.kieler.klighd.debug.transformations.KlighdDebugTransformation;
 import de.cau.cs.kieler.klighd.transformations.AbstractTransformation;
+import de.cau.cs.kieler.klighd.transformations.ReinitializingTransformationProxy;
 
-public abstract class AbstractDebugTransformation extends AbstractTransformation<IVariable, KNode>
-        implements IKlighdDebug {
+/**
+ * An abstract base class for transformations between IVariable and KNode.<br>
+ * <br>
+ * At this point Xtend2 is used for all transformations specializing this class
+ * So every transformation make use of {@link ReinitializingTransformationProxy}
+ * to leverage <b>create extensions</b> or <b>dependency injection</b> with
+ * Google Guice
+ * 
+ * @author hwi
+ */
+public abstract class AbstractDebugTransformation extends
+		AbstractTransformation<IVariable, KNode> implements IKlighdDebug {
 
-    @Inject
-    private KEdgeExtensions kEdgeExtensions = new KEdgeExtensions();
-    @Inject
-    private KRenderingExtensions kRenderingExtensions = new KRenderingExtensions();
-    @Inject
-    private KContainerRenderingExtensions kContainerRenderingExtensions = new KContainerRenderingExtensions();
-    @Inject
-    private KPolylineExtensions kPolylineExtensions = new KPolylineExtensions();
-    @Inject
-    private KNodeExtensions kNodeExtensions = new KNodeExtensions();
+	@Inject	
+	private KEdgeExtensions kEdgeExtensions;
+	@Inject
+	private KRenderingExtensions kRenderingExtensions;
+	@Inject
+	private KContainerRenderingExtensions kContainerRenderingExtensions;
+	@Inject
+	private KPolylineExtensions kPolylineExtensions;
+	@Inject
+	private KNodeExtensions kNodeExtensions;
 
-    protected static final KRenderingFactory renderingFactory = KRenderingFactory.eINSTANCE;
+	/** Factory used to create several rendering objects */
+	protected static final KRenderingFactory renderingFactory = KRenderingFactory.eINSTANCE;
 
-    private Object transformationInfo;
-    private static final HashMap<Long, KNode> kNodeMap = new HashMap<Long, KNode>();
-    private static final HashMap<IVariable, KNode> dummyNodeMap = new HashMap<IVariable, KNode>();
-    private static Integer depth = 0;
-    //private static Integer nodeCount = 0;
-    private static Integer maxDepth = 10;
+	/** Further information */
+	private Object transformationInfo;
 
-    public Object getTransformationInfo() {
-        return transformationInfo;
-    }
+	/** Map of object id to the created KNode */
+	private static final HashMap<Long, KNode> kNodeMap = new HashMap<Long, KNode>();
 
-    public void setTransformationInfo(Object transformationInfo) {
-        this.transformationInfo = transformationInfo;
-    }
+	/** Map of variable representing a runtime variable to a dummy node */
+	private static final HashMap<IVariable, KNode> dummyNodeMap = new HashMap<IVariable, KNode>();
 
-    public static void resetKNodeMap() {
-        kNodeMap.clear();
-    }
-    
-    public static void resetDummyNodeMap() {
-        dummyNodeMap.clear();
-    }
+	/** actual depth (recursive calls of nextTransformation) */
+	private static Integer depth = 0;
 
-    //public static void resetNodeCount() {
-    //    nodeCount = 0;
-    //}
+	/** maximal allowed depth */
+	private static Integer maxDepth = 10;
 
-    public static void resetMaxDepth() {
-        maxDepth = 5;
-    }
+	/**
+	 * Getter for transformationInfo
+	 * 
+	 * @return transformationInfo
+	 */
+	public Object getTransformationInfo() {
+		return transformationInfo;
+	}
 
-    public KNode nextTransformation(IVariable variable) throws DebugException {
-        return nextTransformation(variable, null);
-    }
+	/**
+	 * Setter for transformationInfo
+	 * 
+	 * @param transformationInfo
+	 */
+	public void setTransformationInfo(Object transformationInfo) {
+		this.transformationInfo = transformationInfo;
+	}
 
-//    private int countNodes(KNode rootNode) {
-//        int count = 0;
-//        EList<KNode> nodes = rootNode.getChildren();
-//        count += nodes.size();
-//        for (KNode node : nodes)
-//            count += countNodes(node);
-//        return count;
-//    }
+	/**
+	 * Clears kNodeMap
+	 */
+	public static void resetKNodeMap() {
+		kNodeMap.clear();
+	}
 
-    public KNode nextTransformation(IVariable variable, Object transformationInfo)
-            throws DebugException {
-        //int maxNodeCount = -1;
-        if (nodeExists(variable)) {
-            return createDummyNode(variable);
-        }
-        else {
-         // Perform transformation if recursion depth less-equal maxDepth
-            if (depth <= maxDepth) {
-                depth++;
-                KNode innerNode = new KlighdDebugTransformation().transform(variable, this.getUsedContext(),
-                        transformationInfo);
-                // Calculate nodeCount
-                //if (nodeCount > maxNodeCount) 
-                //  maxDepth = depth; 
-                //else { 
-                //  int test = countNodes(innerNode); 
-                //  int test2 = nodeCount; nodeCount += countNodes(innerNode); 
-                //}
-                depth--;
-                while (innerNode.getChildren().size() == 1)
-                    innerNode = innerNode.getChildren().get(0);
-                if (kNodeMap.get(getId(variable)) == null)
-                    kNodeMap.put(getId(variable), innerNode);                
-                
-                KText type = renderingFactory.createKText();
-                type.setText(variable.getReferenceTypeName());
-                
-                return innerNode;
-            } else {
-                KNode innerNode = kNodeExtensions.createNode(variable);
-                kNodeExtensions.setNodeSize(innerNode, 80, 80);
-                
-                KRectangle rec = renderingFactory.createKRectangle();
-                rec.setChildPlacement(renderingFactory.createKGridPlacement());
-                
-                KText type = renderingFactory.createKText();
-                type.setText(variable.getReferenceTypeName());
-                KText name = renderingFactory.createKText();
-                type.setText(variable.getName());
-    
-                rec.getChildren().add(type);
-                rec.getChildren().add(name);
-                innerNode.getData().add(rec);
-                
-                return innerNode;
-            }
-        }   
-    }
+	/**
+	 * Clears dummyNodeMap
+	 */
+	public static void resetDummyNodeMap() {
+		dummyNodeMap.clear();
+	}
 
-    public String getValue(IVariable variable, String fieldPath) throws DebugException {
-        IVariable var = getVariable(variable, fieldPath);
-        if (var != null)
-            return var.getValue().getValueString();
-        return "null";
-    }
+	/**
+	 * Resets maxDepth (maxDepth = 10)
+	 */
+	public static void resetMaxDepth() {
+		maxDepth = 10;
+	}
 
-    public IVariable[] getVariables(IVariable variable, String fieldPath) throws DebugException {
-        IVariable var = getVariable(variable, fieldPath);
-        if (var != null)
-            return var.getValue().getVariables();
-        else
-            return null;
-    }
+	/**
+	 * Performs a transformation for a given variable. If a node already exists
+	 * for the given variable a dummy node will be created. If the maximal depth
+	 * isn't reached a normal transformation will be done. Otherwise a special
+	 * KNode with simple informations will be created.
+	 * 
+	 * @param variable
+	 * @return result of the transformation, a dummyNode or a special node
+	 * @throws DebugException
+	 */
+	public KNode nextTransformation(IVariable variable) throws DebugException {
+		return nextTransformation(variable, null);
+	}
 
-    public IVariable getVariable(IVariable variable, String fieldPath, boolean superField)
-            throws DebugException {
-        // Split fieldPath into a list of field names
-        LinkedList<String> fieldNames = new LinkedList<String>(
-                Arrays.asList(fieldPath.split("\\.")));
-        String lastFieldName = fieldNames.getLast();
-        // Iterate over list of field names
-        for (String fieldName : fieldNames) {
-            boolean superF = false;
-            if (fieldName.equals(lastFieldName))
-                superF = superField;
-            IJavaObject javaObject = (IJavaObject) variable.getValue();
-            variable = (IVariable) javaObject.getField(fieldName, superF);
-        }
-        return variable;
-    }
+	/**
+	 * Performs a transformation for a given variable with further informations.
+	 * If a node already exists for the given variable a dummy node will be
+	 * created. If the maximal depth isn't reached a normal transformation will
+	 * be done. Otherwise a special KNode with simple informations will be
+	 * created.
+	 * 
+	 * @param variable
+	 *            variable to be transformed
+	 * @param transformationInfo
+	 *            further informations needed by the transformation
+	 * @return result of the transformation, a dummyNode or a special node
+	 * @throws DebugException
+	 */
+	public KNode nextTransformation(IVariable variable,
+			Object transformationInfo) throws DebugException {
+		// If node already exists create a dummy node
+		if (nodeExists(variable)) {
+			return createDummyNode(variable);
+		} else {
+			if (depth <= maxDepth) {
+				// Perform transformation if maximal recursion depth wasn't
+				// exceeded
+				depth++;
+				KNode innerNode = new KlighdDebugTransformation().transform(
+						variable, this.getUsedContext(), transformationInfo);
+				depth--;
+				while (innerNode.getChildren().size() == 1)
+					innerNode = innerNode.getChildren().get(0);
+				if (kNodeMap.get(getId(variable)) == null)
+					kNodeMap.put(getId(variable), innerNode);
 
-    public IVariable getVariable(IVariable variable, String fieldPath) throws DebugException {
-        return getVariable(variable, fieldPath, false);
-    }
+				KText type = renderingFactory.createKText();
+				type.setText(variable.getReferenceTypeName());
 
-    public String getType(IVariable variable) throws DebugException {
-        String type = variable.getValue().getReferenceTypeName();
-        return type.substring(type.lastIndexOf('.') + 1);
-    }
+				return innerNode;
+			} else {
+				// Create a special node
+				KNode innerNode = kNodeExtensions.createNode(variable);
+				kNodeExtensions.setNodeSize(innerNode, 80, 80);
 
-    public KEdge createEdgeById(IVariable source, IVariable target) throws DebugException {
-        KEdge edge = kEdgeExtensions.createEdge();
-        KNode sourceNode = dummyNodeMap.get(source);
-        KNode targetNode = dummyNodeMap.get(target);
-        if (sourceNode == null)
-            sourceNode = getNode(source);
-        if (targetNode == null)
-            targetNode = getNode(target);
-        edge.setSource(sourceNode);
-        edge.setTarget(targetNode);        
-        return edge;
-    }
+				KRectangle rec = renderingFactory.createKRectangle();
+				rec.setChildPlacement(renderingFactory.createKGridPlacement());
 
-    public boolean valueIsNotNull(IVariable variable) {
-        try {
-            return !variable.getValue().getValueString().equals("null");
-        } catch (DebugException e) {
-            return false;
-        }
-    }
+				KText type = renderingFactory.createKText();
+				type.setText(variable.getReferenceTypeName());
+				KText name = renderingFactory.createKText();
+				type.setText(variable.getName());
 
-    public KNode transform(IVariable model,
-            TransformationContext<IVariable, KNode> transformationContext, Object transformationInfo) {
-        use(transformationContext);
-        // perform transformation
-        KNode node = this.transform(model, transformationInfo);
-        // clear local stored information
-        return node;
-    }
-    
-    public KNode transform(IVariable model, TransformationContext<IVariable,KNode> transformationContext) {
-        throw null;
-    }
-    
-    public KNode getNode(IVariable variable) throws DebugException {
-        KNode node = kNodeMap.get(getId(variable));
-        if (node == null) {
-            node = kNodeExtensions.getNode(variable);
-            if (node.getParent() == null)
-                node = null;
-        }
-        return node;
-    }
+				rec.getChildren().add(type);
+				rec.getChildren().add(name);
+				innerNode.getData().add(rec);
 
-    public boolean nodeExists(IVariable variable) throws DebugException {
-        return kNodeMap.containsKey(getId(variable)) || kNodeExtensions.getNode(variable).getParent() != null;
-    }
-    /**
-     * Returns unique id of the object respresenting by variable
-     * @param variable
-     * @return unique id or -1 if object is null or -2 if variable represents a primitiv value
-     * @throws DebugException
-     */
-    private Long getId(IVariable variable) throws DebugException {
-        IJavaValue value = (IJavaValue) variable.getValue();
-        if (!(value instanceof IJavaObject))
-            return new Long(-2);
-        else {
-            return ((IJavaObject)value).getUniqueId();
-        }
-    }
+				return innerNode;
+			}
+		}
+	}
 
-    /**
-     * Returns an existing or new node linked with the id of object re innerNode = new
-     * KlighdDebugTransformation().transform(variable, this.getUsedContext(),
-     * transformationInfo);presented by variable
-     * 
-     * @param variable
-     *            variable representing the object, which id is linked with an node
-     * @return existing or new node
-     * @throws DebugException
-     */
-    public KNode createNodeById(IVariable variable) throws DebugException {
-        Long id = getId(variable);
-        KNode node = kNodeExtensions.getNode(variable);
-        if (id != -2)
-            kNodeMap.put(id, node);
-        return node;
-    }
-    
-    private KNode createDummyNode(IVariable variable) throws DebugException {
-        KNode variableNode = getNode(variable);
-        // create dummyNode
-        KNode dummyNode = kNodeExtensions.createNode();   
-        kNodeExtensions.setNodeSize(dummyNode, 20, 20);
-        KEllipse ellipse = renderingFactory.createKEllipse();
-        kRenderingExtensions.setForegroundColor(ellipse,255,0,0);
-        dummyNode.getData().add(ellipse);
-        
-        // create edge dummyNode -> variableNode
-        KEdge edge = kEdgeExtensions.createEdge();
-        edge.setSource(dummyNode); 
-        edge.setTarget(variableNode);
-        
-        KPolyline polyline = renderingFactory.createKPolyline(); 
-        kRenderingExtensions.setLineWidth(polyline, 2);
-        kRenderingExtensions.setForegroundColor(polyline,255,0,0);
-        kPolylineExtensions.addArrowDecorator(polyline);
-        
-        edge.getData().add(polyline);
+	/**
+	 * Iterate over field names given by fieldPath and returns the value of the
+	 * last field of fieldPath stored in variable
+	 * 
+	 * @param variable
+	 *            variable, in which the field with the first file name as name
+	 *            is stored
+	 * @param fieldPath
+	 *            dot-separated string of field names
+	 * @return value of last field of fieldPath or "null" if field does'nt
+	 *         exists
+	 * @throws DebugException
+	 */
+	public String getValue(IVariable variable, String fieldPath)
+			throws DebugException {
+		IVariable var = getVariable(variable, fieldPath);
+		if (var != null)
+			return var.getValue().getValueString();
+		return "null";
+	}
 
-        dummyNodeMap.put(variable, dummyNode);
-        return dummyNode;
-    }
+	/**
+	 * Iterate over field names given by fieldPath and returns an array of
+	 * variable stored in the last field of fieldPath
+	 * 
+	 * @param variable
+	 *            variable, in which the field with the first file name as name
+	 *            is stored
+	 * @param fieldPath
+	 *            dot-separated string of field names
+	 * @return array of variable stored in last field of fieldPath or "null" if
+	 *         field does'nt exists
+	 * @throws DebugException
+	 */
+	public IVariable[] getVariables(IVariable variable, String fieldPath)
+			throws DebugException {
+		IVariable var = getVariable(variable, fieldPath);
+		if (var != null)
+			return var.getValue().getVariables();
+		else
+			return null;
+	}
 
-    public KNode addNodeById(KNode node, IVariable variable) throws DebugException {       
-        if (nodeExists(variable)) {
-            createDummyNode(variable).setParent(node);
-            return null;
-        } else {
-            KNode resultNode = createNodeById(variable);
-            resultNode.setParent(node);
-            return resultNode;
-        }
-    }
+	/**
+	 * Iterate over field names given by fieldPath and returns a variable
+	 * representing the field in the variable with the last field name as name,
+	 * or <code>null</code> if there is no field with the given name, or the
+	 * name is ambiguous.
+	 * 
+	 * 
+	 * @param variable
+	 *            variable, in which the field with the first file name as name
+	 *            is stored
+	 * @param fieldPath
+	 *            dot-separated string of field names
+	 * @param superField
+	 *            whether or not to get the field in the superclass of this
+	 *            objects.
+	 * @return the variable representing the field with the last field name as
+	 *         name, or <code>null</code>
+	 * @throws DebugException
+	 */
+	public IVariable getVariable(IVariable variable, String fieldPath,
+			boolean superField) throws DebugException {
+		// Split fieldPath into a list of field names
+		LinkedList<String> fieldNames = new LinkedList<String>(
+				Arrays.asList(fieldPath.split("\\.")));
+		String lastFieldName = fieldNames.getLast();
+		// Iterate over list of field names
+		for (String fieldName : fieldNames) {
+			boolean superF = false;
+			if (fieldName.equals(lastFieldName))
+				superF = superField;
+			IJavaObject javaObject = (IJavaObject) variable.getValue();
+			variable = (IVariable) javaObject.getField(fieldName, superF);
+		}
+		return variable;
+	}
+
+	/**
+	 * Iterate over field names given by fieldPath and returns a variable
+	 * representing the field in the variable with the last field name as name,
+	 * or <code>null</code> if there is no field with the given name, or the
+	 * name is ambiguous.
+	 * 
+	 * @param variable
+	 *            variable, in which the field with the first file name as name
+	 *            is stored
+	 * @param fieldPath
+	 *            dot-separated string of field names
+	 * @return the variable representing the field with the last field name as
+	 *         name, or <code>null</code>
+	 * @throws DebugException
+	 */
+	public IVariable getVariable(IVariable variable, String fieldPath)
+			throws DebugException {
+		return getVariable(variable, fieldPath, false);
+	}
+
+	/**
+	 * Returns the type of the value of the given variable in a simple form
+	 * 
+	 * @param variable
+	 *            type of the value of this variable will be returned
+	 * @return type of the value of variable
+	 * @throws DebugException
+	 */
+	public String getType(IVariable variable) throws DebugException {
+		String type = variable.getValue().getReferenceTypeName();
+		return type.substring(type.lastIndexOf('.') + 1);
+	}
+
+	/**
+	 * Returns an edge between the node associated with source and the node
+	 * associated with target If a dummy node for source/target exists this node
+	 * is the associated one else the associated node is contained in kNodeMap
+	 * or a node got from KNodeExtensions
+	 * 
+	 * @param source
+	 * @param target
+	 * @return Edge between node associated with source and node associated with
+	 *         target
+	 * @throws DebugException
+	 */
+	public KEdge createEdgeById(IVariable source, IVariable target)
+			throws DebugException {
+		// create an edge
+		KEdge edge = kEdgeExtensions.createEdge();
+
+		// Get eventually existing dummy nodes
+		KNode sourceNode = dummyNodeMap.get(source);
+		KNode targetNode = dummyNodeMap.get(target);
+
+		if (sourceNode == null)
+			sourceNode = getNode(source);
+		if (targetNode == null)
+			targetNode = getNode(target);
+
+		// set source and target
+		edge.setSource(sourceNode);
+		edge.setTarget(targetNode);
+
+		return edge;
+	}
+
+	/**
+	 * Checks whether the value of the given variable represents a null value
+	 * 
+	 * @param variable
+	 *            variable which value is checked
+	 * @return whether the value of the given variable represents a null value
+	 */
+	public boolean valueIsNotNull(IVariable variable) {
+		try {
+			return !variable.getValue().getValueString().equals("null");
+		} catch (DebugException e) {
+			return false;
+		}
+	}
+
+	/**
+	 * Uses the given transformationContext and perform the transformation for
+	 * the given model
+	 * 
+	 * @param model
+	 *            model to be transformed
+	 * @param transformationContext
+	 *            transformationContext to be used
+	 * @param transformationInfo
+	 *            further information used by the transformation
+	 * @return result of the transformation
+	 */
+	public KNode transform(IVariable model,
+			TransformationContext<IVariable, KNode> transformationContext,
+			Object transformationInfo) {
+		use(transformationContext);
+		// perform transformation
+		KNode node = this.transform(model, transformationInfo);
+		// clear local stored information
+		return node;
+	}
+
+	/**
+	 * Necessary implementation of the method from
+	 * {@code AbstractTransformation<IVariable, KNode>} so specialized
+	 * transformation don't have to implement it
+	 */
+	public KNode transform(IVariable model,
+			TransformationContext<IVariable, KNode> transformationContext) {
+		throw null;
+	}
+
+	/**
+	 * Returns a node associated with the object id of the object representing
+	 * by the given variable or associated with the given variable
+	 * 
+	 * @param variable
+	 *            variable which associated node is returned
+	 * @return node associated with the object id of the object representing by
+	 *         the given variable or associated with the given variable
+	 * @throws DebugException
+	 */
+	public KNode getNode(IVariable variable) throws DebugException {
+		KNode node = kNodeMap.get(getId(variable));
+		if (node == null) {
+			node = kNodeExtensions.getNode(variable);
+			if (node.getParent() == null)
+				node = null;
+		}
+		return node;
+	}
+
+	/**
+	 * Checks whether a node associated with the object id of the object
+	 * representing by the given variable or a node associated with the given
+	 * variable exists
+	 * 
+	 * @param variable
+	 *            variable checked for an associated node
+	 * @return whether a node associated with the object id of the object
+	 *         representing by the given variable or a node associated with the
+	 *         given variable exists
+	 * @throws DebugException
+	 */
+	public boolean nodeExists(IVariable variable) throws DebugException {
+		return kNodeMap.containsKey(getId(variable))
+				|| kNodeExtensions.getNode(variable).getParent() != null;
+	}
+
+	/**
+	 * Returns the unique id of the runtime variable representing by variable A
+	 * runtime variable can by an object, a primitive value or null
+	 * 
+	 * @param variable
+	 *            variable which represents an runtime variable
+	 * @return unique id or -1 if object is null or -2 if variable represents a
+	 *         primitive value
+	 * @throws DebugException
+	 */
+	private Long getId(IVariable variable) throws DebugException {
+		IJavaValue value = (IJavaValue) variable.getValue();
+		if (!(value instanceof IJavaObject))
+			return new Long(-2);
+		else {
+			return ((IJavaObject) value).getUniqueId();
+		}
+	}
+
+	/**
+	 * Creates a node associated with the given variable and, if the given
+	 * variable represents an object, with the id of the object
+	 * 
+	 * @param variable
+	 *            variable representing a runtime variable
+	 * @return created node
+	 * @throws DebugException
+	 */
+	public KNode createNodeById(IVariable variable) throws DebugException {
+		Long id = getId(variable);
+		KNode node = kNodeExtensions.getNode(variable);
+		if (id != -2)
+			kNodeMap.put(id, node);
+		return node;
+	}
+
+	/**
+	 * This Method is called if the id of the object represented by the given variable is already associated with an node.
+	 * It creates a dummy node associated with the given variable and add an edge between the created node and the already associated node. 
+	 * 
+	 * @param variable variable representing a runtime variable
+	 * @return created dummy node 
+	 * @throws DebugException
+	 */
+	private KNode createDummyNode(IVariable variable) throws DebugException {
+		KNode variableNode = getNode(variable);
+		// create dummyNode
+		KNode dummyNode = kNodeExtensions.createNode();
+		kNodeExtensions.setNodeSize(dummyNode, 20, 20);
+		KEllipse ellipse = renderingFactory.createKEllipse();
+		kRenderingExtensions.setForegroundColor(ellipse, 255, 0, 0);
+		dummyNode.getData().add(ellipse);
+
+		// create edge dummyNode -> variableNode
+		KEdge edge = kEdgeExtensions.createEdge();
+		edge.setSource(dummyNode);
+		edge.setTarget(variableNode);
+
+		KPolyline polyline = renderingFactory.createKPolyline();
+		kRenderingExtensions.setLineWidth(polyline, 2);
+		kRenderingExtensions.setForegroundColor(polyline, 255, 0, 0);
+		kPolylineExtensions.addArrowDecorator(polyline);
+
+		edge.getData().add(polyline);
+
+		dummyNodeMap.put(variable, dummyNode);
+		return dummyNode;
+	}
+
+	/**
+	 * Creates a node associated with the id of the runtime variable represented by the given variable or the given variable.
+	 * If such a node already exists, a dummy node will be created
+	 * @param node node to which the created node will be added
+ 	 * @param variable representing a runtime variable
+	 * @return created node or null if the created node is a dummy node
+	 * @throws DebugException
+	 */
+	public KNode addNodeById(KNode node, IVariable variable)
+			throws DebugException {
+		if (nodeExists(variable)) {
+			createDummyNode(variable).setParent(node);
+			return null;
+		} else {
+			KNode resultNode = createNodeById(variable);
+			resultNode.setParent(node);
+			return resultNode;
+		}
+	}
+	/**
+	 * Checks whether a transformation for the given variable exists
+	 * @param variable
+	 * @return whether the transformation exists
+	 */
+	public boolean transformationExists(IVariable variable) {
+		return KlighdDebugExtension.INSTANCE.getTransformation(variable) != null;
+	}
 }
