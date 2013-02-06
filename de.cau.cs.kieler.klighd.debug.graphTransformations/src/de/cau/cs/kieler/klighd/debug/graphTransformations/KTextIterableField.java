@@ -105,7 +105,7 @@ public class KTextIterableField implements Iterable<KText>, Iterator<KText> {
     }
 
     public void set(KText kText, int row, int column) {
-    	System.out.println("inserting to row " + row + " column " + column);
+//    	System.out.println("inserting to row " + row + " column " + column);
     	ensureSize(row, column);
         a.get(row).set(column, new TableElement(kText));
 
@@ -114,7 +114,7 @@ public class KTextIterableField implements Iterable<KText>, Iterator<KText> {
     }
 
     public void set(String text, int row, int column) {
-    	System.out.println("inserting to row " + row + " column " + column);
+//    	System.out.println("inserting to row " + row + " column " + column);
         ensureSize(row, column);
         a.get(row).set(column, new TableElement(text));
 

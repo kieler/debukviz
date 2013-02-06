@@ -17,8 +17,10 @@ import de.cau.cs.kieler.core.krendering.extensions.KRenderingExtensions
 import de.cau.cs.kieler.core.krendering.extensions.KColorExtensions
 import de.cau.cs.kieler.core.krendering.extensions.KLabelExtensions
 import de.cau.cs.kieler.core.krendering.HorizontalAlignment
+import de.cau.cs.kieler.core.krendering.VerticalAlignment
 
 import static de.cau.cs.kieler.klighd.debug.visualization.AbstractDebugTransformation.*
+import de.cau.cs.kieler.core.krendering.KGridPlacementData
 
 abstract class AbstractKielerGraphTransformation extends AbstractDebugTransformation {
 	
@@ -148,7 +150,6 @@ abstract class AbstractKielerGraphTransformation extends AbstractDebugTransforma
                 it.data += renderingFactory.createKRectangle => [
                     it.lineWidth = 4
 
-// 					it.ChildPlacement = renderingFactory.createKGridPlacement
  					it.addHashValueElement(propertyMap)
                 ]
             ]
@@ -172,43 +173,28 @@ abstract class AbstractKielerGraphTransformation extends AbstractDebugTransforma
     }
     
     def addHashValueElement(KContainerRendering container, IVariable element) {
+    	
+println(element.getType)
+    	
         switch element.getType {
              case "HashMap<K,V>" : {
                 if(element.valueIsNotNull) {
                     val childs = element.hashMapToLinkedList
 
                     if (childs.size == 0) {
-                    	container.children += renderingFactory.createKText => [
-                    		it.text = "(empty)"
-                    		it.setHorizontalAlignment(HorizontalAlignment::LEFT)
-                    	]
+                    	container.addGridElement("(empty)", HorizontalAlignment::RIGHT)
                     } else {
 						// create a new invisible rectangle containing the key and value rectangles
-                        val hashContainer = renderingFactory.createKRectangle => [
-                            container.children += it
-                            it.setInvisible(true)
-                            it.ChildPlacement = renderingFactory.createKGridPlacement => [
-                                it.numColumns = 2
-                            ]
-/*                        		it.setGridPlacementData(0f, 0f,
-                        			createKPosition(LEFT, 5f, 0f, TOP, 5f, 0f),
-                        			createKPosition(RIGHT, 5f, 0f, BOTTOM, 5f, 0f)
-                        		)
- */                            it.setHorizontalAlignment(HorizontalAlignment::LEFT)
-                        ]
+                        val hashContainer = container.addInvisibleRectangleGrid(2) 
+//                        		it.setGridPlacementData(0f, 0f,
+//                        			createKPosition(LEFT, 5f, 0f, TOP, 5f, 0f),
+//                        			createKPosition(RIGHT, 5f, 0f, BOTTOM, 5f, 0f)
+//                        		)
 
 		                // add all child elements
                         for (child : childs) {
                         	// add the key
-                        	hashContainer.children += renderingFactory.createKText => [
-                        		it.text = child.getVariable("key").keyString
-                        		it.setHorizontalAlignment(HorizontalAlignment::RIGHT)
-
-                        		it.setGridPlacementData(0f, 0f,
-                        			createKPosition(LEFT, 5f, 0f, TOP, 5f, 0f),
-                        			createKPosition(RIGHT, 5f, 0f, BOTTOM, 5f, 0f)
-                        		)
-                        	]
+                        	container.addGridElement(child.getVariable("key").keyString, HorizontalAlignment::RIGHT)
                         	
                         	// add the value
                         	hashContainer.addHashValueElement(child.getVariable("value"))
@@ -216,127 +202,98 @@ abstract class AbstractKielerGraphTransformation extends AbstractDebugTransforma
                     }
                  } else {
                 	// hashTable is null
-                	container.children += renderingFactory.createKText => [
-                		it.text = "(null)"
-                		it.setHorizontalAlignment(HorizontalAlignment::LEFT)
-                	]
+                	container.addGridElement("(null)", HorizontalAlignment::LEFT)
                 }
             }
             case "RegularEnumSet<E>" : 
-                	container.children += renderingFactory.createKText => [
-                		it.text = "(TODO)"
-                 		it.setHorizontalAlignment(HorizontalAlignment::LEFT)
-                	]
-
+                	container.addEnumSet(element)
             case "NodeGroup" :                 	
-            			container.children += renderingFactory.createKText => [
-                		it.text = "(TODO)"
-                		it.setHorizontalAlignment(HorizontalAlignment::LEFT)
-                	]
-
+				container.children += renderingFactory.createKText => [
+            		it.text = "(TODO)"
+            		it.setHorizontalAlignment(HorizontalAlignment::LEFT)
+            	]
             case "KNodeImpl" :
-            	container.children += renderingFactory.createKText => [
-        			it.text = "KNodeImpl " + element.getValueString
-        			it.setHorizontalAlignment(HorizontalAlignment::LEFT)
-    			]
+            	container.addGridElement("KNodeImpl " + element.getValueString, HorizontalAlignment::LEFT)
             case "KLabelImpl" :
-            	container.children += renderingFactory.createKText => [
-            		it.text = "KLabelImpl " + element.getValueString
-            		it.setHorizontalAlignment(HorizontalAlignment::LEFT)
-    			]
+            	container.addGridElement("KLabelImpl " + element.getValueString, HorizontalAlignment::LEFT)
             case "KEdgeImpl" :
-            	container.children += renderingFactory.createKText => [
-            		it.text = "KEdgeImpl " + element.getValueString
-            		it.setHorizontalAlignment(HorizontalAlignment::LEFT)
-    			]
+            	container.addGridElement("KEdgeImpl " + element.getValueString, HorizontalAlignment::LEFT)
             case "LNode" :
-            	container.children += renderingFactory.createKText => [
-            		it.text = "LNodeImpl " + element.getValue("id") + element.getValueString
-            		it.setHorizontalAlignment(HorizontalAlignment::LEFT)
-    			]
+            	container.addGridElement("LNodeImpl " + element.getValue("id") + element.getValueString, 
+            		HorizontalAlignment::LEFT
+            	)
             case "Random" :
-            	container.children += renderingFactory.createKText => [
-            		it.text = "seed " + element.getValue("seed.value")
-            		it.setHorizontalAlignment(HorizontalAlignment::LEFT)
-    			]
+            	container.addGridElement("seed " + element.getValue("seed.value"), HorizontalAlignment::LEFT)
             case "String" :
-            	container.children += renderingFactory.createKText => [
-            		it.text = element.getValueString
-            		it.setHorizontalAlignment(HorizontalAlignment::LEFT)
-    			]
+            	container.addGridElement(element.getValueString, HorizontalAlignment::LEFT)
             case "Direction" :
-            	container.children += renderingFactory.createKText => [
-            		it.text = element.getValue("name")
-            		it.setHorizontalAlignment(HorizontalAlignment::LEFT)
-    			]
+            	container.addGridElement(element.getValue("name"), HorizontalAlignment::LEFT)
             case "Boolean" :
-            	container.children += renderingFactory.createKText => [
-            		it.text = element.getValue("value")
-            		it.setHorizontalAlignment(HorizontalAlignment::LEFT)
-    			]
+            	container.addGridElement(element.getValue("value"), HorizontalAlignment::LEFT)
             case "Float" :
-            	container.children += renderingFactory.createKText => [
-            		it.text = element.getValue("value")
-            		it.setHorizontalAlignment(HorizontalAlignment::LEFT)
-    			]
+            	container.addGridElement(element.getValue("value"), HorizontalAlignment::LEFT)
             case "PortConstraints" :
-            	container.children += renderingFactory.createKText => [
-            		it.text = element.getValue("name")
-            		it.setHorizontalAlignment(HorizontalAlignment::LEFT)
-    			]
+            	container.addGridElement(element.getValue("name"), HorizontalAlignment::LEFT)
             case "EdgeLabelPlacement" :
-            	container.children += renderingFactory.createKText => [
-            		it.text = element.getValue("name")
-            		it.setHorizontalAlignment(HorizontalAlignment::LEFT)
-    			]
-            default :
-            	container.children += renderingFactory.createKText => [
-            		it.text = "<? " + element.getType + element.getValueString + "?>"
-            		it.setHorizontalAlignment(HorizontalAlignment::LEFT)
-    			]
+            	container.addGridElement(element.getValue("name"), HorizontalAlignment::LEFT)
+            default : {
+            	container.addGridElement("<? " + element.getType + element.getValueString + "?>",
+            		HorizontalAlignment::LEFT
+            	)
+            }
         }
     }
     
     def addEnumSet(KContainerRendering container, IVariable set) {
         // the mask representing the elements that are set
         val elemMask = Integer::parseInt(set.getValue("elements"))
+        
         if (elemMask == 0) {
-            // no elements are set at all
-            return container.addKTextLeft("(none)")
+            return container.addGridElement("(none)", HorizontalAlignment::LEFT)
         } else {
-            val hashContainer = renderingFactory.createKRectangle => [
-                container.children += it
-                it.setInvisible(true)
-                it.ChildPlacement = renderingFactory.createKGridPlacement => [
-                    it.numColumns = 1
-                ]
-                it.setHorizontalAlignment(HorizontalAlignment::LEFT)
-            ]
+            val hashContainer = container.addInvisibleRectangleGrid(1)
+
             // the elements available
             val elements = set.getVariables("universe")
+
             var i = 0
             // go through all elements and check if corresponding bit is set in elemMask
             while(i < elements.size) {
                 var mask = Integer::parseInt(elements.get(i).getValue("ordinal")).pow2
                 if(elemMask.bitwiseAnd(mask) > 0) {
                     // bit is set 
-                    hashContainer.addKTextLeft(elements.get(i).getValue("name"))
+                    hashContainer.addGridElement(elements.get(i).getValue("name"), HorizontalAlignment::LEFT)
                 }
+                i = i +1
             }
             return hashContainer
         }
     }
     
     
-    
-    
-    
-    def addKTextLeft(KContainerRendering container, String text) {
+    def addGridElement(KContainerRendering container, String text, HorizontalAlignment align) {
         return renderingFactory.createKText => [
             container.children += it
             it.text = text
-            it.setHorizontalAlignment(HorizontalAlignment::LEFT)
-        ]
+        	it.setVerticalAlignment(VerticalAlignment::TOP)
+    		it.setHorizontalAlignment(align)
+    		it.setGridPlacementData(0f, 0f,
+    			createKPosition(LEFT, 5f, 0f, TOP, 3f, 0f),
+    			createKPosition(RIGHT, 5f, 0f, BOTTOM, 3f, 0f)
+    		)
+		];
+    }
+    
+    def addInvisibleRectangleGrid(KContainerRendering container, int columns) {
+		return renderingFactory.createKRectangle => [
+        	container.children += it
+            it.setInvisible(true)
+            it.ChildPlacement = renderingFactory.createKGridPlacement => [
+                it.numColumns = 1
+            ]
+            it.setVerticalAlignment(VerticalAlignment::TOP)    	
+            it.setHorizontalAlignment(HorizontalAlignment::LEFT)    	
+    	]
     }
     
     /**

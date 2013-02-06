@@ -71,6 +71,9 @@ class FNodeTransformation extends AbstractKielerGraphTransformation {
             if (detailedView) it.addPropertyMapAndEdge(node.getVariable("propertyMap"), node)
 
 			val children = node.getVariable("children")
+			
+//TODO: add children nodes
+
 			if (children.valueIsNotNull) {
 				if ( Integer::parseInt(children.getValue("size")) > 0) {
 		            if (detailedView) {
