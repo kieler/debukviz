@@ -1,27 +1,24 @@
 package de.cau.cs.kieler.klighd.debug.graphTransformations.lGraph
-import de.cau.cs.kieler.core.krendering.KContainerRendering
+
+import de.cau.cs.kieler.core.kgraph.KNode
+import de.cau.cs.kieler.core.krendering.HorizontalAlignment
+import de.cau.cs.kieler.core.krendering.VerticalAlignment
 import de.cau.cs.kieler.core.krendering.extensions.KColorExtensions
 import de.cau.cs.kieler.core.krendering.extensions.KEdgeExtensions
+import de.cau.cs.kieler.core.krendering.extensions.KLabelExtensions
 import de.cau.cs.kieler.core.krendering.extensions.KNodeExtensions
+import de.cau.cs.kieler.core.krendering.extensions.KPolylineExtensions
 import de.cau.cs.kieler.core.krendering.extensions.KRenderingExtensions
 import de.cau.cs.kieler.kiml.options.LayoutOptions
 import de.cau.cs.kieler.kiml.util.KimlUtil
+import de.cau.cs.kieler.klighd.debug.graphTransformations.AbstractKielerGraphTransformation
+import de.cau.cs.kieler.klighd.debug.graphTransformations.ShowTextIf
 import javax.inject.Inject
 import org.eclipse.debug.core.model.IVariable
-import de.cau.cs.kieler.kiml.options.EdgeLabelPlacement
-import de.cau.cs.kieler.kiml.options.Direction
-import de.cau.cs.kieler.kiml.options.LayoutOptions
 
 import static de.cau.cs.kieler.klighd.debug.visualization.AbstractDebugTransformation.*
-import de.cau.cs.kieler.klighd.debug.graphTransformations.AbstractKielerGraphTransformation
-import de.cau.cs.kieler.core.kgraph.KNode
-import de.cau.cs.kieler.core.krendering.extensions.KPolylineExtensions
-import de.cau.cs.kieler.core.krendering.extensions.KLabelExtensions
-import de.cau.cs.kieler.klighd.debug.graphTransformations.KTextIterableField
-import de.cau.cs.kieler.core.krendering.HorizontalAlignment
-import de.cau.cs.kieler.core.krendering.VerticalAlignment
 
-import static de.cau.cs.kieler.klighd.debug.visualization.AbstractDebugTransformation.*
+
 
 class LLayerTransformation extends AbstractKielerGraphTransformation {
 
@@ -40,15 +37,18 @@ class LLayerTransformation extends AbstractKielerGraphTransformation {
     
     val layoutAlgorithm = "de.cau.cs.kieler.kiml.ogdf.planarization"
     val spacing = 75f
-    val leftColumnAlignment = KTextIterableField$TextAlignment::RIGHT
-    val rightColumnAlignment = KTextIterableField$TextAlignment::LEFT
-    val topGap = 4
-    val rightGap = 5
-    val bottomGap = 5
-    val leftGap = 4
-    val vGap = 3
-    val hGap = 5
+    val leftColumnAlignment = HorizontalAlignment::RIGHT
+    val rightColumnAlignment = HorizontalAlignment::LEFT
     
+    val showHashCode = ShowTextIf::DETAILED
+    val showID = ShowTextIf::ALWAYS
+    val showNodes = ShowTextIf::DETAILED
+	val showOwner = ShowTextIf::DETAILED
+    val showSize = ShowTextIf::DETAILED
+
+	val showPropertyMap = ShowTextIf::DETAILED
+	val showVisualization = ShowTextIf::DETAILED
+        
     /**
      * {@inheritDoc}
      */
@@ -62,18 +62,52 @@ class LLayerTransformation extends AbstractKielerGraphTransformation {
             // create KNode for given LLayer
             it.createHeaderNode(layer)
             
-            // add nodes for propertymap and ports, if in detailed mode
-            if (detailedView) {
-                // addpropertymap
-                it.addPropertyMapAndEdge(layer.getVariable("propertyMap"), node)
-                
-                //add node for ports
-                it.addPorts(layer)
-            }        
-    	]
+            // add propertyMap
+            if(detailedView.equals(showPropertyMap))  
+            	it.addPropertyMapAndEdge(layer.getVariable("propertyMap"), layer)
+
+            //add node for nodes of layer and add edges between the nodes of this layer
+            if (detailedView.equals(showVisualization)) {
+            	it.createNodesNode(layer)
+            }
+        ]
 	}
+	
+	def createNodesNode(KNode rootNode, IVariable layer) {
+		val nodes = layer.getVariable("nodes")
+        return rootNode.addNodeById(nodes) => [
+            it.data += renderingFactory.createKRectangle => [
+                it.lineWidth = 4
+            ]
+		    nodes.linkedList.forEach[IVariable node |
+          		it.children += nextTransformation(node, false)
+	        ]
+	        // add the edges, if they are span between two nodes of this layer
+	        nodes.linkedList.forEach[IVariable node |
+	        	node.getVariable("ports").linkedList.forEach[IVariable port |
+	        		port.getVariable("outgoingEdges").linkedList.forEach[IVariable edge |
+	                    edge.getVariable("source.owner")
+	                        .createEdgeById(edge.getVariable("target.owner")) => [
+	        				it.data += renderingFactory.createKPolyline => [
+		            		    it.setLineWidth(2)
+	                            it.addArrowDecorator
+	                            
+	                            switch edge.edgeType {
+	                                case "COMPOUND_DUMMY" : it.setLineStyle(LineStyle::DASH)
+	                                case "COMPOUND_SIDE" : it.setLineStyle(LineStyle::DOT)
+	                                default : it.setLineStyle(LineStyle::SOLID)
+	                            }
+	    	    			]
+	        			]
+	        		]
+	        	]
+	        ]
+		layer.createTopElementEdge(nodes, "visualization")
+        ]
+    }
+
 	def createHeaderNode(KNode rootNode, IVariable layer) {
-        rootNode.addNodeById(layer) => [
+        return rootNode.addNodeById(layer) => [
             it.data += renderingFactory.createKRectangle => [
                 it.lineWidth = 4
 	            it.ChildPlacement = renderingFactory.createKGridPlacement => [
@@ -84,23 +118,29 @@ class LLayerTransformation extends AbstractKielerGraphTransformation {
 
 	
 	            // id of layer
-	            it.addGridElement("id:")
-	            field.set("id:", row, 0, leftColumnAlignment)
-	            field.set(nullOrValue(port, "id"), row, 1, rightColumnAlignment)
-	                row = row + 1
+	            if (detailedView.equals(showID)) {
+		            it.addGridElement("id:", leftColumnAlignment)
+		            it.addGridElement(nullOrValue(layer, "id"), rightColumnAlignment)
+	            } 
 	   
-	                // hashCode of port
-	            field.set("hashCode:", row, 0, leftColumnAlignment)
-	            field.set(nullOrValue(port, "hashCode"), row, 1, rightColumnAlignment)
-	            row = row + 1
-	        
-	            // side of port
-	            field.set("side:", row, 0, leftColumnAlignment)
-	            field.set(port.getValue("side.name"), row, 1, rightColumnAlignment)
-	            row = row + 1
+                // hashCode of layer
+	            if (detailedView.equals(showHashCode)) {
+		            it.addGridElement("hashCode:", leftColumnAlignment)
+		            it.addGridElement(layer.getValue("hashCode"), rightColumnAlignment)
+	            }
 
-            if(detailedView) {
+	            // owner of layer
+	            if (detailedView.equals(showOwner)) {
+		            it.addGridElement("owner:", leftColumnAlignment)
+		            it.addGridElement("LGraph " + layer.typeAndId("owner"), rightColumnAlignment)
+	            }
 
+	            // size of layer
+	            if (detailedView.equals(showSize)) {
+		            it.addGridElement("size (x, y):", leftColumnAlignment)
+		            it.addGridElement(layer.getValue("size.x") + ", " + layer.getValue("size.y"), rightColumnAlignment)
+				}
+			]
+		]
 	}
-
 }

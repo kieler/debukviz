@@ -21,6 +21,7 @@ import de.cau.cs.kieler.core.krendering.VerticalAlignment
 
 import static de.cau.cs.kieler.klighd.debug.visualization.AbstractDebugTransformation.*
 import de.cau.cs.kieler.core.krendering.KGridPlacementData
+import de.cau.cs.kieler.core.krendering.LineStyle
 
 abstract class AbstractKielerGraphTransformation extends AbstractDebugTransformation {
 	
@@ -36,7 +37,9 @@ abstract class AbstractKielerGraphTransformation extends AbstractDebugTransforma
     extension KColorExtensions
     @Inject
     extension KLabelExtensions
-
+	@Inject 
+    extension KEdgeExtensions
+    
     val topGap = 4
     val rightGap = 7
     val bottomGap = 5
@@ -46,6 +49,30 @@ abstract class AbstractKielerGraphTransformation extends AbstractDebugTransforma
     
 //    protected GraphTransformationInfo gtInfo = new GraphTransformationInfo
     protected Boolean detailedView = true
+
+	def equals(boolean isDetailed, ShowTextIf enum) {
+		if (enum == ShowTextIf::ALWAYS) {
+			return true
+		} else {
+			return (isDetailed == (enum == ShowTextIf::DETAILED))
+		}
+	}
+	
+	def createTopElementEdge(IVariable source, IVariable target, String label) {
+	    // create edge from header node to visualization
+        source.createEdgeById(target) => [
+            it.data += renderingFactory.createKPolyline => [
+                it.setLineWidth(2)
+                it.addArrowDecorator
+                it.setLineStyle(LineStyle::SOLID)
+            ]
+            target.createLabel(it) => [
+                it.addLayoutParam(LayoutOptions::EDGE_LABEL_PLACEMENT, EdgeLabelPlacement::CENTER)
+                it.setLabelSize(50,20)
+                it.text = label
+        	]
+        ]   
+	}
     
     def hashMapToLinkedList(IVariable variable) throws DebugException {
         val retVal = new LinkedList<IVariable>
@@ -411,9 +438,9 @@ abstract class AbstractKielerGraphTransformation extends AbstractDebugTransforma
     def typeAndId(IVariable iVar, String variable) {
         val v = iVar.getVariable(variable)
         if (v.valueIsNotNull) {
-            return variable + ": " + v.type + " " + v.getValueString
+            return v.type + " " + v.getValueString
         } else {
-            return variable + ": null"
+            return v.type + ": null"
         }
     }
 
