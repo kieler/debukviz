@@ -33,7 +33,7 @@ import static de.cau.cs.kieler.klighd.debug.visualization.AbstractDebugTransform
  */
 class TreeSetTransformation extends AbstractDebugTransformation {
    
-@Inject
+    @Inject
     extension KNodeExtensions
     @Inject
     extension KRenderingExtensions
@@ -42,6 +42,7 @@ class TreeSetTransformation extends AbstractDebugTransformation {
     @Inject 
     extension KLabelExtensions 
     
+    var size = 0
 	/**
 	 * Transformation for a variable which is representing a variable of type "TreeSet"
 	 * 
@@ -56,7 +57,9 @@ class TreeSetTransformation extends AbstractDebugTransformation {
             
             it.data += renderingFactory.createKRectangle()
             
-            if (Integer::parseInt(model.getValue("m.size")) > 0)
+            size = Integer::parseInt(model.getValue("m.size"))
+            
+            if (size > 0)
             	addTreeNode(model.getVariable("m.root"),"")
             else
 			{
@@ -105,7 +108,7 @@ class TreeSetTransformation extends AbstractDebugTransformation {
         val right = root.getVariable("right")
         val key = root.key
         
-        node.children += key.nextTransformation
+        node.nextTransformation(key)
         
         if (right.valueIsNotNull) {
             node.addTreeNode(right,"right")
@@ -128,4 +131,12 @@ class TreeSetTransformation extends AbstractDebugTransformation {
             ]
         }
     }
+
+    override getNodeCount(IVariable model) {
+        if (size > 0)
+            return size
+        else
+            return 1
+    }
+    
 }

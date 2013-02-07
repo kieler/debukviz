@@ -49,6 +49,9 @@ class ArrayTransformation extends AbstractDebugTransformation {
     @Inject
     extension KLabelExtensions
 
+
+    var size = 0
+    
    	/**
 	 * Transformation for a variable representing a runtime variable which is an array
 	 * 
@@ -63,6 +66,7 @@ class ArrayTransformation extends AbstractDebugTransformation {
             
             it.data += renderingFactory.createKRectangle()
 
+            size = size + 1
             it.createArrayNode(model)
         ]
     }
@@ -93,6 +97,7 @@ class ArrayTransformation extends AbstractDebugTransformation {
     	            
                 	choice.value.variables.forEach[
                     	IVariable variable |
+                    	size = size + 1
                     	rootNode.createArrayNode(variable)
                     	choice.createEdgeById(variable) => [
                     		variable.createLabel(it) => [
@@ -108,12 +113,13 @@ class ArrayTransformation extends AbstractDebugTransformation {
                     ]       
                 }  
         } else if (!choice.isPrimitiveOrNull && !choice.isNullObject) {
-                rootNode.children += choice.nextTransformation
+                rootNode.nextTransformation(choice)
         } else
         	rootNode.createValueNode(choice)
     }
     
     def createValueNode(KNode rootNode, IVariable choice) {
+        size = size + 1
         val node = rootNode.addNodeById(choice) 
         if (node != null) 
             node => [
@@ -131,4 +137,9 @@ class ArrayTransformation extends AbstractDebugTransformation {
             ]
     }
    
+
+    override getNodeCount(IVariable model) {
+        return size
+    }
+    
 }

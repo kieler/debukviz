@@ -42,6 +42,7 @@ class TreeMapTransformation extends AbstractDebugTransformation {
     @Inject 
     extension KLabelExtensions 
     
+    var size = 0;
     /**
 	 * Transformation for a variable which is representing a variable of type "TreeMap"
 	 * 
@@ -56,7 +57,9 @@ class TreeMapTransformation extends AbstractDebugTransformation {
             
             it.data += renderingFactory.createKRectangle()
             
-            if (Integer::parseInt(model.getValue("size")) > 0)
+            size = Integer::parseInt(model.getValue("size"))
+            
+            if (size > 0)
            		it.addTreeNode(model.getVariable("root"),"")
             else
 			{
@@ -134,8 +137,8 @@ class TreeMapTransformation extends AbstractDebugTransformation {
 	    if (node != null) {
     	    node => [
     	    	it.data += renderingFactory.createKRectangle()
-    	    	it.children += key.nextTransformation
-            	it.children += value.nextTransformation
+    	    	it.nextTransformation(key)
+            	it.nextTransformation(value)
            	]
 	    }
 	    key.createEdgeById(value) => [
@@ -150,4 +153,12 @@ class TreeMapTransformation extends AbstractDebugTransformation {
             ]
        	]
     }
+
+    override getNodeCount(IVariable model) {
+        if (size > 0)
+            return size * 3
+        else
+            return 1
+    }
+    
 }

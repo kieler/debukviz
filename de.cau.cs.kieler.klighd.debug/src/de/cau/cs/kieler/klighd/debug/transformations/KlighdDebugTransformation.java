@@ -21,6 +21,7 @@ import de.cau.cs.kieler.core.kgraph.KNode;
 import de.cau.cs.kieler.core.krendering.extensions.KNodeExtensions;
 import de.cau.cs.kieler.klighd.TransformationContext;
 import de.cau.cs.kieler.klighd.debug.KlighdDebugExtension;
+import de.cau.cs.kieler.klighd.debug.dialog.KlighdDebugDialog;
 import de.cau.cs.kieler.klighd.debug.visualization.AbstractDebugTransformation;
 import de.cau.cs.kieler.klighd.transformations.AbstractTransformation;
 
@@ -36,6 +37,8 @@ public class KlighdDebugTransformation extends
 	@Inject
 	private KNodeExtensions kNodeExtensions;
 
+	
+	private AbstractDebugTransformation transformation = null;
 	/**
 	 * {@inheritDoc}
 	 * 
@@ -50,7 +53,8 @@ public class KlighdDebugTransformation extends
 		// reset stored information
 		AbstractDebugTransformation.resetKNodeMap();
 		AbstractDebugTransformation.resetDummyNodeMap();
-		AbstractDebugTransformation.resetMaxDepth();
+		AbstractDebugTransformation.resetNodeCount();
+		KlighdDebugDialog.resetShown();
 		return node;
 	}
 
@@ -72,7 +76,7 @@ public class KlighdDebugTransformation extends
 			TransformationContext<IVariable, KNode> transformationContext,
 			Object transformationInfo) {
 		// get transformation if registered for model, null instead
-		AbstractDebugTransformation transformation = KlighdDebugExtension.INSTANCE
+		transformation = KlighdDebugExtension.INSTANCE
 				.getTransformation(model);
 
 		// use default transformation if no transformation was found
@@ -82,8 +86,14 @@ public class KlighdDebugTransformation extends
 		// use proxy for injection
 		transformation = new ReinitializingTransformationProxy(
 				(Class<AbstractDebugTransformation>) transformation.getClass());
-
-		return transformation.transform(model, transformationContext,
-				transformationInfo);
+		if (transformation.getActualNodeCount() <= transformation.getMaxNodeCount())
+        		return transformation.transform(model, transformationContext,
+                                transformationInfo);
+		else 
+		    return null;
+	}
+	
+	public int getNodeCount(IVariable model) {
+	    return transformation.getNodeCount(model);
 	}
 }

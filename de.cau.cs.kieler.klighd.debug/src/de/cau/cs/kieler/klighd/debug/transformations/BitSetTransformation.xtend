@@ -67,4 +67,9 @@ class BitSetTransformation extends AbstractDebugTransformation {
         ]
     }
     
+
+    override getNodeCount(IVariable model) {
+        return 1
+    }
+    
 }

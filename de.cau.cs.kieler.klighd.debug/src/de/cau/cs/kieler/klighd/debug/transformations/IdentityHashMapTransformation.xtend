@@ -42,6 +42,7 @@ class IdentityHashMapTransformation extends AbstractDebugTransformation {
     @Inject 
     extension KLabelExtensions 
     
+    var size = 0
    	/**
 	 * Transformation for a variable which is representing a variable of type "IdentityHashMap"
 	 * 
@@ -58,7 +59,7 @@ class IdentityHashMapTransformation extends AbstractDebugTransformation {
             
             // Gather necessary information
             var index = 0
-            var size = Integer::parseInt(model.getValue("size"))
+            size = Integer::parseInt(model.getValue("size"))
             val table = model.getVariables("table")
             if (size > 0)
 	            // Add a pair of nodes associated with key and value for every entry
@@ -96,8 +97,8 @@ class IdentityHashMapTransformation extends AbstractDebugTransformation {
      * @param value variable representing a value
      */
     def addKeyValueNode(KNode node, IVariable key, IVariable value) {
-        node.children += key.nextTransformation
-        node.children += value.nextTransformation
+        node.nextTransformation(key)
+        node.nextTransformation(value)
         
         key.createEdgeById(value) => [
             value.createLabel(it) => [
@@ -110,4 +111,12 @@ class IdentityHashMapTransformation extends AbstractDebugTransformation {
             ]
         ]
     }
+
+    override getNodeCount(IVariable model) {
+        if (size > 0)
+            return size * 2
+        else
+            return 1
+    }
+    
 }

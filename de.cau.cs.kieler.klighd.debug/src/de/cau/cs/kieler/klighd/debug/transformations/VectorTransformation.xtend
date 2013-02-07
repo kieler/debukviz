@@ -38,7 +38,7 @@ class VectorTransformation extends AbstractDebugTransformation {
     extension KRenderingExtensions
     
     var IVariable previous = null
-    
+    var size = 0
 	/**
 	 * Transformation for a variable which is representing a variable of type "Vector"
 	 * 
@@ -54,13 +54,13 @@ class VectorTransformation extends AbstractDebugTransformation {
             it.data += renderingFactory.createKRectangle()
             
             // Gather necessary information
-            val size = Integer::parseInt(model.getValue("elementCount"))
+            size = Integer::parseInt(model.getValue("elementCount"))
             
             // Perform nextTransformation and add an edge to the previous element for every element in the queue
             if (size > 0)
 	            model.getVariables("elementData").subList(0,size).forEach[
 	                IVariable variable |
-	                    it.children += variable.nextTransformation
+	                    it.nextTransformation(variable)
 	                    if (previous != null)
 	                        previous.createEdgeById(variable) => [
 	                            it.data += renderingFactory.createKPolyline() => [
@@ -82,6 +82,14 @@ class VectorTransformation extends AbstractDebugTransformation {
 				]
 			}  
        ]
+    }
+    
+
+    override getNodeCount(IVariable model) {
+        if (size > 0)
+            return size
+        else
+            return 1
     }
     
 }

@@ -76,7 +76,7 @@ class LinkedHashSetTransformation extends AbstractDebugTransformation {
         
         index = index + 1
         
-        node.children += key.nextTransformation
+        node.nextTransformation(key)
     
         if (index < size) {
             node.createKeyValueNode(after)
@@ -93,4 +93,12 @@ class LinkedHashSetTransformation extends AbstractDebugTransformation {
             ]
         }
     }
+
+    override getNodeCount(IVariable model) {
+        if (size > 0)
+            return size
+        else
+            return 1
+    }
+    
 }

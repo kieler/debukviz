@@ -41,4 +41,6 @@ public interface IKlighdDebug {
 	 * @return the target model
 	 */
 	public KNode transform(IVariable model, Object transformationInfo);
+	
+	public int getNodeCount(IVariable model);
 }

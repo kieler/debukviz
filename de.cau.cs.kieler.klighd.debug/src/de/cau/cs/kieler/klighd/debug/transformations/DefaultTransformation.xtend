@@ -27,13 +27,14 @@ import de.cau.cs.kieler.klighd.debug.visualization.AbstractDebugTransformation
 import java.util.LinkedList
 import javax.inject.Inject
 import org.eclipse.debug.core.model.IVariable
-import org.eclipse.jdt.debug.core.IJavaArray
 import org.eclipse.jdt.debug.core.IJavaObject
 import org.eclipse.jdt.debug.core.IJavaPrimitiveValue
 import org.eclipse.jdt.debug.core.IJavaValue
+import org.eclipse.jdt.debug.core.IJavaModifiers
+import de.cau.cs.kieler.klighd.debug.KlighdDebugPlugin
+import de.cau.cs.kieler.klighd.debug.dialog.KlighdDebugDialog
 
 import static de.cau.cs.kieler.klighd.debug.visualization.AbstractDebugTransformation.*
-import org.eclipse.jdt.debug.core.IJavaModifiers
 
 class DefaultTransformation extends AbstractDebugTransformation {
        
@@ -45,6 +46,11 @@ class DefaultTransformation extends AbstractDebugTransformation {
     extension KRenderingExtensions
     @Inject
     extension KLabelExtensions
+
+    val store = KlighdDebugPlugin::getDefault().getPreferenceStore()
+
+    val hierarchy = store.getString(KlighdDebugPlugin::LAYOUT).equals(KlighdDebugPlugin::HIERARCHY_LAYOUT)
+    val flat = store.getString(KlighdDebugPlugin::LAYOUT).equals(KlighdDebugPlugin::FLAT_LAYOUT)
 
    	/**
 	 * Transformation for a variable representing a runtime variable if no specific transformation is registered as an extension
@@ -83,7 +89,8 @@ class DefaultTransformation extends AbstractDebugTransformation {
     }
     
     def createValueNode(KNode rootNode, IVariable choice) {
-        val node = rootNode.addNodeById(choice) 
+        val node = rootNode.addNodeById(choice)
+        incNodeCount() 
         if (node != null) 
             node => [
                 it.setNodeSize(80,80);
@@ -108,6 +115,7 @@ class DefaultTransformation extends AbstractDebugTransformation {
     }
     
     def createObjectNode(KNode rootNode, IVariable choice) {
+        if (actualNodeCount <= maxNodeCount) {
             val thisNode = rootNode.addNodeById(choice)
             if (thisNode != null) {
                 val primitiveList = new LinkedList<KText>()
@@ -121,23 +129,27 @@ class DefaultTransformation extends AbstractDebugTransformation {
                             it.text = text  
                         ]
                     else {
-                    	if (variable.transformationExists)
-                        	rootNode.children += variable.nextTransformation
-                        else
-                        	rootNode.createObjectNode(variable)
+                    	if ((variable.transformationExists && !flat) || hierarchy) {
+                    	    rootNode.nextTransformation(variable)
+                        }
+                        else {
+                            incNodeCount();
+                            rootNode.createObjectNode(variable)
+                        }
+                        	
                         if (variable.nodeExists)
-	                        choice.createEdgeById(variable) => [
-	                            variable.createLabel(it) => [
-	                                 val String name = variable.name
-	                                 it.addLayoutParam(LayoutOptions::EDGE_LABEL_PLACEMENT, EdgeLabelPlacement::CENTER)
-	                                 it.setLabelSize(name.length*10,50)
-	                                 it.text = name
-	                             ]
-	                             it.data += renderingFactory.createKPolyline() => [
-	                                 it.setLineWidth(2)
-	                                 it.addArrowDecorator()
-	                             ]
-	                        ]
+                            choice.createEdgeById(variable) => [
+                                variable.createLabel(it) => [
+                                     val String name = variable.name
+                                     it.addLayoutParam(LayoutOptions::EDGE_LABEL_PLACEMENT, EdgeLabelPlacement::CENTER)
+                                     it.setLabelSize(name.length*10,50)
+                                     it.text = name
+                                 ]
+                                 it.data += renderingFactory.createKPolyline() => [
+                                     it.setLineWidth(2)
+                                     it.addArrowDecorator()
+                                 ]
+                            ]
                     }
                 ]
                 thisNode => [
@@ -158,6 +170,15 @@ class DefaultTransformation extends AbstractDebugTransformation {
                     ]
                 ]
             }
-        
-        } 
+            
+        }
+        else {
+            KlighdDebugDialog::open
+        }
+    }   
+
+    override getNodeCount(IVariable model) {
+        return actualNodeCount
+    }
+    
 }
