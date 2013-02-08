@@ -137,7 +137,6 @@ class FEdgeTransformation extends AbstractKielerGraphTransformation {
                 // create all nodes for labels
                 labels.linkedList.forEach [ label |
                     it.nextTransformation(label, false)
-                    
                 ]
             ]
             

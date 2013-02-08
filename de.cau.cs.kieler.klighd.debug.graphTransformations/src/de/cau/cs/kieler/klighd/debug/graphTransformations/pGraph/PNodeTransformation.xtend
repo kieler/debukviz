@@ -48,7 +48,8 @@ class PNodeTransformation extends AbstractKielerGraphTransformation {
             it.addLayoutParam(LayoutOptions::ALGORITHM, layoutAlgorithm)
             it.addLayoutParam(LayoutOptions::SPACING, spacing)
             
-            it.children += node.createNode => [
+            it.addNodeById(node) => [
+println("registering node for " + node.getValueString)
                 // either an ellipse or a rectangle
                 var KContainerRendering container
     

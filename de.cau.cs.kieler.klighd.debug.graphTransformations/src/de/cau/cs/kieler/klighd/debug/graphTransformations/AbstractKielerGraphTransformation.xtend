@@ -89,6 +89,19 @@ abstract class AbstractKielerGraphTransformation extends AbstractDebugTransforma
     	return retVal
     }
     
+    def linkedHashSetToLinkedList(IVariable variable) throws DebugException {
+        val size = Integer::parseInt(variable.getValue("map.size"))
+        val retVal = new LinkedList<IVariable>
+        if (size > 0) {
+            var next = variable.getVariable("map.header.after") 
+            for (i : 1..size) {
+                retVal.add(next.getVariable("key"))
+                next = next.getVariable("after")
+            }
+        }
+        return retVal
+    }
+    
     def round(String number, int decimalPositions) {
         return Math::round(Double::valueOf(number) * Math::pow(10, decimalPositions)) 
                     / Math::pow(10, decimalPositions)
@@ -509,11 +522,7 @@ abstract class AbstractKielerGraphTransformation extends AbstractDebugTransforma
     
     def typeAndId(IVariable iVar, String variable) {
         val v = if(variable.equals("")) iVar else iVar.getVariable(variable)
-        if (v.valueIsNotNull) {
-            return v.type + " " + v.getValueString
-        } else {
-            return v.type + ": null"
-        }
+        return v.type + " " + v.getValueString
     }
 
     def nullOrValue(IVariable variable, String valueName) {

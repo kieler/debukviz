@@ -162,11 +162,14 @@ class PGraphTransformation extends AbstractKielerGraphTransformation {
         return rootNode.addNodeById(nodes) => [
             it.data += renderingFactory.createKRectangle => [
                 it.lineWidth = 4
+                if(nodes.linkedHashSetToLinkedList.size == 0) {
+                    it.addGridElement("none", HorizontalAlignment::CENTER)
+                }
             ]
 
             // create all nodes
-		    nodes.hashMapToLinkedList.forEach[IVariable element |
-          		it.nextTransformation(element.getVariable("key"), false)
+		    nodes.linkedHashSetToLinkedList.forEach[IVariable element |
+          		it.nextTransformation(element, false)
 	        ]
 	        
 	        // create all edges
@@ -179,14 +182,11 @@ class PGraphTransformation extends AbstractKielerGraphTransformation {
 
     def createEdges(KNode rootNode, IVariable graph) {
     	val edges = graph.getVariable("edges")
-    	
-    	edges.hashMapToLinkedList.forEach[IVariable element |
-    		val edge = element.getVariable("key")
+    	edges.linkedHashSetToLinkedList.forEach[IVariable edge |
 
             // get the bendPoints assigned to the edge
             val bendPoints = edge.getVariable("bendPoints")
-            val bla = bendPoints.getValue("size")
-            val bendCount = bendPoints.size
+            val bendCount = Integer::parseInt(bendPoints.getValue("size"))
             
             // IVariables the edge has to connect
             val source = edge.getVariable("source")
@@ -216,7 +216,7 @@ class PGraphTransformation extends AbstractKielerGraphTransformation {
                             if (isDirected) {
                                 it.addArrowDecorator
                             } else {
-//TODO: ist der hier wirklich hübsch?
+//TODO: ist der hier wirklich gut?
                                 it.addInheritanceTriangleArrowDecorator
                             }
                             it.setLineStyle(LineStyle::SOLID)
@@ -233,6 +233,7 @@ class PGraphTransformation extends AbstractKielerGraphTransformation {
                     bendPoint.createEdge(target) => [
                         it.data += renderingFactory.createKPolyline => [
                             it.setLineWidth(2)
+//TODO: ist der hier wirklich gut?
                             it.addInheritanceTriangleArrowDecorator
                             it.setLineStyle(LineStyle::SOLID)
                         ]
@@ -241,8 +242,9 @@ class PGraphTransformation extends AbstractKielerGraphTransformation {
                     target = bendPoint                        
                 }
             }
+            
             // create first edge, from source to either new bendPoint or target node
-            source.createEdge(target) => [
+            source.createEdgeById(target) => [
                 it.data += renderingFactory.createKPolyline => [
                     it.setLineWidth(2)
                     if (isDirected) {
@@ -276,37 +278,25 @@ class PGraphTransformation extends AbstractKielerGraphTransformation {
     
     def createFaces(KNode rootNode, IVariable graph) {
         val faces = graph.getVariable("faces")
+        val filteredFaces = faces.linkedHashSetToLinkedList
         
         // create outer faces node
-        faces.createNode => [
+        return rootNode.addNodeById(faces) => [
             it.data += renderingFactory.createKRectangle => [
                 it.lineWidth = 4
+                if (filteredFaces.size == 0) {
+                    // there are no faces
+                    it.ChildPlacement = renderingFactory.createKGridPlacement
+                    it.addGridElement("none", HorizontalAlignment::CENTER)
+                }
             ]
-            
-            // add label
-            faces.createLabel(it) => [
-                it.addLayoutParam(LayoutOptions::EDGE_LABEL_PLACEMENT, EdgeLabelPlacement::CENTER)
-                it.setLabelSize(50,20)
-                it.text = "faces"
-            ]
-            
-            val filteredFaces = faces.getVariable("map").getVariables("table").filter[e | e.valueIsNotNull]
-
-            if (filteredFaces.size == 0) {
-                // there are no faces, so create a small empty box
-                it.setNodeSize(40,30)
-            } else {
+            if (filteredFaces.size > 0) {
                 //there are faces, so create nodes for all faces
-                filteredFaces.forEach[IVariable face | it.nextTransformation(face.getVariable("key"))]
+                filteredFaces.forEach[IVariable face | it.nextTransformation(face)]
             }
-        ]        
-        // create edge from root node to the faces node
-        graph.createEdge(faces) => [
-            it.data += renderingFactory.createKPolyline => [
-                it.setLineWidth(2)
-                it.addArrowDecorator
-                it.setLineStyle(LineStyle::SOLID)
-            ]
+                
+            // create edge from root node to the faces node
+            graph.createTopElementEdge(faces, "faces")
         ]
     }
 }

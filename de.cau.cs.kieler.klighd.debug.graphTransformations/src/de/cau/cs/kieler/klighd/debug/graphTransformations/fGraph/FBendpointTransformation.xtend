@@ -89,6 +89,6 @@ class FBendpointTransformation extends AbstractKielerGraphTransformation {
 	 * {@inheritDoc}
 	 */
 	override getNodeCount(IVariable model) {
-		return 0
+		return 1
 	}
 }
