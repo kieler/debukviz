@@ -99,9 +99,9 @@ class PGraphTransformation extends AbstractKielerGraphTransformation {
                 val table = it.headerNodeBasics(detailedView, graph)
 
                 // id of graph
-	            if (detailedView.conditionalShow(showID)) {
-	                table.addGridElement("id:", leftColumnAlignment)
-	                table.addGridElement(nullOrValue(graph, "id"), rightColumnAlignment)
+                if (detailedView.conditionalShow(showID)) {
+                    table.addGridElement("id:", leftColumnAlignment)
+                    table.addGridElement(nullOrValue(graph, "id"), rightColumnAlignment)
                 }
 
 	            if (detailedView.conditionalShow(showParent)) {

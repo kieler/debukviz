@@ -5,14 +5,16 @@ Bundle-SymbolicName: de.cau.cs.kieler.klighd.debug.graphTransformations;singleto
 Bundle-Version: 1.0.0.qualifier
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Require-Bundle: org.eclipse.core.runtime,
+ org.eclipse.ui,
  org.eclipse.debug.core,
- org.eclipse.xtext.xbase.lib,
+ de.cau.cs.kieler.klighd,
  javax.inject,
- de.cau.cs.kieler.core,
+ com.google.inject,
  de.cau.cs.kieler.core.kgraph,
  de.cau.cs.kieler.core.krendering,
  de.cau.cs.kieler.core.krendering.extensions,
- de.cau.cs.kieler.klighd,
- de.cau.cs.kieler.klighd.debug,
- de.cau.cs.kieler.kiml
+ org.eclipse.xtext.xbase.lib,
+ de.cau.cs.kieler.kiml,
+ de.cau.cs.kieler.core,
+ de.cau.cs.kieler.klighd.debug
 Export-Package: de.cau.cs.kieler.klighd.debug.graphTransformations
