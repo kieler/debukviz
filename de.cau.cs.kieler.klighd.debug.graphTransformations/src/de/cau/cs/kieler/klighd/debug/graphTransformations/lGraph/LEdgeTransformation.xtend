@@ -140,7 +140,6 @@ class LEdgeTransformation extends AbstractKielerGraphTransformation {
                                        + edge.getVariable("target").getValueString, row, 1, rightColumnAlignment)
                     row = row + 1
 
-//TODO: bendpoints evtl. auch hier als eigener node?                    
                     // list of bendPoints
                     if (edge.getValue("bendPoints.size").equals("0")) {
                         // no bendPoints on edge

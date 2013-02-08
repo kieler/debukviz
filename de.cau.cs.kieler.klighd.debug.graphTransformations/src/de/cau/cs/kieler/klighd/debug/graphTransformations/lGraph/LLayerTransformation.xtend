@@ -63,8 +63,10 @@ class LLayerTransformation extends AbstractKielerGraphTransformation {
             it.createHeaderNode(layer)
             
             // add propertyMap
-            if(detailedView.conditionalShow(showPropertyMap))  
+            if(detailedView.conditionalShow(showPropertyMap)) {
+            	println("do it")
             	it.addPropertyMapAndEdge(layer.getVariable("propertyMap"), layer)
+            }  
 
             //add visualization containing nodes of layer and edges between the nodes of this layer
             if (detailedView.conditionalShow(showVisualization)) {
@@ -159,7 +161,9 @@ class LLayerTransformation extends AbstractKielerGraphTransformation {
 	            // size of layer
 	            if (detailedView.conditionalShow(showSize)) {
 		            table.addGridElement("size (x, y):", leftColumnAlignment)
-		            table.addGridElement(layer.getValue("size.x") + ", " + layer.getValue("size.y"), rightColumnAlignment)
+		            table.addGridElement("(" + layer.getValue("size.x") + ", " 
+		            						 + layer.getValue("size.y") + ")", rightColumnAlignment
+		            )
 				}
 			]
 		]

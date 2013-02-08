@@ -172,31 +172,34 @@ abstract class AbstractKielerGraphTransformation extends AbstractDebugTransforma
     }
 
     def addPropertyMapAndEdge(KNode rootNode, IVariable propertyMap, IVariable headerNode) {
-        if(rootNode != null && propertyMap.valueIsNotNull && headerNode.valueIsNotNull) {
-
-            // create propertyMap node
-            rootNode.addNodeById(propertyMap) => [
-                it.data += renderingFactory.createKRectangle => [
-                    it.lineWidth = 4
- 					it.addHashValueElement(propertyMap)
-                ]
-            ]
-
-            //create edge from header to propertyMap node
-            headerNode.createEdgeById(propertyMap) => [
-                it.data += renderingFactory.createKPolyline => [
-                    it.setLineWidth(2)
-                    it.addArrowDecorator
-                ]
-                
-                // add label to edge
-                propertyMap.createLabel(it) => [
-                    it.addLayoutParam(LayoutOptions::EDGE_LABEL_PLACEMENT, EdgeLabelPlacement::CENTER)
-                    it.text = "propertyMap"
-                    val dim = PlacementUtil::estimateTextSize(it)
-                    it.setLabelSize(dim.width,dim.height)
-                ]
-            ]
+        if(rootNode != null && headerNode.valueIsNotNull) {
+	            // create propertyMap node
+	            rootNode.addNodeById(propertyMap) => [
+	                it.data += renderingFactory.createKRectangle => [
+	                    it.lineWidth = 4
+						if(propertyMap.valueIsNotNull) {
+		 					it.addHashValueElement(propertyMap)
+						} else {
+							it.addGridElement("null", HorizontalAlignment::CENTER)
+						}
+	                ]
+	            ]
+	
+	            //create edge from header to propertyMap node
+	            headerNode.createEdgeById(propertyMap) => [
+	                it.data += renderingFactory.createKPolyline => [
+	                    it.setLineWidth(2)
+	                    it.addArrowDecorator
+	                ]
+	                
+	                // add label to edge
+	                propertyMap.createLabel(it) => [
+	                    it.addLayoutParam(LayoutOptions::EDGE_LABEL_PLACEMENT, EdgeLabelPlacement::CENTER)
+	                    it.text = "propertyMap"
+	                    val dim = PlacementUtil::estimateTextSize(it)
+	                    it.setLabelSize(dim.width,dim.height)
+	                ]
+	            ]
         }
     }
     
@@ -490,7 +493,7 @@ abstract class AbstractKielerGraphTransformation extends AbstractDebugTransforma
     }
     
     def typeAndId(IVariable iVar, String variable) {
-        val v = iVar.getVariable(variable)
+        val v = if(variable.equals("")) iVar else iVar.getVariable(variable)
         if (v.valueIsNotNull) {
             return v.type + " " + v.getValueString
         } else {

@@ -94,7 +94,11 @@ class LPortTransformation extends AbstractKielerGraphTransformation {
                 
                 // id of port
                 field.set("id:", row, 0, leftColumnAlignment)
-                field.set(nullOrValue(port, "id"), row, 1, rightColumnAlignment)
+                if(detailedView) {
+	                field.set(nullOrValue(port, "id"), row, 1, rightColumnAlignment)
+                } else {
+	                field.set(nullOrValue(port, "id") + port.getValueString, row, 1, rightColumnAlignment)
+                }
                 row = row + 1
    
                 // hashCode of port
@@ -102,11 +106,6 @@ class LPortTransformation extends AbstractKielerGraphTransformation {
                 field.set(nullOrValue(port, "hashCode"), row, 1, rightColumnAlignment)
                 row = row + 1
             
-                // side of port
-                field.set("side:", row, 0, leftColumnAlignment)
-                field.set(port.getValue("side.name"), row, 1, rightColumnAlignment)
-                row = row + 1
-
                 if(detailedView) {
                     // show following elements only if detailedView
                     // anchor of port

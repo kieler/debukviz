@@ -102,13 +102,17 @@ class LNodeTransformation extends AbstractKielerGraphTransformation {
                  *    add first label of origin as text
                  */
                 container = renderingFactory.createKEllipse => [
-                    if (nodeType == "NORTH_SOUTH_PORT") {
-                        val origin = node.getVariable("propertyMap").getValFromHashMap("origin")
-                        if (origin.getType == "LNode") {
-                            field.set("origin:", 0, 0, leftColumnAlignment)
-//TODO: dass stimmt hier nocht nicht!!!!
-                            field.set("" + origin.getVariable("labels").linkedList.get(0), 0, 1, rightColumnAlignment)
-                        }
+                    val origin = node.getVariable("propertyMap").getValFromHashMap("origin")
+println(origin.getValueString)
+                    if (nodeType == "NORTH_SOUTH_PORT" && origin.getType == "LNode") {
+                        field.set("origin:", 0, 0, leftColumnAlignment)
+                        field.set("" + origin.getVariable("labels").linkedList.get(0), 0, 1, rightColumnAlignment)
+                    } else {
+println("3")
+                        field.set("origin:", 0, 0, leftColumnAlignment)
+println(origin.getValueString)
+                        field.set("" + origin.typeAndId(""), 0, 1, rightColumnAlignment)
+println("4")
                     }
                 ]
             }
