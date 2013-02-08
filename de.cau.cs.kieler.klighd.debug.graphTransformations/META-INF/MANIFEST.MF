@@ -8,6 +8,7 @@ Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.ui,
  org.eclipse.debug.core,
  de.cau.cs.kieler.klighd,
+ de.cau.cs.kieler.core.kivi;bundle-version="0.4.1",
  javax.inject,
  com.google.inject,
  de.cau.cs.kieler.core.kgraph,
@@ -16,5 +17,9 @@ Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.xtext.xbase.lib,
  de.cau.cs.kieler.kiml,
  de.cau.cs.kieler.core,
- de.cau.cs.kieler.klighd.debug
+ de.cau.cs.kieler.core.model;bundle-version="0.7.1",
+ de.cau.cs.kieler.kiml.ogdf;bundle-version="0.5.1",
+ de.cau.cs.kieler.klighd.debug,
+ org.eclipse.xtend.lib;bundle-version="2.3.1",
+ org.eclipse.jdt.debug;bundle-version="3.7.101"
 Export-Package: de.cau.cs.kieler.klighd.debug.graphTransformations
