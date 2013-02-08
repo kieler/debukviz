@@ -128,6 +128,7 @@ class LLayerTransformation extends AbstractKielerGraphTransformation {
 	        		]
 	        	]
 	        ]
+//TODO: wird diese kante wirklich noch erzeugt? (wegen des return oben)
         // create edge from node registered to layer to the new node
 		layer.createTopElementEdge(nodes, "visualization")
         ]

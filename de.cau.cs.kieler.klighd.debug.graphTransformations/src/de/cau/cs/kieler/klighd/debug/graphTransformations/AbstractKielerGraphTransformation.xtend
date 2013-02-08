@@ -79,12 +79,14 @@ abstract class AbstractKielerGraphTransformation extends AbstractDebugTransforma
         for ( v : variable.getVariables("table")) {
             if (v.valueIsNotNull) {
                 retVal.add(v)
-                if (v.getVariable("next").valueIsNotNull) {
-                    retVal.add(v.getVariable("next"))
-                }
+                var next = v.getVariable("next")
+                while(next.valueIsNotNull) {
+                	retVal.add(next)
+                	next = next.getVariable("next")
+            	}
             }
-        }
-        return retVal
+    	}
+    	return retVal
     }
     
     def round(String number, int decimalPositions) {
