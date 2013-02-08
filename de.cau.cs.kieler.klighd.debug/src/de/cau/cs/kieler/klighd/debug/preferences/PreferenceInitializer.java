@@ -34,9 +34,7 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
     public void initializeDefaultPreferences() {
         IPreferenceStore preferenceStore = KlighdDebugPlugin.getDefault().getPreferenceStore();
 
-        preferenceStore.setDefault(KlighdDebugPlugin.STANDARD_LAYOUT, true);
-        preferenceStore.setDefault(KlighdDebugPlugin.FLAT_LAYOUT, false);
-        preferenceStore.setDefault(KlighdDebugPlugin.HIERARCHY_LAYOUT, false);
+        preferenceStore.setDefault(KlighdDebugPlugin.LAYOUT, KlighdDebugPlugin.STANDARD_LAYOUT);
         preferenceStore.setDefault(KlighdDebugPlugin.HIERARCHY_DEPTH, 10);
         preferenceStore.setDefault(KlighdDebugPlugin.MAX_NODE_COUNT, 100);
     }

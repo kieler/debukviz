@@ -42,6 +42,8 @@ class KeyValueTransformation extends AbstractDebugTransformation {
     @Inject 
     extension KLabelExtensions 
     
+    
+    var size = 0
 	/**
 	 * Transformation for a variable which is representing a variable of type "HashMap" and "HashTable"
 	 * 
@@ -55,8 +57,12 @@ class KeyValueTransformation extends AbstractDebugTransformation {
             it.addLayoutParam(LayoutOptions::DIRECTION, Direction::RIGHT)
             
             it.data += renderingFactory.createKRectangle()
-            
-            if (Integer::parseInt(model.getValue("size")) > 0)   
+            val sizeString = model.getValue("size")
+            if (!sizeString.equals("null"))
+                size = Integer::parseInt(sizeString)
+            else 
+                size = Integer::parseInt(model.getValue("count"))
+            if (size > 0)   
 	            // Add a pair of nodes for every entry that is not null
 	            model.getVariables("table").filter[variable | variable.valueIsNotNull].forEach[
 	                IVariable variable | 
@@ -89,9 +95,9 @@ class KeyValueTransformation extends AbstractDebugTransformation {
        	val key = variable.getVariable("key")
        	val value = variable.getVariable("value")
 
-	   	node.children += key.nextTransformation
+	   	node.nextTransformation(key)
 	   	
-	   	node.children += value.nextTransformation
+	   	node.nextTransformation(value)
 	
         key.createEdgeById(value) => [
             value.createLabel(it) => [
@@ -105,4 +111,12 @@ class KeyValueTransformation extends AbstractDebugTransformation {
             ]
         ]
     }
+
+    override getNodeCount(IVariable model) {
+        if (size > 0)
+            return size * 2
+        else
+            return 1
+    }
+    
 }

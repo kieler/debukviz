@@ -31,6 +31,7 @@ class EnumSetTransformation extends AbstractDebugTransformation {
     @Inject
     extension KNodeExtensions
     
+    var size = 0
     /**
 	 * Transformation for a variable which is representing a variable of type "EnumSet"
 	 * 
@@ -64,6 +65,7 @@ class EnumSetTransformation extends AbstractDebugTransformation {
             }
 			else
 			{
+			    size = 1;
 				it.children += createNode() => [
 					it.setNodeSize(80,80)
 					it.data += renderingFactory.createKRectangle() => [
@@ -90,6 +92,14 @@ class EnumSetTransformation extends AbstractDebugTransformation {
 						]  
 				]
 			]
+    }
+    
+
+    override getNodeCount(IVariable model) {
+        if (size > 0)
+            return size
+        else
+            return 1
     }
     
 }

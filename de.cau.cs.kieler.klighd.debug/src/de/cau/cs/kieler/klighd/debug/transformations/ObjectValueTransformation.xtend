@@ -62,4 +62,9 @@ class ObjectValueTransformation extends AbstractDebugTransformation {
         ]
     }
    
+
+    override getNodeCount(IVariable model) {
+        return 1
+    }
+    
 }

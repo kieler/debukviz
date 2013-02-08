@@ -28,6 +28,7 @@ class HashSetTransformation extends AbstractDebugTransformation {
     @Inject
     extension KNodeExtensions
     
+    var size = 0
     /**
 	 * Transformation for a variable which is representing a variable of type "HashSet"
 	 * 
@@ -41,15 +42,15 @@ class HashSetTransformation extends AbstractDebugTransformation {
             
             it.data += renderingFactory.createKRectangle()
             
-            val size = Integer::parseInt(model.getValue("map.size"))
+            size = Integer::parseInt(model.getValue("map.size"))
             if (size > 0)
 	            // Iterate over the table of the map and perform nextTransformation for every not null value
 	            model.getVariables("map.table").filter[variable | variable.valueIsNotNull].forEach[
 	                IVariable variable | 
-	               	it.children += variable.getVariable("key").nextTransformation
+	               	it.nextTransformation(variable.getVariable("key"))
 	               	val next = variable.getVariable("next");
 	               	if (next.valueIsNotNull)
-	                    it.children += next.getVariable("key").nextTransformation
+	               	   it.nextTransformation(next.getVariable("key"))
 	       		]
 	       	else
 			{
@@ -64,4 +65,12 @@ class HashSetTransformation extends AbstractDebugTransformation {
 			}
 		]
     }
+
+    override getNodeCount(IVariable model) {
+        if (size > 0)
+            return size
+        else
+            return 1
+    }
+    
 }

@@ -231,7 +231,10 @@ public class ReinitializingTransformationProxy extends AbstractDebugTransformati
     }
 
     public KNode transform(IVariable model, Object transformationInfo) {
-        // TODO Auto-generated method stub
         return null;
+    }
+
+    public int getNodeCount(IVariable model) {
+        return this.transformationDelegate.getNodeCount(model);
     }
 }

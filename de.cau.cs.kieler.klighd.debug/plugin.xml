@@ -102,5 +102,19 @@
             transformation="de.cau.cs.kieler.klighd.debug.transformations.StringTransformation">
       </visualization>
    </extension>
+   <extension
+         point="org.eclipse.ui.preferencePages">
+      <page
+            class="de.cau.cs.kieler.klighd.debug.preferences.KlighdDebugPreferencePage"
+            id="de.cau.cs.kieler.klighd.debug.page1"
+            name="KIELER Debug Visualization">
+      </page>
+   </extension>
+   <extension
+         point="org.eclipse.core.runtime.preferences">
+      <initializer
+            class="de.cau.cs.kieler.klighd.debug.preferences.PreferenceInitializer">
+      </initializer>
+   </extension>
 
 </plugin>

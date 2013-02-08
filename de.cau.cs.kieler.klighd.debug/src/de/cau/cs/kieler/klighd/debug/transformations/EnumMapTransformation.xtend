@@ -105,7 +105,7 @@ class EnumMapTransformation extends AbstractDebugTransformation {
 			]
 
 		// Add value node
-		rootNode.children += value.nextTransformation
+		rootNode.nextTransformation(value)
 		
 		// Add edge between key node and value node
 		key.createEdgeById(value) => [
@@ -120,4 +120,13 @@ class EnumMapTransformation extends AbstractDebugTransformation {
         	];
     	]; 
     }
+
+    override getNodeCount(IVariable model) {
+        val size = Integer::parseInt(model.getValue("size")) 
+        if (size > 0)
+            return size * 2
+        else 
+            return 1
+    }
+    
 }

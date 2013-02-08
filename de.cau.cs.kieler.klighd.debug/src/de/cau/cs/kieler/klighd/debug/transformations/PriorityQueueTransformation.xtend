@@ -38,7 +38,7 @@ class PriorityQueueTransformation extends AbstractDebugTransformation {
     extension KRenderingExtensions
     
     var IVariable previous = null
-    
+    var size = 0
 	/**
 	 * Transformation for a variable which is representing a variable of type "PriorityQueue"
 	 * 
@@ -54,13 +54,13 @@ class PriorityQueueTransformation extends AbstractDebugTransformation {
             it.data += renderingFactory.createKRectangle()
             
             // Gather necessary information
-            val size = Integer::parseInt(model.getValue("size"))
+            size = Integer::parseInt(model.getValue("size"))
             
             if (size > 0)
 	            // Perform nextTransformation and add an edge to the previous element for every element in the queue
 	            model.getVariables("queue").subList(0,size).forEach[
 	                IVariable variable |
-	                    it.children += variable.nextTransformation
+	                    it.nextTransformation(variable)
 	                    if (previous != null)
 	                        previous.createEdgeById(variable) => [
 	                            it.data += renderingFactory.createKPolyline() => [
@@ -83,6 +83,14 @@ class PriorityQueueTransformation extends AbstractDebugTransformation {
 			}
 	         ]
 
+    }
+    
+
+    override getNodeCount(IVariable model) {
+        if (size > 0)
+            return size
+        else
+            return 1
     }
     
 }

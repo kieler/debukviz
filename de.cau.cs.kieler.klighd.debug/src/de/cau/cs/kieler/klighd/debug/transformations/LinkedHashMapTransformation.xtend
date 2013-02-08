@@ -90,9 +90,9 @@ class LinkedHashMapTransformation extends AbstractDebugTransformation {
         
         index = index + 1
         
-        node.children += key.nextTransformation
+        node.nextTransformation(key)
         
-        node.children += value.nextTransformation
+        node.nextTransformation(value)
     
     	// Create edge between key and value
         key.createEdgeById(value) => [
@@ -124,4 +124,12 @@ class LinkedHashMapTransformation extends AbstractDebugTransformation {
             ]
         }
     }
+
+    override getNodeCount(IVariable model) {
+        if (size > 0)
+            return size * 2
+        else
+            return 1
+    }
+    
 }

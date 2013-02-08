@@ -42,6 +42,7 @@ class WeakHashMapTransformation extends AbstractDebugTransformation {
     @Inject 
     extension KLabelExtensions 
     
+    var size = 0
 	/**
 	 * Transformation for a variable which is representing a variable of type "WeakHashMap"
 	 * 
@@ -56,7 +57,8 @@ class WeakHashMapTransformation extends AbstractDebugTransformation {
             
             it.data += renderingFactory.createKRectangle()
             
-            if (Integer::parseInt(model.getValue("size")) > 0)   
+            size = Integer::parseInt(model.getValue("size"))
+            if (size > 0)   
 	            model.getVariables("table").filter[variable | variable.valueIsNotNull].forEach[
 	                IVariable variable | 
 	                    it.createKeyValueNode(variable)
@@ -82,9 +84,9 @@ class WeakHashMapTransformation extends AbstractDebugTransformation {
         val key = variable.getVariable("referent")
         val value = variable.getVariable("value")
 
-        node.children += key.nextTransformation
+        node.nextTransformation(key)
         
-        node.children += value.nextTransformation
+        node.nextTransformation(value)
     
         key.createEdgeById(value) => [
             value.createLabel(it) => [
@@ -98,4 +100,12 @@ class WeakHashMapTransformation extends AbstractDebugTransformation {
             ]
         ]
     }
+
+    override getNodeCount(IVariable model) {
+        if (size > 0)
+            return size * 2
+        else
+            return 1
+    }
+    
 }

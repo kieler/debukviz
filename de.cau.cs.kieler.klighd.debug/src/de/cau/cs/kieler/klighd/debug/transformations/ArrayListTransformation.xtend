@@ -41,27 +41,27 @@ class ArrayListTransformation extends AbstractDebugTransformation {
     @Inject
     extension KRenderingExtensions
     
+    var size = 0
     var IVariable previous = null
     var index = 0
     
     override transform(IVariable model, Object transformationInfo) {
         return KimlUtil::createInitializedNode() => [
-            //it.addLayoutParam(LayoutOptions::ALGORITHM, "de.cau.cs.kieler.klay.layered")
-            it.addLayoutParam(LayoutOptions::ALGORITHM, "de.cau.cs.kieler.kiml.ogdf.planarization")
+            it.addLayoutParam(LayoutOptions::ALGORITHM, "de.cau.cs.kieler.klay.layered")
+            //it.addLayoutParam(LayoutOptions::ALGORITHM, "de.cau.cs.kieler.kiml.ogdf.planarization")
             it.addLayoutParam(LayoutOptions::SPACING, 50f)
             it.addLayoutParam(LayoutOptions::DIRECTION, Direction::RIGHT)
             
 			it.data += renderingFactory.createKRectangle()
             
             // Iterate over variables representing the elements of the arrayList
-            val size = Integer::parseInt(model.getValue("size"))
+            size = Integer::parseInt(model.getValue("size"))
             if (size > 0)
 	            model.getVariables("elementData").subList(0,size).forEach[
 	                IVariable variable |
 	                // perform a transformation for the variable and create an edge to the previous element
-	                it.children += variable.nextTransformation
-	                if (previous != null)
-	                    previous.createEdgeById(variable) => [
+	                if (it.nextTransformation(variable) != null && previous != null)
+	                     previous.createEdgeById(variable) => [
 	                        variable.createLabel(it) => [
 	                            it.addLayoutParam(LayoutOptions::EDGE_LABEL_PLACEMENT, EdgeLabelPlacement::CENTER)
 	                            it.setLabelSize(50,50)
@@ -89,4 +89,12 @@ class ArrayListTransformation extends AbstractDebugTransformation {
 	         }
         ]
     }
+
+    override getNodeCount(IVariable model) {
+        if (size > 0)
+            return size
+        else
+            return 1
+    }
+    
 }
