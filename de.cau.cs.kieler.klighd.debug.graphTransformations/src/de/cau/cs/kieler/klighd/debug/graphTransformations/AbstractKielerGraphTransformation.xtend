@@ -492,7 +492,7 @@ abstract class AbstractKielerGraphTransformation extends AbstractDebugTransforma
     def typeAndId(IVariable iVar, String variable) {
         val v = iVar.getVariable(variable)
         if (v.valueIsNotNull) {
-            return v.type + " " + v.getValueString + iVar.getValue
+            return v.type + " " + v.getValueString
         } else {
             return v.type + ": null"
         }
