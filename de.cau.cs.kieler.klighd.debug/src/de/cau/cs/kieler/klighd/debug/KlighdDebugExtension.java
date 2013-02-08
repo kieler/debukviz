@@ -21,12 +21,14 @@ import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.debug.core.DebugException;
 import org.eclipse.debug.core.model.IVariable;
+import org.eclipse.jdt.debug.core.IJavaArray;
 import org.eclipse.jdt.debug.core.IJavaClassType;
 import org.eclipse.jdt.debug.core.IJavaObject;
 import org.eclipse.jdt.debug.core.IJavaType;
 import org.eclipse.jdt.debug.core.IJavaValue;
 import org.eclipse.ui.statushandlers.StatusManager;
 
+import de.cau.cs.kieler.klighd.debug.transformations.ArrayTransformation;
 import de.cau.cs.kieler.klighd.debug.visualization.AbstractDebugTransformation;
 
 /**
@@ -77,6 +79,8 @@ public class KlighdDebugExtension {
         AbstractDebugTransformation result = null;
         try {
             IJavaValue value = (IJavaValue)model.getValue();
+            if (value instanceof IJavaArray)
+            	return new ArrayTransformation();
             // If value doesn't represent an object or value represents the null object return null
             if (!(value instanceof IJavaObject) || ((IJavaObject)value).isNull())
                 return null;

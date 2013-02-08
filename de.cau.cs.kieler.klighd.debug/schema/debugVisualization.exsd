@@ -69,13 +69,6 @@
                </appinfo>
             </annotation>
          </attribute>
-         <attribute name="pluginID" type="string">
-            <annotation>
-               <documentation>
-                  PluginID of plugin which contains the transformation (only necessary if plugin wasn&apos;t started while launching)
-               </documentation>
-            </annotation>
-         </attribute>
       </complexType>
    </element>
 

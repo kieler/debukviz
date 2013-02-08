@@ -97,6 +97,10 @@
             class="java.lang.Number"
             transformation="de.cau.cs.kieler.klighd.debug.transformations.ObjectValueTransformation">
       </visualization>
+      <visualization
+            class="java.lang.String"
+            transformation="de.cau.cs.kieler.klighd.debug.transformations.StringTransformation">
+      </visualization>
    </extension>
 
 </plugin>

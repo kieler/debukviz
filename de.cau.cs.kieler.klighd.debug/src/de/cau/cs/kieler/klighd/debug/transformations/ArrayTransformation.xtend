@@ -31,14 +31,14 @@ import org.eclipse.jdt.debug.core.IJavaArray
 import org.eclipse.jdt.debug.core.IJavaObject
 import org.eclipse.jdt.debug.core.IJavaPrimitiveValue
 import org.eclipse.jdt.debug.core.IJavaValue
-import org.eclipse.jdt.debug.core.IJavaModifiers
 
 import static de.cau.cs.kieler.klighd.debug.visualization.AbstractDebugTransformation.*
-import org.eclipse.swt.SWT
-import org.eclipse.swt.widgets.MessageBox
-import org.eclipse.ui.PlatformUI
+import org.eclipse.jdt.debug.core.IJavaModifiers
 
-class DefaultTransformation2 extends AbstractDebugTransformation {
+/**
+ * Transformation for a variable representing a runtime variable which is an array
+ */
+class ArrayTransformation extends AbstractDebugTransformation {
        
     @Inject 
     extension KPolylineExtensions   
@@ -48,12 +48,11 @@ class DefaultTransformation2 extends AbstractDebugTransformation {
     extension KRenderingExtensions
     @Inject
     extension KLabelExtensions
-    
-    var nodeCount = 0
-    val maxNodeCount = 20
-	
-	/**
-	 * Transformation for a variable representing a runtime variable if no specific transformation is registered as an extension
+
+   	/**
+	 * Transformation for a variable representing a runtime variable which is an array
+	 * 
+	 * {@inheritDoc}
 	 */
     override transform(IVariable model, Object transformationInfo) {
         return KimlUtil::createInitializedNode() => [
@@ -63,24 +62,8 @@ class DefaultTransformation2 extends AbstractDebugTransformation {
             it.addLayoutParam(LayoutOptions::DIRECTION, Direction::RIGHT)
             
             it.data += renderingFactory.createKRectangle()
-            
-            // Array
-            if (model.isArray)
-                it.createArrayNode(model)
-            // primitive datatypes or null or null object
-            else if (model.isPrimitiveOrNull || model.isNullObject || model.type.equals("String"))
-               	it.createValueNode(model)
-            // objecttypes
-            else if (model.isObject) {
-            	it.createObjectNode(model)
-            	if(nodeCount >= maxNodeCount) {
-					// Message with ok button and info icon
-					val MessageBox dialog = new MessageBox(PlatformUI::workbench.activeWorkbenchWindow.shell, SWT::ICON_INFORMATION)
-					dialog.setText("Maximal count of nodes exceeded");
-					dialog.setMessage("Maybe the visualization is incomplete!");
-					dialog.open();	
-				}
-            }   
+
+            it.createArrayNode(model)
         ]
     }
     
@@ -88,18 +71,10 @@ class DefaultTransformation2 extends AbstractDebugTransformation {
         return variable.type.equals("Object")
     }
     
-    def boolean isArray(IVariable variable) {
-        return variable.value instanceof IJavaArray
-    }
-    
     def boolean isPrimitiveOrNull(IVariable variable) {
         val value = variable.value
         return value instanceof IJavaPrimitiveValue || 
               (value instanceof IJavaValue && (value as IJavaValue).isNull())
-    }
-    
-    def boolean isObject(IVariable variable) {
-        return variable.value instanceof IJavaObject
     }
     
     def createArrayNode(KNode rootNode, IVariable choice) {
@@ -155,67 +130,5 @@ class DefaultTransformation2 extends AbstractDebugTransformation {
                 ]
             ]
     }
-    
-    def filterVariable(IVariable variable) {
-        if (variable instanceof IJavaModifiers) {
-            val mod = variable as IJavaModifiers
-            return !mod.isStatic()
-        }
-    }
-    
-    def boolean createObjectNode(KNode rootNode, IVariable choice) {
-        if (nodeCount < maxNodeCount) {
-	        val thisNode = rootNode.addNodeById(choice)
-	        nodeCount = nodeCount + 1
-        
-	        if (thisNode != null) {
-	            val primitiveList = new LinkedList<KText>()
-	            choice.value.variables.filter[it.filterVariable].forEach[IVariable variable |
-	                if (variable.isPrimitiveOrNull)
-	                    primitiveList += renderingFactory.createKText() => [
-	                        var text = ""
-	                        if (!variable.type.equals("null"))
-	                            text = text + variable.type + " "
-	                        text = text + variable.name + ": " + variable.value.valueString 
-	                        it.text = text  
-	                    ]
-	                else if (rootNode.createObjectNode(variable)) 
-	                    choice.createEdgeById(variable) => [
-	                        variable.createLabel(it) => [
-	                             val String name = variable.name
-	                             it.addLayoutParam(LayoutOptions::EDGE_LABEL_PLACEMENT, EdgeLabelPlacement::CENTER)
-	                             it.setLabelSize(name.length*30,50)
-	                             it.text = name
-	                         ]
-	                         it.data += renderingFactory.createKPolyline() => [
-	                             it.setLineWidth(2)
-	                             it.addArrowDecorator()
-	                         ]
-	                    ]
-	            ]
-	            thisNode => [
-	                it.data += renderingFactory.createKRectangle() => [
-	                    it.childPlacement = renderingFactory.createKGridPlacement()
-	                    it.children += renderingFactory.createKText() => [
-	                        it.text = "<<"+choice.type+">>"
-	                        it.setForegroundColor(120,120,120)
-	                    ]
-	                    it.children += renderingFactory.createKText() => [
-	                        it.text = choice.name
-	                    ]
-	                    if (!primitiveList.empty) {
-	                        it.children += renderingFactory.createKText() => [
-	                            it.text = "--------------------"
-	                        ]
-	                        primitiveList.forEach[KText text |
-	                            it.children += text
-	                        ]                      
-	                    }
-	                ]
-	            ]
-	        }
-	        return true
-	    }
-	    else return false
-    } 
+   
 }
