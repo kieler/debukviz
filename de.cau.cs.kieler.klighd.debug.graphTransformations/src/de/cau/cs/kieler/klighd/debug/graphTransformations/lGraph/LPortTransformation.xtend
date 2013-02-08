@@ -111,26 +111,26 @@ class LPortTransformation extends AbstractKielerGraphTransformation {
                     // show following elements only if detailedView
                     // anchor of port
                     field.set("anchor (x,y):", row, 0, leftColumnAlignment)
-                    field.set("(" + port.getValue("anchor.x").round + " x " 
+                    field.set("(" + port.getValue("anchor.x").round + ", " 
                                   + port.getValue("anchor.y").round + ")", row, 1, rightColumnAlignment)
                     row = row + 1
                     
                     // margin of port
                     field.set("margin (t,r,b,l):", row, 0, leftColumnAlignment)
-                    field.set("(" + port.getValue("margin.top").round + " x "
-                                  + port.getValue("margin.right").round + " x "
-                                  + port.getValue("margin.bottom").round + " x "
+                    field.set("(" + port.getValue("margin.top").round + ", "
+                                  + port.getValue("margin.right").round + ", "
+                                  + port.getValue("margin.bottom").round + ", "
                                   + port.getValue("margin.left").round + ")", row, 1, rightColumnAlignment)
                     row = row + 1
 
                     // owner of port
                     field.set("owner:", row, 0, leftColumnAlignment)
-                    field.set("LNode " + port.getValue("owner.id") , row, 1, rightColumnAlignment)
+                    field.set("LNode " + port.getValue("owner.id") + port.getValue("owner"), row, 1, rightColumnAlignment)
                     row = row + 1
 
                     // position of port
                     field.set("pos (x,y):", row, 0, leftColumnAlignment)
-                    field.set("(" + port.getValue("pos.x").round + " x "
+                    field.set("(" + port.getValue("pos.x").round + ", "
                                   + port.getValue("pos.y").round + ")", row, 1, rightColumnAlignment)
                     row = row + 1
                     
@@ -141,7 +141,7 @@ class LPortTransformation extends AbstractKielerGraphTransformation {
                     
                     // size of port
                     field.set("size (x,y):", row, 0, leftColumnAlignment)
-                    field.set("(" + port.getValue("size.x").round + " x "
+                    field.set("(" + port.getValue("size.x").round + ", "
                                   + port.getValue("size.y").round + ")", row, 1, rightColumnAlignment)
                     row = row + 1
                 } else {

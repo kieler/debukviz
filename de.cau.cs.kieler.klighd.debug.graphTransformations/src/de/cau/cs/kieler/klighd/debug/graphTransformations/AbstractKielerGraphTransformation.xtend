@@ -163,6 +163,8 @@ abstract class AbstractKielerGraphTransformation extends AbstractDebugTransforma
                 return key.getValue("name") + ":"
             case "KNodeImpl" :
                 return "KNode" + key.getValueString + " -> "
+            case "KPortImpl" :
+                return "KPort" + key.getValueString + " -> "
         }
         // a default statement in the switch results in a missing return statement in generated 
         // java code, so I added the default return value here
@@ -233,17 +235,29 @@ abstract class AbstractKielerGraphTransformation extends AbstractDebugTransforma
             case "NodeGroup" :                 	
 				container.addGridElement("(TODO)", HorizontalAlignment::LEFT)
             case "KNodeImpl" :
-            	container.addGridElement("KNodeImpl " + element.getValueString, HorizontalAlignment::LEFT)
+            	container.addGridElement("KNode " + element.getValueString, HorizontalAlignment::LEFT)
             case "KLabelImpl" :
-            	container.addGridElement("KLabelImpl " + element.getValueString, HorizontalAlignment::LEFT)
+            	container.addGridElement("KLabel " + element.getValueString, HorizontalAlignment::LEFT)
             case "KEdgeImpl" :
-            	container.addGridElement("KEdgeImpl " + element.getValueString, HorizontalAlignment::LEFT)
+            	container.addGridElement("KEdge " + element.getValueString, HorizontalAlignment::LEFT)
             case "LNode" :
-            	container.addGridElement("LNodeImpl " + element.getValue("id") + element.getValueString, 
+            	container.addGridElement("LNode " + element.getValue("id") + element.getValueString, 
+            		HorizontalAlignment::LEFT
+            	)
+            case "LPort" :
+            	container.addGridElement("LPort " + element.getValue("id") + element.getValueString, 
+            		HorizontalAlignment::LEFT
+            	)
+            case "LEdge" :
+            	container.addGridElement("LEdge " + element.getValue("id") + element.getValueString, 
             		HorizontalAlignment::LEFT
             	)
             case "Random" :
-            	container.addGridElement("seed " + element.getValue("seed.value"), HorizontalAlignment::LEFT)
+            	container.addGridElement("seed " + element.getValue("seed.value"), 
+            		HorizontalAlignment::LEFT
+            	)
+        	case "NodeType" :
+        		container.addGridElement(element.getValue("name"), HorizontalAlignment::LEFT)
             case "String" :
             	container.addGridElement(element.getValueString, HorizontalAlignment::LEFT)
             case "Direction" :
@@ -394,8 +408,15 @@ abstract class AbstractKielerGraphTransformation extends AbstractDebugTransforma
     
     def headerNodeBasics(KContainerRendering container, Boolean detailedView, IVariable variable) {
         
+        container.ChildPlacement = renderingFactory.createKGridPlacement => [
+            it.numColumns = 1
+        ]
         container.setVerticalAlignment(VerticalAlignment::TOP)    	
         container.setHorizontalAlignment(HorizontalAlignment::LEFT)
+//		container.setGridPlacementData(0f, 0f,
+//    			createKPosition(LEFT, 5f, 0f, TOP, 5f, 0f),
+//    			createKPosition(RIGHT, 5f, 0f, BOTTOM, 5f, 0f)
+//		)
 
         // type of the variable: create a rectangle for this to center the text
         if (detailedView) {
@@ -423,6 +444,31 @@ abstract class AbstractKielerGraphTransformation extends AbstractDebugTransforma
         return table
     }
     
+    /**
+     * deprecated
+     */
+    def headerNodeBasics(KContainerRendering container, KTextIterableField field, Boolean detailedView, 
+    			IVariable variable, KTextIterableField$TextAlignment leftColumn, 
+    								KTextIterableField$TextAlignment rightColumn) {
+        if(detailedView) {
+            // bold line in detailed view
+            container.lineWidth = 4
+            
+            // type of the variable
+            field.setHeader(variable.shortType)
+
+            // name of the variable
+            field.set("Variable:", field.rowCount, 0, leftColumn) 
+            field.set(variable.name + variable.getValueString, field.rowCount - 1, 1, rightColumn) 
+
+            // coloring of main element
+            container.setBackground("lemon".color);
+        } else {
+            // slim line in not detailed view
+            container.lineWidth = 2
+        }
+    }
+    
     def addKText(KContainerRendering container, String text) {
         return renderingFactory.createKText => [
             container.children += it
@@ -446,7 +492,7 @@ abstract class AbstractKielerGraphTransformation extends AbstractDebugTransforma
     def typeAndId(IVariable iVar, String variable) {
         val v = iVar.getVariable(variable)
         if (v.valueIsNotNull) {
-            return v.type + " " + v.getValueString
+            return v.type + " " + v.getValueString + iVar.getValue
         } else {
             return v.type + ": null"
         }
@@ -458,6 +504,13 @@ abstract class AbstractKielerGraphTransformation extends AbstractDebugTransforma
             } else {
                 return "null"
             }
+    }
+    
+    def containsValWithID(IVariable list, String id) {
+    	for(elem : list.linkedList) {
+    		if (id.equals(elem.getValueString)) return true
+    	}
+    	return false
     }
     
 

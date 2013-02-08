@@ -93,13 +93,13 @@ class FLabelTransformation extends AbstractKielerGraphTransformation {
                 
                     // position of label
                     field.set("position (x,y):", row, 0, leftColumnAlignment)
-                    field.set("(" + label.getValue("position.x").round + " x " 
+                    field.set("(" + label.getValue("position.x").round + ", " 
                                   + label.getValue("position.y").round + ")", row, 1, rightColumnAlignment)
                     row = row + 1
 
                     // size of label
                     field.set("size (x,y):", row, 0, leftColumnAlignment)
-                    field.set("(" + label.getValue("size.x").round + " x " 
+                    field.set("(" + label.getValue("size.x").round + ", " 
                                   + label.getValue("size.y").round + ")", row, 1, rightColumnAlignment)
                     row = row + 1
                 }

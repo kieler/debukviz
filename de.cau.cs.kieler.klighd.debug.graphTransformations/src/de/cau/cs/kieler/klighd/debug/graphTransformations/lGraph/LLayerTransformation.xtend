@@ -92,7 +92,6 @@ class LLayerTransformation extends AbstractKielerGraphTransformation {
      * @return the new created node
      */
 	def createVisualization(KNode rootNode, IVariable layer) {
-println("creating visualization")
 		val nodes = layer.getVariable("nodes")
 		
         return rootNode.addNodeById(nodes) => [
@@ -108,9 +107,10 @@ println("creating visualization")
 	        nodes.linkedList.forEach[IVariable node |
 	        	node.getVariable("ports").linkedList.forEach[IVariable port |
 	        		port.getVariable("outgoingEdges").linkedList.forEach[IVariable edge |
+	        			
 	        			// verify that the current edge has to be created
 	        			val target = edge.getVariable("target.owner")
-	        			if(nodes.linkedList.contains(target)) {
+	        			if(nodes.containsValWithID(target.valueString)) {
 		                    node.createEdgeById(target) => [
 		        				it.data += renderingFactory.createKPolyline => [
 			            		    it.setLineWidth(2)
@@ -133,40 +133,38 @@ println("creating visualization")
     }
 
 	def createHeaderNode(KNode rootNode, IVariable layer) {
-println("creating headerNode")
         return rootNode.addNodeById(layer) => [
             it.data += renderingFactory.createKRectangle => [
 
-                it.headerNodeBasics(field, detailedView, graph, leftColumnAlignment, rightColumnAlignment)
+                val table = it.headerNodeBasics(detailedView, layer)
 	
 	            // id of layer
 	            if (detailedView.conditionalShow(showID)) {
-		            it.addGridElement("id:", leftColumnAlignment)
-		            it.addGridElement(nullOrValue(layer, "id"), rightColumnAlignment)
+		            table.addGridElement("id:", leftColumnAlignment)
+		            table.addGridElement(nullOrValue(layer, "id"), rightColumnAlignment)
 	            } 
 	   
                 // hashCode of layer
 	            if (detailedView.conditionalShow(showHashCode)) {
-		            it.addGridElement("hashCode:", leftColumnAlignment)
-		            it.addGridElement(layer.getValue("hashCode"), rightColumnAlignment)
+		            table.addGridElement("hashCode:", leftColumnAlignment)
+		            table.addGridElement(layer.getValue("hashCode"), rightColumnAlignment)
 	            }
 
 	            // owner of layer
 	            if (detailedView.conditionalShow(showOwner)) {
-		            it.addGridElement("owner:", leftColumnAlignment)
-		            it.addGridElement("LGraph " + layer.typeAndId("owner"), rightColumnAlignment)
+		            table.addGridElement("owner:", leftColumnAlignment)
+		            table.addGridElement(layer.typeAndId("owner"), rightColumnAlignment)
 	            }
 
 	            // size of layer
 	            if (detailedView.conditionalShow(showSize)) {
-		            it.addGridElement("size (x, y):", leftColumnAlignment)
-		            it.addGridElement(layer.getValue("size.x") + ", " + layer.getValue("size.y"), rightColumnAlignment)
+		            table.addGridElement("size (x, y):", leftColumnAlignment)
+		            table.addGridElement(layer.getValue("size.x") + ", " + layer.getValue("size.y"), rightColumnAlignment)
 				}
 			]
 		]
 	}
 	
-	//TODO: defaultwert ist wohl überflüssig... !?!
     def getEdgeType(IVariable edge) {
     	val type = edge.getVariable("propertyMap").getValFromHashMap("EDGE_TYPE")
     	if (type == null) {

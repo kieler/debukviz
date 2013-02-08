@@ -178,7 +178,7 @@ class FGraphTransformation extends AbstractKielerGraphTransformation {
                         y = x.get(0).getValue.getVariables.size
                     }
                     field.set("adjacency matrix:", row, 0, leftColumnAlignment)
-                    field.set(x.size + " x " + y, row, 1, rightColumnAlignment)
+                    field.set(x.size + ", " + y, row, 1, rightColumnAlignment)
                     row = row + 1
                     
                 } else {

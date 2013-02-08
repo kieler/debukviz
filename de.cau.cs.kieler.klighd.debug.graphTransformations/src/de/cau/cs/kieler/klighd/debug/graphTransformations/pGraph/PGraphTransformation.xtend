@@ -126,13 +126,13 @@ class PGraphTransformation extends AbstractKielerGraphTransformation {
 
                     // position
                     field.set("pos (x,y):", row, 0, leftColumnAlignment)
-                    field.set("(" + graph.getValue("pos.x").round + " x " 
+                    field.set("(" + graph.getValue("pos.x").round + ", " 
                                   + graph.getValue("pos.y").round + ")", row, 1, rightColumnAlignment)
                     row = row + 1
                     
                     // size
                     field.set("size (x,y):", row, 0, leftColumnAlignment)
-                    field.set("(" + graph.getValue("size.x").round + " x " 
+                    field.set("(" + graph.getValue("size.x").round + ", " 
                                   + graph.getValue("size.y").round + ")", row, 1, rightColumnAlignment)
                     row = row + 1
     
@@ -279,7 +279,7 @@ class PGraphTransformation extends AbstractKielerGraphTransformation {
                 
                 // position
                 it.children += renderingFactory.createKText => [
-                    it.text = "pos (x,y): (" + bendPoint.getValue("pos.x").round + " x " 
+                    it.text = "pos (x,y): (" + bendPoint.getValue("pos.x").round + ", " 
                                              + bendPoint.getValue("pos.y").round + ")" 
                 ]
             ]

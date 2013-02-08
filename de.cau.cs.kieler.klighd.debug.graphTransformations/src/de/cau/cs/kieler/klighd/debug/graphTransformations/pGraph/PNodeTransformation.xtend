@@ -86,13 +86,13 @@ class PNodeTransformation extends AbstractKielerGraphTransformation {
 
                 // position
                 field.set("pos (x,y):", row, 0, leftColumnAlignment)
-                field.set("(" + node.getValue("pos.x").round + " x " 
+                field.set("(" + node.getValue("pos.x").round + ", " 
                               + node.getValue("pos.y").round + ")", row, 1, rightColumnAlignment)
                 row = row + 1
                 
                 // size
                 field.set("size (x,y):", row, 0, leftColumnAlignment)
-                field.set("(" + node.getValue("size.x").round + " x " 
+                field.set("(" + node.getValue("size.x").round + ", " 
                               + node.getValue("size.y").round + ")", row, 1, rightColumnAlignment)
                 row = row + 1
 

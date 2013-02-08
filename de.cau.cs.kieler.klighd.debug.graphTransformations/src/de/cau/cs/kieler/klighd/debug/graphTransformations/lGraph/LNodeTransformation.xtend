@@ -133,7 +133,7 @@ class LNodeTransformation extends AbstractKielerGraphTransformation {
                     labelText = label
                 }
             }
-            field.set(labelText, row, 1, rightColumnAlignment)
+            field.set(labelText + node.getValueString, row, 1, rightColumnAlignment)
             row = row + 1
 
             // id of node
@@ -143,7 +143,9 @@ class LNodeTransformation extends AbstractKielerGraphTransformation {
 
             //owner (layer)
             field.set("owner:", row, 0, leftColumnAlignment)
-            field.set("layer (" + node.getValue("owner.hashCode") + ")", row, 1, rightColumnAlignment)
+            field.set("layer " + node.getValue("owner.hashCode") + node.getValue("owner"), 
+            	row, 1, rightColumnAlignment
+            )
             row = row + 1
 
             // following data only if detailedView
@@ -155,29 +157,29 @@ class LNodeTransformation extends AbstractKielerGraphTransformation {
 
                 // insets
                 field.set("insets (b,l,r,t):", row, 0, leftColumnAlignment)
-                field.set("(" + node.getValue("insets.bottom").round + " x "
-                              + node.getValue("insets.left").round + " x "
-                              + node.getValue("insets.right").round + " x "
+                field.set("(" + node.getValue("insets.bottom").round + ", "
+                              + node.getValue("insets.left").round + ", "
+                              + node.getValue("insets.right").round + ", "
                               + node.getValue("insets.top").round + ")", row, 1, rightColumnAlignment)
                 row = row + 1
                 
                 //margin
                 field.set("margin (b,l,r,t):", row, 0, leftColumnAlignment)
-                field.set("(" + node.getValue("margin.bottom").round + " x "
-                              + node.getValue("margin.left").round + " x "
-                              + node.getValue("margin.right").round + " x "
+                field.set("(" + node.getValue("margin.bottom").round + ", "
+                              + node.getValue("margin.left").round + ", "
+                              + node.getValue("margin.right").round + ", "
                               + node.getValue("margin.top").round + ")", row, 1, rightColumnAlignment)
                 row = row + 1
 
                 // position
                 field.set("pos (x,y):", row, 0, leftColumnAlignment)
-                field.set("(" + node.getValue("pos.x").round + " x " 
+                field.set("(" + node.getValue("pos.x").round + ", " 
                               + node.getValue("pos.y").round + ")", row, 1, rightColumnAlignment)
                 row = row + 1
                 
                 // size
                 field.set("size (x,y):", row, 0, leftColumnAlignment)
-                field.set("(" + node.getValue("size.x").round + " x " 
+                field.set("(" + node.getValue("size.x").round + ", " 
                               + node.getValue("size.y").round + ")", row, 1, rightColumnAlignment)
                 row = row + 1
 

@@ -103,21 +103,21 @@ class LGraphTransformation extends AbstractKielerGraphTransformation {
                     // size of graph
                     // size
                     field.set("size (x,y):", row, 0, leftColumnAlignment)
-                    field.set("(" + graph.getValue("size.x").round + " x " 
+                    field.set("(" + graph.getValue("size.x").round + ", " 
                                   + graph.getValue("size.y").round + ")", row, 1, rightColumnAlignment)
                     row = row + 1
                     
                     // insets of graph
                     field.set("insets (t,r,b,l):", row, 0, leftColumnAlignment)
-                    field.set("(" + graph.getValue("insets.top").round + " x "
-                                  + graph.getValue("insets.right").round + " x "
-                                  + graph.getValue("insets.bottom").round + " x "
+                    field.set("(" + graph.getValue("insets.top").round + ", "
+                                  + graph.getValue("insets.right").round + ", "
+                                  + graph.getValue("insets.bottom").round + ", "
                                   + graph.getValue("insets.left").round + ")", row, 1, rightColumnAlignment)
                     row = row + 1
 
                     // offset of graph
                     field.set("offset (x,y):", row, 0, leftColumnAlignment)
-                    field.set("(" + graph.getValue("offset.x").round + " x " 
+                    field.set("(" + graph.getValue("offset.x").round + ", " 
                                   + graph.getValue("offset.y").round + ")", row, 1, rightColumnAlignment)
                     row = row + 1
     			} else {

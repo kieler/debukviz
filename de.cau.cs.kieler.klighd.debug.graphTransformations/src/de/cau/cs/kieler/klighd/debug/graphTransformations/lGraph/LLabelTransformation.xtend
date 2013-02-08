@@ -93,13 +93,13 @@ class LLabelTransformation extends AbstractKielerGraphTransformation {
                     // show following elements only if detailedView
                     // position of label
                     field.set("pos (x,y):", row, 0, leftColumnAlignment)
-                    field.set("(" + label.getValue("pos.x").round + " x " 
+                    field.set("(" + label.getValue("pos.x").round + ", " 
                                   + label.getValue("pos.y").round + ")", row, 1, rightColumnAlignment)
                     row = row + 1
                     
                     // size of label
                     field.set("size (x,y):", row, 0, leftColumnAlignment)
-                    field.set("(" + label.getValue("size.x").round + " x " 
+                    field.set("(" + label.getValue("size.x").round + ", " 
                                   + label.getValue("size.y").round + ")", row, 1, rightColumnAlignment)
                     row = row + 1
 

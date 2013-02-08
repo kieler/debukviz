@@ -66,27 +66,20 @@ class FBendpointTransformation extends AbstractKielerGraphTransformation {
                 
                 // associated edge
                 table.addGridElement("edge:", HorizontalAlignment::RIGHT) 
-                field.set("edge:", row, 0, leftColumnAlignment)
-                field.set("FEdge " + bendPoint.getVariable("edge").getValueString, row, 1, rightColumnAlignment)
-                row = row + 1
+                table.addGridElement(bendPoint.nullOrValue("edge"), HorizontalAlignment::LEFT) 
 
                 if(detailedView) {
                     // position of bendPoint
-                    field.set("position (x,y):", row, 0, leftColumnAlignment)
-                    field.set("(" + bendPoint.getValue("position.x").round + " x " 
-                                  + bendPoint.getValue("position.y").round + ")", row, 1, rightColumnAlignment)
-                    row = row + 1
-                    
-                    // size of bendPoint
-                    field.set("size (x,y):", row, 0, leftColumnAlignment)
-                    field.set("(" + bendPoint.getValue("size.x").round + " x " 
-                                  + bendPoint.getValue("size.y").round + ")", row, 1, rightColumnAlignment)
-                    row = row + 1
-                }
+	                table.addGridElement("position (x,y):", HorizontalAlignment::RIGHT) 
+	                table.addGridElement("(" + bendPoint.getValue("position.x").round + ", " 
+                                  			 + bendPoint.getValue("position.y").round + ")", 
+                                  			 HorizontalAlignment::LEFT) 
 
-                // fill the KText into the ContainerRendering
-                for (text : field) {
-                    it.children += text
+                    // size of bendPoint
+	                table.addGridElement("size (x,y):", HorizontalAlignment::RIGHT) 
+	                table.addGridElement("(" + bendPoint.getValue("size.x").round + ", " 
+                                  			 + bendPoint.getValue("size.y").round + ")", 
+                                  			 HorizontalAlignment::LEFT) 
                 }
             ]
         ]

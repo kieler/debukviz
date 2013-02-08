@@ -151,7 +151,7 @@ class LEdgeTransformation extends AbstractKielerGraphTransformation {
                         field.set("bendPoints (x,y):", row, 0, leftColumnAlignment)
                         // create list of bendPoints
                         for (bendPoint : edge.getVariable("bendPoints").linkedList) {
-                            field.set("("+ bendPoint.getValue("x").round + " x "
+                            field.set("("+ bendPoint.getValue("x").round + ", "
                                          + bendPoint.getValue("y").round + ")", row, 1, rightColumnAlignment)
                             row = row + 1
                         }
