@@ -21,5 +21,6 @@ Require-Bundle: org.eclipse.core.runtime;bundle-version="3.6.0",
  org.eclipse.jdt.debug;bundle-version="3.7.101"
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Bundle-Activator: de.cau.cs.kieler.klighd.debug.KlighdDebugPlugin
-Export-Package: de.cau.cs.kieler.klighd.debug.visualization
+Export-Package: de.cau.cs.kieler.klighd.debug,
+ de.cau.cs.kieler.klighd.debug.visualization
 Bundle-ActivationPolicy: lazy
