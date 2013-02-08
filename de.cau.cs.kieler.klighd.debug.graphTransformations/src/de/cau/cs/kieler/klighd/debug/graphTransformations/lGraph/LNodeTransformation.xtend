@@ -103,16 +103,12 @@ class LNodeTransformation extends AbstractKielerGraphTransformation {
                  */
                 container = renderingFactory.createKEllipse => [
                     val origin = node.getVariable("propertyMap").getValFromHashMap("origin")
-println(origin.getValueString)
                     if (nodeType == "NORTH_SOUTH_PORT" && origin.getType == "LNode") {
                         field.set("origin:", 0, 0, leftColumnAlignment)
                         field.set("" + origin.getVariable("labels").linkedList.get(0), 0, 1, rightColumnAlignment)
                     } else {
-println("3")
                         field.set("origin:", 0, 0, leftColumnAlignment)
-println(origin.getValueString)
                         field.set("" + origin.typeAndId(""), 0, 1, rightColumnAlignment)
-println("4")
                     }
                 ]
             }

@@ -142,17 +142,7 @@ class FEdgeTransformation extends AbstractKielerGraphTransformation {
             ]
             
             // create edge from header node to labels node
-            edge.createEdgeById(labels) => [
-                it.data += renderingFactory.createKPolyline => [
-                    it.setLineWidth(2)
-                    it.addArrowDecorator
-                ]
-                labels.createLabel(it) => [
-                    it.addLayoutParam(LayoutOptions::EDGE_LABEL_PLACEMENT, EdgeLabelPlacement::CENTER)
-                    it.setLabelSize(50,20)
-                    it.text = "labels"
-                ]
-            ]
+            edge.createTopElementEdge(labels, "labels")
         }        
     }
 
@@ -175,17 +165,7 @@ class FEdgeTransformation extends AbstractKielerGraphTransformation {
             ]
             
             // create edge from header node to labels node
-            edge.createEdgeById(bendPoints) => [
-                it.data += renderingFactory.createKPolyline => [
-                    it.setLineWidth(2)
-                    it.addArrowDecorator
-                ]
-                labels.createLabel(it) => [
-                    it.addLayoutParam(LayoutOptions::EDGE_LABEL_PLACEMENT, EdgeLabelPlacement::CENTER)
-                    it.setLabelSize(50,20)
-                    it.text = "bendpoints"
-                ]
-            ]
+            edge.createTopElementEdge(bendPoints, "bendpoints")
         } 
     }
 

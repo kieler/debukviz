@@ -435,8 +435,12 @@ abstract class AbstractKielerGraphTransformation extends AbstractDebugTransforma
         container.lineWidth = 4
         
         // name of the variable
-        table.addGridElement("Variable:", HorizontalAlignment::RIGHT) 
-        table.addGridElement(variable.name + variable.getValueString, HorizontalAlignment::LEFT) 
+        table.addGridElement("Variable:", HorizontalAlignment::RIGHT) => [
+    		it.setFontBold(true)
+        ] 
+        table.addGridElement(variable.name + variable.getValueString, HorizontalAlignment::LEFT) => [ 
+    		it.setFontBold(true)
+        ] 
 
         // coloring of main element
         container.setBackground("lemon".color);
@@ -461,8 +465,17 @@ abstract class AbstractKielerGraphTransformation extends AbstractDebugTransforma
             field.setHeader(variable.shortType)
 
             // name of the variable
-            field.set("Variable:", field.rowCount, 0, leftColumn) 
-            field.set(variable.name + variable.getValueString, field.rowCount - 1, 1, rightColumn) 
+            val text1 = renderingFactory.createKText => [
+            	it.text = "Variable:"
+	    		it.setFontBold(true)
+            ]
+            val text2 = renderingFactory.createKText => [
+            	it.text = variable.name + variable.getValueString
+	    		it.setFontBold(true)
+            ]
+            
+            field.set(text1, field.rowCount, 0, leftColumn) 
+            field.set(text2, field.rowCount - 1, 1, rightColumn) 
 
             // coloring of main element
             container.setBackground("lemon".color);

@@ -68,13 +68,13 @@ class FBendpointTransformation extends AbstractKielerGraphTransformation {
                 table.addGridElement("edge:", HorizontalAlignment::RIGHT) 
                 table.addGridElement(bendPoint.nullOrValue("edge"), HorizontalAlignment::LEFT) 
 
-                if(detailedView) {
-                    // position of bendPoint
-	                table.addGridElement("position (x,y):", HorizontalAlignment::RIGHT) 
-	                table.addGridElement("(" + bendPoint.getValue("position.x").round + ", " 
-                                  			 + bendPoint.getValue("position.y").round + ")", 
-                                  			 HorizontalAlignment::LEFT) 
+                // position of bendPoint
+                table.addGridElement("position (x,y):", HorizontalAlignment::RIGHT) 
+                table.addGridElement("(" + bendPoint.getValue("position.x").round + ", " 
+                              			 + bendPoint.getValue("position.y").round + ")", 
+                              			 HorizontalAlignment::LEFT) 
 
+                if(detailedView) {
                     // size of bendPoint
 	                table.addGridElement("size (x,y):", HorizontalAlignment::RIGHT) 
 	                table.addGridElement("(" + bendPoint.getValue("size.x").round + ", " 

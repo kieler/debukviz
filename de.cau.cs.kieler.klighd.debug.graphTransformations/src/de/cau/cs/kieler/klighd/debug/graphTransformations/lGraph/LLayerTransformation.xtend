@@ -64,7 +64,6 @@ class LLayerTransformation extends AbstractKielerGraphTransformation {
             
             // add propertyMap
             if(detailedView.conditionalShow(showPropertyMap)) {
-            	println("do it")
             	it.addPropertyMapAndEdge(layer.getVariable("propertyMap"), layer)
             }  
 

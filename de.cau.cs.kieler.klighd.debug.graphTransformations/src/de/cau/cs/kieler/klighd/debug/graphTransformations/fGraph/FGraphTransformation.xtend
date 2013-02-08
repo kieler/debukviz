@@ -27,6 +27,7 @@ import de.cau.cs.kieler.klighd.debug.graphTransformations.AbstractKielerGraphTra
 import de.cau.cs.kieler.core.krendering.extensions.KLabelExtensions
 import java.util.LinkedList
 import de.cau.cs.kieler.core.krendering.HorizontalAlignment
+import de.cau.cs.kieler.core.krendering.VerticalAlignment
 
 class FGraphTransformation extends AbstractKielerGraphTransformation {
     
@@ -78,7 +79,7 @@ class FGraphTransformation extends AbstractKielerGraphTransformation {
                 // create all edges (in the given visualization node) 
                 visualizationNode.createEdges(graph)
                 
-                // add adjacency matrix\
+                // add adjacency matrix
                 it.addAdjacency(graph)
             }
         ]
@@ -92,59 +93,49 @@ class FGraphTransformation extends AbstractKielerGraphTransformation {
 	}
     
 	def void addAdjacency(KNode rootNode, IVariable graph) {
-		val adjacency = graph.getVariable("adjacency")
-		val adja = adjacency.getValue.getVariables
-		val size = adja.size
+		val adjacencyVariable = graph.getVariable("adjacency")
+		val adjacencyData = adjacencyVariable.getValue.getVariables
+		val size = adjacencyData.size
 		
-		rootNode.addNodeById(adjacency) => [
+		rootNode.addNodeById(adjacencyVariable) => [
 			it.data += renderingFactory.createKRectangle => [
                 it.lineWidth = 4
+
 				if (size > 0) {
 	            	it.ChildPlacement = renderingFactory.createKGridPlacement => [
 	                    it.numColumns = size + 2
 	                ]
-/*            		it.setGridPlacementData(0f, 0f,
-	        			createKPosition(LEFT, 5f, 0f, TOP, 5f, 0f),
-            			createKPosition(RIGHT, 5f, 0f, BOTTOM, 5f, 0f)
-            		)
- */
+	                // empty upper left element
 					it.children += renderingFactory.createKRectangle => [
 		                it.setInvisible(true)
 		            ]
-		            	it.addKText("|")
+	            	it.addGridElement("|", HorizontalAlignment::CENTER)
 		            
-		            for(Integer i: 0..size-1){
-			            it.addKText(i.toString)  
+		            // add top numbers
+		            for(Integer i: 0..size - 1){
+			            it.addGridElement(i.toString, HorizontalAlignment::CENTER)
 	    			}
-		            for(Integer i: 0..size+1){
-		            	it.addKText("-")
+	    			// add vertical line
+		            for(Integer i: 0..size + 1){
+		            	it.addGridElement("-", HorizontalAlignment::CENTER)
 	    			}
-		            for (Integer i : 0..size-1) {
-		            	it.addKText(i.toString)
-		            	it.addKText("|")
+	    			
+	    			// add all other rows
+		            for (Integer i : 0..size - 1) {
+		            	it.addGridElement(i.toString, HorizontalAlignment::CENTER)
+		            	it.addGridElement("|", HorizontalAlignment::CENTER)
 
-		            	val row = adja.get(i).getValue.getVariables
+		            	val row = adjacencyData.get(i).getValue.getVariables
 		            	for (elem : row) {
-		            		it.addKText(elem.getValueString)
+		            		it.addGridElement(elem.getValueString, HorizontalAlignment::CENTER)
 		            	}
 		            }
 				} else {
-					it.addKText("null")
+					it.addGridElement("null", HorizontalAlignment::CENTER)
 				}
 			]
 		]
-        graph.createEdgeById(adjacency) => [
-            it.data += renderingFactory.createKPolyline => [
-                it.setLineWidth(2)
-                it.addArrowDecorator
-                it.setLineStyle(LineStyle::SOLID)
-            ]
-            adjacency.createLabel(it) => [
-                it.addLayoutParam(LayoutOptions::EDGE_LABEL_PLACEMENT, EdgeLabelPlacement::CENTER)
-                it.setLabelSize(50,20)
-                it.text = "adjacency"
-            ]
-        ]			
+        graph.createTopElementEdge(adjacencyVariable, "adjacency")
 	}
     
     def createHeaderNode(KNode rootNode, IVariable graph) {
@@ -178,7 +169,7 @@ class FGraphTransformation extends AbstractKielerGraphTransformation {
                         y = x.get(0).getValue.getVariables.size
                     }
                     field.set("adjacency matrix:", row, 0, leftColumnAlignment)
-                    field.set(x.size + ", " + y, row, 1, rightColumnAlignment)
+                    field.set("(" + x.size + " x " + y + ")", row, 1, rightColumnAlignment)
                     row = row + 1
                     
                 } else {
@@ -211,18 +202,7 @@ class FGraphTransformation extends AbstractKielerGraphTransformation {
         ]
 
         // create edge from header node to visualization
-        graph.createEdgeById(nodes) => [
-            it.data += renderingFactory.createKPolyline => [
-                it.setLineWidth(2)
-                it.addArrowDecorator
-                it.setLineStyle(LineStyle::SOLID)
-            ]
-            nodes.createLabel(it) => [
-                it.addLayoutParam(LayoutOptions::EDGE_LABEL_PLACEMENT, EdgeLabelPlacement::CENTER)
-                it.setLabelSize(50,20)
-                it.text = "visualization"
-            ]
-        ]
+        graph.createTopElementEdge(nodes, "visualization")
         rootNode.children += newNode
         return newNode
     }

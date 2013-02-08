@@ -45,15 +45,6 @@ class FNodeTransformation extends AbstractKielerGraphTransformation {
         
     val layoutAlgorithm = "de.cau.cs.kieler.kiml.ogdf.planarization"
     val spacing = 75f
-    val leftColumnAlignment = KTextIterableField$TextAlignment::RIGHT
-    val rightColumnAlignment = KTextIterableField$TextAlignment::LEFT
-    val topGap = 4
-    val rightGap = 5
-    val bottomGap = 5
-    val leftGap = 4
-    val vGap = 3
-    val hGap = 5
-    val field = new KTextIterableField(topGap, rightGap, bottomGap, leftGap, vGap, hGap)
     
     /**
      * {@inheritDoc}
@@ -66,34 +57,10 @@ class FNodeTransformation extends AbstractKielerGraphTransformation {
             it.addLayoutParam(LayoutOptions::SPACING, spacing)
             
             // create KNode for given LNode
-            val headerNode = it.createHeaderNode(node)
+            it.createHeaderNode(node)
 
             // add propertyMap
             if (detailedView) it.addPropertyMapAndEdge(node.getVariable("propertyMap"), node)
-
-			val children = node.getVariable("children")
-			
-//TODO: add children nodes
-
-			if (children.valueIsNotNull) {
-				if ( Integer::parseInt(children.getValue("size")) > 0) {
-		            if (detailedView) {
-			            // add a node for the children
-		            	it.createChildNodeAndEdge(children)
-//		            	it.addChildren(children)
-		            } else {
-			            // add child-area to header-node
-			            headerNode.data += renderingFactory.createKChildArea => [
-			            	it.placementData = renderingFactory.createKAreaPlacementData => [
-								it.topLeft = createKPosition(LEFT, field.width, 0, TOP, 5, 0)
-								it.bottomRight = createKPosition(RIGHT, 0, 0, BOTTOM, 5, 0)
-							]
-			            ]
-//			            headernode.addChildren(children)
-		            }
-				}
-			}
-            
         ]
     }
 
@@ -103,11 +70,6 @@ class FNodeTransformation extends AbstractKielerGraphTransformation {
 	override getNodeCount(IVariable model) {
 		return 0
 	}
-
-	def createChildNodeAndEdge(KNode node, IVariable variable) { }
-
-    
-
     
     /**
      * As there is no writeDotGraph in FGraph we don't have a prototype for formatting the nodes
@@ -117,8 +79,7 @@ class FNodeTransformation extends AbstractKielerGraphTransformation {
             it.data += renderingFactory.createKRectangle => [
                 
                 val table = it.headerNodeBasics(detailedView, node)
-                var row = field.rowCount
-                
+
                 // id of node
                 table.addGridElement("id:", HorizontalAlignment::RIGHT)
                 table.addGridElement(nullOrValue(node, "id"), HorizontalAlignment::LEFT)
@@ -150,18 +111,7 @@ class FNodeTransformation extends AbstractKielerGraphTransformation {
                                   			 + node.getValue("size.y").round + ")", 
                                   			 HorizontalAlignment::LEFT)
                 }
-
-                // fill the KText into the ContainerRendering
-                for (text : field) {
-                    it.children += text
-                }
             ]
         ]
     }
 }
-
-
-
-
-
-
