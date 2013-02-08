@@ -68,6 +68,13 @@ class LGraphTransformation extends AbstractKielerGraphTransformation {
             }
         ]
 	}
+    
+	/**
+	 * {@inheritDoc}
+	 */
+	override getNodeCount(IVariable model) {
+		return 0
+	}
 	
 	def createHeaderNode(KNode rootNode, IVariable graph) {
 		rootNode.addNodeById(graph) => [
@@ -177,7 +184,7 @@ class LGraphTransformation extends AbstractKielerGraphTransformation {
 	
 	def createNodes(KNode rootNode, IVariable nodes) {
 	    nodes.linkedList.forEach[IVariable node |
-          rootNode.children += nextTransformation(node, false)
+          rootNode.nextTransformation(node, false)
         ]
 	}
 

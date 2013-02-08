@@ -72,6 +72,14 @@ class LLayerTransformation extends AbstractKielerGraphTransformation {
             }
         ]
 	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	override getNodeCount(IVariable model) {
+		return 0
+	}
+
 	/**
      * Creates a node containing a visualisation of the layer. It includes all nodes on the layer 
      * and all edges spanning between them. Also creates an edge from the node registered for 
@@ -93,7 +101,7 @@ println("creating visualization")
             ]
             // add all nodes
 		    nodes.linkedList.forEach[IVariable node |
-          		it.children += nextTransformation(node, false)
+          		it.nextTransformation(node, false)
 	        ]
 	        
 	        // add the edges, if they are span between two nodes of this layer
@@ -128,13 +136,8 @@ println("creating visualization")
 println("creating headerNode")
         return rootNode.addNodeById(layer) => [
             it.data += renderingFactory.createKRectangle => [
-                it.lineWidth = 4
-	            it.ChildPlacement = renderingFactory.createKGridPlacement => [
-	                it.numColumns = 2
-	            ]
-	            it.setVerticalAlignment(VerticalAlignment::TOP)    	
-	            it.setHorizontalAlignment(HorizontalAlignment::LEFT)    	
 
+                it.headerNodeBasics(field, detailedView, graph, leftColumnAlignment, rightColumnAlignment)
 	
 	            // id of layer
 	            if (detailedView.conditionalShow(showID)) {

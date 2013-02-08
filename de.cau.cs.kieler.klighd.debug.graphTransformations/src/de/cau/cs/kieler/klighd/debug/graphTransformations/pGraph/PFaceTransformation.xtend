@@ -66,4 +66,11 @@ class PFaceTransformation extends AbstractKielerGraphTransformation {
             ]
         ]
     }
+    
+	/**
+	 * {@inheritDoc}
+	 */
+	override getNodeCount(IVariable model) {
+		return 0
+	}
 }

@@ -20,6 +20,7 @@ import de.cau.cs.kieler.core.krendering.KContainerRendering
 import static de.cau.cs.kieler.klighd.debug.visualization.AbstractDebugTransformation.*
 import de.cau.cs.kieler.klighd.debug.graphTransformations.AbstractKielerGraphTransformation
 import de.cau.cs.kieler.klighd.debug.graphTransformations.KTextIterableField
+import de.cau.cs.kieler.core.krendering.HorizontalAlignment
 
 class FLabelTransformation extends AbstractKielerGraphTransformation {
     @Inject
@@ -62,6 +63,13 @@ class FLabelTransformation extends AbstractKielerGraphTransformation {
         ]
     }
     
+	/**
+	 * {@inheritDoc}
+	 */
+	override getNodeCount(IVariable model) {
+		return 0
+	}
+
     def createHeaderNode(KNode rootNode, IVariable label) { 
         rootNode.addNodeById(label) => [
             

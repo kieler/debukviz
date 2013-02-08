@@ -105,4 +105,11 @@ class PNodeTransformation extends AbstractKielerGraphTransformation {
             ]
         ]
     }
+    
+	/**
+	 * {@inheritDoc}
+	 */
+	override getNodeCount(IVariable model) {
+		return 0
+	}
 }

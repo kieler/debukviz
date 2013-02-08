@@ -67,6 +67,13 @@ class LEdgeTransformation extends AbstractKielerGraphTransformation {
         ]
     }
     
+	/**
+	 * {@inheritDoc}
+	 */
+	override getNodeCount(IVariable model) {
+		return 0
+	}
+    
     def addLabels(KNode rootNode, IVariable edge) {
         val labels = edge.getVariable("labels")
         
@@ -81,7 +88,7 @@ class LEdgeTransformation extends AbstractKielerGraphTransformation {
                     
                 // create all nodes for labels
                 labels.linkedList.forEach [ label |
-                    it.children += nextTransformation(label, false)
+                    it.nextTransformation(label, false)
                 ]
             ]
             

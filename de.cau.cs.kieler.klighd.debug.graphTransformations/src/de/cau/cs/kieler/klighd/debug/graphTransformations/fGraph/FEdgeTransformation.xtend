@@ -14,6 +14,7 @@ import de.cau.cs.kieler.klighd.debug.graphTransformations.AbstractKielerGraphTra
 import javax.inject.Inject
 import org.eclipse.debug.core.model.IVariable
 import de.cau.cs.kieler.klighd.debug.graphTransformations.KTextIterableField
+import de.cau.cs.kieler.core.krendering.HorizontalAlignment
 
 import static de.cau.cs.kieler.klighd.debug.visualization.AbstractDebugTransformation.*
 
@@ -72,6 +73,13 @@ class FEdgeTransformation extends AbstractKielerGraphTransformation {
         ]
     }
     
+	/**
+	 * {@inheritDoc}
+	 */
+	override getNodeCount(IVariable model) {
+		return 0
+	}
+
     def createHeaderNode(KNode rootNode, IVariable edge) { 
         rootNode.addNodeById(edge) => [
             it.data += renderingFactory.createKRectangle => [
@@ -128,7 +136,7 @@ class FEdgeTransformation extends AbstractKielerGraphTransformation {
                     
                 // create all nodes for labels
                 labels.linkedList.forEach [ label |
-                    it.children += nextTransformation(label, false)
+                    it.nextTransformation(label, false)
                     
                 ]
             ]
@@ -162,7 +170,7 @@ class FEdgeTransformation extends AbstractKielerGraphTransformation {
                     
                 // create all nodes for bendPoints
                 bendPoints.linkedList.forEach [ bendPoint |
-                    it.children += nextTransformation(bendPoint, false)
+                    it.nextTransformation(bendPoint, false)
                 ]
             ]
             

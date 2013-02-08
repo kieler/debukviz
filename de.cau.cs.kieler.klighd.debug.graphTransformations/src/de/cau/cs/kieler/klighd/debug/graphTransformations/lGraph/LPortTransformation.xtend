@@ -77,6 +77,13 @@ class LPortTransformation extends AbstractKielerGraphTransformation {
         ]
     }
     
+	/**
+	 * {@inheritDoc}
+	 */
+	override getNodeCount(IVariable model) {
+		return 0
+	}
+
     def createHeaderNode(KNode rootNode, IVariable port) { 
         rootNode.addNodeById(port) => [
             it.data += renderingFactory.createKRectangle => [
@@ -173,7 +180,7 @@ class LPortTransformation extends AbstractKielerGraphTransformation {
                 ]
                 // create all labels
                 labels.linkedList.forEach [ label |
-                    it.children += nextTransformation(label, false)
+                    it.nextTransformation(label, false)
                 ]
             ]
             // create edge from header node to labels node
@@ -201,7 +208,7 @@ class LPortTransformation extends AbstractKielerGraphTransformation {
                 ]
                 // create all edges
                 edges.linkedList.forEach [ edge |
-                    it.children += nextTransformation(edge, false)
+                    it.nextTransformation(edge, false)
                 ]
             ]
             // create edge from header node to edges node

@@ -14,6 +14,7 @@ import de.cau.cs.kieler.core.krendering.extensions.KColorExtensions
 import de.cau.cs.kieler.core.krendering.extensions.KPolylineExtensions
 import de.cau.cs.kieler.core.krendering.extensions.KEdgeExtensions
 import de.cau.cs.kieler.klighd.debug.graphTransformations.KTextIterableField
+import de.cau.cs.kieler.core.krendering.HorizontalAlignment
 
 class FBendpointTransformation extends AbstractKielerGraphTransformation {
     
@@ -61,11 +62,10 @@ class FBendpointTransformation extends AbstractKielerGraphTransformation {
         rootNode.addNodeById(bendPoint) => [
             it.data += renderingFactory.createKEllipse => [
                 
-                val field = new KTextIterableField(topGap, rightGap, bottomGap, leftGap, vGap, hGap)
-                it.headerNodeBasics(field, detailedView, bendPoint, leftColumnAlignment, rightColumnAlignment)
-                var row = field.rowCount
+                val table = it.headerNodeBasics(detailedView, bendPoint)
                 
                 // associated edge
+                table.addGridElement("edge:", HorizontalAlignment::RIGHT) 
                 field.set("edge:", row, 0, leftColumnAlignment)
                 field.set("FEdge " + bendPoint.getVariable("edge").getValueString, row, 1, rightColumnAlignment)
                 row = row + 1
@@ -91,4 +91,11 @@ class FBendpointTransformation extends AbstractKielerGraphTransformation {
             ]
         ]
     }
+
+	/**
+	 * {@inheritDoc}
+	 */
+	override getNodeCount(IVariable model) {
+		return 0
+	}
 }

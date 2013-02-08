@@ -77,6 +77,13 @@ class PGraphTransformation extends AbstractKielerGraphTransformation {
         ]
     }
     
+	/**
+	 * {@inheritDoc}
+	 */
+	override getNodeCount(IVariable model) {
+		return 0
+	}
+    
     def createHeaderNode(KNode rootNode, IVariable graph) {
         rootNode.addNodeById(graph) => [
             it.data += renderingFactory.createKRectangle => [
@@ -167,7 +174,7 @@ class PGraphTransformation extends AbstractKielerGraphTransformation {
 
             // create all nodes
             nodes.getVariable("map").getVariables("table").filter[e | e.valueIsNotNull].forEach[IVariable node |
-                it.children += nextTransformation(node.getVariable("key"))
+                it.nextTransformation(node.getVariable("key"))
             ]
         ]
 
@@ -302,7 +309,7 @@ class PGraphTransformation extends AbstractKielerGraphTransformation {
                 it.setNodeSize(40,30)
             } else {
                 //there are faces, so create nodes for all faces
-                filteredFaces.forEach[IVariable face | it.children += nextTransformation(face.getVariable("key"))]
+                filteredFaces.forEach[IVariable face | it.nextTransformation(face.getVariable("key"))]
             }
         ]        
         // create edge from root node to the faces node

@@ -25,6 +25,7 @@ import de.cau.cs.kieler.core.krendering.extensions.KPolylineExtensions
 import de.cau.cs.kieler.klighd.krendering.PlacementUtil
 import java.util.ArrayList
 import de.cau.cs.kieler.klighd.debug.graphTransformations.KTextIterableField
+import de.cau.cs.kieler.core.krendering.HorizontalAlignment
 
 class FNodeTransformation extends AbstractKielerGraphTransformation {
     @Inject 
@@ -95,6 +96,14 @@ class FNodeTransformation extends AbstractKielerGraphTransformation {
             
         ]
     }
+
+	/**
+	 * {@inheritDoc}
+	 */
+	override getNodeCount(IVariable model) {
+		return 0
+	}
+
 	def createChildNodeAndEdge(KNode node, IVariable variable) { }
 
     
@@ -107,49 +116,39 @@ class FNodeTransformation extends AbstractKielerGraphTransformation {
         rootNode.addNodeById(node) => [
             it.data += renderingFactory.createKRectangle => [
                 
-                it.headerNodeBasics(field, detailedView, node, leftColumnAlignment, rightColumnAlignment)
+                val table = it.headerNodeBasics(detailedView, node)
                 var row = field.rowCount
                 
                 // id of node
-                field.set("id:", row, 0, leftColumnAlignment)
-                field.set(nullOrValue(node, "id"), row, 1, rightColumnAlignment)
-                row = row + 1
+                table.addGridElement("id:", HorizontalAlignment::RIGHT)
+                table.addGridElement(nullOrValue(node, "id"), HorizontalAlignment::LEFT)
                 
                 // label of node (there is only one)
-                field.set("label:", row, 0, leftColumnAlignment)
-                field.set(nullOrValue(node, "label"), row, 1, rightColumnAlignment)
-                row = row + 1
-                
-            	
+                table.addGridElement("label:", HorizontalAlignment::RIGHT)
+                table.addGridElement(nullOrValue(node, "label"), HorizontalAlignment::LEFT)
+
                 if (detailedView) {
                     // parent
-                    val parent = node.getVariable("parent")
-                    field.set("parent:", row, 0, leftColumnAlignment)
-                    if(parent.valueIsNotNull) {
-                        field.set("FNode " + parent.getValue("id") + " " 
-                                           + parent.getValue.getValueString, row, 1, rightColumnAlignment)
-                    } else {
-                        field.set("null", row, 1, rightColumnAlignment)
-                    }
-                    row = row + 1
+	                table.addGridElement("parent:", HorizontalAlignment::RIGHT)
+                    table.addGridElement(node.typeAndId("parent"), HorizontalAlignment::LEFT)
                     
                     // displacement
-                    field.set("displacement (x,y):", row, 0, leftColumnAlignment)
-                    field.set("(" + node.getValue("displacement.x").round + " x " 
-                                  + node.getValue("displacement.y").round + ")", row, 1, rightColumnAlignment)
-                    row = row + 1
+	                table.addGridElement("displacement (x,y):", HorizontalAlignment::RIGHT)
+	                table.addGridElement("(" + node.getValue("displacement.x").round + ", " 
+                                  			 + node.getValue("displacement.y").round + ")", 
+                                  			 HorizontalAlignment::LEFT)
 
                     // position
-                    field.set("position (x,y):", row, 0, leftColumnAlignment)
-                    field.set("(" + node.getValue("position.x").round + " x " 
-                                  + node.getValue("position.y").round + ")", row, 1, rightColumnAlignment)
-                    row = row + 1
+	                table.addGridElement("position (x,y):", HorizontalAlignment::RIGHT)
+	                table.addGridElement("(" + node.getValue("position.x").round + ", " 
+	                                  	     + node.getValue("position.y").round + ")",
+	                                  	     HorizontalAlignment::LEFT)
                     
                     // size
-                    field.set("size (x,y):", row, 0, leftColumnAlignment)
-                    field.set("(" + node.getValue("size.x").round + " x " 
-                                  + node.getValue("size.y").round + ")", row, 1, rightColumnAlignment)
-                    row = row + 1
+	                table.addGridElement("size (x,y):", HorizontalAlignment::RIGHT)
+	                table.addGridElement("(" + node.getValue("size.x").round + ", " 
+                                  			 + node.getValue("size.y").round + ")", 
+                                  			 HorizontalAlignment::LEFT)
                 }
 
                 // fill the KText into the ContainerRendering

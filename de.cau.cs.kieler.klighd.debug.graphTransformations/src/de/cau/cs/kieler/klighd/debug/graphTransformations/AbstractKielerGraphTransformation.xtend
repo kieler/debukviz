@@ -176,7 +176,6 @@ abstract class AbstractKielerGraphTransformation extends AbstractDebugTransforma
             rootNode.addNodeById(propertyMap) => [
                 it.data += renderingFactory.createKRectangle => [
                     it.lineWidth = 4
-
  					it.addHashValueElement(propertyMap)
                 ]
             ]
@@ -393,26 +392,35 @@ abstract class AbstractKielerGraphTransformation extends AbstractDebugTransforma
         return variable.getValue.getValueString
     }
     
-    def headerNodeBasics(KContainerRendering container, KTextIterableField field, Boolean detailedView, 
-    			IVariable variable, KTextIterableField$TextAlignment leftColumn, 
-    								KTextIterableField$TextAlignment rightColumn) {
+    def headerNodeBasics(KContainerRendering container, Boolean detailedView, IVariable variable) {
+        
+        container.setVerticalAlignment(VerticalAlignment::TOP)    	
+        container.setHorizontalAlignment(HorizontalAlignment::LEFT)
+
+        // type of the variable: create a rectangle for this to center the text
+        if (detailedView) {
+            val header = container.addInvisibleRectangleGrid(1) 
+        	header.addGridElement(variable.getType, HorizontalAlignment::CENTER)
+    	}
+
+		// create the rectangle with grid layout containing the other variables to display
+        val table = container.addInvisibleRectangleGrid(2) 
+
         if(detailedView) {
-            // bold line in detailed view
-            container.lineWidth = 4
-            
-            // type of the variable
-            field.setHeader(variable.shortType)
+        // bold line in detailed view
+        container.lineWidth = 4
+        
+        // name of the variable
+        table.addGridElement("Variable:", HorizontalAlignment::RIGHT) 
+        table.addGridElement(variable.name + variable.getValueString, HorizontalAlignment::LEFT) 
 
-            // name of the variable
-            field.set("Variable:", field.rowCount, 0, leftColumn) 
-            field.set(variable.name + variable.getValueString, field.rowCount - 1, 1, rightColumn) 
-
-            // coloring of main element
-            container.setBackground("lemon".color);
+        // coloring of main element
+        container.setBackground("lemon".color);
         } else {
             // slim line in not detailed view
             container.lineWidth = 2
         }
+        return table
     }
     
     def addKText(KContainerRendering container, String text) {

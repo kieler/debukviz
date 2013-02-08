@@ -26,6 +26,7 @@ import static de.cau.cs.kieler.klighd.debug.graphTransformations.lGraph.LGraphTr
 import de.cau.cs.kieler.klighd.debug.graphTransformations.AbstractKielerGraphTransformation
 import de.cau.cs.kieler.core.krendering.extensions.KLabelExtensions
 import java.util.LinkedList
+import de.cau.cs.kieler.core.krendering.HorizontalAlignment
 
 class FGraphTransformation extends AbstractKielerGraphTransformation {
     
@@ -82,6 +83,14 @@ class FGraphTransformation extends AbstractKielerGraphTransformation {
             }
         ]
     }
+
+	/**
+	 * {@inheritDoc}
+	 */
+	override getNodeCount(IVariable model) {
+		return 0
+	}
+    
 	def void addAdjacency(KNode rootNode, IVariable graph) {
 		val adjacency = graph.getVariable("adjacency")
 		val adja = adjacency.getValue.getVariables
@@ -197,7 +206,7 @@ class FGraphTransformation extends AbstractKielerGraphTransformation {
 
             // create all nodes
             nodes.linkedList.forEach[IVariable node |
-                it.children += nextTransformation(node, false)
+                it.nextTransformation(node, false)
             ]
         ]
 
@@ -255,7 +264,7 @@ class FGraphTransformation extends AbstractKielerGraphTransformation {
                         ]
                         // create all bendPoint nodes in the new bendPoint node
                         bendPoints.linkedList.forEach[IVariable bendPoint |
-                            it.children += nextTransformation(bendPoint, false)
+                            it.nextTransformation(bendPoint, false)
                         ]
                     ]
                     // create the edge from the new created node to the target node
@@ -271,8 +280,8 @@ class FGraphTransformation extends AbstractKielerGraphTransformation {
                     
                 } else {
                     // EXACTLY one bendpoint, create a single bendpoint node
-                    val bendPoint = bendPoints.linkedList.get(0)
-                    rootNode.children += nextTransformation(bendPoint, false)
+                    val IVariable bendPoint = bendPoints.linkedList.get(0)
+                    rootNode.nextTransformation(bendPoint, false)
                     
                     // create the edge from the new created node to the target node
                     bendPoint.createEdgeById(target) => [
