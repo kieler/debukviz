@@ -203,7 +203,7 @@ class LGraphTransformation extends AbstractKielerGraphTransformation {
         ]
     }
     
-//TODO: defaultwert ist wohl �berfl�ssig... !?!
+//TODO: defaultwert ist wohl überflüssig... !?!
     def getEdgeType(IVariable edge) {
     	val type = edge.getVariable("propertyMap").getValFromHashMap("EDGE_TYPE")
     	if (type == null) {

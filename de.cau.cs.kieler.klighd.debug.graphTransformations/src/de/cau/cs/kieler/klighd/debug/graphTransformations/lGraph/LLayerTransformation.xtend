@@ -15,6 +15,7 @@ import de.cau.cs.kieler.klighd.debug.graphTransformations.AbstractKielerGraphTra
 import de.cau.cs.kieler.klighd.debug.graphTransformations.ShowTextIf
 import javax.inject.Inject
 import org.eclipse.debug.core.model.IVariable
+import de.cau.cs.kieler.core.krendering.LineStyle
 
 import static de.cau.cs.kieler.klighd.debug.visualization.AbstractDebugTransformation.*
 
@@ -40,9 +41,8 @@ class LLayerTransformation extends AbstractKielerGraphTransformation {
     val leftColumnAlignment = HorizontalAlignment::RIGHT
     val rightColumnAlignment = HorizontalAlignment::LEFT
     
-    val showHashCode = ShowTextIf::DETAILED
-    val showID = ShowTextIf::ALWAYS
-    val showNodes = ShowTextIf::DETAILED
+    val showHashCode = ShowTextIf::ALWAYS
+    val showID = ShowTextIf::DETAILED
 	val showOwner = ShowTextIf::DETAILED
     val showSize = ShowTextIf::DETAILED
 
@@ -63,50 +63,69 @@ class LLayerTransformation extends AbstractKielerGraphTransformation {
             it.createHeaderNode(layer)
             
             // add propertyMap
-            if(detailedView.equals(showPropertyMap))  
+            if(detailedView.conditionalShow(showPropertyMap))  
             	it.addPropertyMapAndEdge(layer.getVariable("propertyMap"), layer)
 
-            //add node for nodes of layer and add edges between the nodes of this layer
-            if (detailedView.equals(showVisualization)) {
-            	it.createNodesNode(layer)
+            //add visualization containing nodes of layer and edges between the nodes of this layer
+            if (detailedView.conditionalShow(showVisualization)) {
+                it.createVisualization(layer)
             }
         ]
 	}
-	
-	def createNodesNode(KNode rootNode, IVariable layer) {
+	/**
+     * Creates a node containing a visualisation of the layer. It includes all nodes on the layer 
+     * and all edges spanning between them. Also creates an edge from the node registered for 
+     * {@code layer} to the new node.
+     *  
+     * @param rootNode
+     *            the node the visualization node will be included in
+     * @param layer
+     *            the layer to be visualized
+     * @return the new created node
+     */
+	def createVisualization(KNode rootNode, IVariable layer) {
+println("creating visualization")
 		val nodes = layer.getVariable("nodes")
+		
         return rootNode.addNodeById(nodes) => [
             it.data += renderingFactory.createKRectangle => [
                 it.lineWidth = 4
             ]
+            // add all nodes
 		    nodes.linkedList.forEach[IVariable node |
           		it.children += nextTransformation(node, false)
 	        ]
+	        
 	        // add the edges, if they are span between two nodes of this layer
 	        nodes.linkedList.forEach[IVariable node |
 	        	node.getVariable("ports").linkedList.forEach[IVariable port |
 	        		port.getVariable("outgoingEdges").linkedList.forEach[IVariable edge |
-	                    edge.getVariable("source.owner")
-	                        .createEdgeById(edge.getVariable("target.owner")) => [
-	        				it.data += renderingFactory.createKPolyline => [
-		            		    it.setLineWidth(2)
-	                            it.addArrowDecorator
-	                            
-	                            switch edge.edgeType {
-	                                case "COMPOUND_DUMMY" : it.setLineStyle(LineStyle::DASH)
-	                                case "COMPOUND_SIDE" : it.setLineStyle(LineStyle::DOT)
-	                                default : it.setLineStyle(LineStyle::SOLID)
-	                            }
-	    	    			]
-	        			]
+	        			// verify that the current edge has to be created
+	        			val target = edge.getVariable("target.owner")
+	        			if(nodes.linkedList.contains(target)) {
+		                    node.createEdgeById(target) => [
+		        				it.data += renderingFactory.createKPolyline => [
+			            		    it.setLineWidth(2)
+		                            it.addArrowDecorator
+		                            
+		                            switch edge.edgeType {
+		                                case "COMPOUND_DUMMY" : it.setLineStyle(LineStyle::DASH)
+		                                case "COMPOUND_SIDE" : it.setLineStyle(LineStyle::DOT)
+		                                default : it.setLineStyle(LineStyle::SOLID)
+		                            }
+		    	    			]
+		        			]
+	        			}
 	        		]
 	        	]
 	        ]
+        // create edge from node registered to layer to the new node
 		layer.createTopElementEdge(nodes, "visualization")
         ]
     }
 
 	def createHeaderNode(KNode rootNode, IVariable layer) {
+println("creating headerNode")
         return rootNode.addNodeById(layer) => [
             it.data += renderingFactory.createKRectangle => [
                 it.lineWidth = 4
@@ -118,29 +137,39 @@ class LLayerTransformation extends AbstractKielerGraphTransformation {
 
 	
 	            // id of layer
-	            if (detailedView.equals(showID)) {
+	            if (detailedView.conditionalShow(showID)) {
 		            it.addGridElement("id:", leftColumnAlignment)
 		            it.addGridElement(nullOrValue(layer, "id"), rightColumnAlignment)
 	            } 
 	   
                 // hashCode of layer
-	            if (detailedView.equals(showHashCode)) {
+	            if (detailedView.conditionalShow(showHashCode)) {
 		            it.addGridElement("hashCode:", leftColumnAlignment)
 		            it.addGridElement(layer.getValue("hashCode"), rightColumnAlignment)
 	            }
 
 	            // owner of layer
-	            if (detailedView.equals(showOwner)) {
+	            if (detailedView.conditionalShow(showOwner)) {
 		            it.addGridElement("owner:", leftColumnAlignment)
 		            it.addGridElement("LGraph " + layer.typeAndId("owner"), rightColumnAlignment)
 	            }
 
 	            // size of layer
-	            if (detailedView.equals(showSize)) {
+	            if (detailedView.conditionalShow(showSize)) {
 		            it.addGridElement("size (x, y):", leftColumnAlignment)
 		            it.addGridElement(layer.getValue("size.x") + ", " + layer.getValue("size.y"), rightColumnAlignment)
 				}
 			]
 		]
 	}
+	
+	//TODO: defaultwert ist wohl überflüssig... !?!
+    def getEdgeType(IVariable edge) {
+    	val type = edge.getVariable("propertyMap").getValFromHashMap("EDGE_TYPE")
+    	if (type == null) {
+	        return "NORMAL"
+    	} else {
+	        return type.getValue("name")   
+    	}
+    }
 }

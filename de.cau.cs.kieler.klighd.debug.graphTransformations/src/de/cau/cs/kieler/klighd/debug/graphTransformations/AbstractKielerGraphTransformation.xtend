@@ -50,7 +50,7 @@ abstract class AbstractKielerGraphTransformation extends AbstractDebugTransforma
 //    protected GraphTransformationInfo gtInfo = new GraphTransformationInfo
     protected Boolean detailedView = true
 
-	def equals(boolean isDetailed, ShowTextIf enum) {
+	def conditionalShow(boolean isDetailed, ShowTextIf enum) {
 		if (enum == ShowTextIf::ALWAYS) {
 			return true
 		} else {

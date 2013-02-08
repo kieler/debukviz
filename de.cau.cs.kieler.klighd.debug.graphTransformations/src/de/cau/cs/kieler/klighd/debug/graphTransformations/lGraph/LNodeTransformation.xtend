@@ -112,7 +112,7 @@ class LNodeTransformation extends AbstractKielerGraphTransformation {
             container.setForegroundColor(node)
 
             // Name of the node is the first label
-            field.set("name (first label):", row, 0, leftColumnAlignment)
+            field.set("name:", row, 0, leftColumnAlignment)
             val labels = node.getVariable("labels").linkedList
             var labelText = ""
             if(labels.isEmpty) {
@@ -123,7 +123,7 @@ class LNodeTransformation extends AbstractKielerGraphTransformation {
                 if(label.length == 0) {
                     labelText = "(empty)"
                 } else {
-                    labelText = "label"
+                    labelText = label
                 }
             }
             field.set(labelText, row, 1, rightColumnAlignment)
@@ -133,12 +133,11 @@ class LNodeTransformation extends AbstractKielerGraphTransformation {
             field.set("id:", row, 0, leftColumnAlignment)
             field.set(nullOrValue(node, "id"), row, 1, rightColumnAlignment)
             row = row + 1
-            
+
             //owner (layer)
             field.set("owner:", row, 0, leftColumnAlignment)
-            field.set("layer (" + node.getValue("owner.id") + ")", row, 1, rightColumnAlignment)
+            field.set("layer (" + node.getValue("owner.hashCode") + ")", row, 1, rightColumnAlignment)
             row = row + 1
-
 
             // following data only if detailedView
             if(detailedView) {
