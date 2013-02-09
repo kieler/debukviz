@@ -26,6 +26,7 @@ import de.cau.cs.kieler.klighd.krendering.PlacementUtil
 import java.util.ArrayList
 import de.cau.cs.kieler.klighd.debug.graphTransformations.KTextIterableField
 import de.cau.cs.kieler.core.krendering.HorizontalAlignment
+import de.cau.cs.kieler.klighd.debug.graphTransformations.ShowTextIf
 
 class FNodeTransformation extends AbstractKielerGraphTransformation {
     @Inject 
@@ -45,22 +46,29 @@ class FNodeTransformation extends AbstractKielerGraphTransformation {
         
     val layoutAlgorithm = "de.cau.cs.kieler.kiml.ogdf.planarization"
     val spacing = 75f
+    val showPropertyMap = ShowTextIf::DETAILED
     
     /**
      * {@inheritDoc}
      */
     override transform(IVariable node, Object transformationInfo) {
-        if(transformationInfo instanceof Boolean) detailedView = transformationInfo as Boolean
+        detailedView = transformationInfo.isDetailed
 
         return KimlUtil::createInitializedNode => [
             it.addLayoutParam(LayoutOptions::ALGORITHM, layoutAlgorithm)
             it.addLayoutParam(LayoutOptions::SPACING, spacing)
+
+            // create a rendering to the outer node, as the node will be black, otherwise            
+            it.data += renderingFactory.createKRectangle => [
+                it.invisible = true
+            ]
             
             // create KNode for given LNode
             it.createHeaderNode(node)
 
             // add propertyMap
-            if (detailedView) it.addPropertyMapAndEdge(node.getVariable("propertyMap"), node)
+            if(detailedView.conditionalShow(showPropertyMap))
+                it.addPropertyMapAndEdge(node.getVariable("propertyMap"), node)
         ]
     }
 
@@ -68,7 +76,7 @@ class FNodeTransformation extends AbstractKielerGraphTransformation {
 	 * {@inheritDoc}
 	 */
 	override getNodeCount(IVariable model) {
-		return 0
+		return if(detailedView.conditionalShow(showPropertyMap)) 2 else 1
 	}
     
     /**

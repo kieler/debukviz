@@ -15,8 +15,6 @@ import de.cau.cs.kieler.klighd.debug.graphTransformations.AbstractKielerGraphTra
 import de.cau.cs.kieler.klighd.debug.graphTransformations.ShowTextIf
 import javax.inject.Inject
 import org.eclipse.debug.core.model.IVariable
-import org.eclipse.ui.plugin
-import org.eclipse.jface.preference
 
 import static de.cau.cs.kieler.klighd.debug.visualization.AbstractDebugTransformation.*
 
@@ -50,20 +48,21 @@ class PNodeTransformation extends AbstractKielerGraphTransformation {
     val showChangedFaces = ShowTextIf::DETAILED
     val showParent = ShowTextIf::DETAILED      
 
-    val store = KlighdDebugPlugin::getDefault()
-    val prefStore = store.getPreferenceStore()
-    val flat = prefStore.getString(KlighdDebugPlugin::LAYOUT).equals(KlighdDebugPlugin::FLAT_LAYOUT)
-    
     /**
      * {@inheritDoc}
      */
     override transform(IVariable node, Object transformationInfo) {
-    if(transformationInfo instanceof Boolean) detailedView = transformationInfo as Boolean
+        detailedView = transformationInfo.isDetailed
 
         return KimlUtil::createInitializedNode => [
         
             it.addLayoutParam(LayoutOptions::ALGORITHM, layoutAlgorithm)
             it.addLayoutParam(LayoutOptions::SPACING, spacing)
+
+            // create a rendering to the outer node, as the node will be black, otherwise            
+            it.data += renderingFactory.createKRectangle => [
+                it.invisible = true
+            ]
             
             // create KNode for given LNode
             it.createHeaderNode(node)
@@ -135,6 +134,6 @@ class PNodeTransformation extends AbstractKielerGraphTransformation {
 	 * {@inheritDoc}
 	 */
 	override getNodeCount(IVariable model) {
-		return 0
+		return if(detailedView.conditionalShow(showPropertyMap)) 2 else 1
 	}
 }

@@ -22,6 +22,7 @@ import de.cau.cs.kieler.kiml.options.Direction
 import de.cau.cs.kieler.kiml.options.LayoutOptions
 import de.cau.cs.kieler.core.krendering.extensions.KLabelExtensions
 import de.cau.cs.kieler.klighd.debug.graphTransformations.KTextIterableField
+import de.cau.cs.kieler.klighd.debug.graphTransformations.ShowTextIf
 
 class LPortTransformation extends AbstractKielerGraphTransformation {
     
@@ -48,32 +49,41 @@ class LPortTransformation extends AbstractKielerGraphTransformation {
     val leftGap = 4
     val vGap = 3
     val hGap = 5
+    val showPropertyMap = ShowTextIf::DETAILED
+    val showEdges = ShowTextIf::DETAILED
+    val showLabels = ShowTextIf::DETAILED
     
     /**
      * {@inheritDoc}
      */
     override transform(IVariable port, Object transformationInfo) {
-        if(transformationInfo instanceof Boolean) detailedView = transformationInfo as Boolean
+        detailedView = transformationInfo.isDetailed
 
         return KimlUtil::createInitializedNode => [
             it.addLayoutParam(LayoutOptions::ALGORITHM, layoutAlgorithm)
             it.addLayoutParam(LayoutOptions::SPACING, spacing)
+
+            // create a rendering to the outer node, as the node will be black, otherwise            
+            it.data += renderingFactory.createKRectangle => [
+                it.invisible = true
+            ]
             
             // create KNode for given LPort
             it.createHeaderNode(port)
 
-            // add nodes for incoming and outgoing edges, propertyMap and list of labels
-            if (detailedView) {
-                // add propertyMap
+            // add propertyMap
+            if(detailedView.conditionalShow(showPropertyMap))
                 it.addPropertyMapAndEdge(port.getVariable("propertyMap"), port)
                 
-                // add incoming/outgoing edges node
+            // add incoming/outgoing edges node
+            if(detailedView.conditionalShow(showEdges)) {
                 it.addListOfEdges(port, port.getVariable("incomingEdges"))
                 it.addListOfEdges(port, port.getVariable("outgoingEdges"))
+            }
                 
-                // add labels
+            // add labels
+            if(detailedView.conditionalShow(showLabels))
                 it.addListOfLabels(port)
-            }        
         ]
     }
     
@@ -81,7 +91,10 @@ class LPortTransformation extends AbstractKielerGraphTransformation {
 	 * {@inheritDoc}
 	 */
 	override getNodeCount(IVariable model) {
-		return 0
+	    var retVal = if(detailedView.conditionalShow(showPropertyMap)) 2 else 1
+	    if(detailedView.conditionalShow(showEdges)) retVal = retVal + 1
+		if(detailedView.conditionalShow(showLabels)) retVal = retVal + 1
+	    return retVal
 	}
 
     def createHeaderNode(KNode rootNode, IVariable port) { 

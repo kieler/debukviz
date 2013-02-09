@@ -20,6 +20,8 @@ import de.cau.cs.kieler.klighd.debug.graphTransformations.KTextIterableField
 
 import static de.cau.cs.kieler.klighd.debug.visualization.AbstractDebugTransformation.*
 import de.cau.cs.kieler.klighd.debug.graphTransformations.AbstractKielerGraphTransformation
+import de.cau.cs.kieler.klighd.debug.graphTransformations.ShowTextIf
+import de.cau.cs.kieler.klighd.debug.graphTransformations.ShowTextIf
 
 class LLabelTransformation extends AbstractKielerGraphTransformation {
     @Inject
@@ -43,19 +45,26 @@ class LLabelTransformation extends AbstractKielerGraphTransformation {
     val leftGap = 4
     val vGap = 3
     val hGap = 5
+    val showPropertyMap = ShowTextIf::DETAILED
         
     override transform(IVariable label, Object transformationInfo) {
-        if(transformationInfo instanceof Boolean) detailedView = transformationInfo as Boolean
+        detailedView = transformationInfo.isDetailed
 
         return KimlUtil::createInitializedNode => [
             it.addLayoutParam(LayoutOptions::ALGORITHM, layoutAlgorithm)
             it.addLayoutParam(LayoutOptions::SPACING, spacing)
+
+            // create a rendering to the outer node, as the node will be black, otherwise            
+            it.data += renderingFactory.createKRectangle => [
+                it.invisible = true
+            ]
             
             // create KNode for given LLabel
             it.createHeaderNode(label)
             
             // add propertyMap
-            if (detailedView) it.addPropertyMapAndEdge(label.getVariable("propertyMap"), label)
+            if(detailedView.conditionalShow(showPropertyMap))
+                it.addPropertyMapAndEdge(label.getVariable("propertyMap"), label)
         ]
     }
     
@@ -63,7 +72,7 @@ class LLabelTransformation extends AbstractKielerGraphTransformation {
 	 * {@inheritDoc}
 	 */
 	override getNodeCount(IVariable model) {
-		return 0
+		return if(detailedView.conditionalShow(showPropertyMap)) 2 else 1
 	}
     
     def createHeaderNode(KNode rootNode, IVariable label) { 

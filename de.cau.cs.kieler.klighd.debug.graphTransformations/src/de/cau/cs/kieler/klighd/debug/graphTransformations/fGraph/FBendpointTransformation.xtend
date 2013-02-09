@@ -15,6 +15,8 @@ import de.cau.cs.kieler.core.krendering.extensions.KPolylineExtensions
 import de.cau.cs.kieler.core.krendering.extensions.KEdgeExtensions
 import de.cau.cs.kieler.klighd.debug.graphTransformations.KTextIterableField
 import de.cau.cs.kieler.core.krendering.HorizontalAlignment
+import de.cau.cs.kieler.klighd.debug.KlighdDebugPlugin
+import de.cau.cs.kieler.klighd.debug.graphTransformations.ShowTextIf
 
 class FBendpointTransformation extends AbstractKielerGraphTransformation {
     
@@ -39,22 +41,30 @@ class FBendpointTransformation extends AbstractKielerGraphTransformation {
     val leftGap = 4
     val vGap = 3
     val hGap = 5
+    val showPropertyMap = ShowTextIf::DETAILED
+    val showLabelsMap = ShowTextIf::DETAILED
     
     /**
      * {@inheritDoc}
      */
      override transform(IVariable bendPoint, Object transformationInfo) {
-        if(transformationInfo instanceof Boolean) detailedView = transformationInfo as Boolean    
+        detailedView = transformationInfo.isDetailed
         
          return KimlUtil::createInitializedNode=> [
             it.addLayoutParam(LayoutOptions::ALGORITHM, layoutAlgorithm)
             it.addLayoutParam(LayoutOptions::SPACING, spacing)
 
+            // create a rendering to the outer node, as the node will be black, otherwise            
+            it.data += renderingFactory.createKRectangle => [
+                it.invisible = true
+            ]
+            
             // create KNode for given FEdge
             it.createHeaderNode(bendPoint)
             
             // add propertyMap
-            if (detailedView) it.addPropertyMapAndEdge(bendPoint.getVariable("propertyMap"), bendPoint)
+            if(detailedView.conditionalShow(showPropertyMap))
+                it.addPropertyMapAndEdge(bendPoint.getVariable("propertyMap"), bendPoint)
         ]
     }
 
@@ -89,6 +99,6 @@ class FBendpointTransformation extends AbstractKielerGraphTransformation {
 	 * {@inheritDoc}
 	 */
 	override getNodeCount(IVariable model) {
-		return 1
+		return if(detailedView.conditionalShow(showPropertyMap)) 2 else 1
 	}
 }

@@ -28,6 +28,7 @@ import de.cau.cs.kieler.core.krendering.extensions.KLabelExtensions
 import java.util.LinkedList
 import de.cau.cs.kieler.core.krendering.HorizontalAlignment
 import de.cau.cs.kieler.core.krendering.VerticalAlignment
+import de.cau.cs.kieler.klighd.debug.graphTransformations.ShowTextIf
 
 class FGraphTransformation extends AbstractKielerGraphTransformation {
     
@@ -54,42 +55,54 @@ class FGraphTransformation extends AbstractKielerGraphTransformation {
     val leftGap = 4
     val vGap = 3
     val hGap = 5
+    val showPropertyMap = ShowTextIf::DETAILED
+    val showVisualization = ShowTextIf::DETAILED
+    val showAdjacency = ShowTextIf::DETAILED
+
     
     /**
      * {@inheritDoc}
      */
     override transform(IVariable graph, Object transformationInfo) {
-        if(transformationInfo instanceof Boolean) detailedView = transformationInfo as Boolean
+        detailedView = transformationInfo.isDetailed
 
         return KimlUtil::createInitializedNode=> [
             it.addLayoutParam(LayoutOptions::ALGORITHM, layoutAlgorithm)
             it.addLayoutParam(LayoutOptions::SPACING, spacing)
+
+            // create a rendering to the outer node, as the node will be black, otherwise            
+            it.data += renderingFactory.createKRectangle => [
+                it.invisible = true
+            ]
             
             // create header node
             it.createHeaderNode(graph)
             
-            // add the propertyMap and visualization if in detailed mode
-            if (detailedView) {
-                // add propertyMap
+            // add propertyMap
+            if(detailedView.conditionalShow(showPropertyMap))
                 it.addPropertyMapAndEdge(graph.getVariable("propertyMap"), graph)
                 
-                // create all nodes (in a new visualization node)
+            if(detailedView.conditionalShow(showVisualization)) {
+            // create all nodes (in a new visualization node)
                 val visualizationNode = it.createNodes(graph)
-                
                 // create all edges (in the given visualization node) 
                 visualizationNode.createEdges(graph)
-                
-                // add adjacency matrix
-                it.addAdjacency(graph)
             }
-        ]
+
+            // add adjacency matrix
+            if(detailedView.conditionalShow(showAdjacency))
+                it.addAdjacency(graph)
+        ];
     }
 
 	/**
 	 * {@inheritDoc}
 	 */
 	override getNodeCount(IVariable model) {
-		return 0
+	    var retVal = if(detailedView.conditionalShow(showPropertyMap)) 2 else 1
+	    if(detailedView.conditionalShow(showVisualization)) retVal = retVal + 1
+	    if(detailedView.conditionalShow(showAdjacency)) retVal = retVal + 1
+		return retVal
 	}
     
 	def void addAdjacency(KNode rootNode, IVariable graph) {

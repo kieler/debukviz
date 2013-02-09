@@ -16,8 +16,10 @@ import de.cau.cs.kieler.klighd.debug.graphTransformations.ShowTextIf
 import javax.inject.Inject
 import org.eclipse.debug.core.model.IVariable
 import de.cau.cs.kieler.core.krendering.LineStyle
+import de.cau.cs.kieler.klighd.debug.graphTransformations.ShowTextIf
 
 import static de.cau.cs.kieler.klighd.debug.visualization.AbstractDebugTransformation.*
+import de.cau.cs.kieler.klighd.debug.graphTransformations.ShowTextIf
 
 
 
@@ -53,24 +55,27 @@ class LLayerTransformation extends AbstractKielerGraphTransformation {
      * {@inheritDoc}
      */
 	override transform(IVariable layer, Object transformationInfo) {
-        if(transformationInfo instanceof Boolean) detailedView = transformationInfo as Boolean
+        detailedView = transformationInfo.isDetailed
         
         return KimlUtil::createInitializedNode => [
             it.addLayoutParam(LayoutOptions::ALGORITHM, layoutAlgorithm)
             it.addLayoutParam(LayoutOptions::SPACING, spacing)
+
+            // create a rendering to the outer node, as the node will be black, otherwise            
+            it.data += renderingFactory.createKRectangle => [
+                it.invisible = true
+            ]
             
             // create KNode for given LLayer
             it.createHeaderNode(layer)
             
             // add propertyMap
-            if(detailedView.conditionalShow(showPropertyMap)) {
+            if(detailedView.conditionalShow(showPropertyMap))
             	it.addPropertyMapAndEdge(layer.getVariable("propertyMap"), layer)
-            }  
 
             //add visualization containing nodes of layer and edges between the nodes of this layer
-            if (detailedView.conditionalShow(showVisualization)) {
+            if (detailedView.conditionalShow(showVisualization))
                 it.createVisualization(layer)
-            }
         ]
 	}
 	
@@ -78,7 +83,9 @@ class LLayerTransformation extends AbstractKielerGraphTransformation {
 	 * {@inheritDoc}
 	 */
 	override getNodeCount(IVariable model) {
-		return 0
+	    var retVal = if(detailedView.conditionalShow(showPropertyMap)) 2 else 1
+        if (detailedView.conditionalShow(showVisualization)) retVal = retVal + 1
+		return retVal
 	}
 
 	/**

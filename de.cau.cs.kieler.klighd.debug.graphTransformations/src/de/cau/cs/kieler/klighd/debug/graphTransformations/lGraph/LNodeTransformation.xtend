@@ -21,6 +21,8 @@ import de.cau.cs.kieler.core.krendering.extensions.KLabelExtensions
 import de.cau.cs.kieler.klighd.debug.graphTransformations.KTextIterableField
 
 import static de.cau.cs.kieler.klighd.debug.visualization.AbstractDebugTransformation.*
+import de.cau.cs.kieler.klighd.debug.graphTransformations.ShowTextIf
+import de.cau.cs.kieler.klighd.debug.graphTransformations.ShowTextIf
 
 class LNodeTransformation extends AbstractKielerGraphTransformation {
 
@@ -47,28 +49,34 @@ class LNodeTransformation extends AbstractKielerGraphTransformation {
     val leftGap = 4
     val vGap = 3
     val hGap = 5
+    val showPropertyMap = ShowTextIf::DETAILED
+    val showPorts = ShowTextIf::DETAILED
     
     /**
      * {@inheritDoc}
      */
     override transform(IVariable node, Object transformationInfo) {
-        if(transformationInfo instanceof Boolean) detailedView = transformationInfo as Boolean
+        detailedView = transformationInfo.isDetailed
         
         return KimlUtil::createInitializedNode => [
             it.addLayoutParam(LayoutOptions::ALGORITHM, layoutAlgorithm)
             it.addLayoutParam(LayoutOptions::SPACING, spacing)
+
+            // create a rendering to the outer node, as the node will be black, otherwise            
+            it.data += renderingFactory.createKRectangle => [
+                it.invisible = true
+            ]
             
             // create KNode for given LNode
             it.createHeaderNode(node)
             
-            // add nodes for propertymap and ports, if in detailed mode
-            if (detailedView) {
-                // addpropertymap
+            // addpropertymap
+            if(detailedView.conditionalShow(showPropertyMap))
                 it.addPropertyMapAndEdge(node.getVariable("propertyMap"), node)
                 
-                //add node for ports
+            //add node for ports
+            if(detailedView.conditionalShow(showPorts))
                 it.addPorts(node)
-            }        
         ]
     }
 
@@ -76,7 +84,9 @@ class LNodeTransformation extends AbstractKielerGraphTransformation {
 	 * {@inheritDoc}
 	 */
 	override getNodeCount(IVariable model) {
-		return 0
+	    var retVal = if(detailedView.conditionalShow(showPropertyMap)) 2 else 1
+	    if(detailedView.conditionalShow(showPorts)) retVal = retVal + 1
+		return retVal
 	}
     
     def createHeaderNode(KNode rootNode, IVariable node) {

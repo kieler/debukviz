@@ -17,6 +17,7 @@ import de.cau.cs.kieler.klighd.debug.graphTransformations.KTextIterableField
 import de.cau.cs.kieler.core.krendering.HorizontalAlignment
 
 import static de.cau.cs.kieler.klighd.debug.visualization.AbstractDebugTransformation.*
+import de.cau.cs.kieler.klighd.debug.graphTransformations.ShowTextIf
 
 
 class FEdgeTransformation extends AbstractKielerGraphTransformation {
@@ -43,33 +44,38 @@ class FEdgeTransformation extends AbstractKielerGraphTransformation {
     val leftGap = 4
     val vGap = 3
     val hGap = 5
-    
+    val showPropertyMap = ShowTextIf::DETAILED
+    val showLabelsMap = ShowTextIf::DETAILED
+    val showBendPointsMap = ShowTextIf::DETAILED
     /**
      * {@inheritDoc}
      */
     override transform(IVariable edge, Object transformationInfo) {
-        if(transformationInfo instanceof Boolean) detailedView = transformationInfo as Boolean
+        detailedView = transformationInfo.isDetailed
 
         return KimlUtil::createInitializedNode => [
             it.addLayoutParam(LayoutOptions::ALGORITHM, layoutAlgorithm)
             it.addLayoutParam(LayoutOptions::SPACING, spacing)
+
+            // create a rendering to the outer node, as the node will be black, otherwise            
+            it.data += renderingFactory.createKRectangle => [
+                it.invisible = true
+            ]
             
             // create KNode for given FEdge
             it.createHeaderNode(edge)
 
-            // if in detailedView, add node for propertyMap and labels
-            if (detailedView) {
-                
-                // add propertyMap
+            // add propertyMap
+            if(detailedView.conditionalShow(showPropertyMap))
                 it.addPropertyMapAndEdge(edge.getVariable("propertyMap"), edge)
                 
-                // add labels node
+            // add labels node
+            if(detailedView.conditionalShow(showLabelsMap))
                 it.addLabels(edge)
                 
-                // add bendpoints node
+            // add bendpoints node
+            if(detailedView.conditionalShow(showBendPointsMap))
                 it.addBendPoints(edge)
-
-            }
         ]
     }
     
@@ -77,7 +83,10 @@ class FEdgeTransformation extends AbstractKielerGraphTransformation {
 	 * {@inheritDoc}
 	 */
 	override getNodeCount(IVariable model) {
-		return 0
+	    var retVal = if(detailedView.conditionalShow(showPropertyMap)) 1 else 0
+        if(detailedView.conditionalShow(showLabelsMap)) retVal = retVal +1
+        if(detailedView.conditionalShow(showBendPointsMap)) retVal = retVal + 1
+		return retVal
 	}
 
     def createHeaderNode(KNode rootNode, IVariable edge) { 

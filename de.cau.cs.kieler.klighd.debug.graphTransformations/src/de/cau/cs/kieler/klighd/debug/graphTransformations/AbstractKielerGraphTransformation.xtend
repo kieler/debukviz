@@ -22,6 +22,7 @@ import de.cau.cs.kieler.core.krendering.VerticalAlignment
 import static de.cau.cs.kieler.klighd.debug.visualization.AbstractDebugTransformation.*
 import de.cau.cs.kieler.core.krendering.KGridPlacementData
 import de.cau.cs.kieler.core.krendering.LineStyle
+import de.cau.cs.kieler.klighd.debug.KlighdDebugPlugin
 
 abstract class AbstractKielerGraphTransformation extends AbstractDebugTransformation {
 	
@@ -50,6 +51,15 @@ abstract class AbstractKielerGraphTransformation extends AbstractDebugTransforma
 //    protected GraphTransformationInfo gtInfo = new GraphTransformationInfo
     protected Boolean detailedView = true
 
+    def isDetailed(Object info) {
+        val flat = KlighdDebugPlugin::getDefault().getPreferenceStore().getString(KlighdDebugPlugin::LAYOUT).equals(KlighdDebugPlugin::FLAT_LAYOUT)
+        if(info instanceof Boolean) {
+            return (!flat && info as Boolean)
+        } else {
+            return !flat
+        }
+    }
+    
 	def conditionalShow(boolean isDetailed, ShowTextIf enum) {
 		if (enum == ShowTextIf::ALWAYS) {
 			return true

@@ -58,15 +58,21 @@ class PGraphTransformation extends AbstractKielerGraphTransformation {
 	val showExternalFaces = ShowTextIf::DETAILED
 	val showChangedFaces = ShowTextIf::DETAILED
 	val showParent = ShowTextIf::DETAILED
+	
     /**
      * {@inheritDoc}
      */
     override transform(IVariable graph, Object transformationInfo) {
-        if(transformationInfo instanceof Boolean) detailedView = transformationInfo as Boolean
+        detailedView = transformationInfo.isDetailed
         
         return KimlUtil::createInitializedNode => [
             it.addLayoutParam(LayoutOptions::ALGORITHM, layoutAlgorithm)
             it.addLayoutParam(LayoutOptions::SPACING, spacing)
+
+            // create a rendering to the outer node, as the node will be black, otherwise            
+            it.data += renderingFactory.createKRectangle => [
+                it.invisible = true
+            ]
             
             // create header node
             it.createHeaderNode(graph)
@@ -89,7 +95,10 @@ class PGraphTransformation extends AbstractKielerGraphTransformation {
 	 * {@inheritDoc}
 	 */
 	override getNodeCount(IVariable model) {
-		return if(detailedView) 4 else 1
+	    var retVal = if(detailedView.conditionalShow(showPropertyMap)) 2 else 1
+	    if (detailedView.conditionalShow(showVisualization)) retVal = retVal + 1
+	    if (detailedView.conditionalShow(showFaces)) retVal = retVal + 1
+		return retVal
 	}
     
     def createHeaderNode(KNode rootNode, IVariable graph) {
