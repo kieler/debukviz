@@ -60,13 +60,22 @@ abstract class AbstractKielerGraphTransformation extends AbstractDebugTransforma
         }
     }
     
-	def conditionalShow(boolean isDetailed, ShowTextIf enum) {
-		if (enum == ShowTextIf::ALWAYS) {
-			return true
-		} else {
-			return (isDetailed == (enum == ShowTextIf::DETAILED))
-		}
-	}
+    def conditionalShow(boolean isDetailed, ShowTextIf enum) {
+        if (enum == ShowTextIf::ALWAYS) {
+            return true
+        } else {
+            return (isDetailed == (enum == ShowTextIf::DETAILED))
+        }
+    }
+    
+    def conditionalShow(ShowTextIf enum, boolean isDetailed) {
+        if (enum == ShowTextIf::ALWAYS) {
+            return true
+        } else {
+            return (isDetailed == (enum == ShowTextIf::DETAILED))
+        }
+    }
+    
 	
 	def createTopElementEdge(IVariable source, IVariable target, String label) {
 	    // create edge from header node to visualization
@@ -446,7 +455,7 @@ abstract class AbstractKielerGraphTransformation extends AbstractDebugTransforma
 //    			createKPosition(RIGHT, 5f, 0f, BOTTOM, 5f, 0f)
 //		)
 
-        // type of the variable: create a rectangle for this to center the text
+        // type of the variable, centered
         if (detailedView) {
             val header = container.addInvisibleRectangleGrid(1) 
         	header.addGridElement(variable.getType, HorizontalAlignment::CENTER)
@@ -543,6 +552,42 @@ abstract class AbstractKielerGraphTransformation extends AbstractDebugTransforma
             }
     }
     
+    def nullOrValueXY(IVariable variable, String valueName) {
+            if (variable.valueIsNotNull) {
+                return "(" + variable.getValue(valueName + ".x") + ", " 
+                           + variable.getValue(valueName + ".x") + ")"
+            } else {
+                return "null"
+            }
+    }
+    
+    def nullOrValueTRBL(IVariable variable, String valueName) {
+            if (variable.valueIsNotNull) {
+                return "(" + variable.getValue(valueName + ".top") + ", " 
+                           + variable.getValue(valueName + ".right") + ", "
+                           + variable.getValue(valueName + ".bottom") + ", "
+                           + variable.getValue(valueName + ".left") + ")"
+            } else {
+                return "null"
+            }
+    }
+
+    def nullOrValueName(IVariable variable, String valueName) {
+            if (variable.valueIsNotNull) {
+                return variable.getValue(valueName + ".name")
+            } else {
+                return "null"
+            }
+    }
+    
+    def nullOrValueSize(IVariable variable, String valueName) {
+            if (variable.valueIsNotNull) {
+                return variable.getValue(valueName + ".size")
+            } else {
+                return "null"
+            }
+    }
+
     def containsValWithID(IVariable list, String id) {
     	for(elem : list.linkedList) {
     		if (id.equals(elem.getValueString)) return true

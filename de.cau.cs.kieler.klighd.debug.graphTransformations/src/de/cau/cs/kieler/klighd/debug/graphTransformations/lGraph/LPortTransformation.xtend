@@ -23,6 +23,7 @@ import de.cau.cs.kieler.kiml.options.LayoutOptions
 import de.cau.cs.kieler.core.krendering.extensions.KLabelExtensions
 import de.cau.cs.kieler.klighd.debug.graphTransformations.KTextIterableField
 import de.cau.cs.kieler.klighd.debug.graphTransformations.ShowTextIf
+import de.cau.cs.kieler.core.krendering.HorizontalAlignment
 
 class LPortTransformation extends AbstractKielerGraphTransformation {
     
@@ -41,17 +42,22 @@ class LPortTransformation extends AbstractKielerGraphTransformation {
     
     val layoutAlgorithm = "de.cau.cs.kieler.kiml.ogdf.planarization"
     val spacing = 75f
-    val leftColumnAlignment = KTextIterableField$TextAlignment::RIGHT
-    val rightColumnAlignment = KTextIterableField$TextAlignment::LEFT
-    val topGap = 4
-    val rightGap = 5
-    val bottomGap = 5
-    val leftGap = 4
-    val vGap = 3
-    val hGap = 5
+    val leftColumnAlignment = HorizontalAlignment::RIGHT
+    val rightColumnAlignment = HorizontalAlignment::LEFT
+
     val showPropertyMap = ShowTextIf::DETAILED
-    val showEdges = ShowTextIf::DETAILED
-    val showLabels = ShowTextIf::DETAILED
+    val showEdgesNode = ShowTextIf::DETAILED
+    val showLabelsNode = ShowTextIf::DETAILED
+
+    val showEdgesCount = ShowTextIf::COMPACT
+    val showLabelsCount = ShowTextIf::COMPACT
+    val showSize = ShowTextIf::DETAILED
+    val showSide = ShowTextIf::ALWAYS
+    val showPosition = ShowTextIf::DETAILED
+    val showOwner = ShowTextIf::DETAILED
+    val showMargin = ShowTextIf::DETAILED
+    val showAncor = ShowTextIf::DETAILED
+    val showHashCode = ShowTextIf::DETAILED
     
     /**
      * {@inheritDoc}
@@ -72,17 +78,17 @@ class LPortTransformation extends AbstractKielerGraphTransformation {
             it.createHeaderNode(port)
 
             // add propertyMap
-            if(detailedView.conditionalShow(showPropertyMap))
+            if(showPropertyMap.conditionalShow(detailedView))
                 it.addPropertyMapAndEdge(port.getVariable("propertyMap"), port)
                 
             // add incoming/outgoing edges node
-            if(detailedView.conditionalShow(showEdges)) {
+            if(showEdgesNode.conditionalShow(detailedView)) {
                 it.addListOfEdges(port, port.getVariable("incomingEdges"))
                 it.addListOfEdges(port, port.getVariable("outgoingEdges"))
             }
                 
             // add labels
-            if(detailedView.conditionalShow(showLabels))
+            if(showLabelsNode.conditionalShow(detailedView))
                 it.addListOfLabels(port)
         ]
     }
@@ -92,8 +98,8 @@ class LPortTransformation extends AbstractKielerGraphTransformation {
 	 */
 	override getNodeCount(IVariable model) {
 	    var retVal = if(detailedView.conditionalShow(showPropertyMap)) 2 else 1
-	    if(detailedView.conditionalShow(showEdges)) retVal = retVal + 1
-		if(detailedView.conditionalShow(showLabels)) retVal = retVal + 1
+	    if(showEdgesNode.conditionalShow(detailedView)) retVal = retVal + 1
+		if(showLabelsNode.conditionalShow(detailedView)) retVal = retVal + 1
 	    return retVal
 	}
 
@@ -101,82 +107,74 @@ class LPortTransformation extends AbstractKielerGraphTransformation {
         rootNode.addNodeById(port) => [
             it.data += renderingFactory.createKRectangle => [
 
-                var field = new KTextIterableField(topGap, rightGap, bottomGap, leftGap, vGap, hGap)
-                it.headerNodeBasics(field, detailedView, port, leftColumnAlignment, rightColumnAlignment)
-                var row = field.rowCount
-                
-                // id of port
-                field.set("id:", row, 0, leftColumnAlignment)
+                val table = it.headerNodeBasics(detailedView, port)
+
+                // id of node
+                table.addGridElement("id:", leftColumnAlignment)
                 if(detailedView) {
-	                field.set(nullOrValue(port, "id"), row, 1, rightColumnAlignment)
+                    table.addGridElement(port.nullOrValue("id"), rightColumnAlignment)
                 } else {
-	                field.set(nullOrValue(port, "id") + port.getValueString, row, 1, rightColumnAlignment)
+                    table.addGridElement(port.nullOrValue("id") + port.getValueString, rightColumnAlignment)
                 }
-                row = row + 1
    
                 // hashCode of port
-                field.set("hashCode:", row, 0, leftColumnAlignment)
-                field.set(nullOrValue(port, "hashCode"), row, 1, rightColumnAlignment)
-                row = row + 1
+                if(showHashCode.conditionalShow(detailedView)) {
+                    table.addGridElement("hashCode:", leftColumnAlignment)
+                    table.addGridElement(port.nullOrValue("hashCode"), rightColumnAlignment)
+                }
             
-                if(detailedView) {
-                    // show following elements only if detailedView
-                    // anchor of port
-                    field.set("anchor (x,y):", row, 0, leftColumnAlignment)
-                    field.set("(" + port.getValue("anchor.x").round + ", " 
-                                  + port.getValue("anchor.y").round + ")", row, 1, rightColumnAlignment)
-                    row = row + 1
-                    
-                    // margin of port
-                    field.set("margin (t,r,b,l):", row, 0, leftColumnAlignment)
-                    field.set("(" + port.getValue("margin.top").round + ", "
-                                  + port.getValue("margin.right").round + ", "
-                                  + port.getValue("margin.bottom").round + ", "
-                                  + port.getValue("margin.left").round + ")", row, 1, rightColumnAlignment)
-                    row = row + 1
+                // anchor of port
+                if(showAncor.conditionalShow(detailedView)) {
+                    table.addGridElement("anchor (x,y):", leftColumnAlignment)
+                    table.addGridElement(port.nullOrValueXY("anchor"), rightColumnAlignment)
+                }
 
-                    // owner of port
+                // margin of port
+                if(showMargin.conditionalShow(detailedView)) {
+                    table.addGridElement("margin (t,r,b,l):", leftColumnAlignment)
+                    table.addGridElement(port.nullOrValueTRBL("margin"), rightColumnAlignment)
+                }
+
+                // owner of port
+                if(showOwner.conditionalShow(detailedView)) {
+                    table.addGridElement("owner:", leftColumnAlignment)
+                    table.addGridElement(port.typeAndId("owner"), rightColumnAlignment)
+                }
+/*                    
                     field.set("owner:", row, 0, leftColumnAlignment)
                     field.set("LNode " + port.getValue("owner.id") + port.getValue("owner"), row, 1, rightColumnAlignment)
                     row = row + 1
-
-                    // position of port
-                    field.set("pos (x,y):", row, 0, leftColumnAlignment)
-                    field.set("(" + port.getValue("pos.x").round + ", "
-                                  + port.getValue("pos.y").round + ")", row, 1, rightColumnAlignment)
-                    row = row + 1
-                    
-                    // side of port
-                    field.set("side:", row, 0, leftColumnAlignment)
-                    field.set(port.getValue("side.name"), row, 1, rightColumnAlignment)
-                    row = row + 1
-                    
-                    // size of port
-                    field.set("size (x,y):", row, 0, leftColumnAlignment)
-                    field.set("(" + port.getValue("size.x").round + ", "
-                                  + port.getValue("size.y").round + ")", row, 1, rightColumnAlignment)
-                    row = row + 1
-                } else {
-                    // if not detailedView, show a summary of following elements
-                    // # of incoming edges of port
-                    field.set("incomingEdges (#):", row, 0, leftColumnAlignment)
-                    field.set(port.getValue("incomingEdges.size"), row, 1, rightColumnAlignment)
-                    row = row + 1
-
-                    // # of outgoing edges of port
-                    field.set("outgoingEdges (#):", row, 0, leftColumnAlignment)
-                    field.set(port.getValue("outgoingEdges.size"), row, 1, rightColumnAlignment)
-                    row = row + 1
-
-                    // # of labels of port
-                    field.set("labels (#):", row, 0, leftColumnAlignment)
-                    field.set(port.getValue("labels.size"), row, 1, rightColumnAlignment)
-                    row = row + 1
+ */
+                // position of port
+                if(showPosition.conditionalShow(detailedView)) {
+                    table.addGridElement("pos (x,y):", leftColumnAlignment)
+                    table.addGridElement(port.nullOrValueXY("pos"), rightColumnAlignment)
+                }
+                
+                // side of port
+                if(showSide.conditionalShow(detailedView)) {
+                    table.addGridElement("side:", leftColumnAlignment)
+                    table.addGridElement(port.nullOrValueName("side"), rightColumnAlignment)
                 }
 
-                // fill the KText into the ContainerRendering
-                for (text : field) {
-                    it.children += text
+                // size of port
+                if(showSize.conditionalShow(detailedView)) {
+                    table.addGridElement("size (x,y):", leftColumnAlignment)
+                    table.addGridElement(port.nullOrValueXY("size"), rightColumnAlignment)
+                }
+
+                // # of incoming/outgoing edges of port
+                if(showEdgesCount.conditionalShow(detailedView)) {
+                    table.addGridElement("incomingEdges (#):", leftColumnAlignment)
+                    table.addGridElement(port.nullOrValueSize("incomingEdges"), rightColumnAlignment)
+                    table.addGridElement("outgoingEdges (#):", leftColumnAlignment)
+                    table.addGridElement(port.nullOrValueSize("outgoingEdges"), rightColumnAlignment)
+                }
+
+                // # of labels of port
+                if(showLabelsCount.conditionalShow(detailedView)) {
+                    table.addGridElement("labels (#):", leftColumnAlignment)
+                    table.addGridElement(port.nullOrValueSize("labels"), rightColumnAlignment)
                 }
             ]
         ]

@@ -134,16 +134,19 @@ class LNodeTransformation extends AbstractKielerGraphTransformation {
             var labelText = ""
             if(labels.isEmpty) {
                 // no name given
-                labelText = "-"
+                labelText = "(null)"
             } else {
                 val label = labels.get(0).getValue("text")
                 if(label.length == 0) {
-                    labelText = "(empty)"
+                    labelText = "(empty String)"
                 } else {
                     labelText = label
                 }
             }
-            field.set(labelText + node.getValueString, row, 1, rightColumnAlignment)
+            if(!detailedView) {
+                labelText = labelText + node.getValueString
+            }
+            field.set(labelText, row, 1, rightColumnAlignment)
             row = row + 1
 
             // id of node
@@ -153,7 +156,7 @@ class LNodeTransformation extends AbstractKielerGraphTransformation {
 
             //owner (layer)
             field.set("owner:", row, 0, leftColumnAlignment)
-            field.set("layer " + node.getValue("owner.hashCode") + node.getValue("owner"), 
+            field.set(node.typeAndId("owner"), 
             	row, 1, rightColumnAlignment
             )
             row = row + 1
