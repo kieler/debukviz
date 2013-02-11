@@ -16,9 +16,10 @@ import de.cau.cs.kieler.core.krendering.extensions.KPolylineExtensions
 import de.cau.cs.kieler.klighd.debug.graphTransformations.AbstractKielerGraphTransformation
 import de.cau.cs.kieler.klighd.debug.graphTransformations.KTextIterableField
 import de.cau.cs.kieler.klighd.debug.graphTransformations.ShowTextIf
+import de.cau.cs.kieler.core.krendering.HorizontalAlignment
 
 class PFaceTransformation extends AbstractKielerGraphTransformation {
-    
+    //TODO:Face
     @Inject
     extension KNodeExtensions
     @Inject
@@ -32,14 +33,9 @@ class PFaceTransformation extends AbstractKielerGraphTransformation {
     
     val layoutAlgorithm = "de.cau.cs.kieler.kiml.ogdf.planarization"
     val spacing = 75f
-    val leftColumnAlignment = KTextIterableField$TextAlignment::RIGHT
-    val rightColumnAlignment = KTextIterableField$TextAlignment::LEFT
-    val topGap = 4
-    val rightGap = 5
-    val bottomGap = 5
-    val leftGap = 4
-    val vGap = 3
-    val hGap = 5
+    val leftColumnAlignment = HorizontalAlignment::RIGHT
+    val rightColumnAlignment = HorizontalAlignment::LEFT
+
     val showPropertyMap = ShowTextIf::DETAILED
         
     /**
@@ -48,25 +44,20 @@ class PFaceTransformation extends AbstractKielerGraphTransformation {
     override transform(IVariable face, Object transformationInfo) {
         detailedView = transformationInfo.isDetailed
 
-        return KimlUtil::createInitializedNode=> [
+        return KimlUtil::createInitializedNode => [
             it.addLayoutParam(LayoutOptions::ALGORITHM, layoutAlgorithm)
             it.addLayoutParam(LayoutOptions::SPACING, spacing)
 
-            // create a rendering to the outer node, as the node will be black, otherwise            
-            it.data += renderingFactory.createKRectangle => [
-                it.invisible = true
-            ]
-
-            // create kNode for given face
-            it.createHeaderNode(face)
+			it.addInvisibleRendering
+            it.addHeaderNode(face)
 
             // add propertyMap
-            if(detailedView.conditionalShow(showPropertyMap))
-                it.addPropertyMapAndEdge(face.getVariable("propertyMap"), face)
-        ]
+            if(showPropertyMap.conditionalShow(detailedView))
+                it.addPropertyMapNode(face.getVariable("propertyMap"), face)
+    	]
     }
     
-    def createHeaderNode(KNode rootNode, IVariable face) {
+    def addHeaderNode(KNode rootNode, IVariable face) {
         rootNode.addNodeById(face) => [
             it.data += renderingFactory.createKRectangle => [
                 
@@ -80,6 +71,6 @@ class PFaceTransformation extends AbstractKielerGraphTransformation {
 	 * {@inheritDoc}
 	 */
 	override getNodeCount(IVariable model) {
-		return if(detailedView.conditionalShow(showPropertyMap)) 2 else 1
+		return if(showPropertyMap.conditionalShow(detailedView)) 2 else 1
 	}
 }

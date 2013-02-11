@@ -60,14 +60,14 @@ abstract class AbstractKielerGraphTransformation extends AbstractDebugTransforma
         }
     }
     
-    def conditionalShow(boolean isDetailed, ShowTextIf enum) {
+/*     def conditionalShow(boolean isDetailed, ShowTextIf enum) {
         if (enum == ShowTextIf::ALWAYS) {
             return true
         } else {
             return (isDetailed == (enum == ShowTextIf::DETAILED))
         }
     }
-    
+*/    
     def conditionalShow(ShowTextIf enum, boolean isDetailed) {
         if (enum == ShowTextIf::ALWAYS) {
             return true
@@ -205,7 +205,7 @@ abstract class AbstractKielerGraphTransformation extends AbstractDebugTransforma
         return "<? " + key.getType +" ?> : "
     }
 
-    def addPropertyMapAndEdge(KNode rootNode, IVariable propertyMap, IVariable headerNode) {
+    def addPropertyMapNode(KNode rootNode, IVariable propertyMap, IVariable headerNode) {
         if(rootNode != null && headerNode.valueIsNotNull) {
 	            // create propertyMap node
 	            rootNode.addNodeById(propertyMap) => [
@@ -273,6 +273,8 @@ abstract class AbstractKielerGraphTransformation extends AbstractDebugTransforma
 				container.addGridElement("(TODO)", HorizontalAlignment::LEFT)
             case "KNodeImpl" :
             	container.addGridElement("KNode " + element.getValueString, HorizontalAlignment::LEFT)
+            case "KPortImpl" :
+            	container.addGridElement("KPort " + element.getValueString, HorizontalAlignment::LEFT)
             case "KLabelImpl" :
             	container.addGridElement("KLabel " + element.getValueString, HorizontalAlignment::LEFT)
             case "KEdgeImpl" :
@@ -313,6 +315,13 @@ abstract class AbstractKielerGraphTransformation extends AbstractDebugTransforma
             	)
             }
         }
+    }
+    
+    def addInvisibleRendering(KNode node) {
+        return renderingFactory.createKRectangle => [
+    		node.data += it 
+            it.invisible = true
+        ]
     }
     
     def addEnumSet(KContainerRendering container, IVariable set) {
@@ -539,53 +548,61 @@ abstract class AbstractKielerGraphTransformation extends AbstractDebugTransforma
         ]
     }
     
-    def typeAndId(IVariable iVar, String variable) {
-        val v = if(variable.equals("")) iVar else iVar.getVariable(variable)
-        return v.type + " " + v.getValueString
+    def nullOrTypeAndID(IVariable variable) {
+    	return nullOrTypeAndID(variable, "")
+    }
+    
+    def nullOrTypeAndID(IVariable variable, String valueName) {
+        if (variable.valueIsNotNull) {
+        	val v = if(valueName.equals("")) variable else variable.getVariable(valueName)
+    		return v.type + " " + v.getValueString
+        } else  {
+        	return "(null)"
+        }
     }
 
     def nullOrValue(IVariable variable, String valueName) {
-            if (variable.valueIsNotNull) {
-                return variable.getValue(valueName)
-            } else {
-                return "null"
-            }
+        if (variable.valueIsNotNull) {
+            return variable.getValue(valueName)
+        } else {
+            return "(null)"
+        }
     }
     
-    def nullOrValueXY(IVariable variable, String valueName) {
-            if (variable.valueIsNotNull) {
-                return "(" + variable.getValue(valueName + ".x") + ", " 
-                           + variable.getValue(valueName + ".x") + ")"
-            } else {
-                return "null"
-            }
+    def nullOrKVektor(IVariable variable, String valueName) {
+        if (variable.valueIsNotNull) {
+            return "(" + variable.getValue(valueName + ".x") + ", " 
+                       + variable.getValue(valueName + ".x") + ")"
+        } else {
+            return "(null)"
+        }
     }
     
-    def nullOrValueTRBL(IVariable variable, String valueName) {
-            if (variable.valueIsNotNull) {
-                return "(" + variable.getValue(valueName + ".top") + ", " 
-                           + variable.getValue(valueName + ".right") + ", "
-                           + variable.getValue(valueName + ".bottom") + ", "
-                           + variable.getValue(valueName + ".left") + ")"
-            } else {
-                return "null"
-            }
+    def nullOrTRBL(IVariable variable, String valueName) {
+        if (variable.valueIsNotNull) {
+            return "(" + variable.getValue(valueName + ".top") + ", " 
+                       + variable.getValue(valueName + ".right") + ", "
+                       + variable.getValue(valueName + ".bottom") + ", "
+                       + variable.getValue(valueName + ".left") + ")"
+        } else {
+            return "(null)"
+        }
     }
 
-    def nullOrValueName(IVariable variable, String valueName) {
-            if (variable.valueIsNotNull) {
-                return variable.getValue(valueName + ".name")
-            } else {
-                return "null"
-            }
+    def nullOrName(IVariable variable, String valueName) {
+        if (variable.valueIsNotNull) {
+            return variable.getValue(valueName + ".name")
+        } else {
+            return "(null)"
+        }
     }
     
-    def nullOrValueSize(IVariable variable, String valueName) {
-            if (variable.valueIsNotNull) {
-                return variable.getValue(valueName + ".size")
-            } else {
-                return "null"
-            }
+    def nullOrSize(IVariable variable, String valueName) {
+        if (variable.valueIsNotNull) {
+            return variable.getValue(valueName + ".size")
+        } else {
+            return "(null)"
+        }
     }
 
     def containsValWithID(IVariable list, String id) {

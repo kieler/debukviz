@@ -57,20 +57,15 @@ class LGraphTransformation extends AbstractKielerGraphTransformation {
             it.addLayoutParam(LayoutOptions::ALGORITHM, layoutAlgorithm)
             it.addLayoutParam(LayoutOptions::SPACING, spacing)
 
-            // create a rendering to the outer node, as the node will be black, otherwise            
-            it.data += renderingFactory.createKRectangle => [
-                it.invisible = true
-            ]
-            
-            // create header node
-     		it.createHeaderNode(graph)
+			it.addInvisibleRendering
+     		it.addHeaderNode(graph)
      		
                 // add propertyMap
-            if(detailedView.conditionalShow(showPropertyMap))
-                it.addPropertyMapAndEdge(graph.getVariable("propertyMap"), graph)
+            if(showPropertyMap.conditionalShow(detailedView))
+                it.addPropertyMapNode(graph.getVariable("propertyMap"), graph)
                 
                 // create the visualization
-            if(detailedView.conditionalShow(showVisulalization))
+            if(showVisulalization.conditionalShow(detailedView))
                 it.createVisualization(graph)
         ]
 	}
@@ -79,12 +74,12 @@ class LGraphTransformation extends AbstractKielerGraphTransformation {
 	 * {@inheritDoc}
 	 */
 	override getNodeCount(IVariable model) {
-	    var retVal = if(detailedView.conditionalShow(showPropertyMap)) 2 else 1
-        if(detailedView.conditionalShow(showVisulalization)) retVal = retVal + 1
+	    var retVal = if(showPropertyMap.conditionalShow(detailedView)) 2 else 1
+        if(showVisulalization.conditionalShow(detailedView)) retVal = retVal + 1
 		return retVal
 	}
 	
-	def createHeaderNode(KNode rootNode, IVariable graph) {
+	def addHeaderNode(KNode rootNode, IVariable graph) {
 		rootNode.addNodeById(graph) => [
     		it.data += renderingFactory.createKRectangle => [
 

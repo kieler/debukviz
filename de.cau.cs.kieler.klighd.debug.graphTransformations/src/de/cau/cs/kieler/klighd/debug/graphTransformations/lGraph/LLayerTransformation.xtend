@@ -61,21 +61,16 @@ class LLayerTransformation extends AbstractKielerGraphTransformation {
             it.addLayoutParam(LayoutOptions::ALGORITHM, layoutAlgorithm)
             it.addLayoutParam(LayoutOptions::SPACING, spacing)
 
-            // create a rendering to the outer node, as the node will be black, otherwise            
-            it.data += renderingFactory.createKRectangle => [
-                it.invisible = true
-            ]
-            
-            // create KNode for given LLayer
-            it.createHeaderNode(layer)
+			it.addInvisibleRendering
+            it.addHeaderNode(layer)
             
             // add propertyMap
-            if(detailedView.conditionalShow(showPropertyMap))
-            	it.addPropertyMapAndEdge(layer.getVariable("propertyMap"), layer)
+            if(showPropertyMap.conditionalShow(detailedView))
+            	it.addPropertyMapNode(layer.getVariable("propertyMap"), layer)
 
             //add visualization containing nodes of layer and edges between the nodes of this layer
-            if (detailedView.conditionalShow(showVisualization))
-                it.createVisualization(layer)
+            if (showVisualization.conditionalShow(detailedView))
+                it.addVisualization(layer)
         ]
 	}
 	
@@ -83,8 +78,8 @@ class LLayerTransformation extends AbstractKielerGraphTransformation {
 	 * {@inheritDoc}
 	 */
 	override getNodeCount(IVariable model) {
-	    var retVal = if(detailedView.conditionalShow(showPropertyMap)) 2 else 1
-        if (detailedView.conditionalShow(showVisualization)) retVal = retVal + 1
+	    var retVal = if(showPropertyMap.conditionalShow(detailedView)) 2 else 1
+        if (showVisualization.conditionalShow(detailedView)) retVal = retVal + 1
 		return retVal
 	}
 
@@ -99,7 +94,7 @@ class LLayerTransformation extends AbstractKielerGraphTransformation {
      *            the layer to be visualized
      * @return the new created node
      */
-	def createVisualization(KNode rootNode, IVariable layer) {
+	def addVisualization(KNode rootNode, IVariable layer) {
 		val nodes = layer.getVariable("nodes")
 		
         return rootNode.addNodeById(nodes) => [
@@ -141,32 +136,32 @@ class LLayerTransformation extends AbstractKielerGraphTransformation {
         ]
     }
 
-	def createHeaderNode(KNode rootNode, IVariable layer) {
+	def addHeaderNode(KNode rootNode, IVariable layer) {
         return rootNode.addNodeById(layer) => [
             it.data += renderingFactory.createKRectangle => [
 
                 val table = it.headerNodeBasics(detailedView, layer)
 	
 	            // id of layer
-	            if (detailedView.conditionalShow(showID)) {
+	            if (showID.conditionalShow(detailedView)) {
 		            table.addGridElement("id:", leftColumnAlignment)
 		            table.addGridElement(nullOrValue(layer, "id"), rightColumnAlignment)
 	            } 
 	   
                 // hashCode of layer
-	            if (detailedView.conditionalShow(showHashCode)) {
+	            if (showHashCode.conditionalShow(detailedView)) {
 		            table.addGridElement("hashCode:", leftColumnAlignment)
 		            table.addGridElement(layer.getValue("hashCode"), rightColumnAlignment)
 	            }
 
 	            // owner of layer
-	            if (detailedView.conditionalShow(showOwner)) {
+	            if (showOwner.conditionalShow(detailedView)) {
 		            table.addGridElement("owner:", leftColumnAlignment)
-		            table.addGridElement(layer.typeAndId("owner"), rightColumnAlignment)
+		            table.addGridElement(layer.nullOrTypeAndID("owner"), rightColumnAlignment)
 	            }
 
 	            // size of layer
-	            if (detailedView.conditionalShow(showSize)) {
+	            if (showSize.conditionalShow(detailedView)) {
 		            table.addGridElement("size (x, y):", leftColumnAlignment)
 		            table.addGridElement("(" + layer.getValue("size.x") + ", " 
 		            						 + layer.getValue("size.y") + ")", rightColumnAlignment

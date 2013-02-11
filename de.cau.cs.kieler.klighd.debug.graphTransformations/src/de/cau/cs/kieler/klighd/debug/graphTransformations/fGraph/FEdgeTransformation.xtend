@@ -57,24 +57,19 @@ class FEdgeTransformation extends AbstractKielerGraphTransformation {
             it.addLayoutParam(LayoutOptions::ALGORITHM, layoutAlgorithm)
             it.addLayoutParam(LayoutOptions::SPACING, spacing)
 
-            // create a rendering to the outer node, as the node will be black, otherwise            
-            it.data += renderingFactory.createKRectangle => [
-                it.invisible = true
-            ]
-            
-            // create KNode for given FEdge
-            it.createHeaderNode(edge)
+			it.addInvisibleRendering
+            it.addHeaderNode(edge)
 
             // add propertyMap
-            if(detailedView.conditionalShow(showPropertyMap))
-                it.addPropertyMapAndEdge(edge.getVariable("propertyMap"), edge)
+            if(showPropertyMap.conditionalShow(detailedView))
+                it.addPropertyMapNode(edge.getVariable("propertyMap"), edge)
                 
             // add labels node
-            if(detailedView.conditionalShow(showLabelsMap))
+            if(showLabelsMap.conditionalShow(detailedView))
                 it.addLabels(edge)
                 
             // add bendpoints node
-            if(detailedView.conditionalShow(showBendPointsMap))
+            if(showBendPointsMap.conditionalShow(detailedView))
                 it.addBendPoints(edge)
         ]
     }
@@ -83,13 +78,13 @@ class FEdgeTransformation extends AbstractKielerGraphTransformation {
 	 * {@inheritDoc}
 	 */
 	override getNodeCount(IVariable model) {
-	    var retVal = if(detailedView.conditionalShow(showPropertyMap)) 1 else 0
-        if(detailedView.conditionalShow(showLabelsMap)) retVal = retVal +1
-        if(detailedView.conditionalShow(showBendPointsMap)) retVal = retVal + 1
+	    var retVal = if(showPropertyMap.conditionalShow(detailedView)) 1 else 0
+        if(showLabelsMap.conditionalShow(detailedView)) retVal = retVal +1
+        if(showBendPointsMap.conditionalShow(detailedView)) retVal = retVal + 1
 		return retVal
 	}
 
-    def createHeaderNode(KNode rootNode, IVariable edge) { 
+    def addHeaderNode(KNode rootNode, IVariable edge) { 
         rootNode.addNodeById(edge) => [
             it.data += renderingFactory.createKRectangle => [
 

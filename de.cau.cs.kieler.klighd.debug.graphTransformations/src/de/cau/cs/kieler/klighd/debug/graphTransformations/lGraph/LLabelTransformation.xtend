@@ -54,7 +54,7 @@ class LLabelTransformation extends AbstractKielerGraphTransformation {
             it.addLayoutParam(LayoutOptions::ALGORITHM, layoutAlgorithm)
             it.addLayoutParam(LayoutOptions::SPACING, spacing)
 
-            // create a rendering to the outer node, as the node will be black, otherwise            
+it.addInvisibleRendering
             it.data += renderingFactory.createKRectangle => [
                 it.invisible = true
             ]
@@ -63,8 +63,8 @@ class LLabelTransformation extends AbstractKielerGraphTransformation {
             it.createHeaderNode(label)
             
             // add propertyMap
-            if(detailedView.conditionalShow(showPropertyMap))
-                it.addPropertyMapAndEdge(label.getVariable("propertyMap"), label)
+            if(showPropertyMap.conditionalShow(detailedView))
+                it.addPropertyMapNode(label.getVariable("propertyMap"), label)
         ]
     }
     
@@ -72,7 +72,7 @@ class LLabelTransformation extends AbstractKielerGraphTransformation {
 	 * {@inheritDoc}
 	 */
 	override getNodeCount(IVariable model) {
-		return if(detailedView.conditionalShow(showPropertyMap)) 2 else 1
+		return if(showPropertyMap.conditionalShow(detailedView)) 2 else 1
 	}
     
     def createHeaderNode(KNode rootNode, IVariable label) { 

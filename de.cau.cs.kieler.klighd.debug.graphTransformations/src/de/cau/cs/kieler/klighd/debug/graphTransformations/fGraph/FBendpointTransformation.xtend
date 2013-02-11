@@ -54,17 +54,12 @@ class FBendpointTransformation extends AbstractKielerGraphTransformation {
             it.addLayoutParam(LayoutOptions::ALGORITHM, layoutAlgorithm)
             it.addLayoutParam(LayoutOptions::SPACING, spacing)
 
-            // create a rendering to the outer node, as the node will be black, otherwise            
-            it.data += renderingFactory.createKRectangle => [
-                it.invisible = true
-            ]
-            
-            // create KNode for given FEdge
+			it.addInvisibleRendering
             it.createHeaderNode(bendPoint)
             
             // add propertyMap
-            if(detailedView.conditionalShow(showPropertyMap))
-                it.addPropertyMapAndEdge(bendPoint.getVariable("propertyMap"), bendPoint)
+            if(showPropertyMap.conditionalShow(detailedView))
+                it.addPropertyMapNode(bendPoint.getVariable("propertyMap"), bendPoint)
         ]
     }
 
@@ -99,6 +94,6 @@ class FBendpointTransformation extends AbstractKielerGraphTransformation {
 	 * {@inheritDoc}
 	 */
 	override getNodeCount(IVariable model) {
-		return if(detailedView.conditionalShow(showPropertyMap)) 2 else 1
+		return if(showPropertyMap.conditionalShow(detailedView)) 2 else 1
 	}
 }

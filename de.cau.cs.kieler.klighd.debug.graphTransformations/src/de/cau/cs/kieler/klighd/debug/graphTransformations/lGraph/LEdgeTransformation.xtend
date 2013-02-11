@@ -17,6 +17,7 @@ import de.cau.cs.kieler.klighd.debug.graphTransformations.KTextIterableField
 
 import static de.cau.cs.kieler.klighd.debug.visualization.AbstractDebugTransformation.*
 import de.cau.cs.kieler.klighd.debug.graphTransformations.ShowTextIf
+import de.cau.cs.kieler.core.krendering.HorizontalAlignment
 
 class LEdgeTransformation extends AbstractKielerGraphTransformation {
     @Inject
@@ -34,16 +35,18 @@ class LEdgeTransformation extends AbstractKielerGraphTransformation {
     
     val layoutAlgorithm = "de.cau.cs.kieler.kiml.ogdf.planarization"
     val spacing = 75f
-    val leftColumnAlignment = KTextIterableField$TextAlignment::RIGHT
-    val rightColumnAlignment = KTextIterableField$TextAlignment::LEFT
-    val topGap = 4
-    val rightGap = 5
-    val bottomGap = 5
-    val leftGap = 4
-    val vGap = 3
-    val hGap = 5
+    val leftColumnAlignment = HorizontalAlignment::RIGHT
+    val rightColumnAlignment = HorizontalAlignment::LEFT
+
     val showPropertyMap = ShowTextIf::DETAILED
-    val showLabelsMap = ShowTextIf::DETAILED
+    val showLabelsNode = ShowTextIf::DETAILED
+    val showLabelsCount = ShowTextIf::COMPACT
+	val showBendPointsCount = ShowTextIf::COMPACT
+	val showBendPoints = ShowTextIf::DETAILED
+	val showTarget = ShowTextIf::DETAILED
+	val showSource = ShowTextIf::DETAILED
+	val showHashCode = ShowTextIf::DETAILED
+	val showID = ShowTextIf::ALWAYS
     
     /**
      * {@inheritDoc}
@@ -55,20 +58,15 @@ class LEdgeTransformation extends AbstractKielerGraphTransformation {
             it.addLayoutParam(LayoutOptions::ALGORITHM, layoutAlgorithm)
             it.addLayoutParam(LayoutOptions::SPACING, spacing)
 
-            // create a rendering to the outer node, as the node will be black, otherwise            
-            it.data += renderingFactory.createKRectangle => [
-                it.invisible = true
-            ]
-            
-            // create KNode for given LEdge
-            it.createHeaderNode(edge)
+			it.addInvisibleRendering
+            it.addHeaderNode(edge)
             
             // add propertyMap
-            if(detailedView.conditionalShow(showPropertyMap))
-                it.addPropertyMapAndEdge(edge.getVariable("propertyMap"), edge)
+            if(showPropertyMap.conditionalShow(detailedView))
+                it.addPropertyMapNode(edge.getVariable("propertyMap"), edge)
             
             // add labels node
-            if(detailedView.conditionalShow(showLabelsMap))
+            if(showLabelsNode.conditionalShow(detailedView))
                 it.addLabels(edge)
         ]
     }
@@ -77,8 +75,8 @@ class LEdgeTransformation extends AbstractKielerGraphTransformation {
 	 * {@inheritDoc}
 	 */
 	override getNodeCount(IVariable model) {
-	    var retVal = if(detailedView.conditionalShow(showPropertyMap)) 2 else 1
-        if(detailedView.conditionalShow(showLabelsMap)) (retVal = retVal + 1)
+	    var retVal = if(showPropertyMap.conditionalShow(detailedView)) 2 else 1
+        if(showLabelsNode.conditionalShow(detailedView)) (retVal = retVal + 1)
         return retVal
 	}
     
@@ -101,82 +99,68 @@ class LEdgeTransformation extends AbstractKielerGraphTransformation {
             ]
             
             // create edge from header node to labels node
-            edge.createEdgeById(labels) => [
-                it.data += renderingFactory.createKPolyline => [
-                    it.setLineWidth(2)
-                    it.addArrowDecorator
-                ]
-                labels.createLabel(it) => [
-                    it.addLayoutParam(LayoutOptions::EDGE_LABEL_PLACEMENT, EdgeLabelPlacement::CENTER)
-                    it.text = "labels"
-                ]
-            ]
+			edge.createTopElementEdge(labels, "labels")
         }        
     }
 
     
-    def createHeaderNode(KNode rootNode, IVariable edge) { 
+    def addHeaderNode(KNode rootNode, IVariable edge) { 
         rootNode.addNodeById(edge) => [
             it.data += renderingFactory.createKRectangle => [
                 
-                val field = new KTextIterableField(topGap, rightGap, bottomGap, leftGap, vGap, hGap)
-                it.headerNodeBasics(field, detailedView, edge, leftColumnAlignment, rightColumnAlignment)
-                var row = field.rowCount
-                
+                val table = it.headerNodeBasics(detailedView, edge)
+
                 // id of edge
-                field.set("id:", row, 0, leftColumnAlignment)
-                field.set(nullOrValue(edge, "id"), row, 1, rightColumnAlignment)
-                row = row + 1
+	            if (showID.conditionalShow(detailedView)) {
+		            table.addGridElement("id:", leftColumnAlignment)
+		            table.addGridElement(edge.nullOrValue("id"), rightColumnAlignment)
+	            } 
 
                 // hashCode of edge
-                field.set("hashCode:", row, 0, leftColumnAlignment)
-                field.set(nullOrValue(edge, "hashCode"), row, 1, rightColumnAlignment)
-                row = row + 1
+	            if (showHashCode.conditionalShow(detailedView)) {
+		            table.addGridElement("hashCode:", leftColumnAlignment)
+		            table.addGridElement(edge.nullOrValue("hashCode"), rightColumnAlignment)
+	            } 
    
-                if(detailedView) {
-                    // show following elements only if detailedView
-                    // source of edge
-                    // source of edge
-                    field.set("source:", row, 0, leftColumnAlignment)
-                    field.set("LNode " + edge.getValue("source.id") + " " 
-                                       + edge.getVariable("source").getValueString, row, 1, rightColumnAlignment)
-                    row = row + 1
+                // source of edge
+	            if (showSource.conditionalShow(detailedView)) {
+		            table.addGridElement("source:", leftColumnAlignment)
+		            table.addGridElement(edge.nullOrTypeAndID("source"), rightColumnAlignment)
+	            } 
 
-                    // target of edge
-                    field.set("target:", row, 0, leftColumnAlignment)
-                    field.set("LNode " + edge.getValue("target.id") + " " 
-                                       + edge.getVariable("target").getValueString, row, 1, rightColumnAlignment)
-                    row = row + 1
+                // target of edge
+	            if (showTarget.conditionalShow(detailedView)) {
+		            table.addGridElement("target:", leftColumnAlignment)
+		            table.addGridElement(edge.nullOrTypeAndID("target"), rightColumnAlignment)
+	            } 
 
-                    // list of bendPoints
+                // list of bendPoints
+	            if (showBendPoints.conditionalShow(detailedView)) {
+	            	table.addGridElement("bendPoints (x,y):", leftColumnAlignment)
                     if (edge.getValue("bendPoints.size").equals("0")) {
                         // no bendPoints on edge
-                        field.set("bendPoints:", row, 0, leftColumnAlignment)
-                        field.set("none", row, 1, rightColumnAlignment)
-                        row = row + 1
+						table.addGridElement("(none)", rightColumnAlignment)
                     } else {
-                        field.set("bendPoints (x,y):", row, 0, leftColumnAlignment)
+                    	// first BendPoint
+                    	val head = edge.getVariable("bendPoints").linkedList.head
+                    	table.addGridElement(head.nullOrKVektor(""), rightColumnAlignment)
                         // create list of bendPoints
-                        for (bendPoint : edge.getVariable("bendPoints").linkedList) {
-                            field.set("("+ bendPoint.getValue("x").round + ", "
-                                         + bendPoint.getValue("y").round + ")", row, 1, rightColumnAlignment)
-                            row = row + 1
+                        for (bendPoint : edge.getVariable("bendPoints").linkedList.tail) {
+                            table.addGridElement(bendPoint.nullOrKVektor(""), rightColumnAlignment)
                         }
                     }
-                } else {
-                    // if not detailedView, show a summary of following elements
-                    // # of bendPoints
-                        field.set("bendPoints (#):", row, 0, leftColumnAlignment)
-                        field.set(edge.getValue("bendPoints.size"), row, 1, rightColumnAlignment)
-                    
-                    // # of labels of port
-                        field.set("labels (#):", row, 0, leftColumnAlignment)
-                        field.set(edge.getValue("labels.size"), row, 1, rightColumnAlignment)
                 }
-
-                // fill the KText into the ContainerRendering
-                for (text : field) {
-                    it.children += text
+                 
+                // # of bendPoints
+	            if (showBendPointsCount.conditionalShow(detailedView)) {
+		            table.addGridElement("bendPoints (#):", leftColumnAlignment)
+		            table.addGridElement(edge.nullOrSize("bendPoints"), rightColumnAlignment)
+	            }
+                    
+                // # of labels of port
+	            if (showLabelsCount.conditionalShow(detailedView)) {
+		            table.addGridElement("labels (#):", leftColumnAlignment)
+		            table.addGridElement(edge.nullOrSize("labels"), rightColumnAlignment)
                 }
             ]
         ]

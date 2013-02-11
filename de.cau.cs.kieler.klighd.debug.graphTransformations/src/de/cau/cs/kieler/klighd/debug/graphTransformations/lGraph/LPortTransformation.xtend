@@ -69,17 +69,12 @@ class LPortTransformation extends AbstractKielerGraphTransformation {
             it.addLayoutParam(LayoutOptions::ALGORITHM, layoutAlgorithm)
             it.addLayoutParam(LayoutOptions::SPACING, spacing)
 
-            // create a rendering to the outer node, as the node will be black, otherwise            
-            it.data += renderingFactory.createKRectangle => [
-                it.invisible = true
-            ]
-            
-            // create KNode for given LPort
-            it.createHeaderNode(port)
+			it.addInvisibleRendering
+            it.addHeaderNode(port)
 
             // add propertyMap
             if(showPropertyMap.conditionalShow(detailedView))
-                it.addPropertyMapAndEdge(port.getVariable("propertyMap"), port)
+                it.addPropertyMapNode(port.getVariable("propertyMap"), port)
                 
             // add incoming/outgoing edges node
             if(showEdgesNode.conditionalShow(detailedView)) {
@@ -97,13 +92,13 @@ class LPortTransformation extends AbstractKielerGraphTransformation {
 	 * {@inheritDoc}
 	 */
 	override getNodeCount(IVariable model) {
-	    var retVal = if(detailedView.conditionalShow(showPropertyMap)) 2 else 1
+	    var retVal = if(showPropertyMap.conditionalShow(detailedView)) 2 else 1
 	    if(showEdgesNode.conditionalShow(detailedView)) retVal = retVal + 1
 		if(showLabelsNode.conditionalShow(detailedView)) retVal = retVal + 1
 	    return retVal
 	}
 
-    def createHeaderNode(KNode rootNode, IVariable port) { 
+    def addHeaderNode(KNode rootNode, IVariable port) { 
         rootNode.addNodeById(port) => [
             it.data += renderingFactory.createKRectangle => [
 
@@ -126,19 +121,19 @@ class LPortTransformation extends AbstractKielerGraphTransformation {
                 // anchor of port
                 if(showAncor.conditionalShow(detailedView)) {
                     table.addGridElement("anchor (x,y):", leftColumnAlignment)
-                    table.addGridElement(port.nullOrValueXY("anchor"), rightColumnAlignment)
+                    table.addGridElement(port.nullOrKVektor("anchor"), rightColumnAlignment)
                 }
 
                 // margin of port
                 if(showMargin.conditionalShow(detailedView)) {
                     table.addGridElement("margin (t,r,b,l):", leftColumnAlignment)
-                    table.addGridElement(port.nullOrValueTRBL("margin"), rightColumnAlignment)
+                    table.addGridElement(port.nullOrTRBL("margin"), rightColumnAlignment)
                 }
 
                 // owner of port
                 if(showOwner.conditionalShow(detailedView)) {
                     table.addGridElement("owner:", leftColumnAlignment)
-                    table.addGridElement(port.typeAndId("owner"), rightColumnAlignment)
+                    table.addGridElement(port.nullOrTypeAndID("owner"), rightColumnAlignment)
                 }
 /*                    
                     field.set("owner:", row, 0, leftColumnAlignment)
@@ -148,33 +143,33 @@ class LPortTransformation extends AbstractKielerGraphTransformation {
                 // position of port
                 if(showPosition.conditionalShow(detailedView)) {
                     table.addGridElement("pos (x,y):", leftColumnAlignment)
-                    table.addGridElement(port.nullOrValueXY("pos"), rightColumnAlignment)
+                    table.addGridElement(port.nullOrKVektor("pos"), rightColumnAlignment)
                 }
                 
                 // side of port
                 if(showSide.conditionalShow(detailedView)) {
                     table.addGridElement("side:", leftColumnAlignment)
-                    table.addGridElement(port.nullOrValueName("side"), rightColumnAlignment)
+                    table.addGridElement(port.nullOrName("side"), rightColumnAlignment)
                 }
 
                 // size of port
                 if(showSize.conditionalShow(detailedView)) {
                     table.addGridElement("size (x,y):", leftColumnAlignment)
-                    table.addGridElement(port.nullOrValueXY("size"), rightColumnAlignment)
+                    table.addGridElement(port.nullOrKVektor("size"), rightColumnAlignment)
                 }
 
                 // # of incoming/outgoing edges of port
                 if(showEdgesCount.conditionalShow(detailedView)) {
                     table.addGridElement("incomingEdges (#):", leftColumnAlignment)
-                    table.addGridElement(port.nullOrValueSize("incomingEdges"), rightColumnAlignment)
+                    table.addGridElement(port.nullOrSize("incomingEdges"), rightColumnAlignment)
                     table.addGridElement("outgoingEdges (#):", leftColumnAlignment)
-                    table.addGridElement(port.nullOrValueSize("outgoingEdges"), rightColumnAlignment)
+                    table.addGridElement(port.nullOrSize("outgoingEdges"), rightColumnAlignment)
                 }
 
                 // # of labels of port
                 if(showLabelsCount.conditionalShow(detailedView)) {
                     table.addGridElement("labels (#):", leftColumnAlignment)
-                    table.addGridElement(port.nullOrValueSize("labels"), rightColumnAlignment)
+                    table.addGridElement(port.nullOrSize("labels"), rightColumnAlignment)
                 }
             ]
         ]

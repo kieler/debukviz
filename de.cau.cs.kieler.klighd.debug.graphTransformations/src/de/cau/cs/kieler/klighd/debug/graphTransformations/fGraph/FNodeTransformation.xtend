@@ -58,17 +58,12 @@ class FNodeTransformation extends AbstractKielerGraphTransformation {
             it.addLayoutParam(LayoutOptions::ALGORITHM, layoutAlgorithm)
             it.addLayoutParam(LayoutOptions::SPACING, spacing)
 
-            // create a rendering to the outer node, as the node will be black, otherwise            
-            it.data += renderingFactory.createKRectangle => [
-                it.invisible = true
-            ]
-            
-            // create KNode for given LNode
-            it.createHeaderNode(node)
+			it.addInvisibleRendering
+            it.addHeaderNode(node)
 
             // add propertyMap
-            if(detailedView.conditionalShow(showPropertyMap))
-                it.addPropertyMapAndEdge(node.getVariable("propertyMap"), node)
+            if(showPropertyMap.conditionalShow(detailedView))
+                it.addPropertyMapNode(node.getVariable("propertyMap"), node)
         ]
     }
 
@@ -76,13 +71,13 @@ class FNodeTransformation extends AbstractKielerGraphTransformation {
 	 * {@inheritDoc}
 	 */
 	override getNodeCount(IVariable model) {
-		return if(detailedView.conditionalShow(showPropertyMap)) 2 else 1
+		return if(showPropertyMap.conditionalShow(detailedView)) 2 else 1
 	}
     
     /**
      * As there is no writeDotGraph in FGraph we don't have a prototype for formatting the nodes
      */
-    def createHeaderNode(KNode rootNode, IVariable node) { 
+    def addHeaderNode(KNode rootNode, IVariable node) { 
         rootNode.addNodeById(node) => [
             it.data += renderingFactory.createKRectangle => [
                 
@@ -99,7 +94,7 @@ class FNodeTransformation extends AbstractKielerGraphTransformation {
                 if (detailedView) {
                     // parent
 	                table.addGridElement("parent:", HorizontalAlignment::RIGHT)
-                    table.addGridElement(node.typeAndId("parent"), HorizontalAlignment::LEFT)
+                    table.addGridElement(node.nullOrTypeAndID("parent"), HorizontalAlignment::LEFT)
                     
                     // displacement
 	                table.addGridElement("displacement (x,y):", HorizontalAlignment::RIGHT)

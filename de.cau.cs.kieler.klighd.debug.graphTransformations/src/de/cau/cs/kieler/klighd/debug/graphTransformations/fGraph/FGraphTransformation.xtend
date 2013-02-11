@@ -70,19 +70,14 @@ class FGraphTransformation extends AbstractKielerGraphTransformation {
             it.addLayoutParam(LayoutOptions::ALGORITHM, layoutAlgorithm)
             it.addLayoutParam(LayoutOptions::SPACING, spacing)
 
-            // create a rendering to the outer node, as the node will be black, otherwise            
-            it.data += renderingFactory.createKRectangle => [
-                it.invisible = true
-            ]
-            
-            // create header node
-            it.createHeaderNode(graph)
+			it.addInvisibleRendering
+            it.addHeaderNode(graph)
             
             // add propertyMap
-            if(detailedView.conditionalShow(showPropertyMap))
-                it.addPropertyMapAndEdge(graph.getVariable("propertyMap"), graph)
+            if(showPropertyMap.conditionalShow(detailedView))
+                it.addPropertyMapNode(graph.getVariable("propertyMap"), graph)
                 
-            if(detailedView.conditionalShow(showVisualization)) {
+            if(showVisualization.conditionalShow(detailedView)) {
             // create all nodes (in a new visualization node)
                 val visualizationNode = it.createNodes(graph)
                 // create all edges (in the given visualization node) 
@@ -90,7 +85,7 @@ class FGraphTransformation extends AbstractKielerGraphTransformation {
             }
 
             // add adjacency matrix
-            if(detailedView.conditionalShow(showAdjacency))
+            if(showAdjacency.conditionalShow(detailedView))
                 it.addAdjacency(graph)
         ];
     }
@@ -99,9 +94,9 @@ class FGraphTransformation extends AbstractKielerGraphTransformation {
 	 * {@inheritDoc}
 	 */
 	override getNodeCount(IVariable model) {
-	    var retVal = if(detailedView.conditionalShow(showPropertyMap)) 2 else 1
-	    if(detailedView.conditionalShow(showVisualization)) retVal = retVal + 1
-	    if(detailedView.conditionalShow(showAdjacency)) retVal = retVal + 1
+	    var retVal = if(showPropertyMap.conditionalShow(detailedView)) 2 else 1
+	    if(showVisualization.conditionalShow(detailedView)) retVal = retVal + 1
+	    if(showAdjacency.conditionalShow(detailedView)) retVal = retVal + 1
 		return retVal
 	}
     
@@ -151,7 +146,7 @@ class FGraphTransformation extends AbstractKielerGraphTransformation {
         graph.createTopElementEdge(adjacencyVariable, "adjacency")
 	}
     
-    def createHeaderNode(KNode rootNode, IVariable graph) {
+    def addHeaderNode(KNode rootNode, IVariable graph) {
         rootNode.addNodeById(graph) => [
             it.data += renderingFactory.createKRectangle => [
     	                	

@@ -62,20 +62,15 @@ class LNodeTransformation extends AbstractKielerGraphTransformation {
             it.addLayoutParam(LayoutOptions::ALGORITHM, layoutAlgorithm)
             it.addLayoutParam(LayoutOptions::SPACING, spacing)
 
-            // create a rendering to the outer node, as the node will be black, otherwise            
-            it.data += renderingFactory.createKRectangle => [
-                it.invisible = true
-            ]
-            
-            // create KNode for given LNode
-            it.createHeaderNode(node)
+			it.addInvisibleRendering
+            it.addHeaderNode(node)
             
             // addpropertymap
-            if(detailedView.conditionalShow(showPropertyMap))
-                it.addPropertyMapAndEdge(node.getVariable("propertyMap"), node)
+            if(showPropertyMap.conditionalShow(detailedView))
+                it.addPropertyMapNode(node.getVariable("propertyMap"), node)
                 
             //add node for ports
-            if(detailedView.conditionalShow(showPorts))
+            if(showPorts.conditionalShow(detailedView))
                 it.addPorts(node)
         ]
     }
@@ -84,12 +79,12 @@ class LNodeTransformation extends AbstractKielerGraphTransformation {
 	 * {@inheritDoc}
 	 */
 	override getNodeCount(IVariable model) {
-	    var retVal = if(detailedView.conditionalShow(showPropertyMap)) 2 else 1
-	    if(detailedView.conditionalShow(showPorts)) retVal = retVal + 1
+	    var retVal = if(showPropertyMap.conditionalShow(detailedView)) 2 else 1
+	    if(showPorts.conditionalShow(detailedView)) retVal = retVal + 1
 		return retVal
 	}
     
-    def createHeaderNode(KNode rootNode, IVariable node) {
+    def addHeaderNode(KNode rootNode, IVariable node) {
         rootNode.addNodeById(node) => [
             // Get the nodeType
             val nodeType = node.nodeType
@@ -118,7 +113,7 @@ class LNodeTransformation extends AbstractKielerGraphTransformation {
                         field.set("" + origin.getVariable("labels").linkedList.get(0), 0, 1, rightColumnAlignment)
                     } else {
                         field.set("origin:", 0, 0, leftColumnAlignment)
-                        field.set("" + origin.typeAndId(""), 0, 1, rightColumnAlignment)
+                        field.set("" + origin.nullOrTypeAndID(""), 0, 1, rightColumnAlignment)
                     }
                 ]
             }
@@ -156,7 +151,7 @@ class LNodeTransformation extends AbstractKielerGraphTransformation {
 
             //owner (layer)
             field.set("owner:", row, 0, leftColumnAlignment)
-            field.set(node.typeAndId("owner"), 
+            field.set(node.nullOrTypeAndID("owner"), 
             	row, 1, rightColumnAlignment
             )
             row = row + 1

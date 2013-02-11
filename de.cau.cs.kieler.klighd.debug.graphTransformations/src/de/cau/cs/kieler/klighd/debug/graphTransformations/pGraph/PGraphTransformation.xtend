@@ -69,25 +69,20 @@ class PGraphTransformation extends AbstractKielerGraphTransformation {
             it.addLayoutParam(LayoutOptions::ALGORITHM, layoutAlgorithm)
             it.addLayoutParam(LayoutOptions::SPACING, spacing)
 
-            // create a rendering to the outer node, as the node will be black, otherwise            
-            it.data += renderingFactory.createKRectangle => [
-                it.invisible = true
-            ]
-            
-            // create header node
-            it.createHeaderNode(graph)
+			it.addInvisibleRendering
+            it.addHeaderNode(graph)
 
             // add propertyMap
-            if(detailedView.conditionalShow(showPropertyMap)) 
-                it.addPropertyMapAndEdge(graph.getVariable("propertyMap"), graph)
+            if(showPropertyMap.conditionalShow(detailedView)) 
+                it.addPropertyMapNode(graph.getVariable("propertyMap"), graph)
 
             // create the visualization
-            if (detailedView.conditionalShow(showVisualization))
-                it.createVisualization(graph)
+            if (showVisualization.conditionalShow(detailedView))
+                it.addVisualizationNode(graph)
             
             // create the faces visualization
-            if (detailedView.conditionalShow(showFaces))
-            	it.createFaces(graph)
+            if (showFaces.conditionalShow(detailedView))
+            	it.addFacesNode(graph)
         ]
     }
     
@@ -95,76 +90,73 @@ class PGraphTransformation extends AbstractKielerGraphTransformation {
 	 * {@inheritDoc}
 	 */
 	override getNodeCount(IVariable model) {
-	    var retVal = if(detailedView.conditionalShow(showPropertyMap)) 2 else 1
-	    if (detailedView.conditionalShow(showVisualization)) retVal = retVal + 1
-	    if (detailedView.conditionalShow(showFaces)) retVal = retVal + 1
+	    var retVal = if(showPropertyMap.conditionalShow(detailedView)) 2 else 1
+	    if (showVisualization.conditionalShow(detailedView)) retVal = retVal + 1
+	    if (showFaces.conditionalShow(detailedView)) retVal = retVal + 1
 		return retVal
 	}
     
-    def createHeaderNode(KNode rootNode, IVariable graph) {
+    def addHeaderNode(KNode rootNode, IVariable graph) {
         rootNode.addNodeById(graph) => [
             it.data += renderingFactory.createKRectangle => [
 
                 val table = it.headerNodeBasics(detailedView, graph)
 
-                // id of graph
-                if (detailedView.conditionalShow(showID)) {
+                if (showID.conditionalShow(detailedView)) {
                     table.addGridElement("id:", leftColumnAlignment)
-                    table.addGridElement(nullOrValue(graph, "id"), rightColumnAlignment)
+                    table.addGridElement(graph.nullOrValue("id"), rightColumnAlignment)
                 }
 
-	            if (detailedView.conditionalShow(showParent)) {
+	            if (showParent.conditionalShow(detailedView)) {
 	                table.addGridElement("parent:", leftColumnAlignment)
-	                table.addGridElement(nullOrValue(graph, "parent"), rightColumnAlignment)
+	                table.addGridElement(graph.nullOrValue("parent"), rightColumnAlignment)
                 }
 
-	            if (detailedView.conditionalShow(showChangedFaces)) {
+	            if (showChangedFaces.conditionalShow(detailedView)) {
 	                table.addGridElement("changedFaces:", leftColumnAlignment)
-	                table.addGridElement(nullOrValue(graph, "changedFaces"), rightColumnAlignment)
+	                table.addGridElement(graph.nullOrValue("changedFaces"), rightColumnAlignment)
                 }
 
-	            if (detailedView.conditionalShow(showExternalFaces)) {
+	            if (showExternalFaces.conditionalShow(detailedView)) {
 	                table.addGridElement("externalFace:", leftColumnAlignment)
-	                table.addGridElement(typeAndId(graph, "externalFace"), rightColumnAlignment)
+	                table.addGridElement(graph.nullOrTypeAndID("externalFace"), rightColumnAlignment)
                 }
 
-	            if (detailedView.conditionalShow(showFaceIndex)) {
+	            if (showFaceIndex.conditionalShow(detailedView)) {
 	                table.addGridElement("faceIndex:", leftColumnAlignment)
-	                table.addGridElement(nullOrValue(graph, "faceIndex"), rightColumnAlignment)
+	                table.addGridElement(graph.nullOrValue("faceIndex"), rightColumnAlignment)
                 }
 
-	            if (detailedView.conditionalShow(showEdgeIndex)) {
+	            if (showEdgeIndex.conditionalShow(detailedView)) {
 	                table.addGridElement("edgeIndex:", leftColumnAlignment)
-	                table.addGridElement(nullOrValue(graph, "edgeIndex"), rightColumnAlignment)
+	                table.addGridElement(graph.nullOrValue("edgeIndex"), rightColumnAlignment)
                 }
 
-	            if (detailedView.conditionalShow(showNodeIndex)) {
+	            if (showNodeIndex.conditionalShow(detailedView)) {
 	                table.addGridElement("nodeIndex:", leftColumnAlignment)
-	                table.addGridElement(nullOrValue(graph, "nodeIndex"), rightColumnAlignment)
+	                table.addGridElement(graph.nullOrValue("nodeIndex"), rightColumnAlignment)
                 }
 
-	            if (detailedView.conditionalShow(showPosition)) {
+	            if (showPosition.conditionalShow(detailedView)) {
 	                table.addGridElement("pos (x,y):", leftColumnAlignment)
-	                table.addGridElement("(" + graph.getValue("pos.x").round + ", " 
-                                  			 + graph.getValue("pos.y").round + ")", rightColumnAlignment)
+	                table.addGridElement(graph.nullOrKVektor("pos"), rightColumnAlignment)
                 }
 
-	            if (detailedView.conditionalShow(showSize)) {
+	            if (showSize.conditionalShow(detailedView)) {
 	                table.addGridElement("size (x,y):", leftColumnAlignment)
-	                table.addGridElement("(" + graph.getValue("size.x").round + ", " 
-                                  			 + graph.getValue("size.y").round + ")", rightColumnAlignment)
+	                table.addGridElement(graph.nullOrKVektor("size"), rightColumnAlignment)
                 }
 
-	            if (detailedView.conditionalShow(showType)) {
+	            if (showType.conditionalShow(detailedView)) {
 	                table.addGridElement("type:", leftColumnAlignment)
-	                table.addGridElement(graph.getValue("type.name"), rightColumnAlignment)
+	                table.addGridElement(graph.nullOrValue("type.name"), rightColumnAlignment)
                 }
             ]
         ]
     }
     
     
-    def createVisualization(KNode rootNode, IVariable graph) {
+    def addVisualizationNode(KNode rootNode, IVariable graph) {
         val nodes = graph.getVariable("nodes")
         
         // create outer nodes rectangle
@@ -271,21 +263,21 @@ class PGraphTransformation extends AbstractKielerGraphTransformation {
         return rootNode.addNodeById(bendPoint) => [
             it.data += renderingFactory.createKRectangle => [
                 it.lineWidth = 2
-                it.ChildPlacement = renderingFactory.createKGridPlacement
+                it.ChildPlacement = renderingFactory.createKGridPlacement => [
+	                it.numColumns = 1
+                ]
 
                 // bendPoints are just KVectors, so give a speaking name here
-                it.addGridElement("bendPoint:", leftColumnAlignment)
+                it.addGridElement("bendPoint", leftColumnAlignment)
                 
                 // position
-                it.addGridElement("pos (x,y): (" + bendPoint.getValue("pos.x").round + ", " 
-                                                 + bendPoint.getValue("pos.y").round + ")", 
-                                                 rightColumnAlignment)
+                it.addGridElement("pos (x,y): " + bendPoint.nullOrKVektor("pos"), leftColumnAlignment)
             ]
-        ]        
+        ]
     }
     
     
-    def createFaces(KNode rootNode, IVariable graph) {
+    def addFacesNode(KNode rootNode, IVariable graph) {
         val faces = graph.getVariable("faces")
         val filteredFaces = faces.linkedHashSetToLinkedList
         
