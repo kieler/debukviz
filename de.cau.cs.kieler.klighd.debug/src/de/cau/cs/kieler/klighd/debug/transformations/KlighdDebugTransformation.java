@@ -48,7 +48,7 @@ public class KlighdDebugTransformation extends
 	public KNode transform(IVariable model,
 			TransformationContext<IVariable, KNode> transformationContext) {
 		// perform Transformation
-		KNode node = transform(model, transformationContext, null);
+		KNode node = transformation(model, null);
 
 		// reset stored information
 		AbstractDebugTransformation.resetKNodeMap();
@@ -72,9 +72,7 @@ public class KlighdDebugTransformation extends
 	 * @return result of the transformation
 	 */
 	@SuppressWarnings("unchecked")
-	public KNode transform(IVariable model,
-			TransformationContext<IVariable, KNode> transformationContext,
-			Object transformationInfo) {
+	public KNode transformation(IVariable model, Object transformationInfo) {
 		// get transformation if registered for model, null instead
 		transformation = KlighdDebugExtension.INSTANCE
 				.getTransformation(model);
@@ -87,7 +85,7 @@ public class KlighdDebugTransformation extends
 		transformation = new ReinitializingTransformationProxy(
 				(Class<AbstractDebugTransformation>) transformation.getClass());
 		if (transformation.getActualNodeCount() <= transformation.getMaxNodeCount())
-        		return transformation.transform(model, transformationContext,
+        		return transformation.transform(model,
                                 transformationInfo);
 		else 
 		    return null;

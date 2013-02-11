@@ -31,7 +31,6 @@ import com.google.inject.TypeLiteral;
 
 import de.cau.cs.kieler.core.kgraph.KNode;
 import de.cau.cs.kieler.core.krendering.extensions.ViewSynthesisShared;
-import de.cau.cs.kieler.klighd.TransformationContext;
 import de.cau.cs.kieler.klighd.debug.visualization.AbstractDebugTransformation;
 import de.cau.cs.kieler.klighd.transformations.AbstractTransformation;
 
@@ -210,9 +209,9 @@ public class ReinitializingTransformationProxy extends AbstractDebugTransformati
      * {@inheritDoc}<br>
      * Delegates to the 'delegate' object.
      */
-    public KNode transform(final IVariable model, final TransformationContext<IVariable, KNode> transformationContext, Object transformationInfo) {
+    public KNode transform(final IVariable model, final Object transformationInfo) {
         this.transformationDelegate = getNewDelegateInstance(); 
-        return this.transformationDelegate.transform(model, transformationContext, transformationInfo);
+        return this.transformationDelegate.transform(model, transformationInfo);
     }
         
     /**
@@ -228,10 +227,6 @@ public class ReinitializingTransformationProxy extends AbstractDebugTransformati
      */
     public AbstractDebugTransformation getDelegate() {
         return this.transformationDelegate;
-    }
-
-    public KNode transform(IVariable model, Object transformationInfo) {
-        return null;
     }
 
     public int getNodeCount(IVariable model) {

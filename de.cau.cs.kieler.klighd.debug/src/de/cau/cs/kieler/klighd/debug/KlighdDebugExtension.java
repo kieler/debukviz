@@ -82,7 +82,7 @@ public class KlighdDebugExtension {
             if (value instanceof IJavaArray)
             	return new ArrayTransformation();
             // If value doesn't represent an object or value represents the null object return null
-            if (!(value instanceof IJavaObject) || ((IJavaObject)value).isNull())
+            if (!(value instanceof IJavaObject) || value.isNull())
                 return null;
             
             // If no transformation is stored for current class

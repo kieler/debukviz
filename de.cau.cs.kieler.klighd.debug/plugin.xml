@@ -66,10 +66,6 @@
             transformation="de.cau.cs.kieler.klighd.debug.transformations.LinkedHashMapTransformation">
       </visualization>
       <visualization
-            class="java.util.LinkedList"
-            transformation="de.cau.cs.kieler.klighd.debug.transformations.LinkedListTransformation">
-      </visualization>
-      <visualization
             class="java.util.PriorityQueue"
             transformation="de.cau.cs.kieler.klighd.debug.transformations.PriorityQueueTransformation">
       </visualization>
@@ -100,6 +96,10 @@
       <visualization
             class="java.lang.String"
             transformation="de.cau.cs.kieler.klighd.debug.transformations.StringTransformation">
+      </visualization>
+      <visualization
+            class="java.util.LinkedList"
+            transformation="de.cau.cs.kieler.klighd.debug.transformations.LinkedListTransformation">
       </visualization>
    </extension>
    <extension

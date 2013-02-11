@@ -36,13 +36,11 @@ import de.cau.cs.kieler.core.krendering.extensions.KEdgeExtensions;
 import de.cau.cs.kieler.core.krendering.extensions.KNodeExtensions;
 import de.cau.cs.kieler.core.krendering.extensions.KPolylineExtensions;
 import de.cau.cs.kieler.core.krendering.extensions.KRenderingExtensions;
-import de.cau.cs.kieler.klighd.TransformationContext;
 import de.cau.cs.kieler.klighd.debug.IKlighdDebug;
 import de.cau.cs.kieler.klighd.debug.KlighdDebugExtension;
 import de.cau.cs.kieler.klighd.debug.KlighdDebugPlugin;
 import de.cau.cs.kieler.klighd.debug.dialog.KlighdDebugDialog;
 import de.cau.cs.kieler.klighd.debug.transformations.KlighdDebugTransformation;
-import de.cau.cs.kieler.klighd.transformations.AbstractTransformation;
 import de.cau.cs.kieler.klighd.transformations.ReinitializingTransformationProxy;
 
 /**
@@ -54,7 +52,7 @@ import de.cau.cs.kieler.klighd.transformations.ReinitializingTransformationProxy
  * 
  * @author hwi
  */
-public abstract class AbstractDebugTransformation extends AbstractTransformation<IVariable, KNode>
+public abstract class AbstractDebugTransformation
         implements IKlighdDebug {
 
     @Inject
@@ -71,8 +69,6 @@ public abstract class AbstractDebugTransformation extends AbstractTransformation
     /** Factory used to create several rendering objects */
     protected static final KRenderingFactory renderingFactory = KRenderingFactory.eINSTANCE;
 
-    /** Further information */
-    private Object transformationInfo;
 
     /** Map of object id to the created KNode */
     private static final HashMap<Long, KNode> kNodeMap = new HashMap<Long, KNode>();
@@ -94,23 +90,7 @@ public abstract class AbstractDebugTransformation extends AbstractTransformation
     private Integer maxNodeCount = KlighdDebugPlugin.getDefault().getPreferenceStore()
             .getInt(KlighdDebugPlugin.MAX_NODE_COUNT);
     
-    /**
-     * Getter for transformationInfo
-     * 
-     * @return transformationInfo
-     */
-    public Object getTransformationInfo() {
-        return transformationInfo;
-    }
-
-    /**
-     * Setter for transformationInfo
-     * 
-     * @param transformationInfo
-     */
-    public void setTransformationInfo(Object transformationInfo) {
-        this.transformationInfo = transformationInfo;
-    }
+    private int primitiveId = -2;
 
     /**
      * Clears kNodeMap
@@ -181,7 +161,7 @@ public abstract class AbstractDebugTransformation extends AbstractTransformation
             return null;
         }
         else {
-            if (nodeExists(variable)) {
+            if (getId(variable) != primitiveId && nodeExists(variable)) {
                 nodeCount++;
                 innerNode = createDummyNode(variable);
             } else {
@@ -190,15 +170,14 @@ public abstract class AbstractDebugTransformation extends AbstractTransformation
                     // exceeded
                     depth++;
                     KlighdDebugTransformation transformation = new KlighdDebugTransformation();
-                    innerNode = transformation.transform(variable,
-                            this.getUsedContext(), transformationInfo);
+                    innerNode = transformation.transformation(variable, transformationInfo);
                     depth--;
                     
                     nodeCount += transformation.getNodeCount(variable);
                     
                     while (innerNode.getChildren().size() == 1)
                         innerNode = innerNode.getChildren().get(0);
-                    if (kNodeMap.get(getId(variable)) == null)
+                    if (!kNodeMap.containsKey(getId(variable)))
                         kNodeMap.put(getId(variable), innerNode);
     
                     KText type = renderingFactory.createKText();
@@ -375,35 +354,6 @@ public abstract class AbstractDebugTransformation extends AbstractTransformation
     }
 
     /**
-     * Uses the given transformationContext and perform the transformation for the given model
-     * 
-     * @param model
-     *            model to be transformed
-     * @param transformationContext
-     *            transformationContext to be used
-     * @param transformationInfo
-     *            further information used by the transformation
-     * @return result of the transformation
-     */
-    public KNode transform(IVariable model,
-            TransformationContext<IVariable, KNode> transformationContext, Object transformationInfo) {
-        use(transformationContext);
-        // perform transformation
-        KNode node = this.transform(model, transformationInfo);
-        // clear local stored information
-        return node;
-    }
-
-    /**
-     * Necessary implementation of the method from {@code AbstractTransformation<IVariable, KNode>}
-     * so specialized transformation don't have to implement it
-     */
-    public KNode transform(IVariable model,
-            TransformationContext<IVariable, KNode> transformationContext) {
-        throw null;
-    }
-
-    /**
      * Returns a node associated with the object id of the object representing by the given variable
      * or associated with the given variable
      * 
@@ -413,7 +363,7 @@ public abstract class AbstractDebugTransformation extends AbstractTransformation
      *         or associated with the given variable
      * @throws DebugException
      */
-    public KNode getNode(IVariable variable) throws DebugException {
+    private KNode getNode(IVariable variable) throws DebugException {
         KNode node = kNodeMap.get(getId(variable));
         if (node == null) {
             node = kNodeExtensions.getNode(variable);
@@ -424,8 +374,8 @@ public abstract class AbstractDebugTransformation extends AbstractTransformation
     }
 
     /**
-     * Checks whether a node associated with the object id of the object representing by the given
-     * variable or a node associated with the given variable exists
+     * Checks whether a node associated with the object id of the object represented by the given
+     * variable exists
      * 
      * @param variable
      *            variable checked for an associated node
@@ -434,8 +384,7 @@ public abstract class AbstractDebugTransformation extends AbstractTransformation
      * @throws DebugException
      */
     public boolean nodeExists(IVariable variable) throws DebugException {
-        return kNodeMap.containsKey(getId(variable))
-                || kNodeExtensions.getNode(variable).getParent() != null;
+        return kNodeMap.containsKey(getId(variable)) || dummyNodeMap.containsKey(variable);
     }
 
     /**
@@ -444,13 +393,13 @@ public abstract class AbstractDebugTransformation extends AbstractTransformation
      * 
      * @param variable
      *            variable which represents an runtime variable
-     * @return unique id or -1 if object is null or -2 if variable represents a primitive value
+     * @return unique id or -1 if object is null or if variable represents a primitive value
      * @throws DebugException
      */
     private Long getId(IVariable variable) throws DebugException {
         IJavaValue value = (IJavaValue) variable.getValue();
         if (!(value instanceof IJavaObject))
-            return new Long(-2);
+            return new Long(primitiveId);
         else {
             return ((IJavaObject) value).getUniqueId();
         }
@@ -465,10 +414,10 @@ public abstract class AbstractDebugTransformation extends AbstractTransformation
      * @return created node
      * @throws DebugException
      */
-    public KNode createNodeById(IVariable variable) throws DebugException {
+    private KNode createNodeById(IVariable variable) throws DebugException {
         Long id = getId(variable);
         KNode node = kNodeExtensions.getNode(variable);
-        if (id != -2)
+        if (id != primitiveId)
             kNodeMap.put(id, node);
         return node;
     }
@@ -520,7 +469,7 @@ public abstract class AbstractDebugTransformation extends AbstractTransformation
      * @throws DebugException
      */
     public KNode addNodeById(KNode node, IVariable variable) throws DebugException {
-        if (nodeExists(variable)) {
+        if (getId(variable) != primitiveId && nodeExists(variable)) {
             createDummyNode(variable).setParent(node);
             return null;
         } else {

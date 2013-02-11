@@ -40,7 +40,7 @@ public interface IKlighdDebug {
 	 *            further information needed for the transformation
 	 * @return the target model
 	 */
-	public KNode transform(IVariable model, Object transformationInfo);
+	public KNode transform(IVariable variable, Object transformationInfo);
 	
-	public int getNodeCount(IVariable model);
+	public int getNodeCount(IVariable variable);
 }
