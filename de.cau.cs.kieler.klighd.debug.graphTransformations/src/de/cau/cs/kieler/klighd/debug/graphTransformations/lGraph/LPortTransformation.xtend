@@ -206,29 +206,22 @@ class LPortTransformation extends AbstractKielerGraphTransformation {
     
     def addListOfEdges(KNode rootNode, IVariable port, IVariable edges) {
         // create a node (edges) containing the edges elements
-        if (!edges.getValue("size").equals("0")) {
-            rootNode.addNodeById(edges) => [
-                it.data += renderingFactory.createKRectangle => [
-                    it.lineWidth = 4
-                ]
-                // create all edges
-                edges.linkedList.forEach [ edge |
-                    it.nextTransformation(edge, false)
-                ]
+        rootNode.addNodeById(edges) => [
+            renderingFactory.createKRectangle => [ rectangle |
+                it.data += rectangle
+                rectangle.lineWidth = 4
+                if (edges.getValue("size").equals("0")) {
+                    // create a null-node
+                    rectangle.addInvisibleRectangleGrid(1)
+                    rectangle.addGridElement("null", HorizontalAlignment::CENTER)
+                } else {
+                    // create all edges
+                    edges.linkedList.forEach [ edge |
+                        it.nextTransformation(edge, false)
+                    ]
+                }
             ]
-            // create edge from header node to edges node
-            port.createEdgeById(edges) => [
-                it.data += renderingFactory.createKPolyline => [
-                    it.setLineWidth(2)
-                    it.addArrowDecorator
-                ]
-                // add label
-                edges.createLabel(it) => [
-                    it.addLayoutParam(LayoutOptions::EDGE_LABEL_PLACEMENT, EdgeLabelPlacement::CENTER)
-                    it.setLabelSize(50,20)
-                    it.text = edges.name
-                ]
-            ]   
-        }    
+        ]
+        port.createTopElementEdge(edges, edges.name)
     }
 }
