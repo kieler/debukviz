@@ -4,8 +4,20 @@
    <extension
          point="de.cau.cs.kieler.klighd.debugVisualization">
       <visualization
+            class="de.cau.cs.kieler.klay.planar.graph.PEdge"
+            transformation="de.cau.cs.kieler.klighd.debug.graphTransformations.pGraph.PEdgeTransformation">
+      </visualization>
+      <visualization
+            class="de.cau.cs.kieler.klay.planar.graph.PFace"
+            transformation="de.cau.cs.kieler.klighd.debug.graphTransformations.pGraph.PFaceTransformation">
+      </visualization>
+      <visualization
             class="de.cau.cs.kieler.klay.planar.graph.PGraph"
             transformation="de.cau.cs.kieler.klighd.debug.graphTransformations.pGraph.PGraphTransformation">
+      </visualization>
+      <visualization
+            class="de.cau.cs.kieler.klay.planar.graph.PLabel"
+            transformation="de.cau.cs.kieler.klighd.debug.graphTransformations.pGraph.PLabelTransformation">
       </visualization>
       <visualization
             class="de.cau.cs.kieler.klay.planar.graph.PNode"

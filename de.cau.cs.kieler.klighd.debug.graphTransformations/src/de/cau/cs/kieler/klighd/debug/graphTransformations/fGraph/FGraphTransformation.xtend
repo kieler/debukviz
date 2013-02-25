@@ -45,7 +45,7 @@ class FGraphTransformation extends AbstractKielerGraphTransformation {
     @Inject
     extension KLabelExtensions
     
-    val layoutAlgorithm = "de.cau.cs.kieler.kiml.ogdf.planarization"
+    val layoutAlgorithm = "de.cau.cs.kieler.klay.layered"
     val spacing = 75f
     val leftColumnAlignment = KTextIterableField$TextAlignment::RIGHT
     val rightColumnAlignment = KTextIterableField$TextAlignment::LEFT
@@ -66,7 +66,7 @@ class FGraphTransformation extends AbstractKielerGraphTransformation {
     override transform(IVariable graph, Object transformationInfo) {
         detailedView = transformationInfo.isDetailed
 
-        return KimlUtil::createInitializedNode=> [
+        return KimlUtil::createInitializedNode => [
             it.addLayoutParam(LayoutOptions::ALGORITHM, layoutAlgorithm)
             it.addLayoutParam(LayoutOptions::SPACING, spacing)
 
@@ -77,8 +77,9 @@ class FGraphTransformation extends AbstractKielerGraphTransformation {
             if(showPropertyMap.conditionalShow(detailedView))
                 it.addPropertyMapNode(graph.getVariable("propertyMap"), graph)
                 
+            // create the graph visualization
             if(showVisualization.conditionalShow(detailedView)) {
-            // create all nodes (in a new visualization node)
+	            // create all nodes (in a new visualization node)
                 val visualizationNode = it.createNodes(graph)
                 // create all edges (in the given visualization node) 
                 visualizationNode.createEdges(graph)

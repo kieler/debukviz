@@ -17,6 +17,7 @@ import javax.inject.Inject
 import org.eclipse.debug.core.model.IVariable
 
 import static de.cau.cs.kieler.klighd.debug.visualization.AbstractDebugTransformation.*
+import de.cau.cs.kieler.core.krendering.HorizontalAlignment
 
 class PNodeTransformation extends AbstractKielerGraphTransformation {
     
@@ -33,19 +34,18 @@ class PNodeTransformation extends AbstractKielerGraphTransformation {
     @Inject
     extension KLabelExtensions
         
-    val layoutAlgorithm = "de.cau.cs.kieler.kiml.ogdf.planarization"
+	val layoutAlgorithm = "de.cau.cs.kieler.klay.layered"
     val spacing = 75f
+    val leftColumnAlignment = HorizontalAlignment::RIGHT
+    val rightColumnAlignment = HorizontalAlignment::LEFT
 
-    val showFaces = ShowTextIf::DETAILED
     val showPropertyMap = ShowTextIf::DETAILED
-    val showVisualization = ShowTextIf::DETAILED
+	val showEdges = ShowTextIf::DETAILED
+
+	val showID = ShowTextIf::ALWAYS
+	val showSize = ShowTextIf::DETAILED
+	val showPos = ShowTextIf::DETAILED
     val showType = ShowTextIf::DETAILED
-    val showPosition = ShowTextIf::DETAILED
-    val showNodeIndex = ShowTextIf::DETAILED
-    val showEdgeIndex = ShowTextIf::DETAILED
-    val showFaceIndex = ShowTextIf::DETAILED
-    val showExternalFaces = ShowTextIf::DETAILED
-    val showChangedFaces = ShowTextIf::DETAILED
     val showParent = ShowTextIf::DETAILED      
 
     /**
@@ -65,6 +65,10 @@ class PNodeTransformation extends AbstractKielerGraphTransformation {
             // add propertyMap
             if(showPropertyMap.conditionalShow(detailedView))
                 it.addPropertyMapNode(node.getVariable("propertyMap"), node)
+
+            // add edges node
+            if(showEdges.conditionalShow(detailedView))
+            	it.addEdgesNode(node)
         ]
     }
     
@@ -72,10 +76,11 @@ class PNodeTransformation extends AbstractKielerGraphTransformation {
         rootNode.addNodeById(node) => [
             // either an ellipse or a rectangle
             var KContainerRendering container
+            val type = node.getValue("type.name")
 
-            // comments at PNode.writeDotGraph is not consistent to the code in the method
+            // comments at PGraph.writeDotGraph is not consistent to the code in the method
             // here I am following the display style implemented
-            switch node.getValue("type.name") {
+            switch type {
                 case "NORMAL" : {
                     // Normal nodes are represented by an ellipse
                     container = renderingFactory.createKEllipse
@@ -91,39 +96,70 @@ class PNodeTransformation extends AbstractKielerGraphTransformation {
                     // in writeDotGraph they were originally represented by a filled circle
                     container = renderingFactory.createKEllipse
                     container.lineWidth = 4
-                    // TODO: coloring is ignored, as the original model seems to have only one color
                 }
+                // coloring is ignored
             }
             
-            container.headerNodeBasics(detailedView, node)
-/*
+            val table = container.headerNodeBasics(detailedView, node)
+
             // PNodes don't have a name or labels
             // id of node
-            field.set("id:", row, 0, leftColumnAlignment)
-            field.set(nullOrValue(node, "id"), row, 1, rightColumnAlignment)
-            row = row + 1
-
-            // position
-            field.set("pos (x,y):", row, 0, leftColumnAlignment)
-            field.set("(" + node.getValue("pos.x").round + ", " 
-                          + node.getValue("pos.y").round + ")", row, 1, rightColumnAlignment)
-            row = row + 1
+            if (showID.conditionalShow(detailedView)) {
+                table.addGridElement("id:", leftColumnAlignment)
+                table.addGridElement(node.nullOrValue("id"), rightColumnAlignment)
+            }
+            
+            // type
+            if (showType.conditionalShow(detailedView)) {
+                table.addGridElement("type:", leftColumnAlignment)
+                table.addGridElement(type, rightColumnAlignment)
+            }
+            
+            // parent
+            if (showParent.conditionalShow(detailedView)) {
+                table.addGridElement("parent:", leftColumnAlignment)
+                table.addGridElement(node.nullOrTypeAndID("parent"), rightColumnAlignment)
+            }
             
             // size
-            field.set("size (x,y):", row, 0, leftColumnAlignment)
-            field.set("(" + node.getValue("size.x").round + ", " 
-                          + node.getValue("size.y").round + ")", row, 1, rightColumnAlignment)
-            row = row + 1
-
-            // fill the KText into the ContainerRendering
-            for (text : field) {
-                container.children += text
+            if (showSize.conditionalShow(detailedView)) {
+                table.addGridElement("size (x,y):", leftColumnAlignment)
+                table.addGridElement(node.nullOrKVektor("size"), rightColumnAlignment)
             }
-  */           
+
+            // position
+            if (showPos.conditionalShow(detailedView)) {
+                table.addGridElement("pos (x,y):", leftColumnAlignment)
+                table.addGridElement(node.nullOrKVektor("pos"), rightColumnAlignment)
+            }
+
             it.data += container
         ]
     }
                 
+	def void addEdgesNode(KNode rootNode, IVariable node) {
+        val edges = node.getVariable("edges")
+        
+        // create rectangle for outer node 
+        rootNode.addNodeById(edges) => [
+            it.data += renderingFactory.createKRectangle => [
+                it.lineWidth = 4
+                if(edges.linkedList.size == 0) {
+                	// no edges to this node
+                    it.addGridElement("none", HorizontalAlignment::CENTER)
+                }
+            ]
+
+            // create nodes for all edges
+		    edges.linkedList.forEach[IVariable element |
+          		it.nextTransformation(element, false)
+	        ]
+
+	        // create edge from root node to the visualization node
+    	    node.createTopElementEdge(edges, "edges")
+        ]
+		
+	}
 
 	/**
 	 * {@inheritDoc}

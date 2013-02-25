@@ -23,7 +23,7 @@ import static de.cau.cs.kieler.klighd.debug.visualization.AbstractDebugTransform
 import de.cau.cs.kieler.klighd.debug.graphTransformations.AbstractKielerGraphTransformation
 import de.cau.cs.kieler.klighd.debug.graphTransformations.ShowTextIf
 
-class LLabelTransformation extends AbstractKielerGraphTransformation {
+class PLabelTransformation extends AbstractKielerGraphTransformation {
     @Inject
     extension KNodeExtensions
     @Inject
@@ -35,7 +35,7 @@ class LLabelTransformation extends AbstractKielerGraphTransformation {
     @Inject
     extension KColorExtensions
         
-    val layoutAlgorithm = "de.cau.cs.kieler.kiml.ogdf.planarization"
+    val layoutAlgorithm = "de.cau.cs.kieler.klay.layered"
     val spacing = 75f
     val leftColumnAlignment = HorizontalAlignment::RIGHT
     val rightColumnAlignment = HorizontalAlignment::LEFT

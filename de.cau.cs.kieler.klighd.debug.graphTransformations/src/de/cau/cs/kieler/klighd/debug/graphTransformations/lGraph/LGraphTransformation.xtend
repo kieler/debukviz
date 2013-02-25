@@ -60,11 +60,11 @@ class LGraphTransformation extends AbstractKielerGraphTransformation {
 			it.addInvisibleRendering
      		it.addHeaderNode(graph)
      		
-                // add propertyMap
+            // add propertyMap
             if(showPropertyMap.conditionalShow(detailedView))
                 it.addPropertyMapNode(graph.getVariable("propertyMap"), graph)
                 
-                // create the visualization
+            // create the graph visualization
             if(showVisulalization.conditionalShow(detailedView))
                 it.createVisualization(graph)
         ]

@@ -51,7 +51,7 @@ abstract class AbstractKielerGraphTransformation extends AbstractDebugTransforma
 //    protected GraphTransformationInfo gtInfo = new GraphTransformationInfo
     protected Boolean detailedView = true
 
-    def isDetailed(Object info) {
+    def boolean isDetailed(Object info) {
         val flat = KlighdDebugPlugin::getDefault().getPreferenceStore().getString(KlighdDebugPlugin::LAYOUT).equals(KlighdDebugPlugin::FLAT_LAYOUT)
         if(info instanceof Boolean) {
             return (!flat && info as Boolean)
@@ -60,14 +60,6 @@ abstract class AbstractKielerGraphTransformation extends AbstractDebugTransforma
         }
     }
     
-/*     def conditionalShow(boolean isDetailed, ShowTextIf enum) {
-        if (enum == ShowTextIf::ALWAYS) {
-            return true
-        } else {
-            return (isDetailed == (enum == ShowTextIf::DETAILED))
-        }
-    }
-*/    
     def conditionalShow(ShowTextIf enum, boolean isDetailed) {
         if (enum == ShowTextIf::ALWAYS) {
             return true
@@ -78,19 +70,22 @@ abstract class AbstractKielerGraphTransformation extends AbstractDebugTransforma
     
 	
 	def createTopElementEdge(IVariable source, IVariable target, String label) {
-	    // create edge from header node to visualization
-        source.createEdgeById(target) => [
-            it.data += renderingFactory.createKPolyline => [
-                it.setLineWidth(2)
-                it.addArrowDecorator
-                it.setLineStyle(LineStyle::SOLID)
-            ]
-            target.createLabel(it) => [
-                it.addLayoutParam(LayoutOptions::EDGE_LABEL_PLACEMENT, EdgeLabelPlacement::CENTER)
-                it.setLabelSize(50,20)
-                it.text = label
-        	]
-        ]   
+		// only create an edge if both (source and target) have an node registered to 
+		if(source.nodeExists && target.nodeExists) {
+		    // create edge from header node to visualization
+	        source.createEdgeById(target) => [
+	            it.data += renderingFactory.createKPolyline => [
+	                it.setLineWidth(2)
+	                it.addArrowDecorator
+	                it.setLineStyle(LineStyle::SOLID)
+	            ]
+	            target.createLabel(it) => [
+	                it.addLayoutParam(LayoutOptions::EDGE_LABEL_PLACEMENT, EdgeLabelPlacement::CENTER)
+	                it.setLabelSize(50,20)
+	                it.text = label
+	        	]
+	        ]   
+		}
 	}
     
     def hashMapToLinkedList(IVariable variable) throws DebugException {
@@ -207,19 +202,20 @@ abstract class AbstractKielerGraphTransformation extends AbstractDebugTransforma
 
     def addPropertyMapNode(KNode rootNode, IVariable propertyMap, IVariable headerNode) {
         if(rootNode != null && headerNode.valueIsNotNull) {
-	            // create propertyMap node
-	            rootNode.addNodeById(propertyMap) => [
-	                it.data += renderingFactory.createKRectangle => [
-	                    it.lineWidth = 4
-						if(propertyMap.valueIsNotNull) {
-		 					it.addHashValueElement(propertyMap)
-						} else {
-							it.addGridElement("null", HorizontalAlignment::CENTER)
-						}
-	                ]
-	            ]
-	
-	            //create edge from header to propertyMap node
+            // create propertyMap node
+            rootNode.addNodeById(propertyMap) => [
+                it.data += renderingFactory.createKRectangle => [
+                    it.lineWidth = 4
+					if(propertyMap.valueIsNotNull) {
+	 					it.addHashValueElement(propertyMap)
+					} else {
+						it.addGridElement("null", HorizontalAlignment::CENTER)
+					}
+                ]
+            ]
+
+            //create edge from header to propertyMap node (if there is a node registered to the header)
+            if (headerNode.nodeExists) {
 	            headerNode.createEdgeById(propertyMap) => [
 	                it.data += renderingFactory.createKPolyline => [
 	                    it.setLineWidth(2)
@@ -234,6 +230,7 @@ abstract class AbstractKielerGraphTransformation extends AbstractDebugTransforma
 	                    it.setLabelSize(dim.width,dim.height)
 	                ]
 	            ]
+            }
         }
     }
     
@@ -248,10 +245,6 @@ abstract class AbstractKielerGraphTransformation extends AbstractDebugTransforma
                     } else {
 						// create a new invisible rectangle containing the key and value rectangles
                         val hashContainer = container.addInvisibleRectangleGrid(2) 
-//                        		it.setGridPlacementData(0f, 0f,
-//                        			createKPosition(LEFT, 5f, 0f, TOP, 5f, 0f),
-//                        			createKPosition(RIGHT, 5f, 0f, BOTTOM, 5f, 0f)
-//                        		)
 
 		                // add all child elements
                         for (child : childs) {
@@ -348,6 +341,13 @@ abstract class AbstractKielerGraphTransformation extends AbstractDebugTransforma
             }
             return hashContainer
         }
+    }
+    
+    def addBlankGridElement(KContainerRendering container) {
+        return renderingFactory.createKRectangle => [
+    		container.children += it 
+            it.invisible = true
+        ]
     }
     
     
@@ -459,10 +459,6 @@ abstract class AbstractKielerGraphTransformation extends AbstractDebugTransforma
         ]
         container.setVerticalAlignment(VerticalAlignment::TOP)    	
         container.setHorizontalAlignment(HorizontalAlignment::LEFT)
-//		container.setGridPlacementData(0f, 0f,
-//    			createKPosition(LEFT, 5f, 0f, TOP, 5f, 0f),
-//    			createKPosition(RIGHT, 5f, 0f, BOTTOM, 5f, 0f)
-//		)
 
         // type of the variable, centered
         if (detailedView) {
@@ -555,10 +551,11 @@ abstract class AbstractKielerGraphTransformation extends AbstractDebugTransforma
     def nullOrTypeAndID(IVariable variable, String valueName) {
         if (variable.valueIsNotNull) {
         	val v = if(valueName.equals("")) variable else variable.getVariable(valueName)
-    		return v.type + " " + v.getValueString
-        } else  {
-        	return "(null)"
-        }
+        	if (v.valueIsNotNull) {
+	    		return v.type + " " + v.getValueString
+        	}
+    	}
+    	return "(null)"
     }
 
     def nullOrValue(IVariable variable, String valueName) {

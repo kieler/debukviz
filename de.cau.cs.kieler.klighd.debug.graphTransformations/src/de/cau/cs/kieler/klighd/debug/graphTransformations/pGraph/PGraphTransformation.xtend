@@ -39,17 +39,17 @@ class PGraphTransformation extends AbstractKielerGraphTransformation {
     @Inject
     extension KLabelExtensions
     
-	val layoutAlgorithm = "de.cau.cs.kieler.kiml.ogdf.planarization"
+	val layoutAlgorithm = "de.cau.cs.kieler.klay.layered"
     val spacing = 75f
     val leftColumnAlignment = HorizontalAlignment::RIGHT
     val rightColumnAlignment = HorizontalAlignment::LEFT
     
-    val showID = ShowTextIf::DETAILED
-    val showSize = ShowTextIf::DETAILED
-
-	val showFaces = ShowTextIf::DETAILED
 	val showPropertyMap = ShowTextIf::DETAILED
 	val showVisualization = ShowTextIf::DETAILED
+	val showFaces = ShowTextIf::DETAILED
+	
+    val showID = ShowTextIf::DETAILED
+    val showSize = ShowTextIf::DETAILED
 	val showType = ShowTextIf::DETAILED
 	val showPosition = ShowTextIf::DETAILED
 	val showNodeIndex = ShowTextIf::DETAILED
@@ -76,7 +76,7 @@ class PGraphTransformation extends AbstractKielerGraphTransformation {
             if(showPropertyMap.conditionalShow(detailedView)) 
                 it.addPropertyMapNode(graph.getVariable("propertyMap"), graph)
 
-            // create the visualization
+            // create the graph visualization
             if (showVisualization.conditionalShow(detailedView))
                 it.addVisualizationNode(graph)
             
@@ -159,11 +159,12 @@ class PGraphTransformation extends AbstractKielerGraphTransformation {
     def addVisualizationNode(KNode rootNode, IVariable graph) {
         val nodes = graph.getVariable("nodes")
         
-        // create outer nodes rectangle
+        // create rectangle for outer node 
         return rootNode.addNodeById(nodes) => [
             it.data += renderingFactory.createKRectangle => [
                 it.lineWidth = 4
                 if(nodes.linkedHashSetToLinkedList.size == 0) {
+                	// graph is empty
                     it.addGridElement("none", HorizontalAlignment::CENTER)
                 }
             ]
@@ -176,15 +177,15 @@ class PGraphTransformation extends AbstractKielerGraphTransformation {
 	        // create all edges
 	        it.createEdges(graph)
 
-	        // create edge from root node to the nodes node
+	        // create edge from root node to the visualization node
     	    graph.createTopElementEdge(nodes, "visualization")
         ]
     }
 
     def createEdges(KNode rootNode, IVariable graph) {
     	val edges = graph.getVariable("edges")
+    	
     	edges.linkedHashSetToLinkedList.forEach[IVariable edge |
-
             // get the bendPoints assigned to the edge
             val bendPoints = edge.getVariable("bendPoints")
             val bendCount = Integer::parseInt(bendPoints.getValue("size"))
