@@ -295,7 +295,7 @@ class FGraphTransformation extends AbstractKielerGraphTransformation {
                 // add adjacency label to head of first edge  
                 if (!adjacency.nullOrEmpty) {
                     val value = adjacency.get(sourceID).getValue.getVariables
-                    value.createLabel(it) => [
+                    it.createLabel => [
                         it.addLayoutParam(LayoutOptions::EDGE_LABEL_PLACEMENT, EdgeLabelPlacement::CENTER)
                         it.setLabelSize(50,20)
                         it.text = ("Adjacency: " + value.get(targetID).getValue.getValueString)

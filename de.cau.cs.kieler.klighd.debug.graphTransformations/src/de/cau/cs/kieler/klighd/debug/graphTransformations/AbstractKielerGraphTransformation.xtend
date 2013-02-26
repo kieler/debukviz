@@ -45,7 +45,7 @@ abstract class AbstractKielerGraphTransformation extends AbstractDebugTransforma
     val rightGap = 7
     val bottomGap = 5
     val leftGap = 4
-    val vGap = 3
+    val vGap = 2
     val hGap = 5
     
 //    protected GraphTransformationInfo gtInfo = new GraphTransformationInfo
@@ -63,6 +63,8 @@ abstract class AbstractKielerGraphTransformation extends AbstractDebugTransforma
     def conditionalShow(ShowTextIf enum, boolean isDetailed) {
         if (enum == ShowTextIf::ALWAYS) {
             return true
+        } else if (enum == ShowTextIf::NEVER) {
+        	return false
         } else {
             return (isDetailed == (enum == ShowTextIf::DETAILED))
         }
@@ -87,10 +89,25 @@ abstract class AbstractKielerGraphTransformation extends AbstractDebugTransforma
 	        ]   
 		}
 	}
-    
+	
+	def hashSetToLinkedList(IVariable variable) throws DebugException {
+		val retVal = new LinkedList<IVariable>
+		for (v : variable.getVariables("map.table")) {
+            if (v.valueIsNotNull) {
+                retVal.add(v.getVariable("key"))
+                var next = v.getVariable("next")
+                while(next.valueIsNotNull) {
+                	retVal.add(next.getVariable("next"))
+                	next = next.getVariable("next")
+            	}
+            }
+    	}
+    	return retVal
+	}
+	
     def hashMapToLinkedList(IVariable variable) throws DebugException {
         val retVal = new LinkedList<IVariable>
-        for ( v : variable.getVariables("table")) {
+        for (v : variable.getVariables("table")) {
             if (v.valueIsNotNull) {
                 retVal.add(v)
                 var next = v.getVariable("next")
@@ -123,6 +140,30 @@ abstract class AbstractKielerGraphTransformation extends AbstractDebugTransforma
     
     def round(String number) {
         return Math::round(Double::valueOf(number))
+    }
+    
+    def toLinkedList(IVariable variable) throws DebugException {
+    	switch variable.getType {
+    		case "HashSet<E>":
+    			return hashSetToLinkedList(variable)
+			case "LinkedHashSet<E>":
+				return linkedHashSetToLinkedList(variable)
+			case "LinkedList<E>":
+				return linkedList(variable)
+			case "ArrayList<E>":
+				return arrayListToLinkedList(variable)
+    	}
+    	println("Type not supported by 'toLinkedList': " + variable.getType)
+    	return null
+    }
+    
+    def arrayListToLinkedList(IVariable variable) throws DebugException {
+    	val retVal = new LinkedList<IVariable>
+    	val size = Integer::parseInt(variable.getValue("size"))
+    	variable.getVariables("elementData").subList(0, size).forEach [
+    		retVal.add(it)
+    	]
+    	return retVal
     }
     
     /**
@@ -262,6 +303,8 @@ abstract class AbstractKielerGraphTransformation extends AbstractDebugTransforma
             }
             case "RegularEnumSet<E>" : 
                 	container.addEnumSet(element)
+			case "ArrayList<E>" : 
+					container.addArrayList(element)
             case "NodeGroup" :                 	
 				container.addGridElement("(TODO)", HorizontalAlignment::LEFT)
             case "KNodeImpl" :
@@ -317,6 +360,19 @@ abstract class AbstractKielerGraphTransformation extends AbstractDebugTransforma
         ]
     }
     
+	def addArrayList(KContainerRendering container, IVariable list) {
+		var llist = list.toLinkedList 
+		if (llist.size == 0) {
+			return container.addGridElement("(none)", HorizontalAlignment::LEFT)
+		} else {
+			val arrayContainer = container.addInvisibleRectangleGrid(1)
+			
+			llist.forEach[ 
+				arrayContainer.addGridElement(it.getValueString, HorizontalAlignment::LEFT)
+			]
+		}
+	}
+
     def addEnumSet(KContainerRendering container, IVariable set) {
         // the mask representing the elements that are set
         val elemMask = Integer::parseInt(set.getValue("elements"))

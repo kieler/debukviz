@@ -29,6 +29,9 @@ class PFaceTransformation extends AbstractKielerGraphTransformation {
     extension KRenderingExtensions
     @Inject
     extension KColorExtensions
+    @Inject
+    extension PEdgeRenderer
+    
     
     val layoutAlgorithm = "de.cau.cs.kieler.klay.layered"
     val spacing = 75f
@@ -36,11 +39,13 @@ class PFaceTransformation extends AbstractKielerGraphTransformation {
     val rightColumnAlignment = HorizontalAlignment::LEFT
 
     val showPropertyMap = ShowTextIf::DETAILED
-	val showHeaderNode = ShowTextIf::DETAILED
-	val showVisualization = ShowTextIf::ALWAYS
+	val showVisualization = ShowTextIf::DETAILED
         
-	val showEdgeCount = ShowTextIf::COMPACT
-	val showNodeCount = ShowTextIf::COMPACT
+	val showID = ShowTextIf::ALWAYS
+	val showAdjacentNodes = ShowTextIf::ALWAYS
+	val showAdjacentEdges = ShowTextIf::DETAILED
+	val showEdgeCount = ShowTextIf::NEVER
+	val showNodeCount = ShowTextIf::NEVER
     /**
      * {@inheritDoc}
      */
@@ -52,21 +57,15 @@ class PFaceTransformation extends AbstractKielerGraphTransformation {
             it.addLayoutParam(LayoutOptions::SPACING, spacing)
 
 			it.addInvisibleRendering
-
-            if(showHeaderNode.conditionalShow(detailedView))
-	            it.addHeaderNode(face)
+            it.addHeaderNode(face)
 
             // add propertyMap
             if(showPropertyMap.conditionalShow(detailedView))
                 it.addPropertyMapNode(face.getVariable("propertyMap"), face)
                 
             // create the graph visualization
-            if(showVisualization.conditionalShow(detailedView)) {
-	            // create all nodes (in a new visualization node)
-                val visualizationNode = it.addVisualization(face)
-                // create all edges (in the given visualization node) 
-                visualizationNode.createEdges(face)
-            }            
+            if(showVisualization.conditionalShow(detailedView))
+     	       it.addVisualization(face)
     	]
     }
 
@@ -75,32 +74,82 @@ class PFaceTransformation extends AbstractKielerGraphTransformation {
             it.data += renderingFactory.createKRectangle => [
                 
                 val table = it.headerNodeBasics(detailedView, face)
+                
+                if (showID.conditionalShow(detailedView)) {
+                    table.addGridElement("id:", leftColumnAlignment)
+                    table.addGridElement(face.nullOrValue("id"), rightColumnAlignment)
+                }
+                
+                if (showAdjacentNodes.conditionalShow(detailedView)) {
+                    table.addGridElement("nodes:", leftColumnAlignment)
+                    val nodes = face.getVariable("nodes").toLinkedList
+                    if (nodes.size == 0) {
+                    	table.addGridElement("none", rightColumnAlignment)
+                    } else {
+                    	table.addGridElement(nodes.head.getValue("id"), rightColumnAlignment)
+                    	nodes.tail.forEach[ n |
+                    		table.addBlankGridElement;
+                    		table.addGridElement(n.getValue("id"), rightColumnAlignment)
+                    	]
+                    }
+                }
+                
+                if (showAdjacentEdges.conditionalShow(detailedView)) {
+                    table.addGridElement("edges:", leftColumnAlignment)
+                    val edges = face.getVariable("edges").toLinkedList
+                    if (edges.size == 0) {
+                    	table.addGridElement("none", rightColumnAlignment)
+                    } else {
+                    	table.addGridElement(edges.head.edgeString, rightColumnAlignment)
+                    	edges.tail.forEach[ e |
+                    		table.addBlankGridElement;
+                    		table.addGridElement(e.edgeString, rightColumnAlignment)
+                    	]
+                    }
+                }
 
                 if (showNodeCount.conditionalShow(detailedView)) {
                     table.addGridElement("nodes (#):", leftColumnAlignment)
-                    table.addGridElement(face.nullOrSize("nodes"), rightColumnAlignment)
+                    table.addGridElement(face.nullOrSize("nodes.map"), rightColumnAlignment)
                 }
 
                 if (showEdgeCount.conditionalShow(detailedView)) {
                     table.addGridElement("edges (#):", leftColumnAlignment)
-                    table.addGridElement(face.nullOrSize("edges"), rightColumnAlignment)
+                    table.addGridElement(face.nullOrSize("edges.map"), rightColumnAlignment)
                 }
             ]
         ]
     }
+    
+    def edgeString (IVariable edge) {
+    	return edge.getValueString + 
+    		   " " + 
+    		   edge.getVariable("source").getValue("id") +
+    		   " -> " + 
+    		   edge.getVariable("target").getValue("id")
+    }
 
 	def addVisualization(KNode rootNode, IVariable face) {
         val nodes = face.getVariable("nodes")
+        val nodeList = nodes.toLinkedList
 
+        // create rectangle for outer node 
         val newNode = rootNode.addNodeById(nodes) => [
             it.data += renderingFactory.createKRectangle => [
                 it.lineWidth = 4
+                if(nodeList.size == 0) {
+                	// graph is empty
+                    it.addGridElement("none", HorizontalAlignment::CENTER)
+                }
             ]
 
             // create all nodes
-            nodes.linkedList.forEach[IVariable node |
+            nodeList.forEach[IVariable node |
                 it.nextTransformation(node, false)
             ]
+            
+            // create all edges
+            it.addAllEdges(face)
         ]
 
         // create edge from header node to visualization
@@ -109,23 +158,6 @@ class PFaceTransformation extends AbstractKielerGraphTransformation {
         return newNode
 	}
     
-	def void createEdges(KNode rootNode, IVariable face) {
-//TODO: kantenbeschriftungen, wie von Miro benannt
-		face.getVariable("edges").linkedList.forEach[IVariable edge |
-            // IVariables the edge has to connect
-            val source = edge.getVariable("source")
-            var target = edge.getVariable("target")
-            
-            source.createEdgeById(target) => [
-                it.data += renderingFactory.createKPolyline => [
-                    it.setLineWidth(2)
-                    it.addArrowDecorator
-                    it.setLineStyle(LineStyle::SOLID)
-                ]
-            ]
-		]
-	}
-
 	/**
 	 * {@inheritDoc}
 	 */

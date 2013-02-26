@@ -38,6 +38,8 @@ class PGraphTransformation extends AbstractKielerGraphTransformation {
     extension KColorExtensions
     @Inject
     extension KLabelExtensions
+    @Inject
+    extension PEdgeRenderer
     
 	val layoutAlgorithm = "de.cau.cs.kieler.klay.layered"
     val spacing = 75f
@@ -155,7 +157,6 @@ class PGraphTransformation extends AbstractKielerGraphTransformation {
         ]
     }
     
-    
     def addVisualizationNode(KNode rootNode, IVariable graph) {
         val nodes = graph.getVariable("nodes")
         
@@ -175,112 +176,16 @@ class PGraphTransformation extends AbstractKielerGraphTransformation {
 	        ]
 	        
 	        // create all edges
-	        it.createEdges(graph)
+	        it.addAllEdges(graph)
 
 	        // create edge from root node to the visualization node
     	    graph.createTopElementEdge(nodes, "visualization")
         ]
     }
 
-    def createEdges(KNode rootNode, IVariable graph) {
-    	val edges = graph.getVariable("edges")
-    	
-    	edges.linkedHashSetToLinkedList.forEach[IVariable edge |
-            // get the bendPoints assigned to the edge
-            val bendPoints = edge.getVariable("bendPoints")
-            val bendCount = Integer::parseInt(bendPoints.getValue("size"))
-            
-            // IVariables the edge has to connect
-            val source = edge.getVariable("source")
-            var target = edge.getVariable("target")
-
-            // true if edge is directed
-            val isDirected = edge.getValue("isDirected").equals("true")
-            
-            // create bendPoint nodes
-            if(bendCount > 0) {
-                if(bendCount > 1) {
-                    // more than one bendPoint: create a container node, containing the bendPoints
-                    rootNode.children += bendPoints.createNode => [
-                        // create container rectangle 
-                        it.data += renderingFactory.createKRectangle => [
-                            it.lineWidth = 4
-                        ]
-                        // create all bendPoint nodes
-                        bendPoints.linkedList.forEach[IVariable bendPoint |
-                            it.createBendPoint(bendPoint)
-                        ]
-                    ]
-                    // create the edge from the new created node to the target node
-                    bendPoints.createEdge(target) => [
-                        it.data += renderingFactory.createKPolyline => [
-                            it.setLineWidth(2)
-                            if (isDirected) {
-                                it.addArrowDecorator
-                            } else {
-//TODO: ist der hier wirklich gut?
-                                it.addInheritanceTriangleArrowDecorator
-                            }
-                            it.setLineStyle(LineStyle::SOLID)
-                        ];
-                    ]
-                    // set target for the "default" edge to the new created container node
-                    target = bendPoints  
-                    
-                } else {
-                    // exactly one bendPoint, create a single bendPoint node
-                    val bendPoint = bendPoints.linkedList.get(0)
-                    rootNode.createBendPoint(bendPoint)
-                    // create the edge from the new created node to the target node
-                    bendPoint.createEdge(target) => [
-                        it.data += renderingFactory.createKPolyline => [
-                            it.setLineWidth(2)
-//TODO: ist der hier wirklich gut?
-                            it.addInheritanceTriangleArrowDecorator
-                            it.setLineStyle(LineStyle::SOLID)
-                        ]
-                    ]
-                    // set target for the "default" edge to the new created node
-                    target = bendPoint                        
-                }
-            }
-            
-            // create first edge, from source to either new bendPoint or target node
-            source.createEdgeById(target) => [
-                it.data += renderingFactory.createKPolyline => [
-                    it.setLineWidth(2)
-                    if (isDirected) {
-                        it.addArrowDecorator
-                    } else {
-                        it.addInheritanceTriangleArrowDecorator
-                    }
-                    it.setLineStyle(LineStyle::SOLID)
-                ]
-            ]
-        ]
-    }
-
-    def createBendPoint(KNode rootNode, IVariable bendPoint) {
-        return rootNode.addNodeById(bendPoint) => [
-            it.data += renderingFactory.createKRectangle => [
-                it.lineWidth = 2
-                it.ChildPlacement = renderingFactory.createKGridPlacement => [
-	                it.numColumns = 1
-                ]
-
-                // bendPoints are just KVectors, so give a speaking name here
-                it.addGridElement("bendPoint", leftColumnAlignment)
-                
-                // position
-                it.addGridElement("pos (x,y): " + bendPoint.nullOrKVektor("pos"), leftColumnAlignment)
-            ]
-        ]
-    }
-    
-    
     def addFacesNode(KNode rootNode, IVariable graph) {
         val faces = graph.getVariable("faces")
-        val filteredFaces = faces.linkedHashSetToLinkedList
+        val filteredFaces = faces.toLinkedList
         
         // create outer faces node
         return rootNode.addNodeById(faces) => [
@@ -293,8 +198,24 @@ class PGraphTransformation extends AbstractKielerGraphTransformation {
                 }
             ]
             if (filteredFaces.size > 0) {
-                //there are faces, so create nodes for all faces
-                filteredFaces.forEach[IVariable face | it.nextTransformation(face)]
+                // create nodes for all faces
+                filteredFaces.forEach[IVariable face | it.nextTransformation(face, false)]
+                
+                // create edges between the faces. check all edges in original graph and add an edge 
+                // to the faces visualization:
+                // source of new edge: leftFace of original edge
+                // target of new edge: rightFace of original edge
+                graph.getVariable("edges").toLinkedList.forEach[ edge |
+                	val source = edge.getVariable("leftFace")
+                	val target = edge.getVariable("rightFace")
+                	source.createEdgeById(target) => [
+		                it.data += renderingFactory.createKPolyline => [
+	            	        it.setLineWidth(2)
+	                        it.addArrowDecorator
+		                    it.setLineStyle(LineStyle::SOLID)
+	                    ]
+            		]
+                ]
             }
                 
             // create edge from root node to the faces node
