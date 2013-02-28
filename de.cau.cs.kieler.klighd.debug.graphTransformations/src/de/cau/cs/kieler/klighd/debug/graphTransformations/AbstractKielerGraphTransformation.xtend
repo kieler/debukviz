@@ -23,6 +23,7 @@ import org.eclipse.jdt.debug.core.IJavaArray
 import static de.cau.cs.kieler.klighd.debug.visualization.AbstractDebugTransformation.*
 import de.cau.cs.kieler.core.kgraph.KEdge
 import de.cau.cs.kieler.klighd.krendering.PlacementUtil
+import org.eclipse.jdt.debug.core.IJavaObject
 
 /**
  * A class containing many helper functions for the transformation of graphs of the KIELER project.
@@ -336,20 +337,13 @@ abstract class AbstractKielerGraphTransformation extends AbstractDebugTransforma
         switch key.getType {
             case "Property<T>" : 
                 return key.getValue("id") + ":"
-            case "LayoutOptionData<T>" : 
+            case (key.getVariable("name") != null) : {
                 return key.getValue("name") + ":"
-            case "KNodeImpl" :
-                return "KNode" + key.getValueString + ":"
-            case "KPortImpl" :
-                return "KPort" + key.getValueString + ":"
-            case "PNode" :
-                return "PNode" + key.getValueString + ":"
-            case "PEdge" :
-                return "PEdge" + key.getValueString + ":"
+            }
         }
         // a default statement in the switch results in a missing return statement in generated 
         // java code, so I added the default return value here
-        return "<? " + key.getType +" ?> : "
+        return key.getType + ":"
     }
 
     /**
@@ -427,14 +421,13 @@ abstract class AbstractKielerGraphTransformation extends AbstractDebugTransforma
     def addValueElement(KContainerRendering container, IVariable element) {
         switch element.getType {
             case (element.getValue instanceof IJavaArray) : {
+                // element is an array
                 val myArray = element.getValue.getVariables
                 if(myArray.size == 0) {
                     container.addGridElement(element.type + " (empty)", rightColumnAlignment)
                 } else {
                     val arrayContainer = container.addInvisibleRectangleGrid(1)
-                    myArray.forEach [
-                        arrayContainer.addValueElement(it)
-                    ]
+                    myArray.forEach [arrayContainer.addValueElement(it)]
                 }
             }
             case "HashMap<K,V>" : {
@@ -482,10 +475,14 @@ abstract class AbstractKielerGraphTransformation extends AbstractDebugTransforma
             	container.addGridElement("KLabel " + element.getValueString, rightColumnAlignment)
             case "KEdgeImpl" :
             	container.addGridElement("KEdge " + element.getValueString, rightColumnAlignment)
+            case "LGraph" :
+                container.addGridElement("LGraph " + element.getValue("id") + element.getValueString, 
+                    rightColumnAlignment
+                )
             case "LNode" :
-            	container.addGridElement("LNode " + element.getValue("id") + element.getValueString, 
-            		rightColumnAlignment
-            	)
+                container.addGridElement("LNode " + element.getValue("id") + element.getValueString, 
+                    rightColumnAlignment
+                )
             case "LPort" :
             	container.addGridElement("LPort " + element.getValue("id") + element.getValueString, 
             		rightColumnAlignment
@@ -495,23 +492,9 @@ abstract class AbstractKielerGraphTransformation extends AbstractDebugTransforma
             		rightColumnAlignment
             	)
             case "Random" :
-            	container.addGridElement("seed " + element.getValue("seed.value"), 
-            		rightColumnAlignment
-            	)
-        	case "NodeType" :
-        		container.addGridElement(element.getValue("name"), rightColumnAlignment)
+            	container.addGridElement("seed " + element.getValue("seed.value"), rightColumnAlignment)
             case "String" :
             	container.addGridElement(element.getValueString, rightColumnAlignment)
-            case "Direction" :
-            	container.addGridElement(element.getValue("name"), rightColumnAlignment)
-            case "Boolean" :
-            	container.addGridElement(element.getValue("value"), rightColumnAlignment)
-            case "Float" :
-            	container.addGridElement(element.getValue("value"), rightColumnAlignment)
-            case "PortConstraints" :
-            	container.addGridElement(element.getValue("name"), rightColumnAlignment)
-            case "EdgeLabelPlacement" :
-                container.addGridElement(element.getValue("name"), rightColumnAlignment)
             case "OrthogonalRepresentation" : {
                 val hashContainer = container.addInvisibleRectangleGrid(2)
                 element.getValue.getVariables.forEach [ elem |
@@ -519,11 +502,23 @@ abstract class AbstractKielerGraphTransformation extends AbstractDebugTransforma
                     hashContainer.addValueElement(elem)
                 ]
         	}
-            case "OrthogonalAngle" : {
-                container.addGridElement("OrthogonalAngle: " + element.getValue("name"), rightColumnAlignment)
+        	case "NodeGroup" :
+        	   container.addValueElement(element.getVariable("nodes"))
+            // element is a primitive data type
+            case (!(element.getValue instanceof IJavaObject)) : {
+                container.addGridElement(element.getValue("value"), rightColumnAlignment)
+            }
+            // two more general cases, if element has got a name or value field, display it's value
+            // name is used e.g. by all enumeration types
+            // value is used e.g. by Integer, Boolean ...
+            case (element.getVariable("name") != null) : {
+                container.addGridElement(element.getValue("name"), rightColumnAlignment)
+            }
+            case (element.getVariable("value") != null) : {
+                container.addGridElement(element.getValue("value"), rightColumnAlignment)
             }
             default : {
-            	container.addGridElement("<? " + element.getType + element.getValueString + "?>",
+            	container.addGridElement("<?? " + element.getType + element.getValueString + "??>",
             		rightColumnAlignment
             	)
             }
@@ -637,8 +632,6 @@ abstract class AbstractKielerGraphTransformation extends AbstractDebugTransforma
                 var mask = Integer::parseInt(elements.get(i).getValue("ordinal")).pow2
                 if(elemMask.bitwiseAnd(mask) > 0) {
                     // bit is set 
-//TODO: passt das noch?
-//                    hashContainer.addGridElement(elements.get(i).getValue("name"), rightColumnAlignment)
                     hashContainer.addValueElement(elements.get(i))
                 }
                 i = i +1
@@ -945,8 +938,8 @@ abstract class AbstractKielerGraphTransformation extends AbstractDebugTransforma
      */
     def nullOrKVektor(IVariable variable, String fieldPath) {
         if (variable.valueIsNotNull) {
-            return "(" + variable.getValue(fieldPath + ".x") + ", " 
-                       + variable.getValue(fieldPath + ".y") + ")"
+            return "(" + variable.getValue(fieldPath + ".x").round(1) + ", " 
+                       + variable.getValue(fieldPath + ".y").round(1) + ")"
         } else {
             return "(null)"
         }
@@ -966,10 +959,10 @@ abstract class AbstractKielerGraphTransformation extends AbstractDebugTransforma
      */
     def nullOrLInsets(IVariable variable, String fieldPath) {
         if (variable.valueIsNotNull) {
-            return "(" + variable.getValue(fieldPath + ".top") + ", " 
-                       + variable.getValue(fieldPath + ".right") + ", "
-                       + variable.getValue(fieldPath + ".bottom") + ", "
-                       + variable.getValue(fieldPath + ".left") + ")"
+            return "(" + variable.getValue(fieldPath + ".top").round(1) + ", " 
+                       + variable.getValue(fieldPath + ".right").round(1) + ", "
+                       + variable.getValue(fieldPath + ".bottom").round(1) + ", "
+                       + variable.getValue(fieldPath + ".left").round(1) + ")"
         } else {
             return "(null)"
         }

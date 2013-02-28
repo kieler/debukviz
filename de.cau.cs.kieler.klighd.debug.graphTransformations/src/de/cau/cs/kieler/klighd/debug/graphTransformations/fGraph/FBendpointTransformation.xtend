@@ -46,6 +46,7 @@ class FBendpointTransformation extends AbstractKielerGraphTransformation {
 
     /** Specifies when to show the property map. */
     val showPropertyMap = ShowTextIf::DETAILED
+
     /** Specifies when to show the containing edge. */
     val showEdge = ShowTextIf::ALWAYS
     /** Specifies when to show the position. */
