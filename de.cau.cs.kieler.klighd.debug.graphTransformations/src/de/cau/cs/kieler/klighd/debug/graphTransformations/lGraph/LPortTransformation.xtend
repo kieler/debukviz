@@ -127,7 +127,7 @@ class LPortTransformation extends AbstractKielerGraphTransformation {
                 // margin of port
                 if(showMargin.conditionalShow(detailedView)) {
                     table.addGridElement("margin (t,r,b,l):", leftColumnAlignment)
-                    table.addGridElement(port.nullOrTRBL("margin"), rightColumnAlignment)
+                    table.addGridElement(port.nullOrLInsets("margin"), rightColumnAlignment)
                 }
 
                 // owner of port

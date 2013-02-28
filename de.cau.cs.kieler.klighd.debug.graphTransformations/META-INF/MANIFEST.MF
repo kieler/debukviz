@@ -16,4 +16,5 @@ Require-Bundle: org.eclipse.core.runtime,
  de.cau.cs.kieler.klighd,
  de.cau.cs.kieler.klighd.debug,
  de.cau.cs.kieler.kiml,
- org.eclipse.ui
+ org.eclipse.ui,
+ org.eclipse.jdt.debug

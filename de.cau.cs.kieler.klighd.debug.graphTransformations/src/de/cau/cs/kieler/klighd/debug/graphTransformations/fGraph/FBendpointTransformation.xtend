@@ -1,48 +1,55 @@
-package de.cau.cs.kieler.klighd.debug.graphTransformations.fGraph
+/*
+ * KIELER - Kiel Integrated Environment for Layout Eclipse RichClient
+ *
+ * http://www.informatik.uni-kiel.de/rtsys/kieler/
+ * 
+ * Copyright 2013 by
+ * + Christian-Albrechts-University of Kiel
+ *   + Department of Computer Science
+ *     + Real-Time and Embedded Systems Group
+ * 
+ * This code is provided under the terms of the Eclipse Public License (EPL).
+ * See the file epl-v10.html for the license text.
+ */
+ package de.cau.cs.kieler.klighd.debug.graphTransformations.fGraph
 
+import de.cau.cs.kieler.core.kgraph.KNode
+import de.cau.cs.kieler.core.krendering.HorizontalAlignment
 import de.cau.cs.kieler.core.krendering.extensions.KNodeExtensions
-import de.cau.cs.kieler.core.krendering.extensions.KRenderingExtensions
 import de.cau.cs.kieler.kiml.options.LayoutOptions
 import de.cau.cs.kieler.kiml.util.KimlUtil
+import de.cau.cs.kieler.klighd.debug.graphTransformations.AbstractKielerGraphTransformation
+import de.cau.cs.kieler.klighd.debug.graphTransformations.ShowTextIf
 import javax.inject.Inject
 import org.eclipse.debug.core.model.IVariable
 
 import static de.cau.cs.kieler.klighd.debug.visualization.AbstractDebugTransformation.*
-import de.cau.cs.kieler.klighd.debug.graphTransformations.AbstractKielerGraphTransformation
-import de.cau.cs.kieler.core.kgraph.KNode
-import de.cau.cs.kieler.core.krendering.extensions.KColorExtensions
-import de.cau.cs.kieler.core.krendering.extensions.KPolylineExtensions
-import de.cau.cs.kieler.core.krendering.extensions.KEdgeExtensions
-import de.cau.cs.kieler.klighd.debug.graphTransformations.KTextIterableField
-import de.cau.cs.kieler.core.krendering.HorizontalAlignment
-import de.cau.cs.kieler.klighd.debug.KlighdDebugPlugin
-import de.cau.cs.kieler.klighd.debug.graphTransformations.ShowTextIf
 
+/*
+ * Transformation for a IVariable representing a FBendpoint
+ * 
+ * @ author tit
+ */
 class FBendpointTransformation extends AbstractKielerGraphTransformation {
     
     @Inject
     extension KNodeExtensions
-    @Inject
-    extension KRenderingExtensions
-    @Inject
-    extension KEdgeExtensions
-    @Inject 
-    extension KPolylineExtensions 
-    @Inject
-    extension KColorExtensions
     
+    /** The layout algorithm to use. */
     val layoutAlgorithm = "de.cau.cs.kieler.kiml.ogdf.planarization"
+    /** The spacing to use. */
     val spacing = 75f
-    val leftColumnAlignment = KTextIterableField$TextAlignment::RIGHT
-    val rightColumnAlignment = KTextIterableField$TextAlignment::LEFT
-    val topGap = 4
-    val rightGap = 5
-    val bottomGap = 5
-    val leftGap = 4
-    val vGap = 3
-    val hGap = 5
+    /** The horizontal alignment for the left column of all grid layouts. */
+    val leftColumnAlignment = HorizontalAlignment::RIGHT
+    /** The horizontal alignment for the right column of all grid layouts. */
+    val rightColumnAlignment = HorizontalAlignment::LEFT
+
+    /** Specifies when to show the property map. */
     val showPropertyMap = ShowTextIf::DETAILED
-    val showLabelsMap = ShowTextIf::DETAILED
+    /** Specifies when to show the containing edge. */
+    val showEdge = ShowTextIf::ALWAYS
+    /** Specifies when to show the position. */
+    val showPosition = ShowTextIf::ALWAYS
     
     /**
      * {@inheritDoc}
@@ -50,7 +57,7 @@ class FBendpointTransformation extends AbstractKielerGraphTransformation {
      override transform(IVariable bendPoint, Object transformationInfo) {
         detailedView = transformationInfo.isDetailed
         
-         return KimlUtil::createInitializedNode=> [
+         return KimlUtil::createInitializedNode => [
             it.addLayoutParam(LayoutOptions::ALGORITHM, layoutAlgorithm)
             it.addLayoutParam(LayoutOptions::SPACING, spacing)
 
@@ -63,6 +70,24 @@ class FBendpointTransformation extends AbstractKielerGraphTransformation {
         ]
     }
 
+	/**
+	 * {@inheritDoc}
+	 */
+	override getNodeCount(IVariable model) {
+		return if(showPropertyMap.conditionalShow(detailedView)) 2 else 1
+	}
+
+    /**
+     * Creates the header node containing basic informations for this element.
+     * 
+     * @param rootNode
+     *              The KNode the new created KNode will be placed in.
+     * @param layer
+     *              The IVariable representing the bendPoint transformed in this transformation.
+     * 
+     * @return The new created header KNode
+
+     */
     def createHeaderNode(KNode rootNode, IVariable bendPoint) {
         rootNode.addNodeById(bendPoint) => [
             it.data += renderingFactory.createKEllipse => [
@@ -70,30 +95,23 @@ class FBendpointTransformation extends AbstractKielerGraphTransformation {
                 val table = it.headerNodeBasics(detailedView, bendPoint)
                 
                 // associated edge
-                table.addGridElement("edge:", HorizontalAlignment::RIGHT) 
-                table.addGridElement(bendPoint.nullOrValue("edge"), HorizontalAlignment::LEFT) 
+                if(showEdge.conditionalShow(detailedView)) {
+                    table.addGridElement("edge:", leftColumnAlignment) 
+                    table.addGridElement(bendPoint.nullOrValue("edge"), rightColumnAlignment) 
+                }
 
                 // position of bendPoint
-                table.addGridElement("position (x,y):", HorizontalAlignment::RIGHT) 
-                table.addGridElement("(" + bendPoint.getValue("position.x").round + ", " 
-                              			 + bendPoint.getValue("position.y").round + ")", 
-                              			 HorizontalAlignment::LEFT) 
+                if(showPosition.conditionalShow(detailedView)) {
+                    table.addGridElement("position (x,y):", leftColumnAlignment) 
+                    table.addGridElement(bendPoint.nullOrKVektor("position"), rightColumnAlignment) 
+                }
 
                 if(detailedView) {
                     // size of bendPoint
-	                table.addGridElement("size (x,y):", HorizontalAlignment::RIGHT) 
-	                table.addGridElement("(" + bendPoint.getValue("size.x").round + ", " 
-                                  			 + bendPoint.getValue("size.y").round + ")", 
-                                  			 HorizontalAlignment::LEFT) 
+	                table.addGridElement("size (x,y):", leftColumnAlignment) 
+	                table.addGridElement(bendPoint.nullOrKVektor("size"), rightColumnAlignment)
                 }
             ]
         ]
     }
-
-	/**
-	 * {@inheritDoc}
-	 */
-	override getNodeCount(IVariable model) {
-		return if(showPropertyMap.conditionalShow(detailedView)) 2 else 1
-	}
 }

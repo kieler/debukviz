@@ -24,8 +24,10 @@ import de.cau.cs.kieler.klighd.debug.graphTransformations.KTextIterableField.Tex
 import de.cau.cs.kieler.klighd.krendering.PlacementUtil;
 
 /**
+ * An element on the {@link KTextIterableField}.
+ * @deprecated
+ * 
  * @author tit
- *
  */
 public class TableElement {
     

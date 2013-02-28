@@ -1,34 +1,23 @@
 package de.cau.cs.kieler.klighd.debug.graphTransformations.pGraph
 
 import de.cau.cs.kieler.core.kgraph.KNode
-import de.cau.cs.kieler.core.krendering.KRenderingFactory
-import de.cau.cs.kieler.core.krendering.extensions.KColorExtensions
-import de.cau.cs.kieler.core.krendering.extensions.KEdgeExtensions
+import de.cau.cs.kieler.core.krendering.HorizontalAlignment
 import de.cau.cs.kieler.core.krendering.extensions.KNodeExtensions
 import de.cau.cs.kieler.core.krendering.extensions.KRenderingExtensions
 import de.cau.cs.kieler.kiml.options.LayoutOptions
 import de.cau.cs.kieler.kiml.util.KimlUtil
-import org.eclipse.debug.core.model.IVariable
-import javax.inject.Inject
-import de.cau.cs.kieler.core.krendering.LineStyle
-import de.cau.cs.kieler.core.properties.IProperty
-import de.cau.cs.kieler.core.krendering.extensions.KPolylineExtensions
 import de.cau.cs.kieler.klighd.debug.graphTransformations.AbstractKielerGraphTransformation
-import de.cau.cs.kieler.klighd.debug.graphTransformations.KTextIterableField
 import de.cau.cs.kieler.klighd.debug.graphTransformations.ShowTextIf
-import de.cau.cs.kieler.core.krendering.HorizontalAlignment
+import javax.inject.Inject
+import org.eclipse.debug.core.model.IVariable
+
+import static de.cau.cs.kieler.klighd.debug.visualization.AbstractDebugTransformation.*
 
 class PFaceTransformation extends AbstractKielerGraphTransformation {
     @Inject
     extension KNodeExtensions
     @Inject
-    extension KEdgeExtensions
-    @Inject 
-    extension KPolylineExtensions 
-    @Inject
     extension KRenderingExtensions
-    @Inject
-    extension KColorExtensions
     @Inject
     extension PEdgeRenderer
     
@@ -71,20 +60,23 @@ class PFaceTransformation extends AbstractKielerGraphTransformation {
 
     def addHeaderNode(KNode rootNode, IVariable face) {
         rootNode.addNodeById(face) => [
+println("adding face")
             it.data += renderingFactory.createKRectangle => [
                 
                 val table = it.headerNodeBasics(detailedView, face)
                 
                 if (showID.conditionalShow(detailedView)) {
+println("adding showID")
                     table.addGridElement("id:", leftColumnAlignment)
                     table.addGridElement(face.nullOrValue("id"), rightColumnAlignment)
                 }
                 
                 if (showAdjacentNodes.conditionalShow(detailedView)) {
+println("adding showAdjacentNodes")
                     table.addGridElement("nodes:", leftColumnAlignment)
                     val nodes = face.getVariable("nodes").toLinkedList
                     if (nodes.size == 0) {
-                    	table.addGridElement("none", rightColumnAlignment)
+                    	table.addGridElement("(none)", rightColumnAlignment)
                     } else {
                     	table.addGridElement(nodes.head.getValue("id"), rightColumnAlignment)
                     	nodes.tail.forEach[ n |
@@ -95,10 +87,11 @@ class PFaceTransformation extends AbstractKielerGraphTransformation {
                 }
                 
                 if (showAdjacentEdges.conditionalShow(detailedView)) {
+println("adding showAdjacentEdges")
                     table.addGridElement("edges:", leftColumnAlignment)
                     val edges = face.getVariable("edges").toLinkedList
                     if (edges.size == 0) {
-                    	table.addGridElement("none", rightColumnAlignment)
+                    	table.addGridElement("(none)", rightColumnAlignment)
                     } else {
                     	table.addGridElement(edges.head.edgeString, rightColumnAlignment)
                     	edges.tail.forEach[ e |
@@ -109,11 +102,13 @@ class PFaceTransformation extends AbstractKielerGraphTransformation {
                 }
 
                 if (showNodeCount.conditionalShow(detailedView)) {
+println("adding showNodeCount")
                     table.addGridElement("nodes (#):", leftColumnAlignment)
                     table.addGridElement(face.nullOrSize("nodes.map"), rightColumnAlignment)
                 }
 
                 if (showEdgeCount.conditionalShow(detailedView)) {
+println("adding showEdgeCount")
                     table.addGridElement("edges (#):", leftColumnAlignment)
                     table.addGridElement(face.nullOrSize("edges.map"), rightColumnAlignment)
                 }
@@ -139,7 +134,7 @@ class PFaceTransformation extends AbstractKielerGraphTransformation {
                 it.lineWidth = 4
                 if(nodeList.size == 0) {
                 	// graph is empty
-                    it.addGridElement("none", HorizontalAlignment::CENTER)
+                    it.addGridElement("(none)", HorizontalAlignment::CENTER)
                 }
             ]
 

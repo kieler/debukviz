@@ -32,8 +32,10 @@ import de.cau.cs.kieler.klighd.krendering.PlacementUtil;
 import de.cau.cs.kieler.klighd.debug.graphTransformations.TableElement;
 
 /**
- * @author Privat
+ * @deprecated
+ * A class to create a table layout
  * 
+ * @author tit
  */
 public class KTextIterableField implements Iterable<KText>, Iterator<KText> {
 

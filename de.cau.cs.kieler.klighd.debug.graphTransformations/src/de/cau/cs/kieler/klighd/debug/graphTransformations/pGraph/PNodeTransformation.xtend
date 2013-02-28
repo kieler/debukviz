@@ -146,7 +146,7 @@ class PNodeTransformation extends AbstractKielerGraphTransformation {
                 it.lineWidth = 4
                 if(edges.linkedList.size == 0) {
                 	// no edges to this node
-                    it.addGridElement("none", HorizontalAlignment::CENTER)
+                    it.addGridElement("(none)", HorizontalAlignment::CENTER)
                 }
             ]
 
