@@ -1,47 +1,32 @@
 package de.cau.cs.kieler.klighd.debug.graphTransformations.fGraph
 
 import de.cau.cs.kieler.core.kgraph.KNode
-import de.cau.cs.kieler.core.krendering.KRenderingFactory
-import de.cau.cs.kieler.core.krendering.extensions.KColorExtensions
-import de.cau.cs.kieler.core.krendering.extensions.KEdgeExtensions
+import de.cau.cs.kieler.core.krendering.HorizontalAlignment
+import de.cau.cs.kieler.core.krendering.LineStyle
+import de.cau.cs.kieler.core.krendering.extensions.KLabelExtensions
 import de.cau.cs.kieler.core.krendering.extensions.KNodeExtensions
+import de.cau.cs.kieler.core.krendering.extensions.KPolylineExtensions
 import de.cau.cs.kieler.core.krendering.extensions.KRenderingExtensions
+import de.cau.cs.kieler.kiml.options.EdgeLabelPlacement
 import de.cau.cs.kieler.kiml.options.LayoutOptions
 import de.cau.cs.kieler.kiml.util.KimlUtil
-import org.eclipse.debug.core.model.IVariable
-import javax.inject.Inject
-import de.cau.cs.kieler.core.krendering.LineStyle
-import de.cau.cs.kieler.core.properties.IProperty
-import de.cau.cs.kieler.core.krendering.extensions.KPolylineExtensions
-import de.cau.cs.kieler.kiml.klayoutdata.impl.KShapeLayoutImpl
-import javax.swing.text.Position
-import de.cau.cs.kieler.core.kgraph.KLabeledGraphElement
-import de.cau.cs.kieler.core.util.Pair
-import de.cau.cs.kieler.kiml.options.EdgeLabelPlacement
-import de.cau.cs.kieler.kiml.options.Direction
-import de.cau.cs.kieler.kiml.options.LayoutOptions
-import de.cau.cs.kieler.klighd.debug.graphTransformations.KTextIterableField
-
-import static de.cau.cs.kieler.klighd.debug.graphTransformations.lGraph.LGraphTransformation.*
 import de.cau.cs.kieler.klighd.debug.graphTransformations.AbstractKielerGraphTransformation
-import de.cau.cs.kieler.core.krendering.extensions.KLabelExtensions
-import java.util.LinkedList
-import de.cau.cs.kieler.core.krendering.HorizontalAlignment
-import de.cau.cs.kieler.core.krendering.VerticalAlignment
+import de.cau.cs.kieler.klighd.debug.graphTransformations.KTextIterableField
+import de.cau.cs.kieler.klighd.debug.graphTransformations.KTextIterableField$TextAlignment
 import de.cau.cs.kieler.klighd.debug.graphTransformations.ShowTextIf
+import javax.inject.Inject
+import org.eclipse.debug.core.model.IVariable
+
+import static de.cau.cs.kieler.klighd.debug.visualization.AbstractDebugTransformation.*
 
 class FGraphTransformation extends AbstractKielerGraphTransformation {
     
     @Inject
     extension KNodeExtensions
-    @Inject
-    extension KEdgeExtensions
     @Inject 
     extension KPolylineExtensions 
     @Inject
     extension KRenderingExtensions
-    @Inject
-    extension KColorExtensions
     @Inject
     extension KLabelExtensions
     

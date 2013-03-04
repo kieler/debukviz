@@ -19,17 +19,13 @@ import java.util.NoSuchElementException;
 
 import javax.inject.Inject;
 
-import de.cau.cs.kieler.core.krendering.HorizontalAlignment;
 import de.cau.cs.kieler.core.krendering.KAreaPlacementData;
 import de.cau.cs.kieler.core.krendering.KPosition;
 import de.cau.cs.kieler.core.krendering.KRenderingFactory;
 import de.cau.cs.kieler.core.krendering.KText;
-import de.cau.cs.kieler.core.krendering.VerticalAlignment;
 import de.cau.cs.kieler.core.krendering.extensions.KRenderingExtensions;
 import de.cau.cs.kieler.core.krendering.extensions.PositionReferenceX;
 import de.cau.cs.kieler.core.krendering.extensions.PositionReferenceY;
-import de.cau.cs.kieler.klighd.krendering.PlacementUtil;
-import de.cau.cs.kieler.klighd.debug.graphTransformations.TableElement;
 
 /**
  * @deprecated

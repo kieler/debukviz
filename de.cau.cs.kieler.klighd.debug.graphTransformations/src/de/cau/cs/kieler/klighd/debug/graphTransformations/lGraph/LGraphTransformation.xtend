@@ -1,9 +1,8 @@
 package de.cau.cs.kieler.klighd.debug.graphTransformations.lGraph
 
 import de.cau.cs.kieler.core.kgraph.KNode
+import de.cau.cs.kieler.core.krendering.HorizontalAlignment
 import de.cau.cs.kieler.core.krendering.LineStyle
-import de.cau.cs.kieler.core.krendering.extensions.KColorExtensions
-import de.cau.cs.kieler.core.krendering.extensions.KEdgeExtensions
 import de.cau.cs.kieler.core.krendering.extensions.KLabelExtensions
 import de.cau.cs.kieler.core.krendering.extensions.KNodeExtensions
 import de.cau.cs.kieler.core.krendering.extensions.KPolylineExtensions
@@ -12,41 +11,39 @@ import de.cau.cs.kieler.kiml.options.EdgeLabelPlacement
 import de.cau.cs.kieler.kiml.options.LayoutOptions
 import de.cau.cs.kieler.kiml.util.KimlUtil
 import de.cau.cs.kieler.klighd.debug.graphTransformations.AbstractKielerGraphTransformation
+import de.cau.cs.kieler.klighd.debug.graphTransformations.ShowTextIf
 import javax.inject.Inject
 import org.eclipse.debug.core.model.IVariable
 
 import static de.cau.cs.kieler.klighd.debug.visualization.AbstractDebugTransformation.*
-import de.cau.cs.kieler.klighd.debug.graphTransformations.KTextIterableField
-import de.cau.cs.kieler.klighd.debug.graphTransformations.ShowTextIf
-import de.cau.cs.kieler.klighd.debug.graphTransformations.ShowTextIf
 
 class LGraphTransformation extends AbstractKielerGraphTransformation {
     
     @Inject
     extension KNodeExtensions
-    @Inject
-    extension KEdgeExtensions
     @Inject 
     extension KPolylineExtensions 
     @Inject
     extension KRenderingExtensions
     @Inject
-    extension KColorExtensions
-    @Inject
     extension KLabelExtensions
     
     val layoutAlgorithm = "de.cau.cs.kieler.kiml.ogdf.planarization"
     val spacing = 75f
-    val leftColumnAlignment = KTextIterableField$TextAlignment::RIGHT
-    val rightColumnAlignment = KTextIterableField$TextAlignment::LEFT
-    val topGap = 4
-    val rightGap = 5
-    val bottomGap = 5
-    val leftGap = 4
-    val vGap = 3
-    val hGap = 5
+    val leftColumnAlignment = HorizontalAlignment::RIGHT
+    val rightColumnAlignment = HorizontalAlignment::LEFT
     val showPropertyMap = ShowTextIf::DETAILED
     val showVisulalization = ShowTextIf::DETAILED
+
+    val showID = ShowTextIf::ALWAYS
+    val showHashCode = ShowTextIf::ALWAYS
+    val showHashCodeCounter = ShowTextIf::DETAILED
+    val showSize = ShowTextIf::DETAILED
+    val showInsets = ShowTextIf::DETAILED
+    val showOffset = ShowTextIf::DETAILED
+    val showNodesCount = ShowTextIf::COMPACT
+    val showLayersCount = ShowTextIf::COMPACT
+    
     /**
      * {@inheritDoc}
      */
@@ -83,64 +80,58 @@ class LGraphTransformation extends AbstractKielerGraphTransformation {
 		rootNode.addNodeById(graph) => [
     		it.data += renderingFactory.createKRectangle => [
 
-                val field = new KTextIterableField(topGap, rightGap, bottomGap, leftGap, vGap, hGap)
-                it.headerNodeBasics(field, detailedView, graph, leftColumnAlignment, rightColumnAlignment)
-                var row = field.rowCount
+                val table = it.headerNodeBasics(detailedView, graph)
                 
                 // id of graph
-                field.set("id:", row, 0, leftColumnAlignment)
-                field.set(nullOrValue(graph, "id"), row, 1, rightColumnAlignment)
-                row = row + 1
+                if(showID.conditionalShow(detailedView)) {
+                    table.addGridElement("id:", leftColumnAlignment) 
+                    table.addGridElement(graph.nullOrValue("id"), rightColumnAlignment) 
+                }
                 
                 // hashCode of graph
-                field.set("hashCode:", row, 0, leftColumnAlignment)
-                field.set(nullOrValue(graph, "hashCode"), row, 1, rightColumnAlignment)
-                row = row + 1
+                if(showHashCode.conditionalShow(detailedView)) {
+                    table.addGridElement("hashCode:", leftColumnAlignment) 
+                    table.addGridElement(graph.nullOrValue("hashCode"), rightColumnAlignment) 
+                }
     			
-    			if(detailedView) {
-                    // hashCodeCounter of graph
-                    field.set("hashCodeCounter:", row, 0, leftColumnAlignment)
-                    field.set(graph.getValue("hashCodeCounter.count"), row, 1, rightColumnAlignment)
-                    row = row + 1
-                    
-                    // size of graph
-                    // size
-                    field.set("size (x,y):", row, 0, leftColumnAlignment)
-                    field.set("(" + graph.getValue("size.x").round + ", " 
-                                  + graph.getValue("size.y").round + ")", row, 1, rightColumnAlignment)
-                    row = row + 1
-                    
-                    // insets of graph
-                    field.set("insets (t,r,b,l):", row, 0, leftColumnAlignment)
-                    field.set("(" + graph.getValue("insets.top").round + ", "
-                                  + graph.getValue("insets.right").round + ", "
-                                  + graph.getValue("insets.bottom").round + ", "
-                                  + graph.getValue("insets.left").round + ")", row, 1, rightColumnAlignment)
-                    row = row + 1
+                // hashCodeCounter of graph
+                if(showHashCodeCounter.conditionalShow(detailedView)) {
+                    table.addGridElement("hashCodeCounter:", leftColumnAlignment) 
+                    table.addGridElement(graph.nullOrValue("hashCodeCounter.count"), rightColumnAlignment) 
+                }
 
-                    // offset of graph
-                    field.set("offset (x,y):", row, 0, leftColumnAlignment)
-                    field.set("(" + graph.getValue("offset.x").round + ", " 
-                                  + graph.getValue("offset.y").round + ")", row, 1, rightColumnAlignment)
-                    row = row + 1
-    			} else {
-    			    // # of nodes
+                // size of graph
+                if(showSize.conditionalShow(detailedView)) {
+                    table.addGridElement("size (x,y):", leftColumnAlignment) 
+                    table.addGridElement(graph.nullOrSize(""), rightColumnAlignment) 
+                }
+                    
+                // insets of graph
+                if(showInsets.conditionalShow(detailedView)) {
+                    table.addGridElement("insets (t,r,b,l):", leftColumnAlignment) 
+                    table.addGridElement(graph.nullOrLInsets("insets"), rightColumnAlignment) 
+                }
+
+                // offset of graph
+                if(showOffset.conditionalShow(detailedView)) {
+                    table.addGridElement("offset (x,y):", leftColumnAlignment) 
+                    table.addGridElement(graph.nullOrKVektor("offset"), rightColumnAlignment) 
+                }
+
+			    // # of nodes
+                if(showNodesCount.conditionalShow(detailedView)) {
                     var count = Integer::parseInt(graph.getValue("layerlessNodes.size"))
                     for(layer : graph.getVariable("layers").linkedList) {
                         count = count + Integer::parseInt(layer.getValue("nodes.size"))
                     }
-                    field.set("nodes (#):", row, 0, leftColumnAlignment)
-                    field.set("" + count, row, 1, rightColumnAlignment)
-                    row = row + 1
+                    table.addGridElement("nodes (#):", leftColumnAlignment) 
+                    table.addGridElement("" + count, rightColumnAlignment) 
+                }
 
-    			    // # of layers
-                    field.set("layers (#):", row, 0, leftColumnAlignment)
-                    field.set(graph.getValue("layers.size"), row, 1, rightColumnAlignment)
-    			}
-
-                // fill the KText into the ContainerRendering
-                for (text : field) {
-                    it.children += text
+			    // # of layers
+                if(showLayersCount.conditionalShow(detailedView)) {
+                    table.addGridElement("layers (#):", leftColumnAlignment) 
+                    table.addGridElement(graph.nullOrSize("layers"), rightColumnAlignment) 
                 }
             ]
 		]

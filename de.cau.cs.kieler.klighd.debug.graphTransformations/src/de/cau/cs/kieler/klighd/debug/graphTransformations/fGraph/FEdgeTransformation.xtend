@@ -1,38 +1,24 @@
 package de.cau.cs.kieler.klighd.debug.graphTransformations.fGraph
 
 import de.cau.cs.kieler.core.kgraph.KNode
-import de.cau.cs.kieler.core.krendering.extensions.KColorExtensions
-import de.cau.cs.kieler.core.krendering.extensions.KEdgeExtensions
-import de.cau.cs.kieler.core.krendering.extensions.KLabelExtensions
 import de.cau.cs.kieler.core.krendering.extensions.KNodeExtensions
-import de.cau.cs.kieler.core.krendering.extensions.KPolylineExtensions
 import de.cau.cs.kieler.core.krendering.extensions.KRenderingExtensions
-import de.cau.cs.kieler.kiml.options.EdgeLabelPlacement
 import de.cau.cs.kieler.kiml.options.LayoutOptions
 import de.cau.cs.kieler.kiml.util.KimlUtil
 import de.cau.cs.kieler.klighd.debug.graphTransformations.AbstractKielerGraphTransformation
+import de.cau.cs.kieler.klighd.debug.graphTransformations.KTextIterableField
+import de.cau.cs.kieler.klighd.debug.graphTransformations.KTextIterableField$TextAlignment
+import de.cau.cs.kieler.klighd.debug.graphTransformations.ShowTextIf
 import javax.inject.Inject
 import org.eclipse.debug.core.model.IVariable
-import de.cau.cs.kieler.klighd.debug.graphTransformations.KTextIterableField
-import de.cau.cs.kieler.core.krendering.HorizontalAlignment
 
 import static de.cau.cs.kieler.klighd.debug.visualization.AbstractDebugTransformation.*
-import de.cau.cs.kieler.klighd.debug.graphTransformations.ShowTextIf
-
 
 class FEdgeTransformation extends AbstractKielerGraphTransformation {
     @Inject
     extension KNodeExtensions
     @Inject
-    extension KEdgeExtensions
-    @Inject 
-    extension KPolylineExtensions 
-    @Inject
     extension KRenderingExtensions
-    @Inject
-    extension KColorExtensions
-    @Inject
-    extension KLabelExtensions
         
     val layoutAlgorithm = "de.cau.cs.kieler.kiml.ogdf.planarization"
     val spacing = 75f

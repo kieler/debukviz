@@ -1,39 +1,23 @@
 package de.cau.cs.kieler.klighd.debug.graphTransformations.pGraph
 
-import de.cau.cs.kieler.klighd.debug.graphTransformations.AbstractKielerGraphTransformation
-import org.eclipse.debug.core.model.IVariable
-import org.eclipse.debug.core.model.IVariable
 import de.cau.cs.kieler.core.kgraph.KNode
-import de.cau.cs.kieler.core.krendering.LineStyle
-import de.cau.cs.kieler.core.krendering.extensions.KColorExtensions
-import de.cau.cs.kieler.core.krendering.extensions.KEdgeExtensions
+import de.cau.cs.kieler.core.krendering.HorizontalAlignment
 import de.cau.cs.kieler.core.krendering.extensions.KNodeExtensions
-import de.cau.cs.kieler.core.krendering.extensions.KPolylineExtensions
 import de.cau.cs.kieler.core.krendering.extensions.KRenderingExtensions
 import de.cau.cs.kieler.kiml.options.LayoutOptions
 import de.cau.cs.kieler.kiml.util.KimlUtil
-import javax.inject.Inject
-import org.eclipse.debug.core.model.IVariable
-import de.cau.cs.kieler.core.krendering.KRendering
-import de.cau.cs.kieler.core.krendering.KContainerRendering
-import de.cau.cs.kieler.klighd.debug.graphTransformations.KTextIterableField
-import de.cau.cs.kieler.core.krendering.HorizontalAlignment
-
-import static de.cau.cs.kieler.klighd.debug.visualization.AbstractDebugTransformation.*
 import de.cau.cs.kieler.klighd.debug.graphTransformations.AbstractKielerGraphTransformation
 import de.cau.cs.kieler.klighd.debug.graphTransformations.ShowTextIf
+import javax.inject.Inject
+import org.eclipse.debug.core.model.IVariable
+
+import static de.cau.cs.kieler.klighd.debug.visualization.AbstractDebugTransformation.*
 
 class PLabelTransformation extends AbstractKielerGraphTransformation {
     @Inject
-    extension KNodeExtensions
-    @Inject
-    extension KEdgeExtensions
-    @Inject 
-    extension KPolylineExtensions 
+    extension KNodeExtensions 
     @Inject
     extension KRenderingExtensions
-    @Inject
-    extension KColorExtensions
         
     val layoutAlgorithm = "de.cau.cs.kieler.klay.layered"
     val spacing = 75f

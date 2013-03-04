@@ -14,22 +14,20 @@
 package de.cau.cs.kieler.klighd.debug.graphTransformations.pGraph
 
 import de.cau.cs.kieler.core.kgraph.KEdge
-import de.cau.cs.kieler.core.kgraph.KLabeledGraphElement
 import de.cau.cs.kieler.core.kgraph.KNode
 import de.cau.cs.kieler.core.krendering.HorizontalAlignment
-import de.cau.cs.kieler.core.krendering.KRenderingFactory
 import de.cau.cs.kieler.core.krendering.LineStyle
 import de.cau.cs.kieler.core.krendering.extensions.KEdgeExtensions
-import de.cau.cs.kieler.core.krendering.extensions.KLabelExtensions
 import de.cau.cs.kieler.core.krendering.extensions.KNodeExtensions
 import de.cau.cs.kieler.core.krendering.extensions.KPolylineExtensions
 import de.cau.cs.kieler.core.krendering.extensions.KRenderingExtensions
 import de.cau.cs.kieler.kiml.options.EdgeLabelPlacement
-import de.cau.cs.kieler.kiml.options.LayoutOptions
 import de.cau.cs.kieler.klighd.debug.graphTransformations.AbstractKielerGraphTransformation
 import java.util.HashMap
 import javax.inject.Inject
 import org.eclipse.debug.core.model.IVariable
+
+import static de.cau.cs.kieler.klighd.debug.visualization.AbstractDebugTransformation.*
 
 /**
  * A class used to create all edges in the visualization of the PGraph and the PFace.
@@ -50,13 +48,11 @@ class PEdgeRenderer extends AbstractKielerGraphTransformation {
     extension KPolylineExtensions 
     @Inject
     extension KRenderingExtensions
-    @Inject
-    extension KLabelExtensions
     
     /** The horizontal alignment for the left column of all grid layouts. */
     val leftColumnAlignment = HorizontalAlignment::RIGHT
     /** The horizontal alignment for the right column of all grid layouts. */
-    val rightColumnAlignment = HorizontalAlignment::LEFT
+//    val rightColumnAlignment = HorizontalAlignment::LEFT
     
     /**
      * @param rootNode

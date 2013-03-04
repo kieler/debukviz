@@ -1,56 +1,50 @@
 package de.cau.cs.kieler.klighd.debug.graphTransformations.lGraph
 
+import de.cau.cs.kieler.core.kgraph.KNode
+import de.cau.cs.kieler.core.krendering.HorizontalAlignment
 import de.cau.cs.kieler.core.krendering.KContainerRendering
-import de.cau.cs.kieler.core.krendering.extensions.KColorExtensions
-import de.cau.cs.kieler.core.krendering.extensions.KEdgeExtensions
+import de.cau.cs.kieler.core.krendering.extensions.KLabelExtensions
 import de.cau.cs.kieler.core.krendering.extensions.KNodeExtensions
+import de.cau.cs.kieler.core.krendering.extensions.KPolylineExtensions
 import de.cau.cs.kieler.core.krendering.extensions.KRenderingExtensions
+import de.cau.cs.kieler.kiml.options.EdgeLabelPlacement
 import de.cau.cs.kieler.kiml.options.LayoutOptions
 import de.cau.cs.kieler.kiml.util.KimlUtil
+import de.cau.cs.kieler.klighd.debug.graphTransformations.AbstractKielerGraphTransformation
+import de.cau.cs.kieler.klighd.debug.graphTransformations.ShowTextIf
 import javax.inject.Inject
 import org.eclipse.debug.core.model.IVariable
-import de.cau.cs.kieler.kiml.options.EdgeLabelPlacement
-import de.cau.cs.kieler.kiml.options.Direction
-import de.cau.cs.kieler.kiml.options.LayoutOptions
 
 import static de.cau.cs.kieler.klighd.debug.visualization.AbstractDebugTransformation.*
-import de.cau.cs.kieler.klighd.debug.graphTransformations.AbstractKielerGraphTransformation
-import de.cau.cs.kieler.core.kgraph.KNode
-import de.cau.cs.kieler.core.krendering.extensions.KPolylineExtensions
-import de.cau.cs.kieler.core.krendering.extensions.KLabelExtensions
-import de.cau.cs.kieler.klighd.debug.graphTransformations.KTextIterableField
-
-import static de.cau.cs.kieler.klighd.debug.visualization.AbstractDebugTransformation.*
-import de.cau.cs.kieler.klighd.debug.graphTransformations.ShowTextIf
-import de.cau.cs.kieler.klighd.debug.graphTransformations.ShowTextIf
 
 class LNodeTransformation extends AbstractKielerGraphTransformation {
 
 	@Inject 
     extension KNodeExtensions
-	@Inject 
-    extension KEdgeExtensions
     @Inject 
     extension KPolylineExtensions 
     @Inject
     extension KRenderingExtensions
-	@Inject 
-    extension KColorExtensions
     @Inject
     extension KLabelExtensions
     
     val layoutAlgorithm = "de.cau.cs.kieler.kiml.ogdf.planarization"
     val spacing = 75f
-    val leftColumnAlignment = KTextIterableField$TextAlignment::RIGHT
-    val rightColumnAlignment = KTextIterableField$TextAlignment::LEFT
-    val topGap = 4
-    val rightGap = 5
-    val bottomGap = 5
-    val leftGap = 4
-    val vGap = 3
-    val hGap = 5
+    val leftColumnAlignment = HorizontalAlignment::RIGHT
+    val rightColumnAlignment = HorizontalAlignment::LEFT
+
     val showPropertyMap = ShowTextIf::DETAILED
     val showPorts = ShowTextIf::DETAILED
+
+    val showSize = ShowTextIf::DETAILED
+    val showPos = ShowTextIf::DETAILED
+    val showMargin = ShowTextIf::DETAILED
+    val showInsets = ShowTextIf::DETAILED
+    val showOwner = ShowTextIf::DETAILED
+    val showID = ShowTextIf::ALWAYS
+    val showHashCode = ShowTextIf::ALWAYS
+    val showPortsCount = ShowTextIf::COMPACT
+    val showLabelsCount = ShowTextIf::COMPACT
     
     /**
      * {@inheritDoc}
@@ -88,10 +82,9 @@ class LNodeTransformation extends AbstractKielerGraphTransformation {
         rootNode.addNodeById(node) => [
             // Get the nodeType
             val nodeType = node.nodeType
-
-            val field = new KTextIterableField(topGap, rightGap, bottomGap, leftGap, vGap, hGap)
-
             var KContainerRendering container
+
+            val table = container.headerNodeBasics(detailedView, node)
             
             if (nodeType == "NORMAL" ) {
                 /*
@@ -108,23 +101,18 @@ class LNodeTransformation extends AbstractKielerGraphTransformation {
                  */
                 container = renderingFactory.createKEllipse => [
                     val origin = node.getVariable("propertyMap").getValFromHashMap("origin")
+                    table.addGridElement("origin:", leftColumnAlignment) 
                     if (nodeType == "NORTH_SOUTH_PORT" && origin.getType == "LNode") {
-                        field.set("origin:", 0, 0, leftColumnAlignment)
-                        field.set("" + origin.getVariable("labels").linkedList.get(0), 0, 1, rightColumnAlignment)
+                        table.addGridElement("" + origin.getVariable("labels").linkedList.get(0), rightColumnAlignment) 
                     } else {
-                        field.set("origin:", 0, 0, leftColumnAlignment)
-                        field.set("" + origin.nullOrTypeAndID(""), 0, 1, rightColumnAlignment)
+                        table.addGridElement("" + origin.nullOrTypeAndID(""), rightColumnAlignment) 
                     }
                 ]
             }
 
-            container.headerNodeBasics(field, detailedView, node, leftColumnAlignment, rightColumnAlignment)
-            var row = field.rowCount
-
             container.setForegroundColor(node)
 
             // Name of the node is the first label
-            field.set("name:", row, 0, leftColumnAlignment)
             val labels = node.getVariable("labels").linkedList
             var labelText = ""
             if(labels.isEmpty) {
@@ -141,73 +129,63 @@ class LNodeTransformation extends AbstractKielerGraphTransformation {
             if(!detailedView) {
                 labelText = labelText + node.getValueString
             }
-            field.set(labelText, row, 1, rightColumnAlignment)
-            row = row + 1
+            table.addGridElement("name:", leftColumnAlignment) 
+            table.addGridElement(labelText, leftColumnAlignment) 
 
             // id of node
-            field.set("id:", row, 0, leftColumnAlignment)
-            field.set(nullOrValue(node, "id"), row, 1, rightColumnAlignment)
-            row = row + 1
+            if(showID.conditionalShow(detailedView)) {
+                table.addGridElement("id:", leftColumnAlignment) 
+                table.addGridElement(node.nullOrValue("id"), rightColumnAlignment) 
+            }
 
             //owner (layer)
-            field.set("owner:", row, 0, leftColumnAlignment)
-            field.set(node.nullOrTypeAndID("owner"), 
-            	row, 1, rightColumnAlignment
-            )
-            row = row + 1
-
-            // following data only if detailedView
-            if(detailedView) {
-	            // hashCode of node
-	            field.set("hashCode:", row, 0, leftColumnAlignment)
-	            field.set(nullOrValue(node, "hashCode"), row, 1, rightColumnAlignment)
-	            row = row + 1
-
-                // insets
-                field.set("insets (b,l,r,t):", row, 0, leftColumnAlignment)
-                field.set("(" + node.getValue("insets.bottom").round + ", "
-                              + node.getValue("insets.left").round + ", "
-                              + node.getValue("insets.right").round + ", "
-                              + node.getValue("insets.top").round + ")", row, 1, rightColumnAlignment)
-                row = row + 1
-                
-                //margin
-                field.set("margin (b,l,r,t):", row, 0, leftColumnAlignment)
-                field.set("(" + node.getValue("margin.bottom").round + ", "
-                              + node.getValue("margin.left").round + ", "
-                              + node.getValue("margin.right").round + ", "
-                              + node.getValue("margin.top").round + ")", row, 1, rightColumnAlignment)
-                row = row + 1
-
-                // position
-                field.set("pos (x,y):", row, 0, leftColumnAlignment)
-                field.set("(" + node.getValue("pos.x").round + ", " 
-                              + node.getValue("pos.y").round + ")", row, 1, rightColumnAlignment)
-                row = row + 1
-                
-                // size
-                field.set("size (x,y):", row, 0, leftColumnAlignment)
-                field.set("(" + node.getValue("size.x").round + ", " 
-                              + node.getValue("size.y").round + ")", row, 1, rightColumnAlignment)
-                row = row + 1
-
-            } else {
-                // # of labels
-                field.set("labels (#):", row, 0, leftColumnAlignment)
-                field.set(node.getValue("labels.size"), row, 1, rightColumnAlignment)
-                row = row + 1
-
-                // # of ports
-                field.set("ports (#):", row, 0, leftColumnAlignment)
-                field.set(node.getValue("ports.size"), row, 1, rightColumnAlignment)
-                row = row + 1
+            if(showOwner.conditionalShow(detailedView)) {
+                table.addGridElement("owner:", leftColumnAlignment) 
+                table.addGridElement(node.nullOrTypeAndID("owner"), rightColumnAlignment) 
             }
-            
-            // fill the KText into the ContainerRendering
-            for (text : field) {
-                container.children += text
+
+            // hashCode of node
+            if(showHashCode.conditionalShow(detailedView)) {
+                table.addGridElement("hashCode:", leftColumnAlignment) 
+                table.addGridElement(node.nullOrValue("hashCode"), rightColumnAlignment) 
             }
-            
+
+            // insets
+            if(showInsets.conditionalShow(detailedView)) {
+                table.addGridElement("insets (b,l,r,t):", leftColumnAlignment) 
+                table.addGridElement(node.nullOrLInsets("insets"), rightColumnAlignment)
+            }
+                
+            //margin
+            if(showMargin.conditionalShow(detailedView)) {
+                table.addGridElement("margin (b,l,r,t):", leftColumnAlignment) 
+                table.addGridElement(node.nullOrLInsets("margin"), rightColumnAlignment)
+            }
+
+            // position
+            if(showPos.conditionalShow(detailedView)) {
+                table.addGridElement("pos (x,y):", leftColumnAlignment) 
+                table.addGridElement(node.nullOrKVektor("pos"), rightColumnAlignment)
+            }
+                
+            // size
+            if(showSize.conditionalShow(detailedView)) {
+                table.addGridElement("size (x,y):", leftColumnAlignment) 
+                table.addGridElement(node.nullOrKVektor("size"), rightColumnAlignment)
+            }
+
+            // # of labels
+            if(showLabelsCount.conditionalShow(detailedView)) {
+                table.addGridElement("labels (#):", leftColumnAlignment) 
+                table.addGridElement(node.nullOrSize("labels"), rightColumnAlignment) 
+            }
+
+            // # of ports
+            if(showPortsCount.conditionalShow(detailedView)) {
+                table.addGridElement("ports (#):", leftColumnAlignment) 
+                table.addGridElement(node.nullOrValue("ports"), rightColumnAlignment) 
+            }
+
             // add the node-symbol to the surrounding KNode
             it.data += container
         ]

@@ -1,5 +1,6 @@
 package de.cau.cs.kieler.klighd.debug.graphTransformations
 
+import de.cau.cs.kieler.core.kgraph.KEdge
 import de.cau.cs.kieler.core.kgraph.KNode
 import de.cau.cs.kieler.core.krendering.HorizontalAlignment
 import de.cau.cs.kieler.core.krendering.KContainerRendering
@@ -19,11 +20,9 @@ import javax.inject.Inject
 import org.eclipse.debug.core.DebugException
 import org.eclipse.debug.core.model.IVariable
 import org.eclipse.jdt.debug.core.IJavaArray
+import org.eclipse.jdt.debug.core.IJavaObject
 
 import static de.cau.cs.kieler.klighd.debug.visualization.AbstractDebugTransformation.*
-import de.cau.cs.kieler.core.kgraph.KEdge
-import de.cau.cs.kieler.klighd.krendering.PlacementUtil
-import org.eclipse.jdt.debug.core.IJavaObject
 
 /**
  * A class containing many helper functions for the transformation of graphs of the KIELER project.
@@ -49,8 +48,8 @@ abstract class AbstractKielerGraphTransformation extends AbstractDebugTransforma
     val rightGap = 7
     val bottomGap = 0
     val leftGap = 5
-    val vGap = 2
-    val hGap = 5
+//    val vGap = 2
+//    val hGap = 5
     
     protected Boolean detailedView = true
 
@@ -821,8 +820,8 @@ abstract class AbstractKielerGraphTransformation extends AbstractDebugTransforma
      * @author tit
      */
     def headerNodeBasics(KContainerRendering container, KTextIterableField field, Boolean detailedView, 
-    			IVariable variable, KTextIterableField$TextAlignment leftColumn, 
-    								KTextIterableField$TextAlignment rightColumn) {
+                IVariable variable, KTextIterableField$TextAlignment leftColumn, 
+                                    KTextIterableField$TextAlignment rightColumn) {
         if(detailedView) {
             // bold line in detailed view
             container.lineWidth = 4
@@ -832,12 +831,12 @@ abstract class AbstractKielerGraphTransformation extends AbstractDebugTransforma
 
             // name of the variable
             val text1 = renderingFactory.createKText => [
-            	it.text = "Variable:"
-	    		it.setFontBold(true)
+                it.text = "Variable:"
+                it.setFontBold(true)
             ]
             val text2 = renderingFactory.createKText => [
-            	it.text = variable.name + variable.getValueString
-	    		it.setFontBold(true)
+                it.text = variable.name + variable.getValueString
+                it.setFontBold(true)
             ]
             
             field.set(text1, field.rowCount, 0, leftColumn) 

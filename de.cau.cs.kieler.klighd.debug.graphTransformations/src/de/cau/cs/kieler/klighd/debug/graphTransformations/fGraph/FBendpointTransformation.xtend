@@ -51,6 +51,8 @@ class FBendpointTransformation extends AbstractKielerGraphTransformation {
     val showEdge = ShowTextIf::ALWAYS
     /** Specifies when to show the position. */
     val showPosition = ShowTextIf::ALWAYS
+    /** Specifies when to show the size. */
+    val showSize = ShowTextIf::DETAILED
     
     /**
      * {@inheritDoc}
@@ -107,8 +109,8 @@ class FBendpointTransformation extends AbstractKielerGraphTransformation {
                     table.addGridElement(bendPoint.nullOrKVektor("position"), rightColumnAlignment) 
                 }
 
-                if(detailedView) {
-                    // size of bendPoint
+                // size of bendPoint
+                if(showSize.conditionalShow(detailedView)) {
 	                table.addGridElement("size (x,y):", leftColumnAlignment) 
 	                table.addGridElement(bendPoint.nullOrKVektor("size"), rightColumnAlignment)
                 }

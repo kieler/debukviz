@@ -1,52 +1,38 @@
 package de.cau.cs.kieler.klighd.debug.graphTransformations.lGraph
 
-import de.cau.cs.kieler.klighd.debug.graphTransformations.AbstractKielerGraphTransformation
-import org.eclipse.debug.core.model.IVariable
-import org.eclipse.debug.core.model.IVariable
 import de.cau.cs.kieler.core.kgraph.KNode
-import de.cau.cs.kieler.core.krendering.LineStyle
-import de.cau.cs.kieler.core.krendering.extensions.KColorExtensions
-import de.cau.cs.kieler.core.krendering.extensions.KEdgeExtensions
+import de.cau.cs.kieler.core.krendering.HorizontalAlignment
 import de.cau.cs.kieler.core.krendering.extensions.KNodeExtensions
-import de.cau.cs.kieler.core.krendering.extensions.KPolylineExtensions
 import de.cau.cs.kieler.core.krendering.extensions.KRenderingExtensions
 import de.cau.cs.kieler.kiml.options.LayoutOptions
 import de.cau.cs.kieler.kiml.util.KimlUtil
-import javax.inject.Inject
-import org.eclipse.debug.core.model.IVariable
-import de.cau.cs.kieler.core.krendering.KRendering
-import de.cau.cs.kieler.core.krendering.KContainerRendering
-import de.cau.cs.kieler.klighd.debug.graphTransformations.KTextIterableField
-
-import static de.cau.cs.kieler.klighd.debug.visualization.AbstractDebugTransformation.*
 import de.cau.cs.kieler.klighd.debug.graphTransformations.AbstractKielerGraphTransformation
 import de.cau.cs.kieler.klighd.debug.graphTransformations.ShowTextIf
-import de.cau.cs.kieler.klighd.debug.graphTransformations.ShowTextIf
+import javax.inject.Inject
+import org.eclipse.debug.core.model.IVariable
+
+import static de.cau.cs.kieler.klighd.debug.visualization.AbstractDebugTransformation.*
 
 class LLabelTransformation extends AbstractKielerGraphTransformation {
     @Inject
     extension KNodeExtensions
     @Inject
-    extension KEdgeExtensions
-    @Inject 
-    extension KPolylineExtensions 
-    @Inject
     extension KRenderingExtensions
-    @Inject
-    extension KColorExtensions
         
     val layoutAlgorithm = "de.cau.cs.kieler.kiml.ogdf.planarization"
     val spacing = 75f
-    val leftColumnAlignment = KTextIterableField$TextAlignment::RIGHT
-    val rightColumnAlignment = KTextIterableField$TextAlignment::LEFT
-    val topGap = 4
-    val rightGap = 5
-    val bottomGap = 5
-    val leftGap = 4
-    val vGap = 3
-    val hGap = 5
+    val leftColumnAlignment = HorizontalAlignment::RIGHT
+    val rightColumnAlignment = HorizontalAlignment::LEFT
+
     val showPropertyMap = ShowTextIf::DETAILED
         
+    val showID = ShowTextIf::ALWAYS
+    val showHashCode = ShowTextIf::ALWAYS
+    val showText = ShowTextIf::DETAILED
+    val showPos = ShowTextIf::DETAILED
+    val showSize = ShowTextIf::DETAILED
+    val showSide = ShowTextIf::DETAILED
+
     override transform(IVariable label, Object transformationInfo) {
         detailedView = transformationInfo.isDetailed
 
@@ -54,7 +40,7 @@ class LLabelTransformation extends AbstractKielerGraphTransformation {
             it.addLayoutParam(LayoutOptions::ALGORITHM, layoutAlgorithm)
             it.addLayoutParam(LayoutOptions::SPACING, spacing)
 
-it.addInvisibleRendering
+            it.addInvisibleRendering
             it.data += renderingFactory.createKRectangle => [
                 it.invisible = true
             ]
@@ -79,48 +65,42 @@ it.addInvisibleRendering
         rootNode.addNodeById(label) => [
             it.data += renderingFactory.createKRectangle => [
 
-                val field = new KTextIterableField(topGap, rightGap, bottomGap, leftGap, vGap, hGap)
-                it.headerNodeBasics(field, detailedView, label, leftColumnAlignment, rightColumnAlignment)
-                var row = field.rowCount
+                val table = it.headerNodeBasics(detailedView, label)
                 
                 // id of label
-                field.set("id:", row, 0, leftColumnAlignment)
-                field.set(nullOrValue(label, "id"), row, 1, rightColumnAlignment)
-                row = row + 1
+                if(showID.conditionalShow(detailedView)) {
+                    table.addGridElement("id:", leftColumnAlignment) 
+                    table.addGridElement(label.nullOrValue("id"), rightColumnAlignment) 
+                }
    
                 // hashCode of label
-                field.set("hashCode:", row, 0, leftColumnAlignment)
-                field.set(nullOrValue(label, "hashCode"), row, 1, rightColumnAlignment)
-                row = row + 1
-                
-                // text of label
-                field.set("text:", row, 0, leftColumnAlignment)
-                field.set(nullOrValue(label, "text"), row, 1, rightColumnAlignment)
-                row = row + 1
-                
-                if(detailedView) {
-                    // show following elements only if detailedView
-                    // position of label
-                    field.set("pos (x,y):", row, 0, leftColumnAlignment)
-                    field.set("(" + label.getValue("pos.x").round + ", " 
-                                  + label.getValue("pos.y").round + ")", row, 1, rightColumnAlignment)
-                    row = row + 1
-                    
-                    // size of label
-                    field.set("size (x,y):", row, 0, leftColumnAlignment)
-                    field.set("(" + label.getValue("size.x").round + ", " 
-                                  + label.getValue("size.y").round + ")", row, 1, rightColumnAlignment)
-                    row = row + 1
-
-                    // side of label
-                    field.set("side:", row, 0, leftColumnAlignment)
-                    field.set(label.getValue("side.name"), row, 1, rightColumnAlignment)
-                    row = row + 1
+                if(showHashCode.conditionalShow(detailedView)) {
+                    table.addGridElement("hashCode:", leftColumnAlignment) 
+                    table.addGridElement(label.nullOrValue("hashCode"), rightColumnAlignment) 
                 }
 
-                // fill the KText into the ContainerRendering
-                for (text : field) {
-                    it.children += text
+                // text of label
+                if(showText.conditionalShow(detailedView)) {
+                    table.addGridElement("text:", leftColumnAlignment) 
+                    table.addGridElement(label.nullOrValue("text"), rightColumnAlignment) 
+                }
+                
+                // position of label
+                if(showPos.conditionalShow(detailedView)) {
+                    table.addGridElement("pos (x,y):", leftColumnAlignment) 
+                    table.addGridElement(label.nullOrKVektor("pos"), rightColumnAlignment) 
+                }
+                    
+                // size of label
+                if(showSize.conditionalShow(detailedView)) {
+                    table.addGridElement("size (x,y):", leftColumnAlignment) 
+                    table.addGridElement(label.nullOrKVektor("size"), rightColumnAlignment) 
+                }
+
+                // side of label
+                if(showSide.conditionalShow(detailedView)) {
+                    table.addGridElement("side::", leftColumnAlignment) 
+                    table.addGridElement(label.nullOrName("side"), rightColumnAlignment) 
                 }
             ]
         ]
