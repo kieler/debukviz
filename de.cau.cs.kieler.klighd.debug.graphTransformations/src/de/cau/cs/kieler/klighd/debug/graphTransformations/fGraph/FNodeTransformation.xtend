@@ -1,4 +1,17 @@
-package de.cau.cs.kieler.klighd.debug.graphTransformations.fGraph
+/*
+ * KIELER - Kiel Integrated Environment for Layout Eclipse RichClient
+ *
+ * http://www.informatik.uni-kiel.de/rtsys/kieler/
+ * 
+ * Copyright 2013 by
+ * + Christian-Albrechts-University of Kiel
+ *   + Department of Computer Science
+ *     + Real-Time and Embedded Systems Group
+ * 
+ * This code is provided under the terms of the Eclipse Public License (EPL).
+ * See the file epl-v10.html for the license text.
+ */
+ package de.cau.cs.kieler.klighd.debug.graphTransformations.fGraph
 
 import de.cau.cs.kieler.core.kgraph.KNode
 import de.cau.cs.kieler.core.krendering.HorizontalAlignment
@@ -12,14 +25,34 @@ import org.eclipse.debug.core.model.IVariable
 
 import static de.cau.cs.kieler.klighd.debug.visualization.AbstractDebugTransformation.*
 
-class FNodeTransformation extends AbstractKielerGraphTransformation {
+/*
+ * Transformation for a IVariable representing a FNode.
+ * 
+ * @ author tit
+ */
+ class FNodeTransformation extends AbstractKielerGraphTransformation {
     @Inject 
     extension KNodeExtensions
         
-    val layoutAlgorithm = "de.cau.cs.kieler.kiml.ogdf.planarization"
+    /** The layout algorithm to use. */
+    val layoutAlgorithm = "de.cau.cs.kieler.klay.layered"
+    /** The spacing to use. */
     val spacing = 75f
+    /** The horizontal alignment for the left column of all grid layouts. */
+    val leftColumnAlignment = HorizontalAlignment::RIGHT
+    /** The horizontal alignment for the right column of all grid layouts. */
+    val rightColumnAlignment = HorizontalAlignment::LEFT
+
+    /** Specifies when to show the property map. */
     val showPropertyMap = ShowTextIf::DETAILED
     
+    val showID = ShowTextIf::ALWAYS
+    val showLabel = ShowTextIf::ALWAYS
+    val showParent = ShowTextIf::DETAILED
+    val showDisplacement = ShowTextIf::DETAILED
+    val showPosition = ShowTextIf::DETAILED
+    val showSize = ShowTextIf::DETAILED
+
     /**
      * {@inheritDoc}
      */
@@ -27,15 +60,15 @@ class FNodeTransformation extends AbstractKielerGraphTransformation {
         detailedView = transformationInfo.isDetailed
 
         return KimlUtil::createInitializedNode => [
-            it.addLayoutParam(LayoutOptions::ALGORITHM, layoutAlgorithm)
-            it.addLayoutParam(LayoutOptions::SPACING, spacing)
+            addLayoutParam(LayoutOptions::ALGORITHM, layoutAlgorithm)
+            addLayoutParam(LayoutOptions::SPACING, spacing)
 
-			it.addInvisibleRendering
-            it.addHeaderNode(node)
+			addInvisibleRendering
+            addHeaderNode(node)
 
             // add propertyMap
             if(showPropertyMap.conditionalShow(detailedView))
-                it.addPropertyMapNode(node.getVariable("propertyMap"), node)
+                addPropertyMapNode(node.getVariable("propertyMap"), node)
         ]
     }
 
@@ -47,44 +80,56 @@ class FNodeTransformation extends AbstractKielerGraphTransformation {
 	}
     
     /**
-     * As there is no writeDotGraph in FGraph we don't have a prototype for formatting the nodes
+     * Creates the header node containing basic informations for this element and adds it to the rootNode.
+     * As there is no writeDotGraph in FGraph we don't have a prototype for formatting these nodes.
+     * 
+     * @param rootNode
+     *              The KNode the new created KNode will be placed in.
+     * @param edge
+     *              The IVariable representing the node transformed in this transformation.
+     * 
+     * @return The new created header KNode.
      */
-    def addHeaderNode(KNode rootNode, IVariable node) { 
+     def addHeaderNode(KNode rootNode, IVariable node) { 
         rootNode.addNodeById(node) => [
-            it.data += renderingFactory.createKRectangle => [
+            data += renderingFactory.createKRectangle => [
                 
-                val table = it.headerNodeBasics(detailedView, node)
+                val table = headerNodeBasics(detailedView, node)
 
                 // id of node
-                table.addGridElement("id:", HorizontalAlignment::RIGHT)
-                table.addGridElement(nullOrValue(node, "id"), HorizontalAlignment::LEFT)
+                if(showID.conditionalShow(detailedView)) {
+                    table.addGridElement("id:", leftColumnAlignment)
+                    table.addGridElement(node.nullOrValue("id"), rightColumnAlignment)
+                }
                 
                 // label of node (there is only one)
-                table.addGridElement("label:", HorizontalAlignment::RIGHT)
-                table.addGridElement(nullOrValue(node, "label"), HorizontalAlignment::LEFT)
+                if(showLabel.conditionalShow(detailedView)) {
+                    table.addGridElement("label:", leftColumnAlignment)
+                    table.addGridElement(node.nullOrValue("label"), rightColumnAlignment)
+                }
 
-                if (detailedView) {
-                    // parent
-	                table.addGridElement("parent:", HorizontalAlignment::RIGHT)
-                    table.addGridElement(node.nullOrTypeAndID("parent"), HorizontalAlignment::LEFT)
+                // parent
+                if(showParent.conditionalShow(detailedView)) {
+	                table.addGridElement("parent:", leftColumnAlignment)
+                    table.addGridElement(node.nullOrTypeAndID("parent"), rightColumnAlignment)
+                }
                     
-                    // displacement
-	                table.addGridElement("displacement (x,y):", HorizontalAlignment::RIGHT)
-	                table.addGridElement("(" + node.getValue("displacement.x").round + ", " 
-                                  			 + node.getValue("displacement.y").round + ")", 
-                                  			 HorizontalAlignment::LEFT)
+                // displacement
+                if(showDisplacement.conditionalShow(detailedView)) {
+	                table.addGridElement("displacement (x,y):", leftColumnAlignment)
+	                table.addGridElement(node.nullOrKVektor("displacement"), rightColumnAlignment)
+                }
 
-                    // position
-	                table.addGridElement("position (x,y):", HorizontalAlignment::RIGHT)
-	                table.addGridElement("(" + node.getValue("position.x").round + ", " 
-	                                  	     + node.getValue("position.y").round + ")",
-	                                  	     HorizontalAlignment::LEFT)
+                // position
+                if(showPosition.conditionalShow(detailedView)) {
+	                table.addGridElement("position (x,y):", leftColumnAlignment)
+	                table.addGridElement(node.nullOrKVektor("position"), rightColumnAlignment)
+                }
                     
-                    // size
-	                table.addGridElement("size (x,y):", HorizontalAlignment::RIGHT)
-	                table.addGridElement("(" + node.getValue("size.x").round + ", " 
-                                  			 + node.getValue("size.y").round + ")", 
-                                  			 HorizontalAlignment::LEFT)
+                // size
+                if(showSize.conditionalShow(detailedView)) {
+	                table.addGridElement("size (x,y):", leftColumnAlignment)
+	                table.addGridElement(node.nullOrKVektor("size"), rightColumnAlignment)
                 }
             ]
         ]

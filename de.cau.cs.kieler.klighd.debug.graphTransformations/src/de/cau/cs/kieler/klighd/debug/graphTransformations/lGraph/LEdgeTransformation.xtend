@@ -41,19 +41,19 @@ class LEdgeTransformation extends AbstractKielerGraphTransformation {
         detailedView = transformationInfo.isDetailed
 
         return KimlUtil::createInitializedNode => [
-            it.addLayoutParam(LayoutOptions::ALGORITHM, layoutAlgorithm)
-            it.addLayoutParam(LayoutOptions::SPACING, spacing)
+            addLayoutParam(LayoutOptions::ALGORITHM, layoutAlgorithm)
+            addLayoutParam(LayoutOptions::SPACING, spacing)
 
-			it.addInvisibleRendering
-            it.addHeaderNode(edge)
+			addInvisibleRendering
+            addHeaderNode(edge)
             
             // add propertyMap
             if(showPropertyMap.conditionalShow(detailedView))
-                it.addPropertyMapNode(edge.getVariable("propertyMap"), edge)
+                addPropertyMapNode(edge.getVariable("propertyMap"), edge)
             
             // add labels node
             if(showLabelsNode.conditionalShow(detailedView))
-                it.addLabels(edge)
+                addLabels(edge)
         ]
     }
     
@@ -73,14 +73,14 @@ class LEdgeTransformation extends AbstractKielerGraphTransformation {
  
             // create container node
             rootNode.addNodeById(labels) => [
-                it.data += renderingFactory.createKRectangle => [
-                    if(detailedView) it.lineWidth = 4 else it.lineWidth = 2
-                    it.ChildPlacement = renderingFactory.createKGridPlacement
+                data += renderingFactory.createKRectangle => [
+                    if(detailedView) lineWidth = 4 else lineWidth = 2
+                    ChildPlacement = renderingFactory.createKGridPlacement
                 ]
                     
                 // create all nodes for labels
                 labels.linkedList.forEach [ label |
-                    it.nextTransformation(label, false)
+                    nextTransformation(label, false)
                 ]
             ]
             
@@ -92,9 +92,9 @@ class LEdgeTransformation extends AbstractKielerGraphTransformation {
     
     def addHeaderNode(KNode rootNode, IVariable edge) { 
         rootNode.addNodeById(edge) => [
-            it.data += renderingFactory.createKRectangle => [
+            data += renderingFactory.createKRectangle => [
                 
-                val table = it.headerNodeBasics(detailedView, edge)
+                val table = headerNodeBasics(detailedView, edge)
 
                 // id of edge
 	            if (showID.conditionalShow(detailedView)) {

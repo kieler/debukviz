@@ -56,9 +56,9 @@ abstract class AbstractKielerGraphTransformation extends AbstractDebugTransforma
     /**
      * Checks if the detailed representation shall be used. Returns:
      * <ul>
-     *   <li> If the layout option in the preference page is  set to 'FLAT_LAYOUT' : false</li>
-     *   <li> If parameter 'info' is not an instance of Boolean : false</li>
-     *   <li> Otherwise: the value of parameter 'info'</li>
+     *   <li> If the layout option in the preference page is  set to <code>FLAT_LAYOUT</code> : <code>false</code></li>
+     *   <li> If parameter 'info' is an instance of Boolean and it's value is <code>false</code> : <code>false</code></li>
+     *   <li> Otherwise : <code>true</code></li>
      * </ul>
      * @param info 
      *              An Boolean value indicating if the detailed representation shall be used. This can
@@ -110,15 +110,15 @@ abstract class AbstractKielerGraphTransformation extends AbstractDebugTransforma
 		if(source.nodeExists && target.nodeExists) {
 		    // create edge from header node to visualization
 	        source.createEdgeById(target) => [
-	            it.data += renderingFactory.createKPolyline => [
-	                it.setLineWidth(2)
-	                it.addArrowDecorator
-	                it.setLineStyle(LineStyle::SOLID)
+	            data += renderingFactory.createKPolyline => [
+	                setLineWidth(2)
+	                addArrowDecorator
+	                setLineStyle(LineStyle::SOLID)
 	            ]
 	            target.createLabel(it) => [
-	                it.addLayoutParam(LayoutOptions::EDGE_LABEL_PLACEMENT, EdgeLabelPlacement::CENTER)
-	                it.setLabelSize(50,20)
-	                it.text = label
+	                addLayoutParam(LayoutOptions::EDGE_LABEL_PLACEMENT, EdgeLabelPlacement::CENTER)
+	                setLabelSize(50,20)
+	                text = label
 	        	]
 	        ]   
 		}
@@ -361,12 +361,12 @@ abstract class AbstractKielerGraphTransformation extends AbstractDebugTransforma
         if(rootNode != null && headerNode.valueIsNotNull) {
             // create propertyMap node
             rootNode.addNodeById(propertyMap) => [
-                it.data += renderingFactory.createKRectangle => [
-                    it.lineWidth = 4
+                data += renderingFactory.createKRectangle => [
+                    lineWidth = 4
 					if(propertyMap.valueIsNotNull) {
-	 					it.addValueElement(propertyMap)
+	 					addValueElement(propertyMap)
 					} else {
-						it.addGridElement("null", HorizontalAlignment::CENTER)
+						addGridElement("null", HorizontalAlignment::CENTER)
 					}
                 ]
             ]
@@ -374,17 +374,17 @@ abstract class AbstractKielerGraphTransformation extends AbstractDebugTransforma
             //create edge from header to propertyMap node (if there is a node registered to the header)
             if (headerNode.nodeExists) {
 	            headerNode.createEdgeById(propertyMap) => [
-	                it.data += renderingFactory.createKPolyline => [
-	                    it.setLineWidth(2)
-	                    it.addArrowDecorator
+	                data += renderingFactory.createKPolyline => [
+	                    setLineWidth(2)
+	                    addArrowDecorator
 	                ]
 	                
 	                // add label to edge
 	                propertyMap.createLabel(it) => [
-	                    it.addLayoutParam(LayoutOptions::EDGE_LABEL_PLACEMENT, EdgeLabelPlacement::CENTER)
-	                    it.text = "propertyMap"
+	                    addLayoutParam(LayoutOptions::EDGE_LABEL_PLACEMENT, EdgeLabelPlacement::CENTER)
+	                    text = "propertyMap"
 	                    val dim = PlacementUtil::estimateTextSize(it)
-	                    it.setLabelSize(dim.width,dim.height)
+	                    setLabelSize(dim.width,dim.height)
 	                ]
 	            ]
             }
@@ -529,15 +529,28 @@ abstract class AbstractKielerGraphTransformation extends AbstractDebugTransforma
      * 
      * @param node
      *            The KNode the rectangle will be added to.
-     * @return The new created KRectangle.
+     * @return The new created KRendering.
      */
     def addInvisibleRendering(KNode node) {
         return renderingFactory.createKRectangle => [
     		node.data += it 
-            it.invisible = true
+            invisible = true
         ]
     }
     
+    /**
+     * Adds an invisible KRendering rectangle to the containerRendering. 
+     * 
+     * @param containerRendering
+     *            The KContainerRendering the rectangle will be added to.
+     * @return The new created KRendering.
+     */
+    def addInvisibleRendering(KContainerRendering containerRendering) {
+        return renderingFactory.createKRectangle => [
+            containerRendering.children += it
+            invisible = true
+        ]
+    }
     
     /**
      * Adds all elements of an IVariable, representing a linkedList, to a given KContainerRendering.
@@ -652,7 +665,7 @@ abstract class AbstractKielerGraphTransformation extends AbstractDebugTransforma
     def addBlankGridElement(KContainerRendering container) {
         return renderingFactory.createKRectangle => [
     		container.children += it 
-            it.invisible = true
+            invisible = true
         ]
     }
     
@@ -673,9 +686,9 @@ abstract class AbstractKielerGraphTransformation extends AbstractDebugTransforma
         return renderingFactory.createKText => [
             container.children += it
             it.text = text
-        	it.setVerticalAlignment(VerticalAlignment::TOP)
-    		it.setHorizontalAlignment(align)
-    		it.setGridPlacementData(0f, 0f,
+        	setVerticalAlignment(VerticalAlignment::TOP)
+    		setHorizontalAlignment(align)
+    		setGridPlacementData(0f, 0f,
     			createKPosition(LEFT, leftGap, 0f, TOP, topGap, 0f),
     			createKPosition(RIGHT, rightGap, 0f, BOTTOM, bottomGap, 0f)
     		)
@@ -697,13 +710,13 @@ abstract class AbstractKielerGraphTransformation extends AbstractDebugTransforma
     def addInvisibleRectangleGrid(KContainerRendering container, int columns) {
 		return renderingFactory.createKRectangle => [
         	container.children += it
-            it.setInvisible(true)
-            it.ChildPlacement = renderingFactory.createKGridPlacement => [
-                it.numColumns = columns
+            setInvisible(true)
+            ChildPlacement = renderingFactory.createKGridPlacement => [
+                numColumns = columns
             ]
 
-            it.setVerticalAlignment(VerticalAlignment::TOP)    	
-            it.setHorizontalAlignment(rightColumnAlignment)    	
+            setVerticalAlignment(VerticalAlignment::TOP)    	
+            setHorizontalAlignment(rightColumnAlignment)    	
     	]
     }
     
@@ -743,8 +756,8 @@ abstract class AbstractKielerGraphTransformation extends AbstractDebugTransforma
      */
     def shortType(IVariable variable) {
         return renderingFactory.createKText => [
-            it.setForegroundColor(120,120,120)
-            it.text = variable.getType
+            setForegroundColor(120,120,120)
+            text = variable.getType
         ]    
     }
     
@@ -779,7 +792,7 @@ abstract class AbstractKielerGraphTransformation extends AbstractDebugTransforma
     def headerNodeBasics(KContainerRendering container, Boolean detailedView, IVariable variable) {
         
         container.ChildPlacement = renderingFactory.createKGridPlacement => [
-            it.numColumns = 1
+            numColumns = 1
         ]
         container.setVerticalAlignment(VerticalAlignment::TOP)    	
         container.setHorizontalAlignment(rightColumnAlignment)
@@ -799,10 +812,10 @@ abstract class AbstractKielerGraphTransformation extends AbstractDebugTransforma
         
         // name of the variable
         table.addGridElement("Variable:", leftColumnAlignment) => [
-    		it.setFontBold(true)
+    		setFontBold(true)
         ] 
         table.addGridElement(variable.name + variable.getValueString, rightColumnAlignment) => [ 
-    		it.setFontBold(true)
+    		setFontBold(true)
         ] 
 
         // coloring of main element
@@ -815,7 +828,8 @@ abstract class AbstractKielerGraphTransformation extends AbstractDebugTransforma
     }
     
     /**
-     * deprecated : please use headerNodeBasics(KContainerRendering, Boolean, IVariable) instead.
+     * deprecated : please use headerNodeBasics(KContainerRendering, Boolean, IVariable) instead, as the
+     * use of gridLayout should be preferred.
      * 
      * @author tit
      */
@@ -831,12 +845,12 @@ abstract class AbstractKielerGraphTransformation extends AbstractDebugTransforma
 
             // name of the variable
             val text1 = renderingFactory.createKText => [
-                it.text = "Variable:"
-                it.setFontBold(true)
+                text = "Variable:"
+                setFontBold(true)
             ]
             val text2 = renderingFactory.createKText => [
-                it.text = variable.name + variable.getValueString
-                it.setFontBold(true)
+                text = variable.name + variable.getValueString
+                setFontBold(true)
             ]
             
             field.set(text1, field.rowCount, 0, leftColumn) 
@@ -1039,9 +1053,9 @@ abstract class AbstractKielerGraphTransformation extends AbstractDebugTransforma
      */
     def addLabel(KEdge edge, String text, EdgeLabelPlacement placement) {
         edge.createLabel => [
-            it.addLayoutParam(LayoutOptions::EDGE_LABEL_PLACEMENT, placement)
+            addLayoutParam(LayoutOptions::EDGE_LABEL_PLACEMENT, placement)
             it.text = text
-             it.setLabelSize(
+             setLabelSize(
                 PlacementUtil::estimateTextSize(it).getWidth + 2,
                 PlacementUtil::estimateTextSize(it).getHeight + 2
             )

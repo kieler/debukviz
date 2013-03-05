@@ -53,19 +53,19 @@ class LNodeTransformation extends AbstractKielerGraphTransformation {
         detailedView = transformationInfo.isDetailed
         
         return KimlUtil::createInitializedNode => [
-            it.addLayoutParam(LayoutOptions::ALGORITHM, layoutAlgorithm)
-            it.addLayoutParam(LayoutOptions::SPACING, spacing)
+            addLayoutParam(LayoutOptions::ALGORITHM, layoutAlgorithm)
+            addLayoutParam(LayoutOptions::SPACING, spacing)
 
-			it.addInvisibleRendering
-            it.addHeaderNode(node)
+			addInvisibleRendering
+            addHeaderNode(node)
             
             // addpropertymap
             if(showPropertyMap.conditionalShow(detailedView))
-                it.addPropertyMapNode(node.getVariable("propertyMap"), node)
+                addPropertyMapNode(node.getVariable("propertyMap"), node)
                 
             //add node for ports
             if(showPorts.conditionalShow(detailedView))
-                it.addPorts(node)
+                addPorts(node)
         ]
     }
 
@@ -187,7 +187,7 @@ class LNodeTransformation extends AbstractKielerGraphTransformation {
             }
 
             // add the node-symbol to the surrounding KNode
-            it.data += container
+            data += container
         ]
     }
     
@@ -195,24 +195,24 @@ class LNodeTransformation extends AbstractKielerGraphTransformation {
         // create a node (ports) containing the port elements
         val ports = node.getVariable("ports")
         rootNode.addNodeById(ports) => [
-            it.data += renderingFactory.createKRectangle => [
-                it.lineWidth = 4
+            data += renderingFactory.createKRectangle => [
+                lineWidth = 4
             ]
             // create all ports
             ports.linkedList.forEach [ port |
-                it.nextTransformation(port, false)
+                nextTransformation(port, false)
             ]
         ]
         // create edge from header node to ports node
         node.createEdgeById(ports) => [
-            it.data += renderingFactory.createKPolyline => [
-                it.setLineWidth(2)
-                it.addArrowDecorator
+            data += renderingFactory.createKPolyline => [
+                setLineWidth(2)
+                addArrowDecorator
             ]
             ports.createLabel(it) => [
-                it.addLayoutParam(LayoutOptions::EDGE_LABEL_PLACEMENT, EdgeLabelPlacement::CENTER)
-                it.setLabelSize(50,20)
-                it.text = "ports"
+                addLayoutParam(LayoutOptions::EDGE_LABEL_PLACEMENT, EdgeLabelPlacement::CENTER)
+                setLabelSize(50,20)
+                text = "ports"
             ]
         ]   
     }

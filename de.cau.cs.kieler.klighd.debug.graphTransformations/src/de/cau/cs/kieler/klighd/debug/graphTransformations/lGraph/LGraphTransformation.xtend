@@ -51,19 +51,19 @@ class LGraphTransformation extends AbstractKielerGraphTransformation {
         detailedView = transformationInfo.isDetailed
         
         return KimlUtil::createInitializedNode => [
-            it.addLayoutParam(LayoutOptions::ALGORITHM, layoutAlgorithm)
-            it.addLayoutParam(LayoutOptions::SPACING, spacing)
+            addLayoutParam(LayoutOptions::ALGORITHM, layoutAlgorithm)
+            addLayoutParam(LayoutOptions::SPACING, spacing)
 
-			it.addInvisibleRendering
-     		it.addHeaderNode(graph)
+			addInvisibleRendering
+     		addHeaderNode(graph)
      		
             // add propertyMap
             if(showPropertyMap.conditionalShow(detailedView))
-                it.addPropertyMapNode(graph.getVariable("propertyMap"), graph)
+                addPropertyMapNode(graph.getVariable("propertyMap"), graph)
                 
             // create the graph visualization
             if(showVisulalization.conditionalShow(detailedView))
-                it.createVisualization(graph)
+                createVisualization(graph)
         ]
 	}
     
@@ -78,9 +78,9 @@ class LGraphTransformation extends AbstractKielerGraphTransformation {
 	
 	def addHeaderNode(KNode rootNode, IVariable graph) {
 		rootNode.addNodeById(graph) => [
-    		it.data += renderingFactory.createKRectangle => [
+    		data += renderingFactory.createKRectangle => [
 
-                val table = it.headerNodeBasics(detailedView, graph)
+                val table = headerNodeBasics(detailedView, graph)
                 
                 // id of graph
                 if(showID.conditionalShow(detailedView)) {
@@ -142,36 +142,36 @@ class LGraphTransformation extends AbstractKielerGraphTransformation {
 		val visualization = graph.getVariable("layerlessNodes")
 		
         rootNode.addNodeById(visualization) => [
-            it.data += renderingFactory.createKRectangle => [
-                it.lineWidth = 4
+            data += renderingFactory.createKRectangle => [
+                lineWidth = 4
             ]
             
             // create all nodes (layerless and layered)
-	  		it.createNodes(graph.getVariable("layerlessNodes"))
+	  		createNodes(graph.getVariable("layerlessNodes"))
 	  		for (layer : graph.getVariable("layers").linkedList) {
-	  		    it.createNodes(layer.getVariable("nodes"))
+	  		    createNodes(layer.getVariable("nodes"))
 	  		}
 
             // create all edges
             // first for all layerlessNodes ...
-            it.createEdges(graph.getVariable("layerlessNodes"))
+            createEdges(graph.getVariable("layerlessNodes"))
             // ... then iterate through all layers
             graph.getVariable("layers").linkedList.forEach[IVariable layer |
-                it.createEdges(layer.getVariable("nodes"))   
+                createEdges(layer.getVariable("nodes"))   
             ]
   		]
   		
 	    // create edge from header node to visualization
         graph.createEdgeById(visualization) => [
-            it.data += renderingFactory.createKPolyline => [
-                it.setLineWidth(2)
-                it.addArrowDecorator
-                it.setLineStyle(LineStyle::SOLID)
+            data += renderingFactory.createKPolyline => [
+                setLineWidth(2)
+                addArrowDecorator
+                setLineStyle(LineStyle::SOLID)
             ]
             visualization.createLabel(it) => [
-                it.addLayoutParam(LayoutOptions::EDGE_LABEL_PLACEMENT, EdgeLabelPlacement::CENTER)
-                it.setLabelSize(50,20)
-                it.text = "visualization"
+                addLayoutParam(LayoutOptions::EDGE_LABEL_PLACEMENT, EdgeLabelPlacement::CENTER)
+                setLabelSize(50,20)
+                text = "visualization"
             ]
         ]   
 	}
@@ -188,14 +188,14 @@ class LGraphTransformation extends AbstractKielerGraphTransformation {
         		port.getVariable("outgoingEdges").linkedList.forEach[IVariable edge |
                     edge.getVariable("source.owner")
                         .createEdgeById(edge.getVariable("target.owner")) => [
-        				it.data += renderingFactory.createKPolyline => [
-	            		    it.setLineWidth(2)
-                            it.addArrowDecorator
+        				data += renderingFactory.createKPolyline => [
+	            		    setLineWidth(2)
+                            addArrowDecorator
                             
                             switch edge.edgeType {
-                                case "COMPOUND_DUMMY" : it.setLineStyle(LineStyle::DASH)
-                                case "COMPOUND_SIDE" : it.setLineStyle(LineStyle::DOT)
-                                default : it.setLineStyle(LineStyle::SOLID)
+                                case "COMPOUND_DUMMY" : setLineStyle(LineStyle::DASH)
+                                case "COMPOUND_SIDE" : setLineStyle(LineStyle::DOT)
+                                default : setLineStyle(LineStyle::SOLID)
                             }
     	    			]
         			]

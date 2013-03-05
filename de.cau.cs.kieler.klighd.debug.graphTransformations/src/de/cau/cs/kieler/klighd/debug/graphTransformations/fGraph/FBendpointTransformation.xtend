@@ -36,7 +36,7 @@ class FBendpointTransformation extends AbstractKielerGraphTransformation {
     extension KNodeExtensions
     
     /** The layout algorithm to use. */
-    val layoutAlgorithm = "de.cau.cs.kieler.kiml.ogdf.planarization"
+    val layoutAlgorithm = "de.cau.cs.kieler.klay.layered"
     /** The spacing to use. */
     val spacing = 75f
     /** The horizontal alignment for the left column of all grid layouts. */
@@ -61,15 +61,15 @@ class FBendpointTransformation extends AbstractKielerGraphTransformation {
         detailedView = transformationInfo.isDetailed
         
          return KimlUtil::createInitializedNode => [
-            it.addLayoutParam(LayoutOptions::ALGORITHM, layoutAlgorithm)
-            it.addLayoutParam(LayoutOptions::SPACING, spacing)
+            addLayoutParam(LayoutOptions::ALGORITHM, layoutAlgorithm)
+            addLayoutParam(LayoutOptions::SPACING, spacing)
 
-			it.addInvisibleRendering
-            it.createHeaderNode(bendPoint)
+			addInvisibleRendering
+            addHeaderNode(bendPoint)
             
             // add propertyMap
             if(showPropertyMap.conditionalShow(detailedView))
-                it.addPropertyMapNode(bendPoint.getVariable("propertyMap"), bendPoint)
+                addPropertyMapNode(bendPoint.getVariable("propertyMap"), bendPoint)
         ]
     }
 
@@ -81,21 +81,20 @@ class FBendpointTransformation extends AbstractKielerGraphTransformation {
 	}
 
     /**
-     * Creates the header node containing basic informations for this element.
+     * Creates the header node containing basic informations for this element and adds it to the rootNode.
      * 
      * @param rootNode
      *              The KNode the new created KNode will be placed in.
      * @param layer
      *              The IVariable representing the bendPoint transformed in this transformation.
      * 
-     * @return The new created header KNode
-
+     * @return The new created header KNode.
      */
-    def createHeaderNode(KNode rootNode, IVariable bendPoint) {
+    def addHeaderNode(KNode rootNode, IVariable bendPoint) {
         rootNode.addNodeById(bendPoint) => [
-            it.data += renderingFactory.createKEllipse => [
+            data += renderingFactory.createKEllipse => [
                 
-                val table = it.headerNodeBasics(detailedView, bendPoint)
+                val table = headerNodeBasics(detailedView, bendPoint)
                 
                 // associated edge
                 if(showEdge.conditionalShow(detailedView)) {

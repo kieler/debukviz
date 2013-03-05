@@ -72,19 +72,19 @@ class LLayerTransformation extends AbstractKielerGraphTransformation {
         detailedView = transformationInfo.isDetailed
         
         return KimlUtil::createInitializedNode => [
-            it.addLayoutParam(LayoutOptions::ALGORITHM, layoutAlgorithm)
-            it.addLayoutParam(LayoutOptions::SPACING, spacing)
+            addLayoutParam(LayoutOptions::ALGORITHM, layoutAlgorithm)
+            addLayoutParam(LayoutOptions::SPACING, spacing)
 
-			it.addInvisibleRendering
-            it.addHeaderNode(layer)
+			addInvisibleRendering
+            addHeaderNode(layer)
             
             // add propertyMap
             if(showPropertyMap.conditionalShow(detailedView))
-            	it.addPropertyMapNode(layer.getVariable("propertyMap"), layer)
+            	addPropertyMapNode(layer.getVariable("propertyMap"), layer)
 
             //add visualization containing nodes of layer and edges between the nodes of this layer
             if (showVisualization.conditionalShow(detailedView))
-                it.addVisualization(layer)
+                addVisualization(layer)
         ]
 	}
 	
@@ -109,9 +109,9 @@ class LLayerTransformation extends AbstractKielerGraphTransformation {
      */
     def addHeaderNode(KNode rootNode, IVariable layer) {
         return rootNode.addNodeById(layer) => [
-            it.data += renderingFactory.createKRectangle => [
+            data += renderingFactory.createKRectangle => [
 
-                val table = it.headerNodeBasics(detailedView, layer)
+                val table = headerNodeBasics(detailedView, layer)
     
                 // id of layer
                 if (showID.conditionalShow(detailedView)) {
@@ -157,12 +157,12 @@ class LLayerTransformation extends AbstractKielerGraphTransformation {
 		val nodes = layer.getVariable("nodes")
 		
         return rootNode.addNodeById(nodes) => [
-            it.data += renderingFactory.createKRectangle => [
-                it.lineWidth = 4
+            data += renderingFactory.createKRectangle => [
+                lineWidth = 4
             ]
             // add all nodes
 		    nodes.linkedList.forEach[IVariable node |
-          		it.nextTransformation(node, false)
+          		nextTransformation(node, false)
 	        ]
 	        
 	        // add the edges, if they are span between two nodes of this layer
@@ -174,14 +174,14 @@ class LLayerTransformation extends AbstractKielerGraphTransformation {
 	        			val target = edge.getVariable("target.owner")
 	        			if(nodes.containsValWithID(target.valueString)) {
 		                    node.createEdgeById(target) => [
-		        				it.data += renderingFactory.createKPolyline => [
-			            		    it.setLineWidth(2)
-		                            it.addArrowDecorator
+		        				data += renderingFactory.createKPolyline => [
+			            		    setLineWidth(2)
+		                            addArrowDecorator
 		                            
 		                            switch edge.edgeType {
-		                                case "COMPOUND_DUMMY" : it.setLineStyle(LineStyle::DASH)
-		                                case "COMPOUND_SIDE" : it.setLineStyle(LineStyle::DOT)
-		                                default : it.setLineStyle(LineStyle::SOLID)
+		                                case "COMPOUND_DUMMY" : setLineStyle(LineStyle::DASH)
+		                                case "COMPOUND_SIDE" : setLineStyle(LineStyle::DOT)
+		                                default : setLineStyle(LineStyle::SOLID)
 		                            }
 		    	    			]
 		        			]

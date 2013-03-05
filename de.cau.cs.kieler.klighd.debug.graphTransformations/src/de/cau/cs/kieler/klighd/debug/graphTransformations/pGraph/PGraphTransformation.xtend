@@ -55,23 +55,23 @@ class PGraphTransformation extends AbstractKielerGraphTransformation {
         detailedView = transformationInfo.isDetailed
         
         return KimlUtil::createInitializedNode => [
-            it.addLayoutParam(LayoutOptions::ALGORITHM, layoutAlgorithm)
-            it.addLayoutParam(LayoutOptions::SPACING, spacing)
+            addLayoutParam(LayoutOptions::ALGORITHM, layoutAlgorithm)
+            addLayoutParam(LayoutOptions::SPACING, spacing)
 
-			it.addInvisibleRendering
-            it.addHeaderNode(graph)
+			addInvisibleRendering
+            addHeaderNode(graph)
 
             // add propertyMap
             if(showPropertyMap.conditionalShow(detailedView)) 
-                it.addPropertyMapNode(graph.getVariable("propertyMap"), graph)
+                addPropertyMapNode(graph.getVariable("propertyMap"), graph)
 
             // create the graph visualization
             if (showVisualization.conditionalShow(detailedView))
-                it.addVisualizationNode(graph)
+                addVisualizationNode(graph)
             
             // create the faces visualization
             if (showFaces.conditionalShow(detailedView))
-            	it.addFacesVisualizationNode(graph)
+            	addFacesVisualizationNode(graph)
         ]
     }
     
@@ -87,9 +87,9 @@ class PGraphTransformation extends AbstractKielerGraphTransformation {
     
     def addHeaderNode(KNode rootNode, IVariable graph) {
         rootNode.addNodeById(graph) => [
-            it.data += renderingFactory.createKRectangle => [
+            data += renderingFactory.createKRectangle => [
 
-                val table = it.headerNodeBasics(detailedView, graph)
+                val table = headerNodeBasics(detailedView, graph)
 
                 if (showID.conditionalShow(detailedView)) {
                     table.addGridElement("id:", leftColumnAlignment)
@@ -149,21 +149,21 @@ class PGraphTransformation extends AbstractKielerGraphTransformation {
         
         // create rectangle for outer node 
         return rootNode.addNodeById(nodes) => [
-            it.data += renderingFactory.createKRectangle => [
-                it.lineWidth = 4
+            data += renderingFactory.createKRectangle => [
+                lineWidth = 4
                 if(nodes.linkedHashSetToLinkedList.size == 0) {
                 	// graph is empty
-                    it.addGridElement("(none)", HorizontalAlignment::CENTER)
+                    addGridElement("(none)", HorizontalAlignment::CENTER)
                 }
             ]
 
             // create all nodes
 		    nodes.linkedHashSetToLinkedList.forEach[IVariable element |
-          		it.nextTransformation(element, false)
+          		nextTransformation(element, false)
 	        ]
 	        
 	        // create all edges
-	        it.addAllEdges(graph)
+	        addAllEdges(graph)
 
 	        // create edge from root node to the visualization node
     	    graph.createTopElementEdge(nodes, "visualization")
@@ -176,17 +176,17 @@ class PGraphTransformation extends AbstractKielerGraphTransformation {
         
         // create outer faces node
         return rootNode.addNodeById(faces) => [
-            it.data += renderingFactory.createKRectangle => [
-                it.lineWidth = 4
+            data += renderingFactory.createKRectangle => [
+                lineWidth = 4
                 if (facesList.size == 0) {
                     // there are no faces
-                    it.ChildPlacement = renderingFactory.createKGridPlacement
-                    it.addGridElement("(none)", HorizontalAlignment::CENTER)
+                    ChildPlacement = renderingFactory.createKGridPlacement
+                    addGridElement("(none)", HorizontalAlignment::CENTER)
                 }
             ]
             if (facesList.size > 0) {
                 // create nodes for all faces
-                facesList.forEach[IVariable face | it.nextTransformation(face, false)]
+                facesList.forEach[IVariable face | nextTransformation(face, false)]
                 
                 // create edges between the faces. check all edges in original graph and add an edge 
                 // to the faces visualization:
@@ -196,12 +196,12 @@ class PGraphTransformation extends AbstractKielerGraphTransformation {
                 	val source = edge.getVariable("leftFace")
                 	val target = edge.getVariable("rightFace")
                 	source.createEdgeById(target) => [
-		                it.data += renderingFactory.createKPolyline => [
-	            	        it.setLineWidth(2)
-	                        it.addArrowDecorator
-		                    it.setLineStyle(LineStyle::SOLID)
+		                data += renderingFactory.createKPolyline => [
+	            	        setLineWidth(2)
+	                        addArrowDecorator
+		                    setLineStyle(LineStyle::SOLID)
 	                    ]
-	                    it.addLabel(
+	                    addLabel(
 	                        "[" + edge.getValue("source.id") + " -> " + edge.getValue("target.id") + "]", 
                             EdgeLabelPlacement::HEAD
 	                    )

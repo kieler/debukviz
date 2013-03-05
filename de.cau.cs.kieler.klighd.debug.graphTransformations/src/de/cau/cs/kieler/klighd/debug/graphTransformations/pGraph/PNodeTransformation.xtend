@@ -43,23 +43,23 @@ class PNodeTransformation extends AbstractKielerGraphTransformation {
 
         return KimlUtil::createInitializedNode => [
         
-            it.addLayoutParam(LayoutOptions::ALGORITHM, layoutAlgorithm)
-            it.addLayoutParam(LayoutOptions::SPACING, spacing)
+            addLayoutParam(LayoutOptions::ALGORITHM, layoutAlgorithm)
+            addLayoutParam(LayoutOptions::SPACING, spacing)
 
-			it.addInvisibleRendering
-            it.createHeaderNode(node)
+			addInvisibleRendering
+            addHeaderNode(node)
 
             // add propertyMap
             if(showPropertyMap.conditionalShow(detailedView))
-                it.addPropertyMapNode(node.getVariable("propertyMap"), node)
+                addPropertyMapNode(node.getVariable("propertyMap"), node)
 
             // add edges node
             if(showEdges.conditionalShow(detailedView))
-            	it.addEdgesNode(node)
+            	addEdgesNode(node)
         ]
     }
     
-    def createHeaderNode(KNode rootNode, IVariable node) {
+    def addHeaderNode(KNode rootNode, IVariable node) {
         rootNode.addNodeById(node) => [
             // either an ellipse or a rectangle
             var KContainerRendering container
@@ -120,7 +120,7 @@ class PNodeTransformation extends AbstractKielerGraphTransformation {
                 table.addGridElement(node.nullOrKVektor("pos"), rightColumnAlignment)
             }
 
-            it.data += container
+            data += container
         ]
     }
                 
@@ -129,17 +129,17 @@ class PNodeTransformation extends AbstractKielerGraphTransformation {
         
         // create rectangle for outer node 
         rootNode.addNodeById(edges) => [
-            it.data += renderingFactory.createKRectangle => [
-                it.lineWidth = 4
+            data += renderingFactory.createKRectangle => [
+                lineWidth = 4
                 if(edges.linkedList.size == 0) {
                 	// no edges to this node
-                    it.addGridElement("(none)", HorizontalAlignment::CENTER)
+                    addGridElement("(none)", HorizontalAlignment::CENTER)
                 }
             ]
 
             // create nodes for all edges
 		    edges.linkedList.forEach[IVariable element |
-          		it.nextTransformation(element, false)
+          		nextTransformation(element, false)
 	        ]
 
 	        // create edge from root node to the visualization node

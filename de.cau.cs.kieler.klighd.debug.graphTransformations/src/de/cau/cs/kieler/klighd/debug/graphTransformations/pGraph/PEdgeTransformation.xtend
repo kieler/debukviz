@@ -39,15 +39,15 @@ class PEdgeTransformation extends AbstractKielerGraphTransformation {
         detailedView = transformationInfo.isDetailed
 
         return KimlUtil::createInitializedNode => [
-            it.addLayoutParam(LayoutOptions::ALGORITHM, layoutAlgorithm)
-            it.addLayoutParam(LayoutOptions::SPACING, spacing)
+            addLayoutParam(LayoutOptions::ALGORITHM, layoutAlgorithm)
+            addLayoutParam(LayoutOptions::SPACING, spacing)
 
-			it.addInvisibleRendering
-			it.addHeaderNode(edge)
+			addInvisibleRendering
+			addHeaderNode(edge)
 
             // add propertyMap
             if(showPropertyMap.conditionalShow(detailedView))
-                it.addPropertyMapNode(edge.getVariable("propertyMap"), edge)
+                addPropertyMapNode(edge.getVariable("propertyMap"), edge)
         ]
     }
     
@@ -61,9 +61,9 @@ class PEdgeTransformation extends AbstractKielerGraphTransformation {
     
     def addHeaderNode(KNode rootNode, IVariable edge) { 
         rootNode.addNodeById(edge) => [
-            it.data += renderingFactory.createKRectangle => [
+            data += renderingFactory.createKRectangle => [
                 
-                val table = it.headerNodeBasics(detailedView, edge)
+                val table = headerNodeBasics(detailedView, edge)
 
                 // id
 	            if (showID.conditionalShow(detailedView)) {

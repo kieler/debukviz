@@ -42,28 +42,28 @@ class PFaceTransformation extends AbstractKielerGraphTransformation {
         detailedView = transformationInfo.isDetailed
 
         return KimlUtil::createInitializedNode => [
-            it.addLayoutParam(LayoutOptions::ALGORITHM, layoutAlgorithm)
-            it.addLayoutParam(LayoutOptions::SPACING, spacing)
+            addLayoutParam(LayoutOptions::ALGORITHM, layoutAlgorithm)
+            addLayoutParam(LayoutOptions::SPACING, spacing)
 
-			it.addInvisibleRendering
-            it.addHeaderNode(face)
+			addInvisibleRendering
+            addHeaderNode(face)
 
             // add propertyMap
             if(showPropertyMap.conditionalShow(detailedView))
-                it.addPropertyMapNode(face.getVariable("propertyMap"), face)
+                addPropertyMapNode(face.getVariable("propertyMap"), face)
                 
             // create the graph visualization
             if(showVisualization.conditionalShow(detailedView))
-     	       it.addVisualization(face)
+     	       addVisualization(face)
     	]
     }
 
     def addHeaderNode(KNode rootNode, IVariable face) {
         rootNode.addNodeById(face) => [
 println("adding face")
-            it.data += renderingFactory.createKRectangle => [
+            data += renderingFactory.createKRectangle => [
                 
-                val table = it.headerNodeBasics(detailedView, face)
+                val table = headerNodeBasics(detailedView, face)
                 
                 if (showID.conditionalShow(detailedView)) {
 println("adding showID")
@@ -130,21 +130,21 @@ println("adding showEdgeCount")
 
         // create rectangle for outer node 
         val newNode = rootNode.addNodeById(nodes) => [
-            it.data += renderingFactory.createKRectangle => [
-                it.lineWidth = 4
+            data += renderingFactory.createKRectangle => [
+                lineWidth = 4
                 if(nodeList.size == 0) {
                 	// graph is empty
-                    it.addGridElement("(none)", HorizontalAlignment::CENTER)
+                    addGridElement("(none)", HorizontalAlignment::CENTER)
                 }
             ]
 
             // create all nodes
             nodeList.forEach[IVariable node |
-                it.nextTransformation(node, false)
+                nextTransformation(node, false)
             ]
             
             // create all edges
-            it.addAllEdges(face)
+            addAllEdges(face)
         ]
 
         // create edge from header node to visualization

@@ -98,25 +98,25 @@ println("nodes count: " + nodes.size)
 		                if(bendCount > 1) {
 		                    // more than one bendPoint: create a container node, containing the bendPoints
 		                    rootNode.children += bendPoints.createNode => [
-		                        it.data += renderingFactory.createKRectangle => [
-		                            it.lineWidth = 4
+		                        data += renderingFactory.createKRectangle => [
+		                            lineWidth = 4
 		                        ]
 		                        bendPoints.linkedList.forEach[IVariable bendPoint |
-		                            it.createBendPoint(bendPoint)
+		                            createBendPoint(bendPoint)
 		                        ]
 		                    ]
 		                    // create the edge from the new created node to the target node
 		                    newEdge1 = bendPoints.createEdge(target) => [
 				    			edgeMap.put(edge.getValueString, it)
-		                        it.data += renderingFactory.createKPolyline => [
-		                            it.setLineWidth(2)
+		                        data += renderingFactory.createKPolyline => [
+		                            setLineWidth(2)
 		                            if (isDirected) {
-		                                it.addArrowDecorator
+		                                addArrowDecorator
 		                            } else {
 										//TODO: ist der hier wirklich gut?
-		                                it.addInheritanceTriangleArrowDecorator
+		                                addInheritanceTriangleArrowDecorator
 		                            }
-		                            it.setLineStyle(LineStyle::SOLID)
+		                            setLineStyle(LineStyle::SOLID)
 		                        ];
 		                    ]
 		                    // set target for the "default" edge to the new created container node
@@ -129,11 +129,11 @@ println("nodes count: " + nodes.size)
 		                    // create the edge from the new created node to the target node
 		                    newEdge1 = bendPoint.createEdge(target) => [
 				    			edgeMap.put(edge.getValueString, it)
-		                        it.data += renderingFactory.createKPolyline => [
-		                            it.setLineWidth(2)
+		                        data += renderingFactory.createKPolyline => [
+		                            setLineWidth(2)
 									//TODO: ist der hier wirklich gut?
-		                            it.addInheritanceTriangleArrowDecorator
-		                            it.setLineStyle(LineStyle::SOLID)
+		                            addInheritanceTriangleArrowDecorator
+		                            setLineStyle(LineStyle::SOLID)
 		                        ]
 		                    ]
 		                    // set target for the "default" edge to the new created node
@@ -143,16 +143,16 @@ println("nodes count: " + nodes.size)
 		            
 		            // create first edge, from source to either new bendPoint or target node
 		            val newEdge2 = source.createEdgeById(target) => [
-		                it.data += renderingFactory.createKPolyline => [
-		                    it.setLineWidth(2)
+		                data += renderingFactory.createKPolyline => [
+		                    setLineWidth(2)
 		                    if (isDirected) {
-		                        it.addArrowDecorator
+		                        addArrowDecorator
 		                    } else {
-		                        it.addInheritanceTriangleArrowDecorator
+		                        addInheritanceTriangleArrowDecorator
 		                    }
-		                    it.setLineStyle(LineStyle::SOLID)
+		                    setLineStyle(LineStyle::SOLID)
 		                ]
-	                    it.addLabel(i.toString, EdgeLabelPlacement::TAIL)
+	                    addLabel(i.toString, EdgeLabelPlacement::TAIL)
 	                    if (bendCount == 0) {
 	                    	// there was no bendPoint, so this edge is also the holder of the label
 	                    	// indicating the position in the target edge list
@@ -185,17 +185,17 @@ println("nodes count: " + nodes.size)
 	
     def createBendPoint(KNode rootNode, IVariable bendPoint) {
         return rootNode.addNodeById(bendPoint) => [
-            it.data += renderingFactory.createKRectangle => [
-                it.lineWidth = 2
-                it.ChildPlacement = renderingFactory.createKGridPlacement => [
-	                it.numColumns = 1
+            data += renderingFactory.createKRectangle => [
+                lineWidth = 2
+                ChildPlacement = renderingFactory.createKGridPlacement => [
+	                numColumns = 1
                 ]
 
                 // bendPoints are just KVectors, so give a speaking name here
-                it.addGridElement("bendPoint", leftColumnAlignment)
+                addGridElement("bendPoint", leftColumnAlignment)
                 
                 // position
-                it.addGridElement("pos (x,y): " + bendPoint.nullOrKVektor("pos"), leftColumnAlignment)
+                addGridElement("pos (x,y): " + bendPoint.nullOrKVektor("pos"), leftColumnAlignment)
             ]
         ]
     }

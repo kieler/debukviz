@@ -87,25 +87,25 @@ import static de.cau.cs.kieler.klighd.debug.visualization.AbstractDebugTransform
         detailedView = transformationInfo.isDetailed
 
         return KimlUtil::createInitializedNode => [
-            it.addLayoutParam(LayoutOptions::ALGORITHM, layoutAlgorithm)
-            it.addLayoutParam(LayoutOptions::SPACING, spacing)
+            addLayoutParam(LayoutOptions::ALGORITHM, layoutAlgorithm)
+            addLayoutParam(LayoutOptions::SPACING, spacing)
 
-			it.addInvisibleRendering
-            it.addHeaderNode(port)
+			addInvisibleRendering
+            addHeaderNode(port)
 
             // add propertyMap
             if(showPropertyMap.conditionalShow(detailedView))
-                it.addPropertyMapNode(port.getVariable("propertyMap"), port)
+                addPropertyMapNode(port.getVariable("propertyMap"), port)
                 
             // add incoming/outgoing edges node
             if(showEdgesNode.conditionalShow(detailedView)) {
-                it.addListOfEdges(port, port.getVariable("incomingEdges"))
-                it.addListOfEdges(port, port.getVariable("outgoingEdges"))
+                addListOfEdges(port, port.getVariable("incomingEdges"))
+                addListOfEdges(port, port.getVariable("outgoingEdges"))
             }
                 
             // add labels
             if(showLabelsNode.conditionalShow(detailedView))
-                it.addListOfLabels(port)
+                addListOfLabels(port)
         ]
     }
     
@@ -131,9 +131,9 @@ import static de.cau.cs.kieler.klighd.debug.visualization.AbstractDebugTransform
      */
     def addHeaderNode(KNode rootNode, IVariable port) { 
         rootNode.addNodeById(port) => [
-            it.data += renderingFactory.createKRectangle => [
+            data += renderingFactory.createKRectangle => [
 
-                val table = it.headerNodeBasics(detailedView, port)
+                val table = headerNodeBasics(detailedView, port)
 
                 // id of node
                 table.addGridElement("id:", leftColumnAlignment)
@@ -211,25 +211,25 @@ import static de.cau.cs.kieler.klighd.debug.visualization.AbstractDebugTransform
         val labels = port.getVariable("labels")
         if (!labels.getValue("size").equals("0")) {
             rootNode.addNodeById(labels) => [
-                it.data += renderingFactory.createKRectangle => [
-                    it.lineWidth = 4
+                data += renderingFactory.createKRectangle => [
+                    lineWidth = 4
                 ]
                 // create all labels
                 labels.linkedList.forEach [ label |
-                    it.nextTransformation(label, false)
+                    nextTransformation(label, false)
                 ]
             ]
             // create edge from header node to labels node
             port.createEdgeById(labels) => [
-                it.data += renderingFactory.createKPolyline => [
-                    it.setLineWidth(2)
-                    it.addArrowDecorator
+                data += renderingFactory.createKPolyline => [
+                    setLineWidth(2)
+                    addArrowDecorator
                 ]
                 // add label
                 labels.createLabel(it) => [
-                    it.addLayoutParam(LayoutOptions::EDGE_LABEL_PLACEMENT, EdgeLabelPlacement::CENTER)
-                    it.setLabelSize(50,20)
-                    it.text = "labels"
+                    addLayoutParam(LayoutOptions::EDGE_LABEL_PLACEMENT, EdgeLabelPlacement::CENTER)
+                    setLabelSize(50,20)
+                    text = "labels"
                 ]
             ]               
         }
@@ -239,7 +239,7 @@ import static de.cau.cs.kieler.klighd.debug.visualization.AbstractDebugTransform
         // create a node (edges) containing the edges elements
         rootNode.addNodeById(edges) => [
             renderingFactory.createKRectangle => [ rectangle |
-                it.data += rectangle
+                data += rectangle
                 rectangle.lineWidth = 4
                 if (edges.getValue("size").equals("0")) {
                     // create a null-node
@@ -248,7 +248,7 @@ import static de.cau.cs.kieler.klighd.debug.visualization.AbstractDebugTransform
                 } else {
                     // create all edges
                     edges.linkedList.forEach [ edge |
-                        it.nextTransformation(edge, false)
+                        nextTransformation(edge, false)
                     ]
                 }
             ]

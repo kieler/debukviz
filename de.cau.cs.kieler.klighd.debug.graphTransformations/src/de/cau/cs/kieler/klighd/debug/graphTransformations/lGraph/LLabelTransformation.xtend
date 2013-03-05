@@ -37,20 +37,20 @@ class LLabelTransformation extends AbstractKielerGraphTransformation {
         detailedView = transformationInfo.isDetailed
 
         return KimlUtil::createInitializedNode => [
-            it.addLayoutParam(LayoutOptions::ALGORITHM, layoutAlgorithm)
-            it.addLayoutParam(LayoutOptions::SPACING, spacing)
+            addLayoutParam(LayoutOptions::ALGORITHM, layoutAlgorithm)
+            addLayoutParam(LayoutOptions::SPACING, spacing)
 
-            it.addInvisibleRendering
-            it.data += renderingFactory.createKRectangle => [
-                it.invisible = true
+            addInvisibleRendering
+            data += renderingFactory.createKRectangle => [
+                invisible = true
             ]
             
             // create KNode for given LLabel
-            it.createHeaderNode(label)
+            addHeaderNode(label)
             
             // add propertyMap
             if(showPropertyMap.conditionalShow(detailedView))
-                it.addPropertyMapNode(label.getVariable("propertyMap"), label)
+                addPropertyMapNode(label.getVariable("propertyMap"), label)
         ]
     }
     
@@ -61,11 +61,11 @@ class LLabelTransformation extends AbstractKielerGraphTransformation {
 		return if(showPropertyMap.conditionalShow(detailedView)) 2 else 1
 	}
     
-    def createHeaderNode(KNode rootNode, IVariable label) { 
+    def addHeaderNode(KNode rootNode, IVariable label) { 
         rootNode.addNodeById(label) => [
-            it.data += renderingFactory.createKRectangle => [
+            data += renderingFactory.createKRectangle => [
 
-                val table = it.headerNodeBasics(detailedView, label)
+                val table = headerNodeBasics(detailedView, label)
                 
                 // id of label
                 if(showID.conditionalShow(detailedView)) {

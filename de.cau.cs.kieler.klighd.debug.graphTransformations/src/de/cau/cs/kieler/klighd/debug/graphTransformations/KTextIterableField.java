@@ -30,6 +30,18 @@ import de.cau.cs.kieler.core.krendering.extensions.PositionReferenceY;
 /**
  * @deprecated
  * A class to create a table layout
+ * As the use of the gridLayout is recommended, this class is deprecated.
+ * The idea was to support the user with a convenient method for a table layout. With this class the user
+ * does not have to care about the size of the table. He simply fills the data to the table fields he 
+ * needs them in and can leave the blank table fields blank. There is no need to fill blank fields
+ * with dummy data or to stick to any order when filling in the data.
+ * 
+ * Furthermore it is very easy to define gaps (top, left, right, vertical, horizontal) of the table.
+ * 
+ * As this class is deprecated, most of the methods are not commented. 
+ *   
+ * To get an idea of the usage of this class, please refer to FEdgeTransformation.xtend, 
+ * FGraphTransformation.xtend or FLabelTransformation.xtend.
  * 
  * @author tit
  */
@@ -48,7 +60,7 @@ public class KTextIterableField implements Iterable<KText>, Iterator<KText> {
     private ArrayList<Float> maxWidth = new ArrayList<Float>();
     private ArrayList<Float> maxHeight = new ArrayList<Float>();
 
-    // margings to place around the table of KTexts
+    // Margins to place around the table of KTexts
     private float leftMargin = 0;
     private float topMargin = 0;
     private float rightMargin = 0;
