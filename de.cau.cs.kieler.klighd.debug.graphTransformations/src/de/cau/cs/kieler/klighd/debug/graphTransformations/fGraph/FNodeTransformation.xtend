@@ -111,7 +111,12 @@ import static de.cau.cs.kieler.klighd.debug.visualization.AbstractDebugTransform
                 // label of node (there is only one)
                 if(showLabel.conditionalShow(detailedView)) {
                     table.addGridElement("label:", leftColumnAlignment)
-                    table.addGridElement(node.nullOrValue("label"), rightColumnAlignment)
+                    val label = node.nullOrValue("label")
+                    if (label.empty) {
+                        table.addGridElement("\"\"", rightColumnAlignment)
+                    } else {
+                    table.addGridElement(label, rightColumnAlignment)
+                    }
                 }
 
                 // parent

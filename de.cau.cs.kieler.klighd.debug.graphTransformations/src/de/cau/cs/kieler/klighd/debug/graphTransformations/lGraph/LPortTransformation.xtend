@@ -164,7 +164,7 @@ import static de.cau.cs.kieler.klighd.debug.visualization.AbstractDebugTransform
                 // owner of port
                 if(showOwner.conditionalShow(detailedView)) {
                     table.addGridElement("owner:", leftColumnAlignment)
-                    table.addGridElement(port.nullOrTypeAndID("owner"), rightColumnAlignment)
+                    table.addGridElement(port.nullOrTypeAndHashAndIDs("owner"), rightColumnAlignment)
                 }
 /*                    
                     field.set("owner:", row, 0, leftColumnAlignment)

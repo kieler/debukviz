@@ -234,8 +234,10 @@ class FGraphTransformation extends AbstractKielerGraphTransformation {
 	            		}
 	            		// fill the current row, if some of the rows of the adjacency matrix are not
 	            		// completely filled (this should never happen, but who knows...
-	            		for (Integer j : elementsInRow..maxCols)
+	            		while (elementsInRow < maxCols) {
                             addBlankGridElement
+                            elementsInRow = elementsInRow + 1
+	            		}
 		            }
 				}
 			]

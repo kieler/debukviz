@@ -71,7 +71,7 @@ class LGraphTransformation extends AbstractKielerGraphTransformation {
     /** Specifies when to show the number of nodes. */
     val showNodesCount = ShowTextIf::COMPACT
     /** Specifies when to show the number of layers. */
-    val showLayersCount = ShowTextIf::COMPACT
+    val showLayersCount = ShowTextIf::ALWAYS
     
     /**
      * {@inheritDoc}
@@ -142,7 +142,7 @@ class LGraphTransformation extends AbstractKielerGraphTransformation {
                 // size of graph
                 if(showSize.conditionalShow(detailedView)) {
                     table.addGridElement("size (x,y):", leftColumnAlignment) 
-                    table.addGridElement(graph.nullOrSize(""), rightColumnAlignment) 
+                    table.addGridElement(graph.nullOrKVektor("size"), rightColumnAlignment) 
                 }
                     
                 // insets of graph
@@ -191,10 +191,12 @@ class LGraphTransformation extends AbstractKielerGraphTransformation {
 		val visualization = graph.getVariable("layerlessNodes")
 		
 		// number of nodes in graph
-        val tmp = (graph.getVariable("layers.nodes").linkedList
-                .map[l|Integer::parseInt(l.getValue("size"))]
-                .reduce[a, b | a + b])
-        val count = tmp + Integer::parseInt(graph.getValue("layerlessNodes.size"))
+        val tmp = graph.getVariable("layers")
+                .linkedList
+                .map[l|Integer::parseInt(l.getValue("nodes.size"))]
+                .reduce[a, b | a + b]
+                        
+        val count = (if (tmp != null) tmp else 0) + Integer::parseInt(graph.getValue("layerlessNodes.size"))
         
         // create container node
         val newNode = rootNode.addNodeById(visualization) => [

@@ -32,7 +32,6 @@ import static de.cau.cs.kieler.klighd.debug.visualization.AbstractDebugTransform
  * @author tit
  */
 abstract class AbstractKielerGraphTransformation extends AbstractDebugTransformation {
-	
     @Inject 
     extension KPolylineExtensions 
     @Inject
@@ -115,11 +114,7 @@ abstract class AbstractKielerGraphTransformation extends AbstractDebugTransforma
 	                addArrowDecorator
 	                setLineStyle(LineStyle::SOLID)
 	            ]
-	            target.createLabel(it) => [
-	                addLayoutParam(LayoutOptions::EDGE_LABEL_PLACEMENT, EdgeLabelPlacement::CENTER)
-	                setLabelSize(50,20)
-	                text = label
-	        	]
+	            it.addLabel(label, EdgeLabelPlacement::CENTER)
 	        ]   
 		}
 	}
@@ -272,17 +267,19 @@ abstract class AbstractKielerGraphTransformation extends AbstractDebugTransforma
      * @return The linkedList of elements.
      */
     def linkedList(IVariable list) {
-        val size = Integer::parseInt(list.getValue("size"))
         var retVal = new LinkedList<IVariable>
-        var variable = list.getVariable("header")
-        var i = 0
-        
-        while (i < size) {
-            variable = variable.getVariable("next")
-            retVal.add(variable.getVariable("element"))
-            i = i + 1
-        }
-        return retVal;
+        if (list.valueIsNotNull) {
+            val size = Integer::parseInt(list.getValue("size"))
+            var variable = list.getVariable("header")
+            var i = 0
+            
+            while (i < size) {
+                variable = variable.getVariable("next")
+                retVal.add(variable.getVariable("element"))
+                i = i + 1
+            }
+        } 
+        return retVal
     }
     
     /**
@@ -622,8 +619,6 @@ abstract class AbstractKielerGraphTransformation extends AbstractDebugTransforma
      * @param list
      *            The IVariable representing the set.
      * @return The new created KRendering.
-     * 
-     * @author tit
      */
     def addEnumSet(KContainerRendering container, IVariable set) {
         // the mask representing the elements that are set
@@ -658,8 +653,6 @@ abstract class AbstractKielerGraphTransformation extends AbstractDebugTransforma
      * @param container
      *            The KContainerRendering the rectangle will be added to.
      * @return The new created KRectangle.
-     * 
-     * @author tit
      */
     def addBlankGridElement(KContainerRendering container) {
         return renderingFactory.createKRectangle => [
@@ -678,8 +671,6 @@ abstract class AbstractKielerGraphTransformation extends AbstractDebugTransforma
      * @param align
      *            The horizontal alignment of the KText.
      * @return The new created KText.
-     * 
-     * @author tit
      */
     def addGridElement(KContainerRendering container, String text, HorizontalAlignment align) {
         return renderingFactory.createKText => [
@@ -703,8 +694,6 @@ abstract class AbstractKielerGraphTransformation extends AbstractDebugTransforma
      * @param columns
      *            The number of columns of the created grid. 
      * @return The new created KRectangle.
-     * 
-     * @author tit
      */
     def addInvisibleRectangleGrid(KContainerRendering container, int columns) {
 		return renderingFactory.createKRectangle => [
@@ -726,8 +715,6 @@ abstract class AbstractKielerGraphTransformation extends AbstractDebugTransforma
      *            The exponent
      * @return
      *            The result of 2^j
-     * 
-     * @author tit
      */
     def int pow2(int j) {
         if (j == 0) {
@@ -750,8 +737,6 @@ abstract class AbstractKielerGraphTransformation extends AbstractDebugTransforma
      *          The KContainerRendering the KText will be added to
      * @param variable
      *          The IVariable whose type will be added
-     * 
-     * @author tit
      */
     def shortType(IVariable variable) {
         return renderingFactory.createKText => [
@@ -767,8 +752,6 @@ abstract class AbstractKielerGraphTransformation extends AbstractDebugTransforma
      * @param variable
      *            The IVariable those valueString will be returned.
      * @return The valueString.
-     * 
-     * @author tit
      */
     def getValueString(IVariable variable) {
         return variable.getValue.getValueString
@@ -785,11 +768,8 @@ abstract class AbstractKielerGraphTransformation extends AbstractDebugTransforma
      * @param variable
      *            The variable linked to the containerRendering.
      * @return A invisible KRectangle added to the container which contains a two column gridLayout.
-     * 
-     * @author tit
      */
     def headerNodeBasics(KContainerRendering container, Boolean detailedView, IVariable variable) {
-        
         container.ChildPlacement = renderingFactory.createKGridPlacement => [
             numColumns = 1
         ]
@@ -829,8 +809,6 @@ abstract class AbstractKielerGraphTransformation extends AbstractDebugTransforma
     /**
      * deprecated : please use headerNodeBasics(KContainerRendering, Boolean, IVariable) instead, as the
      * use of gridLayout should be preferred.
-     * 
-     * @author tit
      */
     def headerNodeBasics(KContainerRendering container, KTextIterableField field, Boolean detailedView, 
                 IVariable variable, KTextIterableField$TextAlignment leftColumn, 
@@ -871,8 +849,6 @@ abstract class AbstractKielerGraphTransformation extends AbstractDebugTransforma
      * @param text
      *            The text of the KText. 
      * @return the new created KText
-     * 
-     * @author tit
      */
     def addKText(KContainerRendering container, String text) {
         return renderingFactory.createKText => [
@@ -881,19 +857,44 @@ abstract class AbstractKielerGraphTransformation extends AbstractDebugTransforma
         ]        
     }
     
+    /**
+     * Convenient method for nullOrTypeAndBothIDs(IVariable, String) with an empty String.
+     * See {@link AbstractKielerGraphTransformation#nullOrTypeAndHashAndIDs(IVariable, String)} 
+     */
+    def nullOrTypeAndHashAndIDs(IVariable variable) {
+        return nullOrTypeAndHashAndIDs(variable, "")
+    }
+    
+    /**
+     * Returns a string representation of type, value of field "id" and debug-id of the IVariable on specified path.
+     * 
+     * @param variable
+     *            The root IVariable element.
+     * @param fieldPath
+     *            The relative path from the root IVariable to the IVariable to inspect.  
+     * @return Either "'Type' 'id' ('debug-id')" of variable, or String "(null)".
+     */
+    def nullOrTypeAndHashAndIDs(IVariable variable, String fieldPath) {
+        if (variable.valueIsNotNull) {
+            val v = if(fieldPath.empty) variable else variable.getVariable(fieldPath)
+            if (v.valueIsNotNull) {
+                var retVal = v.type
+                if (v.getValue("hashCode") != null) {
+                    retVal = retVal + " " + v.getValue("hashCode")
+                }
+                return retVal + " " + v.getValueString
+            }
+        }
+        return "(null)"
+    }
+
 
     /**
      * Convenient method for nullOrTypeAndID(IVariable, String) with an empty String.
-     * Returns a string representation of type and debug-id of the given IVariable.
-     * 
-     * @param variable
-     *            The IVariable to display.
-     * @return Either "'Type' ('debug-id')" of variable, or String "(null)". 
-     * 
-     * @author tit
+     * See {@link AbstractKielerGraphTransformation#nullOrTypeAndID(IVariable, String)} 
      */
     def nullOrTypeAndID(IVariable variable) {
-    	return nullOrTypeAndID(variable, "")
+        return nullOrTypeAndID(variable, "")
     }
     
     /**
@@ -904,17 +905,15 @@ abstract class AbstractKielerGraphTransformation extends AbstractDebugTransforma
      * @param fieldPath
      *            The relative path from the root IVariable to the IVariable to inspect.  
      * @return Either "'Type' ('debug-id')" of variable, or String "(null)".
-     * 
-     * @author tit
      */
     def nullOrTypeAndID(IVariable variable, String fieldPath) {
         if (variable.valueIsNotNull) {
-        	val v = if(fieldPath.equals("")) variable else variable.getVariable(fieldPath)
-        	if (v.valueIsNotNull) {
-	    		return v.type + " " + v.getValueString
-        	}
-    	}
-    	return "(null)"
+            val v = if(fieldPath.empty) variable else variable.getVariable(fieldPath)
+            if (v.valueIsNotNull) {
+                return v.type + " " + v.getValueString
+            }
+        }
+        return "(null)"
     }
 
     /**
@@ -925,17 +924,25 @@ abstract class AbstractKielerGraphTransformation extends AbstractDebugTransforma
      * @param fieldPath
      *            The relative path from the root IVariable to the IValue to inspect.  
      * @return Either the value of the IValue, or String "(null)".
-     * 
-     * @author tit
      */
     def nullOrValue(IVariable variable, String fieldPath) {
         if (variable.valueIsNotNull) {
-            return variable.getValue(fieldPath)
-        } else {
-            return "(null)"
+            val v = if(fieldPath.empty) variable else variable.getVariable(fieldPath)
+            if (v.valueIsNotNull) {
+                return variable.getValue(fieldPath)
+            }
         }
+        return "(null)"
     }
     
+    /**
+     * Convenient method for nullOrKVektor(IVariable, String) with an empty String.
+     * See {@link AbstractKielerGraphTransformation#nullOrKVektor(IVariable, String)}
+     */
+    def nullOrKVektor(IVariable variable) {
+        return nullOrKVektor(variable, "")
+    }
+
     /**
      * Returns either the value of the IVariable on path or "(null)".
      * IVariable must represent a KVektor and the format will be "('x', 'y')".
@@ -945,18 +952,26 @@ abstract class AbstractKielerGraphTransformation extends AbstractDebugTransforma
      * @param fieldPath
      *            The relative path from the root IVariable to the IValue to inspect.  
      * @return Either the value of the IValue representing a KVektor, or String "(null)".
-     * 
-     * @author tit
      */
     def nullOrKVektor(IVariable variable, String fieldPath) {
         if (variable.valueIsNotNull) {
-            return "(" + variable.getValue(fieldPath + ".x").round(1) + ", " 
-                       + variable.getValue(fieldPath + ".y").round(1) + ")"
-        } else {
-            return "(null)"
+            val v = if(fieldPath.empty) variable else variable.getVariable(fieldPath)
+            if (v.valueIsNotNull) {
+                return "(" + v.getValue("x").round(1) + ", " 
+                           + v.getValue("y").round(1) + ")"
+            }
         }
+        return "(null)"
     }
     
+    /**
+     * Convenient method for nullOrLInsets(IVariable, String) with an empty String.
+     * See {@link AbstractKielerGraphTransformation#nullOrLInsets(IVariable, String)}
+     */
+    def nullOrLInsets(IVariable variable) {
+        return nullOrLInsets(variable, "")
+    }
+
     /**
      * Returns either the value of the IVariable on path or "(null)".
      * IVariable must represent a LInsets and the format will be "('top', 'right', 'bottom', 'left')".
@@ -966,18 +981,26 @@ abstract class AbstractKielerGraphTransformation extends AbstractDebugTransforma
      * @param fieldPath
      *            The relative path from the root IVariable to the IValue to inspect.  
      * @return Either the value of the IValue representing a LInsets, or String "(null)".
-     * 
-     * @author tit
      */
     def nullOrLInsets(IVariable variable, String fieldPath) {
         if (variable.valueIsNotNull) {
-            return "(" + variable.getValue(fieldPath + ".top").round(1) + ", " 
-                       + variable.getValue(fieldPath + ".right").round(1) + ", "
-                       + variable.getValue(fieldPath + ".bottom").round(1) + ", "
-                       + variable.getValue(fieldPath + ".left").round(1) + ")"
-        } else {
-            return "(null)"
+            val v = if(fieldPath.empty) variable else variable.getVariable(fieldPath)
+            if (v.valueIsNotNull) {
+                return "(" + v.getValue("top").round(1) + ", " 
+                           + v.getValue("right").round(1) + ", "
+                           + v.getValue("bottom").round(1) + ", "
+                           + v.getValue("left").round(1) + ")"
+            }
         }
+        return "(null)"
+    }
+
+    /**
+     * Convenient method for nullOrSize(IVariable, String) with an empty String.
+     * See {@link AbstractKielerGraphTransformation#nullOrName(IVariable, String)}
+     */
+    def nullOrName(IVariable variable) {
+        return nullOrName(variable, "")
     }
 
     /**
@@ -989,15 +1012,23 @@ abstract class AbstractKielerGraphTransformation extends AbstractDebugTransforma
      * @param fieldPath
      *            The relative path from the root IVariable to the IValue to inspect.  
      * @return Either the value of the IVariable representing an enumeration element, or String "(null)".
-     * 
-     * @author tit
      */
     def nullOrName(IVariable variable, String fieldPath) {
         if (variable.valueIsNotNull) {
-            return variable.getValue(fieldPath + ".name")
-        } else {
-            return "(null)"
+            val v = if(fieldPath.empty) variable else variable.getVariable(fieldPath)
+            if (v.valueIsNotNull) {
+                return v.getValue("name")
+            }
         }
+        return "(null)"
+    }
+    
+    /**
+     * Convenient method for nullOrSize(IVariable, String) with an empty String.
+     * See {@link AbstractKielerGraphTransformation#nullOrSize(IVariable, String)}
+     */
+     def nullOrSize(IVariable variable) {
+        return nullOrSize(variable, "") 
     }
     
     /**
@@ -1010,15 +1041,15 @@ abstract class AbstractKielerGraphTransformation extends AbstractDebugTransforma
      * @param fieldPath
      *            The relative path from the root IVariable to the IValue to inspect.  
      * @return Either the size of the IVariable representing an type with size() method, or String "(null)".
-     * 
-     * @author tit
      */
     def nullOrSize(IVariable variable, String fieldPath) {
         if (variable.valueIsNotNull) {
-            return variable.getValue(fieldPath + ".size")
-        } else {
-            return "(null)"
+            val v = if(fieldPath.empty) variable else variable.getVariable(fieldPath)
+            if (v.valueIsNotNull) {
+                return v.getValue("size")
+                }
         }
+        return "(null)"
     }
 
     /**
@@ -1052,7 +1083,12 @@ abstract class AbstractKielerGraphTransformation extends AbstractDebugTransforma
      */
     def addLabel(KEdge edge, String text, EdgeLabelPlacement placement) {
         edge.createLabel => [
-            addLayoutParam(LayoutOptions::EDGE_LABEL_PLACEMENT, placement)
+            // WORKAROUND: if edge is a selveloop, the layered layout algorithm does not support center labels
+            // so here all center labels of a selveloop will be moved to the head
+            if(edge.source == edge.target && placement == EdgeLabelPlacement::CENTER)
+                addLayoutParam(LayoutOptions::EDGE_LABEL_PLACEMENT, EdgeLabelPlacement::HEAD)
+            else
+                addLayoutParam(LayoutOptions::EDGE_LABEL_PLACEMENT, placement)
             it.text = text
              setLabelSize(
                 PlacementUtil::estimateTextSize(it).getWidth + 2,

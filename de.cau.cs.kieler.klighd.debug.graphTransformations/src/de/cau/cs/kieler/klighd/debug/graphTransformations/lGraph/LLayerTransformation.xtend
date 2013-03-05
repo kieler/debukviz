@@ -128,7 +128,7 @@ class LLayerTransformation extends AbstractKielerGraphTransformation {
                 // owner of layer
                 if (showOwner.conditionalShow(detailedView)) {
                     table.addGridElement("owner:", leftColumnAlignment)
-                    table.addGridElement(layer.nullOrTypeAndID("owner"), rightColumnAlignment)
+                    table.addGridElement(layer.nullOrTypeAndHashAndIDs("owner"), rightColumnAlignment)
                 }
 
                 // size of layer

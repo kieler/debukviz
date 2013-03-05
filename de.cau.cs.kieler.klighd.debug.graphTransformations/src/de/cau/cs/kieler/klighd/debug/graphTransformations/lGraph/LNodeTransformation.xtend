@@ -63,7 +63,7 @@ import static de.cau.cs.kieler.klighd.debug.visualization.AbstractDebugTransform
     /** Specifies when to show the insets. */
     val showInsets = ShowTextIf::DETAILED
     /** Specifies when to show the owner. */
-    val showOwner = ShowTextIf::DETAILED
+    val showOwner = ShowTextIf::ALWAYS
     /** Specifies when to show the id. */
     val showID = ShowTextIf::ALWAYS
     /** Specifies when to show the hashCode. */
@@ -121,7 +121,7 @@ import static de.cau.cs.kieler.klighd.debug.visualization.AbstractDebugTransform
             val nodeType = node.nodeType
             var KContainerRendering container
 
-            val table = container.headerNodeBasics(detailedView, node)
+            var KContainerRendering table
             
             if (nodeType == "NORMAL" ) {
                 /*
@@ -129,6 +129,7 @@ import static de.cau.cs.kieler.klighd.debug.visualization.AbstractDebugTransform
                  *  - are represented by an rectangle  
                  */ 
                  container = renderingFactory.createKRectangle
+                 table = container.headerNodeBasics(detailedView, node)
             } else {
                 /*
                  * Dummy nodes.
@@ -136,15 +137,16 @@ import static de.cau.cs.kieler.klighd.debug.visualization.AbstractDebugTransform
                  *  - if they are a "NORTH_SOUTH_PORT"-node, and the origin is a LNode:
                  *    add first label of origin as text
                  */
-                container = renderingFactory.createKEllipse => [
-                    val origin = node.getVariable("propertyMap").getValFromHashMap("origin")
-                    table.addGridElement("origin:", leftColumnAlignment) 
-                    if (nodeType == "NORTH_SOUTH_PORT" && origin.getType == "LNode") {
-                        table.addGridElement("" + origin.getVariable("labels").linkedList.get(0), rightColumnAlignment) 
-                    } else {
-                        table.addGridElement("" + origin.nullOrTypeAndID(""), rightColumnAlignment) 
-                    }
-                ]
+                container = renderingFactory.createKEllipse
+                table = container.headerNodeBasics(detailedView, node)
+
+                val origin = node.getVariable("propertyMap").getValFromHashMap("origin")
+                table.addGridElement("origin:", leftColumnAlignment) 
+                if (nodeType == "NORTH_SOUTH_PORT" && origin.getType == "LNode") {
+                    table.addGridElement("" + origin.getVariable("labels").linkedList.get(0), rightColumnAlignment) 
+                } else {
+                    table.addGridElement("" + origin.nullOrTypeAndID(""), rightColumnAlignment) 
+                }
             }
 
             container.setForegroundColor(node)
@@ -160,7 +162,7 @@ import static de.cau.cs.kieler.klighd.debug.visualization.AbstractDebugTransform
                 } else {
                     val label = labels.get(0).getValue("text")
                     if(label.length == 0) {
-                        labelText = "(empty String)"
+                        labelText = "\"\""
                     } else {
                         labelText = label
                     }
@@ -169,7 +171,7 @@ import static de.cau.cs.kieler.klighd.debug.visualization.AbstractDebugTransform
                     labelText = labelText + node.getValueString
                 }
                 table.addGridElement("name:", leftColumnAlignment) 
-                table.addGridElement(labelText, leftColumnAlignment) 
+                table.addGridElement(labelText, rightColumnAlignment) 
             }
 
             // id of node
@@ -181,7 +183,7 @@ import static de.cau.cs.kieler.klighd.debug.visualization.AbstractDebugTransform
             //owner (layer)
             if(showOwner.conditionalShow(detailedView)) {
                 table.addGridElement("owner:", leftColumnAlignment) 
-                table.addGridElement(node.nullOrTypeAndID("owner"), rightColumnAlignment) 
+                table.addGridElement(node.nullOrTypeAndHashAndIDs("owner"), rightColumnAlignment) 
             }
 
             // hashCode of node
@@ -223,7 +225,7 @@ import static de.cau.cs.kieler.klighd.debug.visualization.AbstractDebugTransform
             // # of ports
             if(showPortsCount.conditionalShow(detailedView)) {
                 table.addGridElement("ports (#):", leftColumnAlignment) 
-                table.addGridElement(node.nullOrValue("ports"), rightColumnAlignment) 
+                table.addGridElement(node.nullOrSize("ports"), rightColumnAlignment) 
             }
 
             // add the node-symbol to the surrounding KNode
