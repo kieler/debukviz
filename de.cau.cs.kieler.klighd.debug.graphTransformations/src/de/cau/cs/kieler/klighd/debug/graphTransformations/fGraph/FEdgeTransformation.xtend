@@ -28,7 +28,7 @@ import org.eclipse.debug.core.model.IVariable
 import static de.cau.cs.kieler.klighd.debug.visualization.AbstractDebugTransformation.*
 
 /*
- * Transformation for a IVariable representing a FEdge.
+ * Transformation for an IVariable representing a FEdge.
  * This class still uses the deprecated KTextIterableField class.
  * 
  * @ author tit
@@ -49,9 +49,9 @@ class FEdgeTransformation extends AbstractKielerGraphTransformation {
     val rightColumnAlignment = KTextIterableField$TextAlignment::LEFT
     /** The top outer gap of the KTextIterableField. */
     val topGap = 4
-    /** The right outer gap of the KTextIterableField. */
+        /** The right outer gap of the KTextIterableField. */
     val rightGap = 5
-    /** The bottom outer gap of the KTextIterableField. */
+        /** The bottom outer gap of the KTextIterableField. */
     val bottomGap = 5
     /** The left outer gap of the KTextIterableField. */
     val leftGap = 4
@@ -170,7 +170,7 @@ class FEdgeTransformation extends AbstractKielerGraphTransformation {
     }
     
     /**
-     * Creates a node containing all labels of this edge and creates an edge from header node to 
+     * Creates a node containing all labels of this edge and creates an edge from header node to it.
      * 
      * @param rootNode
      *              The KNode the new created KNode will be placed in.

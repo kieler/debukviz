@@ -32,7 +32,7 @@ import org.eclipse.debug.core.model.IVariable
 import static de.cau.cs.kieler.klighd.debug.visualization.AbstractDebugTransformation.*
 
 /*
- * Transformation for a IVariable representing a FEdge.
+ * Transformation for an IVariable representing a FEdge.
  * This class still uses the deprecated KTextIterableField class.
  * 
  * @ author tit

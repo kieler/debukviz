@@ -1,13 +1,23 @@
-package de.cau.cs.kieler.klighd.debug.graphTransformations.lGraph
+/*
+ * KIELER - Kiel Integrated Environment for Layout Eclipse RichClient
+ *
+ * http://www.informatik.uni-kiel.de/rtsys/kieler/
+ * 
+ * Copyright 2013 by
+ * + Christian-Albrechts-University of Kiel
+ *   + Department of Computer Science
+ *     + Real-Time and Embedded Systems Group
+ * 
+ * This code is provided under the terms of the Eclipse Public License (EPL).
+ * See the file epl-v10.html for the license text.
+ */
+ package de.cau.cs.kieler.klighd.debug.graphTransformations.lGraph
 
 import de.cau.cs.kieler.core.kgraph.KNode
 import de.cau.cs.kieler.core.krendering.HorizontalAlignment
 import de.cau.cs.kieler.core.krendering.KContainerRendering
-import de.cau.cs.kieler.core.krendering.extensions.KLabelExtensions
 import de.cau.cs.kieler.core.krendering.extensions.KNodeExtensions
-import de.cau.cs.kieler.core.krendering.extensions.KPolylineExtensions
 import de.cau.cs.kieler.core.krendering.extensions.KRenderingExtensions
-import de.cau.cs.kieler.kiml.options.EdgeLabelPlacement
 import de.cau.cs.kieler.kiml.options.LayoutOptions
 import de.cau.cs.kieler.kiml.util.KimlUtil
 import de.cau.cs.kieler.klighd.debug.graphTransformations.AbstractKielerGraphTransformation
@@ -17,33 +27,50 @@ import org.eclipse.debug.core.model.IVariable
 
 import static de.cau.cs.kieler.klighd.debug.visualization.AbstractDebugTransformation.*
 
-class LNodeTransformation extends AbstractKielerGraphTransformation {
-
+/*
+ * Transformation for an IVariable representing a LNode.
+ * 
+ * @ author tit
+ */
+ class LNodeTransformation extends AbstractKielerGraphTransformation {
 	@Inject 
     extension KNodeExtensions
-    @Inject 
-    extension KPolylineExtensions 
     @Inject
     extension KRenderingExtensions
-    @Inject
-    extension KLabelExtensions
     
+    /** The layout algorithm to use. */
     val layoutAlgorithm = "de.cau.cs.kieler.kiml.ogdf.planarization"
+    /** The spacing to use. */
     val spacing = 75f
+    /** The horizontal alignment for the left column of all grid layouts. */
     val leftColumnAlignment = HorizontalAlignment::RIGHT
+    /** The horizontal alignment for the right column of all grid layouts. */
     val rightColumnAlignment = HorizontalAlignment::LEFT
 
+    /** Specifies when to show the property map. */
     val showPropertyMap = ShowTextIf::DETAILED
+    /** Specifies when to show the ports node. */
     val showPorts = ShowTextIf::DETAILED
 
+    /** Specifies when to show the size. */
+    val showName = ShowTextIf::ALWAYS
+    /** Specifies when to show the size. */
     val showSize = ShowTextIf::DETAILED
+    /** Specifies when to show the position. */
     val showPos = ShowTextIf::DETAILED
+    /** Specifies when to show the margin. */
     val showMargin = ShowTextIf::DETAILED
+    /** Specifies when to show the insets. */
     val showInsets = ShowTextIf::DETAILED
+    /** Specifies when to show the owner. */
     val showOwner = ShowTextIf::DETAILED
+    /** Specifies when to show the id. */
     val showID = ShowTextIf::ALWAYS
+    /** Specifies when to show the hashCode. */
     val showHashCode = ShowTextIf::ALWAYS
+    /** Specifies when to show the number of ports. */
     val showPortsCount = ShowTextIf::COMPACT
+    /** Specifies when to show the number of labels. */
     val showLabelsCount = ShowTextIf::COMPACT
     
     /**
@@ -59,13 +86,13 @@ class LNodeTransformation extends AbstractKielerGraphTransformation {
 			addInvisibleRendering
             addHeaderNode(node)
             
-            // addpropertymap
+            // add propertyMap
             if(showPropertyMap.conditionalShow(detailedView))
                 addPropertyMapNode(node.getVariable("propertyMap"), node)
                 
             //add node for ports
             if(showPorts.conditionalShow(detailedView))
-                addPorts(node)
+                addPortsNode(node)
         ]
     }
 
@@ -78,7 +105,17 @@ class LNodeTransformation extends AbstractKielerGraphTransformation {
 		return retVal
 	}
     
-    def addHeaderNode(KNode rootNode, IVariable node) {
+    /**
+     * Creates the header node containing basic informations for this element and adds it to the rootNode.
+     * 
+     * @param rootNode
+     *              The KNode the new created KNode will be placed in.
+     * @param edge
+     *              The IVariable representing the node transformed in this transformation.
+     * 
+     * @return The new created header KNode.
+     */
+     def addHeaderNode(KNode rootNode, IVariable node) {
         rootNode.addNodeById(node) => [
             // Get the nodeType
             val nodeType = node.nodeType
@@ -112,25 +149,28 @@ class LNodeTransformation extends AbstractKielerGraphTransformation {
 
             container.setForegroundColor(node)
 
-            // Name of the node is the first label
-            val labels = node.getVariable("labels").linkedList
-            var labelText = ""
-            if(labels.isEmpty) {
-                // no name given
-                labelText = "(null)"
-            } else {
-                val label = labels.get(0).getValue("text")
-                if(label.length == 0) {
-                    labelText = "(empty String)"
+            // name of node
+            if(showName.conditionalShow(detailedView)) {
+                // Name of the node is the first label
+                val labels = node.getVariable("labels").linkedList
+                var labelText = ""
+                if(labels.isEmpty) {
+                    // no name given
+                    labelText = "(null)"
                 } else {
-                    labelText = label
+                    val label = labels.get(0).getValue("text")
+                    if(label.length == 0) {
+                        labelText = "(empty String)"
+                    } else {
+                        labelText = label
+                    }
                 }
+                if(!detailedView) {
+                    labelText = labelText + node.getValueString
+                }
+                table.addGridElement("name:", leftColumnAlignment) 
+                table.addGridElement(labelText, leftColumnAlignment) 
             }
-            if(!detailedView) {
-                labelText = labelText + node.getValueString
-            }
-            table.addGridElement("name:", leftColumnAlignment) 
-            table.addGridElement(labelText, leftColumnAlignment) 
 
             // id of node
             if(showID.conditionalShow(detailedView)) {
@@ -191,46 +231,63 @@ class LNodeTransformation extends AbstractKielerGraphTransformation {
         ]
     }
     
-    def addPorts(KNode rootNode, IVariable node) {
-        // create a node (ports) containing the port elements
+    /**
+     * Creates a node containing all ports of this node and creates an edge from header node to it.
+     * 
+     * @param rootNode
+     *              The KNode the new created KNode will be placed in.
+     * @param node
+     *              The IVariable representing the node transformed in this transformation.
+     * 
+     * @return The new created KNode.
+     */
+     def addPortsNode(KNode rootNode, IVariable node) {
         val ports = node.getVariable("ports")
-        rootNode.addNodeById(ports) => [
-            data += renderingFactory.createKRectangle => [
-                lineWidth = 4
+
+        // create a node (ports) containing the port elements
+        val newNode = rootNode.addNodeById(ports) => [
+            val rendering = renderingFactory.createKRectangle => [ rendering |
+                data += rendering
+                if(detailedView) rendering.lineWidth = 4 else rendering.lineWidth = 2
             ]
-            // create all ports
-            ports.linkedList.forEach [ port |
-                nextTransformation(port, false)
-            ]
+            
+            if (ports.getValue("size").equals("0")) {
+                // there are no ports
+                rendering.addKText("(none)")
+            } else {
+                // create all ports
+                ports.linkedList.forEach [ port |
+                    nextTransformation(port, false)
+                ]
+            }
         ]
         // create edge from header node to ports node
-        node.createEdgeById(ports) => [
-            data += renderingFactory.createKPolyline => [
-                setLineWidth(2)
-                addArrowDecorator
-            ]
-            ports.createLabel(it) => [
-                addLayoutParam(LayoutOptions::EDGE_LABEL_PLACEMENT, EdgeLabelPlacement::CENTER)
-                setLabelSize(50,20)
-                text = "ports"
-            ]
-        ]   
+        node.createTopElementEdge(ports, "ports")
+        
+        return newNode 
     }
     
-    def setForegroundColor(KContainerRendering rendering, IVariable node) {
-       /*
-        *  original values from de.cau.cs.kieler.klay.layered.properties.NodeType:
-        *  case "COMPOUND_SIDE": return "#808080"
-        *  case "EXTERNAL_PORT": return "#cc99cc"
-        *  case "LONG_EDGE": return "#eaed00"
-        *  case "NORTH_SOUTH_PORT": return "#0034de"
-        *  case "LOWER_COMPOUND_BORDER": return "#18e748"
-        *  case "LOWER_COMPOUND_PORT": return "#2f6d3e"
-        *  case "UPPER_COMPOUND_BORDER": return "#fb0838"
-        *  case "UPPER_COMPOUND_PORT": return "#b01d38"
-        *  default: return "#000000"
-        *  coding: #RGB", where each component is given as a two-digit hexadecimal value.
-        */
+    /**
+     * Sets the foreground color of the given rendering depending on the type of the node.
+     * 
+     *  original values from de.cau.cs.kieler.klay.layered.properties.NodeType:
+     *  case "COMPOUND_SIDE": return "#808080"
+     *  case "EXTERNAL_PORT": return "#cc99cc"
+     *  case "LONG_EDGE": return "#eaed00"
+     *  case "NORTH_SOUTH_PORT": return "#0034de"
+     *  case "LOWER_COMPOUND_BORDER": return "#18e748"
+     *  case "LOWER_COMPOUND_PORT": return "#2f6d3e"
+     *  case "UPPER_COMPOUND_BORDER": return "#fb0838"
+     *  case "UPPER_COMPOUND_PORT": return "#b01d38"
+     *  default: return "#000000"
+     *  coding: #RGB", where each component is given as a two-digit hexadecimal value.
+     * 
+     * @param rendering
+     *              The KContainerRending those foreground color shall be set.
+     * @param node
+     *              The IVariable representing a LNode those type will define the color. 
+     */
+     def void setForegroundColor(KContainerRendering rendering, IVariable node) {
         val type = node.nodeType
         switch (type) {
             case "COMPOUND_SIDE": rendering.setForegroundColor(128,128,128)
@@ -241,10 +298,18 @@ class LNodeTransformation extends AbstractKielerGraphTransformation {
             case "LOWER_COMPOUND_PORT": rendering.setForegroundColor(47,109,62)
             case "UPPER_COMPOUND_BORDER": rendering.setForegroundColor(251,8,56)
             case "UPPER_COMPOUND_PORT": rendering.setForegroundColor(176,29,56)
-            default: return rendering.setForegroundColor(0,0,0)
+            default: rendering.setForegroundColor(0,0,0)
         }
     }
     
+    /**
+     * Returns the type of node, or <code>NORMAL</code>, if no type is given in the propertyMap.
+     * 
+     * @param node
+     *              The node those type shall be returned.
+     * @return The type of the node.
+     * 
+     */    
     def getNodeType(IVariable node) {
     	val map =  node.getVariable("propertyMap")
         val type = map.getValFromHashMap("nodeType")

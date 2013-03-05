@@ -26,7 +26,7 @@ import org.eclipse.debug.core.model.IVariable
 import static de.cau.cs.kieler.klighd.debug.visualization.AbstractDebugTransformation.*
 
 /*
- * Transformation for a IVariable representing a FBendpoint
+ * Transformation for an IVariable representing a FBendpoint
  * 
  * @ author tit
  */

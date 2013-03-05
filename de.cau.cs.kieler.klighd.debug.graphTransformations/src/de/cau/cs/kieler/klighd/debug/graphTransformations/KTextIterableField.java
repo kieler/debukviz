@@ -115,7 +115,6 @@ public class KTextIterableField implements Iterable<KText>, Iterator<KText> {
     }
 
     public void set(KText kText, int row, int column) {
-//    	System.out.println("inserting to row " + row + " column " + column);
     	ensureSize(row, column);
         a.get(row).set(column, new TableElement(kText));
 
@@ -124,7 +123,6 @@ public class KTextIterableField implements Iterable<KText>, Iterator<KText> {
     }
 
     public void set(String text, int row, int column) {
-//    	System.out.println("inserting to row " + row + " column " + column);
         ensureSize(row, column);
         a.get(row).set(column, new TableElement(text));
 
@@ -473,14 +471,6 @@ public class KTextIterableField implements Iterable<KText>, Iterator<KText> {
         for (int j = 0; j < totalRows; j++) {
             for (int i = 0; i < totalColumns; i++) {
                 System.out.println("---");
-                /*
-                 * System.out.println("Element: " + j + "/" + i); System.out.println("ToLeft: " +
-                 * toFloat(toLeft[i])); System.out.println("Width: " +
-                 * toFloat(width.get(j).get(i))); System.out.println("toRight: " +
-                 * toFloat(toRight[i])); System.out.println("toTop: " + toFloat(toTop[j]));
-                 * System.out.println("Height: " + toFloat(height.get(j).get(i)));
-                 * System.out.println("toBottom: " + toFloat(toBottom[j]));
-                 */
                 System.out.println(j + "/" + i);
                 System.out.println((toLeft[i]));
                 System.out.println((a.get(j).get(i).getWidth()));

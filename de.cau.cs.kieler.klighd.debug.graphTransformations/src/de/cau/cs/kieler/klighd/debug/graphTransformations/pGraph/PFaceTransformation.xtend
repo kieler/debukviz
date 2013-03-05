@@ -60,19 +60,16 @@ class PFaceTransformation extends AbstractKielerGraphTransformation {
 
     def addHeaderNode(KNode rootNode, IVariable face) {
         rootNode.addNodeById(face) => [
-println("adding face")
             data += renderingFactory.createKRectangle => [
                 
                 val table = headerNodeBasics(detailedView, face)
                 
                 if (showID.conditionalShow(detailedView)) {
-println("adding showID")
                     table.addGridElement("id:", leftColumnAlignment)
                     table.addGridElement(face.nullOrValue("id"), rightColumnAlignment)
                 }
                 
                 if (showAdjacentNodes.conditionalShow(detailedView)) {
-println("adding showAdjacentNodes")
                     table.addGridElement("nodes:", leftColumnAlignment)
                     val nodes = face.getVariable("nodes").toLinkedList
                     if (nodes.size == 0) {
@@ -87,7 +84,6 @@ println("adding showAdjacentNodes")
                 }
                 
                 if (showAdjacentEdges.conditionalShow(detailedView)) {
-println("adding showAdjacentEdges")
                     table.addGridElement("edges:", leftColumnAlignment)
                     val edges = face.getVariable("edges").toLinkedList
                     if (edges.size == 0) {
@@ -102,13 +98,11 @@ println("adding showAdjacentEdges")
                 }
 
                 if (showNodeCount.conditionalShow(detailedView)) {
-println("adding showNodeCount")
                     table.addGridElement("nodes (#):", leftColumnAlignment)
                     table.addGridElement(face.nullOrSize("nodes.map"), rightColumnAlignment)
                 }
 
                 if (showEdgeCount.conditionalShow(detailedView)) {
-println("adding showEdgeCount")
                     table.addGridElement("edges (#):", leftColumnAlignment)
                     table.addGridElement(face.nullOrSize("edges.map"), rightColumnAlignment)
                 }

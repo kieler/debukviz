@@ -30,7 +30,7 @@ import org.eclipse.debug.core.model.IVariable
 import static de.cau.cs.kieler.klighd.debug.visualization.AbstractDebugTransformation.*
 
 /*
- * Transformation for a IVariable representing a LPort
+ * Transformation for an IVariable representing a LPort
  * 
  * @ author tit
  */

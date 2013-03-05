@@ -230,7 +230,6 @@ abstract class AbstractKielerGraphTransformation extends AbstractDebugTransforma
      */ 
      def toLinkedList(IVariable variable) throws DebugException {
         val index = variable.getType.indexOf("<")
-        println("index: " + index)
         if (index > 0) {
             val type = variable.getType.substring(0, index)
             println("substring: " + type)
@@ -287,7 +286,7 @@ abstract class AbstractKielerGraphTransformation extends AbstractDebugTransforma
     }
     
     /**
-     * Returns the value mapped to a key, out of a IVariable that is representing a HashMap
+     * Returns the value mapped to a key, out of an IVariable that is representing a HashMap
      * 
      * @param hashMap
      *            The IVariable representing the HashMap.

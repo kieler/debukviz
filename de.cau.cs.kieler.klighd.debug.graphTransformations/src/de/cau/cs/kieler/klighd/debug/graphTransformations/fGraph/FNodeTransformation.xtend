@@ -11,7 +11,7 @@
  * This code is provided under the terms of the Eclipse Public License (EPL).
  * See the file epl-v10.html for the license text.
  */
- package de.cau.cs.kieler.klighd.debug.graphTransformations.fGraph
+package de.cau.cs.kieler.klighd.debug.graphTransformations.fGraph
 
 import de.cau.cs.kieler.core.kgraph.KNode
 import de.cau.cs.kieler.core.krendering.HorizontalAlignment
@@ -26,7 +26,7 @@ import org.eclipse.debug.core.model.IVariable
 import static de.cau.cs.kieler.klighd.debug.visualization.AbstractDebugTransformation.*
 
 /*
- * Transformation for a IVariable representing a FNode.
+ * Transformation for an IVariable representing a FNode.
  * 
  * @ author tit
  */
@@ -46,11 +46,17 @@ import static de.cau.cs.kieler.klighd.debug.visualization.AbstractDebugTransform
     /** Specifies when to show the property map. */
     val showPropertyMap = ShowTextIf::DETAILED
     
+    /** Specifies when to show the id. */
     val showID = ShowTextIf::ALWAYS
+    /** Specifies when to show the label. */
     val showLabel = ShowTextIf::ALWAYS
+    /** Specifies when to show the parent. */
     val showParent = ShowTextIf::DETAILED
+    /** Specifies when to show the displacement. */
     val showDisplacement = ShowTextIf::DETAILED
+    /** Specifies when to show the position. */
     val showPosition = ShowTextIf::DETAILED
+    /** Specifies when to show the size. */
     val showSize = ShowTextIf::DETAILED
 
     /**

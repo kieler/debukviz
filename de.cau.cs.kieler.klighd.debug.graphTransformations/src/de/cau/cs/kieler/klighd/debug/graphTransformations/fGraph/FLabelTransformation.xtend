@@ -27,7 +27,7 @@ import org.eclipse.debug.core.model.IVariable
 import static de.cau.cs.kieler.klighd.debug.visualization.AbstractDebugTransformation.*
 
 /*
- * Transformation for a IVariable representing a FLabel.
+ * Transformation for an IVariable representing a FLabel.
  * This class still uses the deprecated KTextIterableField class.
  * 
  * @ author tit

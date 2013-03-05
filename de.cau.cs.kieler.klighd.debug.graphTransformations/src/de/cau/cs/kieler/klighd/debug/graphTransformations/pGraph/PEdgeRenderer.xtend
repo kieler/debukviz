@@ -62,7 +62,6 @@ class PEdgeRenderer extends AbstractKielerGraphTransformation {
      *          Edges will be created. 
      */
 	def addAllEdges(KNode rootNode, IVariable graph) {
-println("getnodes: " + graph.getVariable("nodes"))
     	val nodes = graph.getVariable("nodes").toLinkedList
     	
     	// edgeMap holds all created KEdges, so we can later add the labels
@@ -72,8 +71,6 @@ println("getnodes: " + graph.getVariable("nodes"))
     	val labelMap = new HashMap<String, Integer>
 
     	// use the edges list of the nodes, as we need the index of the edge in this list for labeling
-println("nodes: " + nodes)
-println("nodes count: " + nodes.size)
     	nodes.forEach[node |
     		val nodeID = node.getValueString
     		val edges = node.getVariable("edges").toLinkedList
@@ -88,7 +85,6 @@ println("nodes count: " + nodes.size)
 
 				// to prevent double creations: only create edge if current node is it's source  	
     			if (source.getValueString.equals(nodeID)) {
-    				println(nodeID + "is source of " + edge.getValueString)
 		            val bendPoints = edge.getVariable("bendPoints")
 		            val bendCount = Integer::parseInt(bendPoints.getValue("size"))
 		            val isDirected = edge.getValue("isDirected").equals("true")
@@ -169,7 +165,6 @@ println("nodes count: " + nodes.size)
 		            	}
 		            }
     			} else {
-    				println(nodeID + "is target of " + edge.getValueString)
     				// current node is target of current edge, handle the header label
     				if(edgeMap.containsKey(edge.getValueString)) {
     					// edge is already in the graph, add the label

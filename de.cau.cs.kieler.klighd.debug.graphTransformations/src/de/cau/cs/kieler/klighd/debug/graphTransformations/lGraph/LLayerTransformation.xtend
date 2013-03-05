@@ -29,7 +29,7 @@ import org.eclipse.debug.core.model.IVariable
 import static de.cau.cs.kieler.klighd.debug.visualization.AbstractDebugTransformation.*
 
 /*
- * Transformation for a IVariable representing a FBendpoint
+ * Transformation for an IVariable representing a FBendpoint
  * 
  * @ author tit
  */
@@ -156,52 +156,63 @@ class LLayerTransformation extends AbstractKielerGraphTransformation {
 	def addVisualization(KNode rootNode, IVariable layer) {
 		val nodes = layer.getVariable("nodes")
 		
-        return rootNode.addNodeById(nodes) => [
-            data += renderingFactory.createKRectangle => [
-                lineWidth = 4
+        // create container node
+        val newNode = rootNode.addNodeById(nodes) => [
+            val rendering = renderingFactory.createKRectangle => [ rendering |
+                data += rendering
+                if(detailedView) rendering.lineWidth = 4 else rendering.lineWidth = 2
             ]
-            // add all nodes
-		    nodes.linkedList.forEach[IVariable node |
-          		nextTransformation(node, false)
-	        ]
-	        
-	        // add the edges, if they are span between two nodes of this layer
-	        nodes.linkedList.forEach[IVariable node |
-	        	node.getVariable("ports").linkedList.forEach[IVariable port |
-	        		port.getVariable("outgoingEdges").linkedList.forEach[IVariable edge |
-	        			
-	        			// verify that the current edge has to be created
-	        			val target = edge.getVariable("target.owner")
-	        			if(nodes.containsValWithID(target.valueString)) {
-		                    node.createEdgeById(target) => [
-		        				data += renderingFactory.createKPolyline => [
-			            		    setLineWidth(2)
-		                            addArrowDecorator
-		                            
-		                            switch edge.edgeType {
-		                                case "COMPOUND_DUMMY" : setLineStyle(LineStyle::DASH)
-		                                case "COMPOUND_SIDE" : setLineStyle(LineStyle::DOT)
-		                                default : setLineStyle(LineStyle::SOLID)
-		                            }
-		    	    			]
-		        			]
-	        			}
-	        		]
-	        	]
-	        ]
-	        // create the edge from header node to this node
-            layer.createTopElementEdge(nodes, "visualization")
+            
+            if (nodes.getValue("size").equals("0")) {
+                // there are no nodes on this layer
+                rendering.addKText("(none)")
+            } else {
+                // add all nodes
+                nodes.linkedList.forEach[IVariable node |
+                    nextTransformation(node, false)
+                ]
+                
+                // add the edges, if they are span between two nodes of this layer
+                nodes.linkedList.forEach[IVariable node |
+                    node.getVariable("ports").linkedList.forEach[IVariable port |
+                        port.getVariable("outgoingEdges").linkedList.forEach[IVariable edge |
+                            
+                            // verify that the current edge has to be created
+                            val target = edge.getVariable("target.owner")
+                            if(nodes.containsValWithID(target.valueString)) {
+                                node.createEdgeById(target) => [
+                                    data += renderingFactory.createKPolyline => [
+                                        setLineWidth(2)
+                                        addArrowDecorator
+                                        
+                                        switch edge.edgeType {
+                                            case "COMPOUND_DUMMY" : setLineStyle(LineStyle::DASH)
+                                            case "COMPOUND_SIDE" : setLineStyle(LineStyle::DOT)
+                                            default : setLineStyle(LineStyle::SOLID)
+                                        }
+                                    ]
+                                ]
+                            }
+                        ]
+                    ]
+                ]
+            }
+
         ]
+        
+        // create the edge from header node to this node
+        layer.createTopElementEdge(nodes, "visualization")
+        
+        return newNode
     }
     
-	/** 
-	 * returns the type of the given edge.
-	 * 
-	 * @param edge
-	 *             The IVariable representing a LEdge to check.
-	 * 
-	 * @return the type of the edge or "NORMAL", it type is not specified in the property map.
-	 */
+    /**
+     * Returns the type of edge, or <code>NORMAL</code>, if no type is given in the propertyMap.
+     * 
+     * @param edge
+     *              The edge those type shall be returned.
+     * @return The type of the edge.
+     */
     def getEdgeType(IVariable edge) {
     	val type = edge.getVariable("propertyMap").getValFromHashMap("EDGE_TYPE")
     	if (type == null) {
