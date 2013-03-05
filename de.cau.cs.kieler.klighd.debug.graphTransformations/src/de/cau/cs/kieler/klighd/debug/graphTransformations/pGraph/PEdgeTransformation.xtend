@@ -1,3 +1,16 @@
+/*
+ * KIELER - Kiel Integrated Environment for Layout Eclipse RichClient
+ *
+ * http://www.informatik.uni-kiel.de/rtsys/kieler/
+ * 
+ * Copyright 2013 by
+ * + Christian-Albrechts-University of Kiel
+ *   + Department of Computer Science
+ *     + Real-Time and Embedded Systems Group
+ * 
+ * This code is provided under the terms of the Eclipse Public License (EPL).
+ * See the file epl-v10.html for the license text.
+ */
 package de.cau.cs.kieler.klighd.debug.graphTransformations.pGraph
 
 import de.cau.cs.kieler.core.kgraph.KNode
@@ -12,24 +25,42 @@ import org.eclipse.debug.core.model.IVariable
 
 import static de.cau.cs.kieler.klighd.debug.visualization.AbstractDebugTransformation.*
 
-class PEdgeTransformation extends AbstractKielerGraphTransformation {
+/*
+ * Transformation for an IVariable representing a PEdge
+ * 
+ * @ author tit
+ */
+ class PEdgeTransformation extends AbstractKielerGraphTransformation {
     @Inject
     extension KNodeExtensions
     
+    /** The layout algorithm to use. */
     val layoutAlgorithm = "de.cau.cs.kieler.klay.layered"
+    /** The spacing to use. */
     val spacing = 75f
+    /** The horizontal alignment for the left column of all grid layouts. */
     val leftColumnAlignment = HorizontalAlignment::RIGHT
+    /** The horizontal alignment for the right column of all grid layouts. */
     val rightColumnAlignment = HorizontalAlignment::LEFT
     
+    /** Specifies when to show the property map. */
     val showPropertyMap = ShowTextIf::DETAILED
 
+    /** Specifies when to show the id. */
 	val showID= ShowTextIf::ALWAYS
+    /** Specifies when to show the hashCode. */
 	val showHashCode= ShowTextIf::DETAILED
+    /** Specifies when to show the faces. */
 	val showFaces = ShowTextIf::DETAILED
+    /** Specifies when to show the parent. */
 	val showParent = ShowTextIf::DETAILED
+    /** Specifies when to show the source. */
 	val showSource = ShowTextIf::DETAILED
+    /** Specifies when to show the target. */
 	val showTarget = ShowTextIf::DETAILED
+    /** Specifies when to show the bendPoints. */
 	val showBendPoints = ShowTextIf::DETAILED
+    /** Specifies when to show the number of BendPoints. */
     val showBendPointsCount = ShowTextIf::COMPACT
 
     /**
@@ -59,6 +90,16 @@ class PEdgeTransformation extends AbstractKielerGraphTransformation {
 		return retVal
 	}
     
+    /**
+     * Creates the header node containing basic informations for this element.
+     * 
+     * @param rootNode
+     *              The KNode the new created KNode will be placed in.
+     * @param edge
+     *              The IVariable representing the edge transformed in this transformation.
+     * 
+     * @return The new created header KNode
+     */
     def addHeaderNode(KNode rootNode, IVariable edge) { 
         rootNode.addNodeById(edge) => [
             data += renderingFactory.createKRectangle => [

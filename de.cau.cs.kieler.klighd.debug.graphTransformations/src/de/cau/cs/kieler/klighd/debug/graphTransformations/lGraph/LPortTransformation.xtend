@@ -15,11 +15,8 @@ package de.cau.cs.kieler.klighd.debug.graphTransformations.lGraph
 
 import de.cau.cs.kieler.core.kgraph.KNode
 import de.cau.cs.kieler.core.krendering.HorizontalAlignment
-import de.cau.cs.kieler.core.krendering.extensions.KLabelExtensions
 import de.cau.cs.kieler.core.krendering.extensions.KNodeExtensions
-import de.cau.cs.kieler.core.krendering.extensions.KPolylineExtensions
 import de.cau.cs.kieler.core.krendering.extensions.KRenderingExtensions
-import de.cau.cs.kieler.kiml.options.EdgeLabelPlacement
 import de.cau.cs.kieler.kiml.options.LayoutOptions
 import de.cau.cs.kieler.kiml.util.KimlUtil
 import de.cau.cs.kieler.klighd.debug.graphTransformations.AbstractKielerGraphTransformation
@@ -38,16 +35,12 @@ import static de.cau.cs.kieler.klighd.debug.visualization.AbstractDebugTransform
     
     @Inject
     extension KNodeExtensions
-    @Inject 
-    extension KPolylineExtensions 
     @Inject
     extension KRenderingExtensions
-    @Inject
-    extension KLabelExtensions
     
     /** The layout algorithm to use. */
     val layoutAlgorithm = "de.cau.cs.kieler.kiml.ogdf.planarization"
-    /** The spacing to use. */
+        /** The spacing to use. */
     val spacing = 75f
     /** The horizontal alignment for the left column of all grid layouts. */
     val leftColumnAlignment = HorizontalAlignment::RIGHT
@@ -99,13 +92,13 @@ import static de.cau.cs.kieler.klighd.debug.visualization.AbstractDebugTransform
                 
             // add incoming/outgoing edges node
             if(showEdgesNode.conditionalShow(detailedView)) {
-                addListOfEdges(port, port.getVariable("incomingEdges"))
-                addListOfEdges(port, port.getVariable("outgoingEdges"))
+                addEdgesNode(port, port.getVariable("incomingEdges"))
+                addEdgesNode(port, port.getVariable("outgoingEdges"))
             }
                 
             // add labels
             if(showLabelsNode.conditionalShow(detailedView))
-                addListOfLabels(port)
+                addLabelsNode(port)
         ]
     }
     
@@ -127,7 +120,7 @@ import static de.cau.cs.kieler.klighd.debug.visualization.AbstractDebugTransform
      * @param port
      *              The IVariable representing the port transformed in this transformation.
      * 
-     * @return The new created header KNode
+     * @return The new created header KNode.
      */
     def addHeaderNode(KNode rootNode, IVariable port) { 
         rootNode.addNodeById(port) => [
@@ -166,11 +159,7 @@ import static de.cau.cs.kieler.klighd.debug.visualization.AbstractDebugTransform
                     table.addGridElement("owner:", leftColumnAlignment)
                     table.addGridElement(port.nullOrTypeAndHashAndIDs("owner"), rightColumnAlignment)
                 }
-/*                    
-                    field.set("owner:", row, 0, leftColumnAlignment)
-                    field.set("LNode " + port.getValue("owner.id") + port.getValue("owner"), row, 1, rightColumnAlignment)
-                    row = row + 1
- */
+
                 // position of port
                 if(showPosition.conditionalShow(detailedView)) {
                     table.addGridElement("pos (x,y):", leftColumnAlignment)
@@ -206,53 +195,72 @@ import static de.cau.cs.kieler.klighd.debug.visualization.AbstractDebugTransform
         ]
     }
 
-    def addListOfLabels(KNode rootNode, IVariable port) {
-        // create a node (labels) containing the label elements
+    /**
+     * Creates a node containing all labels of this port.
+     * 
+     * @param rootNode
+     *              The KNode the new created KNode will be placed in.
+     * @param port
+     *              The IVariable representing the port transformed in this transformation.
+     * 
+     * @return The new created KNode.
+     */
+    def addLabelsNode(KNode rootNode, IVariable port) {
         val labels = port.getVariable("labels")
-        if (!labels.getValue("size").equals("0")) {
-            rootNode.addNodeById(labels) => [
-                data += renderingFactory.createKRectangle => [
-                    lineWidth = 4
-                ]
+
+        // create container node
+        val newNode = rootNode.addNodeById(labels) => [
+            val rendering = renderingFactory.createKRectangle => [ rendering |
+                data += rendering
+                if(detailedView) rendering.lineWidth = 4 else rendering.lineWidth = 2
+            ]
+            
+            if (labels.getValue("size").equals("0")) {
+                // no labels
+                rendering.addKText("(none)")
+            } else {
                 // create all labels
                 labels.linkedList.forEach [ label |
                     nextTransformation(label, false)
                 ]
-            ]
-            // create edge from header node to labels node
-            port.createEdgeById(labels) => [
-                data += renderingFactory.createKPolyline => [
-                    setLineWidth(2)
-                    addArrowDecorator
-                ]
-                // add label
-                labels.createLabel(it) => [
-                    addLayoutParam(LayoutOptions::EDGE_LABEL_PLACEMENT, EdgeLabelPlacement::CENTER)
-                    setLabelSize(50,20)
-                    text = "labels"
-                ]
-            ]               
-        }
+            }
+        ]
+        // create edge from header node to labels node
+        port.createTopElementEdge(labels, "labels")
+        
+        return newNode
     }
     
-    def addListOfEdges(KNode rootNode, IVariable port, IVariable edges) {
-        // create a node (edges) containing the edges elements
-        rootNode.addNodeById(edges) => [
-            renderingFactory.createKRectangle => [ rectangle |
-                data += rectangle
-                rectangle.lineWidth = 4
-                if (edges.getValue("size").equals("0")) {
-                    // create a null-node
-                    rectangle.addInvisibleRectangleGrid(1)
-                    rectangle.addGridElement("null", HorizontalAlignment::CENTER)
-                } else {
-                    // create all edges
-                    edges.linkedList.forEach [ edge |
-                        nextTransformation(edge, false)
-                    ]
-                }
+    /**
+     * Creates a node containing all edges of this port.
+     * 
+     * @param rootNode
+     *              The KNode the new created KNode will be placed in.
+     * @param port
+     *              The IVariable representing the port transformed in this transformation.
+     * 
+     * @return The new created header KNode.
+     */
+    def addEdgesNode(KNode rootNode, IVariable port, IVariable edges) {
+        // create container node
+        val newNode = rootNode.addNodeById(edges) => [
+            val rendering = renderingFactory.createKRectangle => [ rendering |
+                data += rendering
+                if(detailedView) rendering.lineWidth = 4 else rendering.lineWidth = 2
             ]
+
+            if (edges.getValue("size").equals("0")) {
+                // no edges
+                rendering.addKText("(none)")
+            } else {
+                // create all edges
+                edges.linkedList.forEach [ edge | nextTransformation(edge, false)]
+            }
         ]
+        
+        // create edge from header node to labels node
         port.createTopElementEdge(edges, edges.name)
+        
+        return newNode
     }
 }

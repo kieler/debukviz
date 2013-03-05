@@ -74,10 +74,15 @@ class FGraphTransformation extends AbstractKielerGraphTransformation {
     /** Specifies when to show the node containing the adjacency matrix. */
     val showAdjacency = ShowTextIf::DETAILED
     
+    /** Specifies when to show the number of labels. */
     val showLabelsCount = ShowTextIf::DETAILED
+    /** Specifies when to show the number of bendPoints. */
     val showBendPointsCount = ShowTextIf::DETAILED
+    /** Specifies when to show the number of edges. */
     val showEdgesCount = ShowTextIf::ALWAYS
+    /** Specifies when to show the size of the adjacency matrix. */
     val showAdjacencySize = ShowTextIf::DETAILED
+    /** Specifies when to show the number of nodes. */
     val showNodesCount = ShowTextIf::ALWAYS
     
     /**
@@ -122,7 +127,7 @@ class FGraphTransformation extends AbstractKielerGraphTransformation {
      * 
      * @param rootNode
      *              The KNode the new created KNode will be placed in.
-     * @param edge
+     * @param graph
      *              The IVariable representing the graph transformed in this transformation.
      * 
      * @return The new created header KNode.

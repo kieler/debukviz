@@ -1,3 +1,16 @@
+/*
+ * KIELER - Kiel Integrated Environment for Layout Eclipse RichClient
+ *
+ * http://www.informatik.uni-kiel.de/rtsys/kieler/
+ * 
+ * Copyright 2013 by
+ * + Christian-Albrechts-University of Kiel
+ *   + Department of Computer Science
+ *     + Real-Time and Embedded Systems Group
+ * 
+ * This code is provided under the terms of the Eclipse Public License (EPL).
+ * See the file epl-v10.html for the license text.
+ */
 package de.cau.cs.kieler.klighd.debug.graphTransformations
 
 import de.cau.cs.kieler.core.kgraph.KEdge
@@ -41,11 +54,17 @@ abstract class AbstractKielerGraphTransformation extends AbstractDebugTransforma
     @Inject
     extension KLabelExtensions
     
+    /** The horizontal alignment for the left column of all grid layouts. */
     val leftColumnAlignment = HorizontalAlignment::RIGHT
+    /** The horizontal alignment for the right column of all grid layouts. */
     val rightColumnAlignment = HorizontalAlignment::LEFT
+    /** The top gap of the gridLayout fields. */
     val topGap = 1
+    /** The right gap of the gridLayout fields. */
     val rightGap = 7
+    /** The bottom gap of the gridLayout fields. */
     val bottomGap = 0
+    /** The left gap of the gridLayout fields. */
     val leftGap = 5
 //    val vGap = 2
 //    val hGap = 5
