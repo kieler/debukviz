@@ -154,13 +154,13 @@ public abstract class AbstractDebugTransformation
      */
     public KNode nextTransformation(KNode rootNode, IVariable variable, Object transformationInfo)
             throws DebugException {
-        KNode innerNode;
-        // If node already exists create a dummy node
+        KNode innerNode;  
         if (nodeCount > maxNodeCount) {
             KlighdDebugDialog.open();
             return null;
         }
         else {
+            // If node already exists create a dummy node
             if (getId(variable) != primitiveId && nodeExists(variable)) {
                 nodeCount++;
                 innerNode = createDummyNode(variable);
