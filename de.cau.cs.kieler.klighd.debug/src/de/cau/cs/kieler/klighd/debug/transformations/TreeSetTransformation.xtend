@@ -57,10 +57,10 @@ class TreeSetTransformation extends AbstractDebugTransformation {
             
             it.data += renderingFactory.createKRectangle()
             
-            size = Integer::parseInt(model.getValue("m.size"))
+            size = Integer::parseInt(model.getValue("m","size"))
             
             if (size > 0)
-            	addTreeNode(model.getVariable("m.root"),"")
+            	addTreeNode(model.getVariable("m","root"),"")
             else
 			{
 				it.children += createNode() => [

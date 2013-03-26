@@ -31,6 +31,7 @@ import de.cau.cs.kieler.core.krendering.KPolyline;
 import de.cau.cs.kieler.core.krendering.KRectangle;
 import de.cau.cs.kieler.core.krendering.KRenderingFactory;
 import de.cau.cs.kieler.core.krendering.KText;
+import de.cau.cs.kieler.core.krendering.extensions.KColorExtensions;
 import de.cau.cs.kieler.core.krendering.extensions.KContainerRenderingExtensions;
 import de.cau.cs.kieler.core.krendering.extensions.KEdgeExtensions;
 import de.cau.cs.kieler.core.krendering.extensions.KNodeExtensions;
@@ -57,6 +58,8 @@ public abstract class AbstractDebugTransformation
 
     @Inject
     private KEdgeExtensions kEdgeExtensions;
+    @Inject
+    private KColorExtensions kColorExtensions;
     @Inject
     private KRenderingExtensions kRenderingExtensions;
     @Inject
@@ -165,7 +168,7 @@ public abstract class AbstractDebugTransformation
                 nodeCount++;
                 innerNode = createDummyNode(variable);
             } else {
-                if (depth <= maxDepth) {
+                if (depth+1 <= maxDepth) {
                     // Perform transformation if maximal recursion depth wasn't
                     // exceeded
                     depth++;
@@ -184,20 +187,21 @@ public abstract class AbstractDebugTransformation
                     type.setText(variable.getReferenceTypeName());
                 } else {
                     // Create a special node
-                    innerNode = kNodeExtensions.createNode(variable);
+                    innerNode = createNodeById(variable);
                     kNodeExtensions.setNodeSize(innerNode, 80, 80);
-    
                     KRectangle rec = renderingFactory.createKRectangle();
+                    innerNode.getData().add(rec);
                     rec.setChildPlacement(renderingFactory.createKGridPlacement());
     
                     KText type = renderingFactory.createKText();
                     type.setText("<<"+getType(variable)+">>");
-                    KText name = renderingFactory.createKText();
-                    type.setText(variable.getName());
-    
+                    kRenderingExtensions.setForegroundColor(type,120,120,120);
                     rec.getChildren().add(type);
+                    
+                    
+                    KText name = renderingFactory.createKText();
+                    name.setText(variable.getName());
                     rec.getChildren().add(name);
-                    innerNode.getData().add(rec);
                     
                     nodeCount++;
                 }   
@@ -218,8 +222,8 @@ public abstract class AbstractDebugTransformation
      * @return value of last field of fieldPath or "null" if field does'nt exists
      * @throws DebugException
      */
-    public String getValue(IVariable variable, String fieldPath) throws DebugException {
-        IVariable var = getVariable(variable, fieldPath);
+    public String getValue(IVariable variable, String... fields) throws DebugException {
+        IVariable var = getVariable(variable, fields);
         if (var != null)
             return var.getValue().getValueString();
         return "null";
@@ -236,8 +240,8 @@ public abstract class AbstractDebugTransformation
      * @return array of variable stored in last field of fieldPath or "null" if field does'nt exists
      * @throws DebugException
      */
-    public IVariable[] getVariables(IVariable variable, String fieldPath) throws DebugException {
-        IVariable var = getVariable(variable, fieldPath);
+    public IVariable[] getVariables(IVariable variable, String... fields) throws DebugException {
+        IVariable var = getVariable(variable, fields);
         if (var != null)
             return var.getValue().getVariables();
         else
@@ -245,7 +249,7 @@ public abstract class AbstractDebugTransformation
     }
 
     /**
-     * Iterate over field names given by fieldPath and returns a variable representing the field in
+     * Iterate over a list of field names given by fields and returns a variable representing the field in
      * the variable with the last field name as name, or <code>null</code> if there is no field with
      * the given name, or the name is ambiguous.
      * 
@@ -260,19 +264,15 @@ public abstract class AbstractDebugTransformation
      *         <code>null</code>
      * @throws DebugException
      */
-    public IVariable getVariable(IVariable variable, String fieldPath, boolean superField)
+    public IVariable getVariable(IVariable variable, boolean superField, String... fields)
             throws DebugException {
-        // Split fieldPath into a list of field names
-        LinkedList<String> fieldNames = new LinkedList<String>(
-                Arrays.asList(fieldPath.split("\\.")));
-        String lastFieldName = fieldNames.getLast();
+        boolean superF = false;
         // Iterate over list of field names
-        for (String fieldName : fieldNames) {
-            boolean superF = false;
-            if (fieldName.equals(lastFieldName))
+        for (int i = 0; i < fields.length; i++) {   
+            if (i == fields.length - 1)
                 superF = superField;
             IJavaObject javaObject = (IJavaObject) variable.getValue();
-            variable = (IVariable) javaObject.getField(fieldName, superF);
+            variable = (IVariable) javaObject.getField(fields[i], superF);
         }
         return variable;
     }
@@ -290,8 +290,8 @@ public abstract class AbstractDebugTransformation
      *         <code>null</code>
      * @throws DebugException
      */
-    public IVariable getVariable(IVariable variable, String fieldPath) throws DebugException {
-        return getVariable(variable, fieldPath, false);
+    public IVariable getVariable(IVariable variable, String... fields) throws DebugException {
+        return getVariable(variable, false, fields);
     }
 
     /**

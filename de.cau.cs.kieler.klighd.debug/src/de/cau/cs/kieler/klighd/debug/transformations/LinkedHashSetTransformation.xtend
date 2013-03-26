@@ -47,9 +47,9 @@ class LinkedHashSetTransformation extends AbstractDebugTransformation {
             
             it.data += renderingFactory.createKRectangle()
             
-            size = Integer::parseInt(model.getValue("map.size"))
+            size = Integer::parseInt(model.getValue("map","size"))
             if (size > 0)
-            	it.createKeyValueNode(model.getVariable("map.header.after"))
+            	it.createKeyValueNode(model.getVariable("map","header","after"))
             else
 			{
 				it.children += createNode() => [

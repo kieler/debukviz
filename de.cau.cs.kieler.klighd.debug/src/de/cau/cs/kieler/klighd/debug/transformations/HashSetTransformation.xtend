@@ -42,10 +42,10 @@ class HashSetTransformation extends AbstractDebugTransformation {
             
             it.data += renderingFactory.createKRectangle()
             
-            size = Integer::parseInt(model.getValue("map.size"))
+            size = Integer::parseInt(model.getValue("map","size"))
             if (size > 0)
 	            // Iterate over the table of the map and perform nextTransformation for every not null value
-	            model.getVariables("map.table").filter[variable | variable.valueIsNotNull].forEach[
+	            model.getVariables("map","table").filter[variable | variable.valueIsNotNull].forEach[
 	                IVariable variable | 
 	               	it.nextTransformation(variable.getVariable("key"))
 	               	val next = variable.getVariable("next");

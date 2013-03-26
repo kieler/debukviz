@@ -59,7 +59,7 @@ class LinkedListTransformation extends AbstractDebugTransformation {
             
             size = Integer::parseInt(variable.getValue("size"))
             if (size > 0)
-              it.addChildNode(variable.getVariable("header.next"),size-1)
+              it.addChildNode(variable.getVariable("header","next"),size-1)
             else
 			{
 				it.children += createNode() => [
@@ -92,15 +92,11 @@ class LinkedListTransformation extends AbstractDebugTransformation {
      * @param size remaining count of elements that had to be transformed
      */
     def addChildNode(KNode rootNode, IVariable variable, int size) {
-       val node = rootNode.addNodeById(variable)
-       if (node != null) {
-       		 node.data += renderingFactory.createKRectangle
-	         node.nextTransformation(variable.element)
-       }
+       rootNode.nextTransformation(variable.element)
        if (size > 0) {
            val next = variable.getVariable("next")
            rootNode.addChildNode(next,size-1)
-           variable.createEdgeById(next) => [
+           variable.element.createEdgeById(next.element) => [
                next.createLabel(it) => [
                      it.addLayoutParam(LayoutOptions::EDGE_LABEL_PLACEMENT, EdgeLabelPlacement::CENTER)
                      it.setLabelSize(50,50)

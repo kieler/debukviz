@@ -85,7 +85,7 @@ class EnumSetTransformation extends AbstractDebugTransformation {
         def addEnumElementNode(KNode node, IVariable enumElement) {
 			node.children += enumElement.createNode() => [
 				val name = enumElement.getValue("name")
-				it.setNodeSize(name.length * 10,50)
+				it.setNodeSize(name.length * 20,50)
 				it.data += renderingFactory.createKRectangle() => [
 						it.children += renderingFactory.createKText() => [
 							it.text = enumElement.getValue("name")

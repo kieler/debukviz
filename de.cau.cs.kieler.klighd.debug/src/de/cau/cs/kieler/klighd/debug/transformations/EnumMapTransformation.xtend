@@ -96,7 +96,7 @@ class EnumMapTransformation extends AbstractDebugTransformation {
 		if (node != null)
 			node => [
 				val name= key.getValue("name")
-				it.setNodeSize(name.length * 10,50)
+				it.setNodeSize(name.length * 20,50)
 				it.data += renderingFactory.createKRectangle() => [
 					it.children += renderingFactory.createKText() => [
 						it.text = name

@@ -61,7 +61,7 @@ class LinkedHashMapTransformation extends AbstractDebugTransformation {
             
             size = Integer::parseInt(model.getValue("size"))
             if (size > 0)
-            	it.createKeyValueNode(model.getVariable("header.after"))
+            	it.createKeyValueNode(model.getVariable("header","after"))
             else
 			{
 				it.children += createNode() => [
