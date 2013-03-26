@@ -11,7 +11,7 @@
  * This code is provided under the terms of the Eclipse Public License (EPL).
  * See the file epl-v10.html for the license text.
  */
- package de.cau.cs.kieler.klighd.debug.graphTransformations.lGraph
+package de.cau.cs.kieler.klighd.debug.graphTransformations.pGraph
 
 import de.cau.cs.kieler.core.kgraph.KNode
 import de.cau.cs.kieler.core.krendering.HorizontalAlignment
@@ -26,42 +26,42 @@ import org.eclipse.debug.core.model.IVariable
 import static de.cau.cs.kieler.klighd.debug.visualization.AbstractDebugTransformation.*
 
 /*
- * Transformation for an IVariable representing a LLabel.
+ * Transformation for an IVariable representing a PLabel
  * 
  * @ author tit
  */
-class LLabelTransformation extends AbstractKielerGraphTransformation {
+class PLabelTransformation extends AbstractKielerGraphTransformation {
     @Inject
     extension KNodeExtensions
         
     /** The layout algorithm to use. */
-    val layoutAlgorithm = "de.cau.cs.kieler.kiml.ogdf.planarization"
+    val layoutAlgorithm = "de.cau.cs.kieler.klay.layered"
     /** The spacing to use. */
     val spacing = 75f
     /** The horizontal alignment for the left column of all grid layouts. */
     val leftColumnAlignment = HorizontalAlignment::RIGHT
     /** The horizontal alignment for the right column of all grid layouts. */
     val rightColumnAlignment = HorizontalAlignment::LEFT
-
+    
     /** Specifies when to show the property map. */
     val showPropertyMap = ShowTextIf::DETAILED
-        
-    /** Specifies when to show the ID. */
-    val showID = ShowTextIf::ALWAYS
+
+    /** Specifies when to show the id. */
+	val showID = ShowTextIf::ALWAYS
     /** Specifies when to show the hashCode. */
-    val showHashCode = ShowTextIf::ALWAYS
+	val showHashCode = ShowTextIf::DETAILED
     /** Specifies when to show the text. */
-    val showText = ShowTextIf::DETAILED
+	val showText = ShowTextIf::ALWAYS
     /** Specifies when to show the position. */
-    val showPos = ShowTextIf::DETAILED
+	val showPosition = ShowTextIf::DETAILED
     /** Specifies when to show the size. */
-    val showSize = ShowTextIf::DETAILED
+	val showSize = ShowTextIf::DETAILED
     /** Specifies when to show the side. */
-    val showSide = ShowTextIf::DETAILED
+	val showSide = ShowTextIf::DETAILED
 
     /**
      * {@inheritDoc}
-     */    
+     */
     override transform(IVariable label, Object transformationInfo) {
         detailedView = transformationInfo.isDetailed
 
@@ -86,7 +86,7 @@ class LLabelTransformation extends AbstractKielerGraphTransformation {
 	}
     
     /**
-     * Creates the header node containing basic informations for this element and adds it to the rootNode.
+     * Creates the header node containing basic informations for this element.
      * 
      * @param rootNode
      *              The KNode the new created KNode will be placed in.
@@ -100,42 +100,42 @@ class LLabelTransformation extends AbstractKielerGraphTransformation {
             data += renderingFactory.createKRectangle => [
 
                 val table = headerNodeBasics(detailedView, label)
-                
+
                 // id of label
-                if(showID.conditionalShow(detailedView)) {
-                    table.addGridElement("id:", leftColumnAlignment) 
-                    table.addGridElement(label.nullOrValue("id"), rightColumnAlignment) 
-                }
+	            if (showID.conditionalShow(detailedView)) {
+		            table.addGridElement("id:", leftColumnAlignment)
+		            table.addGridElement(label.nullOrValue("id"), rightColumnAlignment)
+	            } 
    
                 // hashCode of label
-                if(showHashCode.conditionalShow(detailedView)) {
-                    table.addGridElement("hashCode:", leftColumnAlignment) 
-                    table.addGridElement(label.nullOrValue("hashCode"), rightColumnAlignment) 
-                }
+	            if (showHashCode.conditionalShow(detailedView)) {
+		            table.addGridElement("hashCode:", leftColumnAlignment)
+		            table.addGridElement(label.nullOrValue("hashCode"), rightColumnAlignment)
+	            } 
 
                 // text of label
-                if(showText.conditionalShow(detailedView)) {
-                    table.addGridElement("text:", leftColumnAlignment) 
-                    table.addGridElement(label.nullOrValue("text"), rightColumnAlignment) 
-                }
-                
+	            if (showText.conditionalShow(detailedView)) {
+		            table.addGridElement("text:", leftColumnAlignment)
+		            table.addGridElement(label.nullOrValue("text"), rightColumnAlignment)
+	            } 
+
                 // position of label
-                if(showPos.conditionalShow(detailedView)) {
-                    table.addGridElement("pos (x,y):", leftColumnAlignment) 
-                    table.addGridElement(label.nullOrKVektor("pos"), rightColumnAlignment) 
-                }
-                    
+	            if (showPosition.conditionalShow(detailedView)) {
+		            table.addGridElement("pos (x,y):", leftColumnAlignment)
+		            table.addGridElement(label.nullOrKVektor("pos"), rightColumnAlignment)
+	            } 
+
                 // size of label
-                if(showSize.conditionalShow(detailedView)) {
-                    table.addGridElement("size (x,y):", leftColumnAlignment) 
-                    table.addGridElement(label.nullOrKVektor("size"), rightColumnAlignment) 
-                }
+	            if (showSize.conditionalShow(detailedView)) {
+		            table.addGridElement("size:", leftColumnAlignment)
+		            table.addGridElement(label.nullOrKVektor("size"), rightColumnAlignment)
+	            } 
 
                 // side of label
-                if(showSide.conditionalShow(detailedView)) {
-                    table.addGridElement("side::", leftColumnAlignment) 
-                    table.addGridElement(label.nullOrName("side"), rightColumnAlignment) 
-                }
+	            if (showSide.conditionalShow(detailedView)) {
+		            table.addGridElement("side:", leftColumnAlignment)
+		            table.addGridElement(label.nullOrName("side"), rightColumnAlignment)
+	            } 
             ]
         ]
     }
