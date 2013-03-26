@@ -1,176 +1,269 @@
+/*
+ * KIELER - Kiel Integrated Environment for Layout Eclipse RichClient
+ *
+ * http://www.informatik.uni-kiel.de/rtsys/kieler/
+ * 
+ * Copyright 2013 by
+ * + Christian-Albrechts-University of Kiel
+ *   + Department of Computer Science
+ *     + Real-Time and Embedded Systems Group
+ * 
+ * This code is provided under the terms of the Eclipse Public License (EPL).
+ * See the file epl-v10.html for the license text.
+ */
 package de.cau.cs.kieler.klighd.debug.graphTransformations.lGraph
 
 import de.cau.cs.kieler.core.kgraph.KNode
+import de.cau.cs.kieler.core.krendering.HorizontalAlignment
 import de.cau.cs.kieler.core.krendering.LineStyle
-import de.cau.cs.kieler.core.krendering.extensions.KColorExtensions
-import de.cau.cs.kieler.core.krendering.extensions.KEdgeExtensions
 import de.cau.cs.kieler.core.krendering.extensions.KNodeExtensions
 import de.cau.cs.kieler.core.krendering.extensions.KPolylineExtensions
 import de.cau.cs.kieler.core.krendering.extensions.KRenderingExtensions
 import de.cau.cs.kieler.kiml.options.LayoutOptions
 import de.cau.cs.kieler.kiml.util.KimlUtil
+import de.cau.cs.kieler.klighd.debug.graphTransformations.AbstractKielerGraphTransformation
+import de.cau.cs.kieler.klighd.debug.graphTransformations.ShowTextIf
 import javax.inject.Inject
 import org.eclipse.debug.core.model.IVariable
-import de.cau.cs.kieler.core.krendering.KRendering
-import de.cau.cs.kieler.core.krendering.KContainerRendering
-import de.cau.cs.kieler.klighd.debug.graphTransformations.AbstractKielerGraphTransformation
-
-import de.cau.cs.kieler.kiml.options.EdgeLabelPlacement
-import de.cau.cs.kieler.kiml.options.Direction
-import de.cau.cs.kieler.kiml.options.LayoutOptions
 
 import static de.cau.cs.kieler.klighd.debug.visualization.AbstractDebugTransformation.*
-import de.cau.cs.kieler.core.krendering.extensions.KLabelExtensions
 
+/*
+ * Transformation for an IVariable representing a LGraph.
+ * 
+ * @ author tit
+ */
 class LGraphTransformation extends AbstractKielerGraphTransformation {
     
     @Inject
     extension KNodeExtensions
-    @Inject
-    extension KEdgeExtensions
     @Inject 
     extension KPolylineExtensions 
     @Inject
     extension KRenderingExtensions
-    @Inject
-    extension KColorExtensions
-    @Inject
-    extension KLabelExtensions
+    
+    /** The layout algorithm to use. */
+    val layoutAlgorithm = "de.cau.cs.kieler.kiml.ogdf.planarization"
+    /** The spacing to use. */
+    val spacing = 75f
+    /** The horizontal alignment for the left column of all grid layouts. */
+    val leftColumnAlignment = HorizontalAlignment::RIGHT
+    /** The horizontal alignment for the right column of all grid layouts. */
+    val rightColumnAlignment = HorizontalAlignment::LEFT
+
+    /** Specifies when to show the property map. */
+    val showPropertyMap = ShowTextIf::DETAILED
+    /** Specifies when to show the visualization node. */
+    val showVisulalization = ShowTextIf::DETAILED
+
+    /** Specifies when to show the id. */
+    val showID = ShowTextIf::ALWAYS
+    /** Specifies when to show the hashCode. */
+    val showHashCode = ShowTextIf::ALWAYS
+    /** Specifies when to show the hashCodeCounter. */
+    val showHashCodeCounter = ShowTextIf::DETAILED
+    /** Specifies when to show the size. */
+    val showSize = ShowTextIf::DETAILED
+    /** Specifies when to show the insets. */
+    val showInsets = ShowTextIf::DETAILED
+    /** Specifies when to show the offset. */
+    val showOffset = ShowTextIf::DETAILED
+    /** Specifies when to show the number of nodes. */
+    val showNodesCount = ShowTextIf::COMPACT
+    /** Specifies when to show the number of layers. */
+    val showLayersCount = ShowTextIf::ALWAYS
+    
     /**
      * {@inheritDoc}
      */
 	override transform(IVariable graph, Object transformationInfo) {
-        if(transformationInfo instanceof Boolean) detailedView = transformationInfo as Boolean
+        detailedView = transformationInfo.isDetailed
         
         return KimlUtil::createInitializedNode => [
-            it.addLayoutParam(LayoutOptions::ALGORITHM, "de.cau.cs.kieler.kiml.ogdf.planarization")
-            it.addLayoutParam(LayoutOptions::SPACING, 75f)
-            
-            // create header node
-     		it.createHeaderNode(graph)
+            addLayoutParam(LayoutOptions::ALGORITHM, layoutAlgorithm)
+            addLayoutParam(LayoutOptions::SPACING, spacing)
+
+			addInvisibleRendering
+     		addHeaderNode(graph)
      		
-     		// add the propertyMap and visualization, if in detailed mode
-      		if (detailedView) {
-                // add propertyMap
-                it.addPropertyMapAndEdge(graph.getVariable("propertyMap"), graph)
+            // add propertyMap
+            if(showPropertyMap.conditionalShow(detailedView))
+                addPropertyMapNode(graph.getVariable("propertyMap"), graph)
                 
-                // create the visualization
-          		it.createAllNodes(graph)
-    
-                // create all edges, first for all layerlessNodes, then iterate through all layers
-          		it.createEdges(graph.getVariable("layerlessNodes"))
-          		graph.getVariable("layers").linkedList.forEach[IVariable layer |
-          			it.createEdges(layer)	
-          		]
-            }
+            // create the graph visualization
+            if(showVisulalization.conditionalShow(detailedView))
+                createVisualization(graph)
         ]
 	}
+    
+	/**
+	 * {@inheritDoc}
+	 */
+	override getNodeCount(IVariable model) {
+	    var retVal = if(showPropertyMap.conditionalShow(detailedView)) 2 else 1
+        if(showVisulalization.conditionalShow(detailedView)) retVal = retVal + 1
+		return retVal
+	}
 	
-	def createHeaderNode(KNode rootNode, IVariable graph) {
+    /**
+     * Creates the header node containing basic informations for this element and adds it to the rootNode.
+     * 
+     * @param rootNode
+     *              The KNode the new created KNode will be placed in.
+     * @param edge
+     *              The IVariable representing the graph transformed in this transformation.
+     * 
+     * @return The new created header KNode.
+     */
+ 	def addHeaderNode(KNode rootNode, IVariable graph) {
 		rootNode.addNodeById(graph) => [
-    		it.data += renderingFactory.createKRectangle => [
-    		    it.headerNodeBasics(detailedView, graph)
+    		data += renderingFactory.createKRectangle => [
+
+                val table = headerNodeBasics(detailedView, graph)
                 
                 // id of graph
-                it.children += createKText(graph, "id", "", ": ")
+                if(showID.conditionalShow(detailedView)) {
+                    table.addGridElement("id:", leftColumnAlignment) 
+                    table.addGridElement(graph.nullOrValue("id"), rightColumnAlignment) 
+                }
                 
                 // hashCode of graph
-                it.children += createKText(graph, "hashCode", "", ": ")
+                if(showHashCode.conditionalShow(detailedView)) {
+                    table.addGridElement("hashCode:", leftColumnAlignment) 
+                    table.addGridElement(graph.nullOrValue("hashCode"), rightColumnAlignment) 
+                }
     			
-    			if(detailedView) {
-                    // hashCodeCounter of graph
-                    it.children += renderingFactory.createKText => [
-                        it.text = "hashCodeCounter: " + graph.getValue("hashCodeCounter.count")
-                    ]
+                // hashCodeCounter of graph
+                if(showHashCodeCounter.conditionalShow(detailedView)) {
+                    table.addGridElement("hashCodeCounter:", leftColumnAlignment) 
+                    table.addGridElement(graph.nullOrValue("hashCodeCounter.count"), rightColumnAlignment) 
+                }
+
+                // size of graph
+                if(showSize.conditionalShow(detailedView)) {
+                    table.addGridElement("size (x,y):", leftColumnAlignment) 
+                    table.addGridElement(graph.nullOrKVektor("size"), rightColumnAlignment) 
+                }
                     
-                    // size of graph
-                    it.children += renderingFactory.createKText => [
-                        it.text = "size (x,y): (" + graph.getValue("size.x").round + " x " 
-                                                  + graph.getValue("size.y").round + ")" 
-                    ]
-                    
-                    // insets of graph
-                    it.children += renderingFactory.createKText => [
-                        it.text = "insets (t,r,b,l): (" + graph.getValue("insets.top").round + " x "
-                                                        + graph.getValue("insets.right").round + " x "
-                                                        + graph.getValue("insets.bottom").round + " x "
-                                                        + graph.getValue("insets.left").round + ")"
-                    ]
-                    
-                    // offset of graph
-                    it.children += renderingFactory.createKText => [
-                        it.text = "offset (x,y): (" + graph.getValue("offset.x").round + " x "
-                                                    + graph.getValue("offset.y").round + ")"
-                    ]
-    			} else {
-    			    // # of nodes
-                    it.children += renderingFactory.createKText => [
-                        var count = Integer::parseInt(graph.getValue("layerlessNodes.size"))
-                        for(layer : graph.getVariable("layers").linkedList) {
-                            count = count + Integer::parseInt(layer.getValue("nodes.size"))
-                        }
-                        it.text = "nodes (#): " + count
-                    ]
-    			    
-    			    // # of layers
-                    it.children += renderingFactory.createKText => [
-                        it.text = "layers (#): " + graph.getValue("layers.size")
-                    ]
-    			}
+                // insets of graph
+                if(showInsets.conditionalShow(detailedView)) {
+                    table.addGridElement("insets (t,r,b,l):", leftColumnAlignment) 
+                    table.addGridElement(graph.nullOrLInsets("insets"), rightColumnAlignment) 
+                }
+
+                // offset of graph
+                if(showOffset.conditionalShow(detailedView)) {
+                    table.addGridElement("offset (x,y):", leftColumnAlignment) 
+                    table.addGridElement(graph.nullOrKVektor("offset"), rightColumnAlignment) 
+                }
+
+			    // # of nodes
+                if(showNodesCount.conditionalShow(detailedView)) {
+                    var count = Integer::parseInt(graph.getValue("layerlessNodes.size"))
+                    // sum all nodes in the layers
+                    for(layer : graph.getVariable("layers").linkedList) {
+                        count = count + Integer::parseInt(layer.getValue("nodes.size"))
+                    }
+                    table.addGridElement("nodes (#):", leftColumnAlignment) 
+                    table.addGridElement("" + count, rightColumnAlignment) 
+                }
+
+			    // # of layers
+                if(showLayersCount.conditionalShow(detailedView)) {
+                    table.addGridElement("layers (#):", leftColumnAlignment) 
+                    table.addGridElement(graph.nullOrSize("layers"), rightColumnAlignment) 
+                }
             ]
 		]
 	}
 
-    // create a node (visualization) containing the graphical visualisation of the LGraph
-	def createAllNodes(KNode rootNode, IVariable graph) {
+    /**
+     * Creates a node containing the visualization of this graph and creates an edge from header node to it.
+     * 
+     * @param rootNode
+     *              The KNode the new created KNode will be placed in.
+     * @param edge
+     *              The IVariable representing the graph transformed in this transformation.
+     * 
+     * @return The new created KNode.
+     */
+	def createVisualization(KNode rootNode, IVariable graph) {
 		val visualization = graph.getVariable("layerlessNodes")
 		
-        rootNode.addNodeById(visualization) => [
-            it.data += renderingFactory.createKRectangle => [
-                it.lineWidth = 4
+		// number of nodes in graph
+        val tmp = graph.getVariable("layers")
+                .linkedList
+                .map[l|Integer::parseInt(l.getValue("nodes.size"))]
+                .reduce[a, b | a + b]
+                        
+        val count = (if (tmp != null) tmp else 0) + Integer::parseInt(graph.getValue("layerlessNodes.size"))
+        
+        // create container node
+        val newNode = rootNode.addNodeById(visualization) => [
+            val rendering = renderingFactory.createKRectangle => [ rendering |
+                data += rendering
+                if(detailedView) rendering.lineWidth = 4 else rendering.lineWidth = 2
             ]
             
-            // create all nodes (layerless and layered)
-	  		it.createNodes(graph.getVariable("layerlessNodes"))
-	  		for (layer : graph.getVariable("layers").linkedList) {
-	  		    it.createNodes(layer.getVariable("nodes"))
-	  		}
+            if (count == 0) {
+                // graph is empty
+                rendering.addKText("(none)")
+            } else {
+                // create all nodes (layerless and layered)
+    	  		createNodes(graph.getVariable("layerlessNodes"))
+    	  		for (layer : graph.getVariable("layers").linkedList)
+    	  		    createNodes(layer.getVariable("nodes"))
+
+                // create all edges
+                // first for all layerlessNodes ...
+                createEdges(graph.getVariable("layerlessNodes"))
+                // ... then iterate through all layers
+                graph.getVariable("layers").linkedList.forEach[IVariable layer |
+                    createEdges(layer.getVariable("nodes"))   
+                ]
+            }
   		]
+  		
 	    // create edge from header node to visualization
-        graph.createEdgeById(visualization) => [
-            it.data += renderingFactory.createKPolyline => [
-                it.setLineWidth(2)
-                it.addArrowDecorator
-                it.setLineStyle(LineStyle::SOLID)
-            ]
-            visualization.createLabel(it) => [
-                it.addLayoutParam(LayoutOptions::EDGE_LABEL_PLACEMENT, EdgeLabelPlacement::CENTER)
-                it.setLabelSize(50,20)
-                it.text = "visualization"
-            ]
-        ]   
+        graph.createTopElementEdge(visualization, "visualization")
+        
+        return newNode
 	}
-	
-	def createNodes(KNode rootNode, IVariable nodes) {
+
+    /**
+     * Creates all nodes of this graph and adds them to the rootNode.
+     * 
+     * @param rootNode
+     *              The KNode the new created KNodes will be placed in.
+     * @param edge
+     *              The IVariable representing the list of nodes to create.
+     */
+    def void createNodes(KNode rootNode, IVariable nodes) {
 	    nodes.linkedList.forEach[IVariable node |
           rootNode.nextTransformation(node, false)
         ]
 	}
 
-    def createEdges(KNode rootNode, IVariable layer) {
+    /**
+     * Creates all edges of this graph.
+     * 
+     * @param layer
+     *              The layer or element layerlessNodes those edges shall be created.
+     */
+    def void createEdges(IVariable layer) {
         layer.linkedList.forEach[IVariable node |
         	node.getVariable("ports").linkedList.forEach[IVariable port |
         		port.getVariable("outgoingEdges").linkedList.forEach[IVariable edge |
                     edge.getVariable("source.owner")
                         .createEdgeById(edge.getVariable("target.owner")) => [
-        				it.data += renderingFactory.createKPolyline => [
-	            		    it.setLineWidth(2)
-                            it.addArrowDecorator
+        				data += renderingFactory.createKPolyline => [
+	            		    setLineWidth(2)
+                            addArrowDecorator
                             
                             switch edge.edgeType {
-                                case "COMPOUND_DUMMY" : it.setLineStyle(LineStyle::DASH)
-                                case "COMPOUND_SIDE" : it.setLineStyle(LineStyle::DOT)
-                                default : it.setLineStyle(LineStyle::SOLID)
+                                case "COMPOUND_DUMMY" : setLineStyle(LineStyle::DASH)
+                                case "COMPOUND_SIDE" : setLineStyle(LineStyle::DOT)
+                                default : setLineStyle(LineStyle::SOLID)
                             }
     	    			]
         			]
@@ -179,6 +272,14 @@ class LGraphTransformation extends AbstractKielerGraphTransformation {
         ]
     }
     
+    /**
+     * Returns the type of edge, or <code>NORMAL</code>, if no type is given in the propertyMap.
+     * 
+     * @param edge
+     *              The edge those type shall be returned.
+     * @return The type of the edge.
+     * 
+     */
     def getEdgeType(IVariable edge) {
     	val type = edge.getVariable("propertyMap").getValFromHashMap("EDGE_TYPE")
     	if (type == null) {
