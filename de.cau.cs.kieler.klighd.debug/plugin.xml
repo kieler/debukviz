@@ -98,10 +98,6 @@
             transformation="de.cau.cs.kieler.klighd.debug.transformations.StringTransformation">
       </visualization>
       <visualization
-            class="java.util.LinkedList"
-            transformation="de.cau.cs.kieler.klighd.debug.transformations.LinkedListTransformation">
-      </visualization>
-      <visualization
             class="java.util.LinkedHashSet"
             transformation="de.cau.cs.kieler.klighd.debug.transformations.LinkedHashSetTransformation">
       </visualization>

@@ -156,6 +156,10 @@ class DefaultTransformation extends AbstractDebugTransformation {
                     it.data += renderingFactory.createKRectangle() => [
                         it.childPlacement = renderingFactory.createKGridPlacement()
                         it.children += renderingFactory.createKText() => [
+                            it.text = "<<"+choice.type+">>"
+                            it.setForegroundColor(120,120,120)
+                        ]
+                        it.children += renderingFactory.createKText() => [
                             it.text = choice.name
                         ]
                         it.children += renderingFactory.createKText() => [
