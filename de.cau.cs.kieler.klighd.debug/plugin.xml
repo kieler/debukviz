@@ -9,11 +9,11 @@
       </startup>
    </extension>
    <extension
-         point="de.cau.cs.kieler.klighd.modelTransformations">
-      <transformation
-            class="de.cau.cs.kieler.klighd.transformations.GuiceBasedTransformationFactory:de.cau.cs.kieler.klighd.debug.transformations.KlighdDebugTransformation"
-            id="de.cau.cs.kieler.klighd.debug.transformation">
-      </transformation>
+         point="de.cau.cs.kieler.klighd.diagramSyntheses">
+      <diagramSynthesis
+            class="de.cau.cs.kieler.klighd.syntheses.GuiceBasedSynthesisFactory:de.cau.cs.kieler.klighd.debug.transformations.KlighdDebugTransformation"
+            id="de.cau.cs.kieler.klighd.debug.synthesis">
+      </diagramSynthesis>
    </extension>
    <extension
          point="de.cau.cs.kieler.klighd.debugVisualization">
@@ -106,7 +106,7 @@
          point="org.eclipse.ui.preferencePages">
       <page
             class="de.cau.cs.kieler.klighd.debug.preferences.KlighdDebugPreferencePage"
-            id="de.cau.cs.kieler.klighd.debug.page1"
+            id="de.cau.cs.kieler.klighd.debug.preferencePage"
             name="KIELER Debug Visualization">
       </page>
    </extension>

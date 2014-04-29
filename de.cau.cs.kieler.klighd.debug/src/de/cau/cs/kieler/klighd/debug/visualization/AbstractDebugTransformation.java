@@ -13,9 +13,7 @@
  */
 package de.cau.cs.kieler.klighd.debug.visualization;
 
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.LinkedList;
 
 import javax.inject.Inject;
 
@@ -31,8 +29,6 @@ import de.cau.cs.kieler.core.krendering.KPolyline;
 import de.cau.cs.kieler.core.krendering.KRectangle;
 import de.cau.cs.kieler.core.krendering.KRenderingFactory;
 import de.cau.cs.kieler.core.krendering.KText;
-import de.cau.cs.kieler.core.krendering.extensions.KColorExtensions;
-import de.cau.cs.kieler.core.krendering.extensions.KContainerRenderingExtensions;
 import de.cau.cs.kieler.core.krendering.extensions.KEdgeExtensions;
 import de.cau.cs.kieler.core.krendering.extensions.KNodeExtensions;
 import de.cau.cs.kieler.core.krendering.extensions.KPolylineExtensions;
@@ -42,7 +38,7 @@ import de.cau.cs.kieler.klighd.debug.KlighdDebugExtension;
 import de.cau.cs.kieler.klighd.debug.KlighdDebugPlugin;
 import de.cau.cs.kieler.klighd.debug.dialog.KlighdDebugDialog;
 import de.cau.cs.kieler.klighd.debug.transformations.KlighdDebugTransformation;
-import de.cau.cs.kieler.klighd.transformations.ReinitializingTransformationProxy;
+import de.cau.cs.kieler.klighd.debug.transformations.ReinitializingTransformationProxy;
 
 /**
  * An abstract base class for transformations between IVariable and KNode.<br>
@@ -53,17 +49,12 @@ import de.cau.cs.kieler.klighd.transformations.ReinitializingTransformationProxy
  * 
  * @author hwi
  */
-public abstract class AbstractDebugTransformation
-        implements IKlighdDebug {
+public abstract class AbstractDebugTransformation implements IKlighdDebug {
 
     @Inject
     private KEdgeExtensions kEdgeExtensions;
     @Inject
-    private KColorExtensions kColorExtensions;
-    @Inject
     private KRenderingExtensions kRenderingExtensions;
-    @Inject
-    private KContainerRenderingExtensions kContainerRenderingExtensions;
     @Inject
     private KPolylineExtensions kPolylineExtensions;
     @Inject
@@ -449,7 +440,7 @@ public abstract class AbstractDebugTransformation
         KPolyline polyline = renderingFactory.createKPolyline();
         kRenderingExtensions.setLineWidth(polyline, 2);
         kRenderingExtensions.setForegroundColor(polyline, 255, 0, 0);
-        kPolylineExtensions.addArrowDecorator(polyline);
+        kPolylineExtensions.addHeadArrowDecorator(polyline);
 
         edge.getData().add(polyline);
 

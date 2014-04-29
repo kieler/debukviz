@@ -13,17 +13,13 @@
  */
 package de.cau.cs.kieler.klighd.debug.transformations;
 
-import javax.inject.Inject;
-
 import org.eclipse.debug.core.model.IVariable;
 
 import de.cau.cs.kieler.core.kgraph.KNode;
-import de.cau.cs.kieler.core.krendering.extensions.KNodeExtensions;
-import de.cau.cs.kieler.klighd.TransformationContext;
 import de.cau.cs.kieler.klighd.debug.KlighdDebugExtension;
 import de.cau.cs.kieler.klighd.debug.dialog.KlighdDebugDialog;
 import de.cau.cs.kieler.klighd.debug.visualization.AbstractDebugTransformation;
-import de.cau.cs.kieler.klighd.transformations.AbstractTransformation;
+import de.cau.cs.kieler.klighd.syntheses.AbstractDiagramSynthesis;
 
 /**
  * Basic transformation used as an extension to the extensionPoint
@@ -31,22 +27,17 @@ import de.cau.cs.kieler.klighd.transformations.AbstractTransformation;
  * 
  * @author hwi
  */
-public class KlighdDebugTransformation extends
-		AbstractTransformation<IVariable, KNode> {
+public class KlighdDebugTransformation extends AbstractDiagramSynthesis<IVariable> {
 
-	@Inject
-	private KNodeExtensions kNodeExtensions;
-
-	
 	private AbstractDebugTransformation transformation = null;
+	
 	/**
 	 * {@inheritDoc}
 	 * 
 	 * Perform the transformation to the given model and reset stored
 	 * informations
 	 */
-	public KNode transform(IVariable model,
-			TransformationContext<IVariable, KNode> transformationContext) {
+	public KNode transform(IVariable model) {
 		// perform Transformation
 		KNode node = transformation(model, null);
 
