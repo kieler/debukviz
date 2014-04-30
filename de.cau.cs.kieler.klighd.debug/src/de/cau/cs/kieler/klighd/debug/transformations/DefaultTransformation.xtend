@@ -33,6 +33,9 @@ import org.eclipse.jdt.debug.core.IJavaModifiers
 import org.eclipse.jdt.debug.core.IJavaObject
 import org.eclipse.jdt.debug.core.IJavaPrimitiveValue
 import org.eclipse.jdt.debug.core.IJavaValue
+import de.cau.cs.kieler.core.krendering.extensions.KColorExtensions
+import de.cau.cs.kieler.core.krendering.extensions.KContainerRenderingExtensions
+import de.cau.cs.kieler.klighd.KlighdConstants
 
 class DefaultTransformation extends AbstractDebugTransformation {
        
@@ -44,6 +47,10 @@ class DefaultTransformation extends AbstractDebugTransformation {
     extension KRenderingExtensions
     @Inject
     extension KLabelExtensions
+    @Inject
+    extension KColorExtensions
+    @Inject
+    extension KContainerRenderingExtensions
 
     val store = KlighdDebugPlugin::getDefault().getPreferenceStore()
 
@@ -63,9 +70,11 @@ class DefaultTransformation extends AbstractDebugTransformation {
             it.data += renderingFactory.createKRectangle()
       
             // primitive datatypes or null or null object
-            if (model.isPrimitiveOrNull || model.isNullObject)
+            if (model.isPrimitive || model.isNullObject)
                	it.createValueNode(model)
             // objecttypes
+            else if (model.isNull)
+                it.createNullNode(model)
             else if (model.isObject) {
             	it.createObjectNode(model)
             }   
@@ -76,10 +85,14 @@ class DefaultTransformation extends AbstractDebugTransformation {
         return variable.type.equals("Object")
     }
     
-    def boolean isPrimitiveOrNull(IVariable variable) {
+    def boolean isPrimitive(IVariable variable) {
         val value = variable.value
-        return value instanceof IJavaPrimitiveValue || 
-              (value instanceof IJavaValue && (value as IJavaValue).isNull())
+        return value instanceof IJavaPrimitiveValue
+    }
+    
+    def boolean isNull(IVariable variable) {
+        val value = variable.value
+        return (value instanceof IJavaValue && (value as IJavaValue).isNull())
     }
     
     def boolean isObject(IVariable variable) {
@@ -105,6 +118,33 @@ class DefaultTransformation extends AbstractDebugTransformation {
             ]
     }
     
+    val NODE_INSETS = 5
+    
+    def createNullNode(KNode rootNode, IVariable choice) {
+        val node = rootNode.addNodeById(choice)
+        incNodeCount() 
+        if (node != null) {
+            node.addRoundedRectangle(5, 5) => [ rect |
+                // Design stuff
+                rect.foreground = "gray".color
+                rect.setBackgroundGradient("#FFFFFF".color, "#F0C0C0".color, 90)
+                rect.shadow = "black".color;
+                rect.shadow.XOffset = 4;
+                rect.shadow.YOffset = 4;
+                
+                // Placement algorithm
+                rect.setGridPlacement(1)
+                    .from(LEFT, NODE_INSETS, 0, TOP, NODE_INSETS, 0)
+                    .to(RIGHT, NODE_INSETS, 0, BOTTOM, NODE_INSETS, 0)
+                
+                rect.children += renderingFactory.createKText() => [
+                    it.text = "null"
+                    it.setForegroundColor(50, 50, 50)
+                ]
+            ]
+        }
+    }
+    
     def filterVariable(IVariable variable) {
         if (variable instanceof IJavaModifiers) {
             val mod = variable as IJavaModifiers
@@ -118,7 +158,7 @@ class DefaultTransformation extends AbstractDebugTransformation {
             if (thisNode != null) {
                 val primitiveList = new LinkedList<KText>()
                 choice.value.variables.filter[it.filterVariable].forEach[IVariable variable |
-                    if (variable.isPrimitiveOrNull)
+                    if (variable.isPrimitive || variable.isNull)
                         primitiveList += renderingFactory.createKText() => [
                             var text = ""
                             if (!variable.type.equals("null"))

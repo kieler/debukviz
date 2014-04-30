@@ -25,23 +25,21 @@ import de.cau.cs.kieler.kiml.util.KimlUtil
 import de.cau.cs.kieler.klighd.debug.AbstractDebugTransformation
 import javax.inject.Inject
 import org.eclipse.debug.core.model.IVariable
+import de.cau.cs.kieler.core.krendering.extensions.KColorExtensions
 
 /**
  * Transformation for a variable which is representing a variable of type "HashMap" and "HashTable"
  */
 class KeyValueTransformation extends AbstractDebugTransformation {
    
-    @Inject
-    extension KNodeExtensions
-    @Inject
-    extension KRenderingExtensions
-    @Inject 
-    extension KPolylineExtensions
-    @Inject 
-    extension KLabelExtensions 
-    
+    @Inject extension KColorExtensions
+    @Inject extension KLabelExtensions
+    @Inject extension KNodeExtensions
+    @Inject extension KPolylineExtensions
+    @Inject extension KRenderingExtensions
     
     var size = 0
+    
 	/**
 	 * Transformation for a variable which is representing a variable of type "HashMap" and "HashTable"
 	 * 
@@ -106,6 +104,7 @@ class KeyValueTransformation extends AbstractDebugTransformation {
             it.data += renderingFactory.createKPolyline() => [
                 it.setLineWidth(2)
                 it.addArrowDecorator()
+                it.foreground = "#323232".color
             ]
         ]
     }

@@ -60,7 +60,6 @@ public abstract class AbstractDebugTransformation implements IDebugTransformatio
     /** Factory used to create several rendering objects */
     protected static final KRenderingFactory renderingFactory = KRenderingFactory.eINSTANCE;
 
-
     /** Map of object id to the created KNode */
     private static final HashMap<Long, KNode> kNodeMap = new HashMap<Long, KNode>();
 
@@ -149,8 +148,7 @@ public abstract class AbstractDebugTransformation implements IDebugTransformatio
         if (nodeCount > maxNodeCount) {
             KlighdDebugDialog.open();
             return null;
-        }
-        else {
+        } else {
             // If node already exists create a dummy node
             if (getId(variable) != primitiveId && nodeExists(variable)) {
                 nodeCount++;
@@ -166,10 +164,13 @@ public abstract class AbstractDebugTransformation implements IDebugTransformatio
                     
                     nodeCount += transformation.getNodeCount(variable);
                     
-                    while (innerNode.getChildren().size() == 1)
+                    while (innerNode.getChildren().size() == 1) {
                         innerNode = innerNode.getChildren().get(0);
-                    if (!kNodeMap.containsKey(getId(variable)))
+                    }
+                    
+                    if (!kNodeMap.containsKey(getId(variable))) {
                         kNodeMap.put(getId(variable), innerNode);
+                    }
     
                     KText type = renderingFactory.createKText();
                     type.setText(variable.getReferenceTypeName());
@@ -183,9 +184,8 @@ public abstract class AbstractDebugTransformation implements IDebugTransformatio
     
                     KText type = renderingFactory.createKText();
                     type.setText("<<"+getType(variable)+">>");
-                    kRenderingExtensions.setForegroundColor(type,120,120,120);
+                    kRenderingExtensions.setForegroundColor(type,120,0,0);
                     rec.getChildren().add(type);
-                    
                     
                     KText name = renderingFactory.createKText();
                     name.setText(variable.getName());

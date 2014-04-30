@@ -16,8 +16,6 @@ package de.cau.cs.kieler.klighd.debug.preferences;
 import org.eclipse.core.runtime.preferences.AbstractPreferenceInitializer;
 import org.eclipse.jface.preference.IPreferenceStore;
 
-import de.cau.cs.kieler.core.kivi.KiVi;
-import de.cau.cs.kieler.core.kivi.KiViPlugin;
 import de.cau.cs.kieler.klighd.debug.KlighdDebugPlugin;
 
 /**

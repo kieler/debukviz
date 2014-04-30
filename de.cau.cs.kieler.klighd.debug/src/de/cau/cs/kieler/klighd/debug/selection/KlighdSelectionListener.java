@@ -25,7 +25,7 @@ import de.cau.cs.kieler.klighd.ui.DiagramViewManager;
 import de.cau.cs.kieler.klighd.ui.parts.DiagramViewPart;
 
 /**
- * A listener that listens to selections being done.
+ * A listener that listens to selections.
  * 
  * @author hwi
  */
@@ -60,9 +60,9 @@ public class KlighdSelectionListener implements ISelectionListener {
     /**
      * {@inheritDoc}
      * 
-     * if selection is an instance of {@link StructuredSelection} and the first element is an
-     * instance of {@link IVariable} a new KlighD view will be created or if the selection has
-     * changed the KlighD view will be updated
+     * If selection is an instance of {@link StructuredSelection} and the first element is an
+     * instance of {@link IVariable}, a new KlighD view will be created or if the selection has
+     * changed the KLighD view will be updated
      */
     public void selectionChanged(IWorkbenchPart part, ISelection selection) {
         if (selection instanceof StructuredSelection) {
@@ -73,13 +73,11 @@ public class KlighdSelectionListener implements ISelectionListener {
 
                 // Create a new view if none exists
                 if (DiagramViewManager.getInstance().getView("Variable") == null) {
-                    view =
-                            DiagramViewManager.getInstance().createView("Variable", "Variable",
-                                    var, null);
-                }
-
-                // Only update the view if selection has changed
-                else if (!var.equals(lastSelectedVariable)) {
+                    view = DiagramViewManager.getInstance().createView(
+                            "Variable", "Variable", var, null);
+                    
+                    // Only update the view if selection has changed
+                } else if (!var.equals(lastSelectedVariable)) {
                     lastSelectedVariable = var;
                     view = (DiagramViewPart) DiagramViewManager.getInstance().updateView(
                             "Variable", "Variable", var, null);

@@ -13,24 +13,25 @@
  */
 package de.cau.cs.kieler.klighd.debug.transformations
 
-import de.cau.cs.kieler.core.krendering.extensions.KNodeExtensions
+import de.cau.cs.kieler.core.krendering.extensions.KColorExtensions
+import de.cau.cs.kieler.core.krendering.extensions.KContainerRenderingExtensions
 import de.cau.cs.kieler.core.krendering.extensions.KRenderingExtensions
-import de.cau.cs.kieler.kiml.options.Direction
-import de.cau.cs.kieler.kiml.options.LayoutOptions
 import de.cau.cs.kieler.kiml.util.KimlUtil
 import de.cau.cs.kieler.klighd.debug.AbstractDebugTransformation
 import javax.inject.Inject
 import org.eclipse.debug.core.model.IVariable
+import de.cau.cs.kieler.klighd.KlighdConstants
 
 /**
  * Transformation for a variable representing a runtime variable if variable is of type "String"
  */
 class StringTransformation extends AbstractDebugTransformation {
 
-    @Inject
-    extension KNodeExtensions
-    @Inject
-    extension KRenderingExtensions
+    @Inject extension KColorExtensions
+    @Inject extension KContainerRenderingExtensions
+    @Inject extension KRenderingExtensions
+    
+    val NODE_INSETS = 5
 
    	/**
 	 * Transformation for a variable representing a runtime variable if variable is of type "String"
@@ -39,29 +40,34 @@ class StringTransformation extends AbstractDebugTransformation {
 	 */
     override transform(IVariable model, Object transformationInfo) {
         return KimlUtil::createInitializedNode() => [
-            //it.addLayoutParam(LayoutOptions::ALGORITHM, "de.cau.cs.kieler.klay.layered")
-            it.addLayoutParam(LayoutOptions::ALGORITHM, "de.cau.cs.kieler.kiml.ogdf.planarization")
-            it.addLayoutParam(LayoutOptions::SPACING, 50f)
-            it.addLayoutParam(LayoutOptions::DIRECTION, Direction::RIGHT)
-            
-            it.data += renderingFactory.createKRectangle()
-      
+            // FIXME: Shouldn't we check this before we create the actual node?
 			val node = it.addNodeById(model) 
-	        if (node != null) 
-	            node => [
-	                it.setNodeSize(80,80);
-	                it.data += renderingFactory.createKRectangle() => [
-	                    it.childPlacement = renderingFactory.createKGridPlacement()
-	                    it.children += renderingFactory.createKText() => [
-	                        it.text = "<<"+model.type+">>"
-	                        it.setForegroundColor(120,120,120)
-	                    ]
-	                    it.children += renderingFactory.createKText() => [
-	                        it.text = model.value.valueString
-	                    ]
-	                ]
-	            ]  
-	        ]
+	        if (node != null) {
+	            node.addRoundedRectangle(5, 5) => [ rect |
+	                // Design stuff
+	                rect.foreground = "gray".color
+	                rect.setBackgroundGradient("#FFFFFF".color, "#F0F0F0".color, 90)
+	                rect.shadow = "black".color;
+                    rect.shadow.XOffset = 4;
+                    rect.shadow.YOffset = 4;
+                    
+                    // Placement algorithm
+                    rect.setGridPlacement(1)
+                        .from(LEFT, NODE_INSETS, 0, TOP, NODE_INSETS, 0)
+                        .to(RIGHT, NODE_INSETS, 0, BOTTOM, NODE_INSETS, 0)
+                    
+                    rect.children += renderingFactory.createKText() => [
+                        it.text = model.type
+                        it.fontSize = KlighdConstants.DEFAULT_FONT_SIZE - 2
+                        it.foreground = "#627090".color
+                    ]
+                    rect.children += renderingFactory.createKText() => [
+                        it.text = "\"" + model.value.valueString + "\""
+                        it.setForegroundColor(50, 50, 50)
+                    ]
+                ]
+            }
+        ]
     }
 
     override getNodeCount(IVariable model) {

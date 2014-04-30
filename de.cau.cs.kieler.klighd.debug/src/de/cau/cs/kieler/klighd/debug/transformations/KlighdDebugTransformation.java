@@ -29,60 +29,60 @@ import de.cau.cs.kieler.klighd.syntheses.AbstractDiagramSynthesis;
  */
 public class KlighdDebugTransformation extends AbstractDiagramSynthesis<IVariable> {
 
-	private AbstractDebugTransformation transformation = null;
-	
-	/**
-	 * {@inheritDoc}
-	 * 
-	 * Perform the transformation to the given model and reset stored
-	 * informations
-	 */
-	public KNode transform(IVariable model) {
-		// perform Transformation
-		KNode node = transformation(model, null);
+    private AbstractDebugTransformation transformation = null;
 
-		// reset stored information
-		AbstractDebugTransformation.resetKNodeMap();
-		AbstractDebugTransformation.resetDummyNodeMap();
-		AbstractDebugTransformation.resetNodeCount();
-		KlighdDebugDialog.resetShown();
-		return node;
-	}
+    /**
+     * {@inheritDoc}
+     * 
+     * Perform the transformation to the given model and reset stored informations
+     */
+    public KNode transform(IVariable model) {
+        // perform Transformation
+        KNode node = transformation(model, null);
 
-	/**
-	 * Search for a registered transformation, if none found
-	 * DefaultTransformation is used transformationInfo is use to realize
-	 * communication between two transformations. Perform the transformation
-	 * 
-	 * @param model
-	 *            model to be transformed
-	 * @param transformationContext
-	 *            transformation context in which the transformation is done
-	 * @param transformationInfo
-	 *            further information used by transformation
-	 * @return result of the transformation
-	 */
-	@SuppressWarnings("unchecked")
-	public KNode transformation(IVariable model, Object transformationInfo) {
-		// get transformation if registered for model, null instead
-		transformation = KlighdDebugExtension.INSTANCE
-				.getTransformation(model);
+        // reset stored information
+        AbstractDebugTransformation.resetKNodeMap();
+        AbstractDebugTransformation.resetDummyNodeMap();
+        AbstractDebugTransformation.resetNodeCount();
+        KlighdDebugDialog.resetShown();
+        return node;
+    }
 
-		// use default transformation if no transformation was found
-		if (transformation == null)
-			transformation = new DefaultTransformation();
+    /**
+     * Search for a registered transformation, if none found DefaultTransformation is used
+     * transformationInfo is use to realize communication between two transformations. Perform the
+     * transformation
+     * 
+     * @param model
+     *            model to be transformed
+     * @param transformationContext
+     *            transformation context in which the transformation is done
+     * @param transformationInfo
+     *            further information used by transformation
+     * @return result of the transformation
+     */
+    @SuppressWarnings("unchecked")
+    public KNode transformation(IVariable model, Object transformationInfo) {
+        // get transformation if registered for model, null instead
+        transformation = KlighdDebugExtension.INSTANCE.getTransformation(model);
 
-		// use proxy for injection
-		transformation = new ReinitializingTransformationProxy(
-				(Class<AbstractDebugTransformation>) transformation.getClass());
-		if (transformation.getActualNodeCount() <= transformation.getMaxNodeCount())
-        		return transformation.transform(model,
-                                transformationInfo);
-		else 
-		    return null;
-	}
-	
-	public int getNodeCount(IVariable model) {
-	    return transformation.getNodeCount(model);
-	}
+        // use default transformation if no transformation was found
+        if (transformation == null) {
+            transformation = new DefaultTransformation();
+        }
+
+        // use proxy for injection
+        transformation = new ReinitializingTransformationProxy(
+                (Class<AbstractDebugTransformation>) transformation.getClass());
+        
+        if (transformation.getActualNodeCount() <= transformation.getMaxNodeCount()) {
+            return transformation.transform(model, transformationInfo);
+        } else {
+            return null;
+        }
+    }
+
+    public int getNodeCount(IVariable model) {
+        return transformation.getNodeCount(model);
+    }
 }
