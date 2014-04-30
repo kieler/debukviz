@@ -16,9 +16,9 @@ package de.cau.cs.kieler.klighd.debug.transformations;
 import org.eclipse.debug.core.model.IVariable;
 
 import de.cau.cs.kieler.core.kgraph.KNode;
+import de.cau.cs.kieler.klighd.debug.AbstractDebugTransformation;
 import de.cau.cs.kieler.klighd.debug.KlighdDebugExtension;
 import de.cau.cs.kieler.klighd.debug.dialog.KlighdDebugDialog;
-import de.cau.cs.kieler.klighd.debug.visualization.AbstractDebugTransformation;
 import de.cau.cs.kieler.klighd.syntheses.AbstractDiagramSynthesis;
 
 /**

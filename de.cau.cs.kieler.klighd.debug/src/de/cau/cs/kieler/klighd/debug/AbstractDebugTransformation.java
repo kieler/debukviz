@@ -11,7 +11,7 @@
  * This code is provided under the terms of the Eclipse Public License (EPL).
  * See the file epl-v10.html for the license text.
  */
-package de.cau.cs.kieler.klighd.debug.visualization;
+package de.cau.cs.kieler.klighd.debug;
 
 import java.util.HashMap;
 
@@ -33,9 +33,6 @@ import de.cau.cs.kieler.core.krendering.extensions.KEdgeExtensions;
 import de.cau.cs.kieler.core.krendering.extensions.KNodeExtensions;
 import de.cau.cs.kieler.core.krendering.extensions.KPolylineExtensions;
 import de.cau.cs.kieler.core.krendering.extensions.KRenderingExtensions;
-import de.cau.cs.kieler.klighd.debug.IKlighdDebug;
-import de.cau.cs.kieler.klighd.debug.KlighdDebugExtension;
-import de.cau.cs.kieler.klighd.debug.KlighdDebugPlugin;
 import de.cau.cs.kieler.klighd.debug.dialog.KlighdDebugDialog;
 import de.cau.cs.kieler.klighd.debug.transformations.KlighdDebugTransformation;
 import de.cau.cs.kieler.klighd.debug.transformations.ReinitializingTransformationProxy;
@@ -49,7 +46,7 @@ import de.cau.cs.kieler.klighd.debug.transformations.ReinitializingTransformatio
  * 
  * @author hwi
  */
-public abstract class AbstractDebugTransformation implements IKlighdDebug {
+public abstract class AbstractDebugTransformation implements IDebugTransformation {
 
     @Inject
     private KEdgeExtensions kEdgeExtensions;

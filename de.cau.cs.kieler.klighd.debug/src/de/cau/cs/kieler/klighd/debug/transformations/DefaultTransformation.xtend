@@ -23,18 +23,16 @@ import de.cau.cs.kieler.kiml.options.Direction
 import de.cau.cs.kieler.kiml.options.EdgeLabelPlacement
 import de.cau.cs.kieler.kiml.options.LayoutOptions
 import de.cau.cs.kieler.kiml.util.KimlUtil
-import de.cau.cs.kieler.klighd.debug.visualization.AbstractDebugTransformation
+import de.cau.cs.kieler.klighd.debug.AbstractDebugTransformation
+import de.cau.cs.kieler.klighd.debug.KlighdDebugPlugin
+import de.cau.cs.kieler.klighd.debug.dialog.KlighdDebugDialog
 import java.util.LinkedList
 import javax.inject.Inject
 import org.eclipse.debug.core.model.IVariable
+import org.eclipse.jdt.debug.core.IJavaModifiers
 import org.eclipse.jdt.debug.core.IJavaObject
 import org.eclipse.jdt.debug.core.IJavaPrimitiveValue
 import org.eclipse.jdt.debug.core.IJavaValue
-import org.eclipse.jdt.debug.core.IJavaModifiers
-import de.cau.cs.kieler.klighd.debug.KlighdDebugPlugin
-import de.cau.cs.kieler.klighd.debug.dialog.KlighdDebugDialog
-
-import static de.cau.cs.kieler.klighd.debug.visualization.AbstractDebugTransformation.*
 
 class DefaultTransformation extends AbstractDebugTransformation {
        

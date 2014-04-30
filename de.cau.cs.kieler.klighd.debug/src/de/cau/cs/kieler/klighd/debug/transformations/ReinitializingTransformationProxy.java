@@ -31,7 +31,7 @@ import com.google.inject.TypeLiteral;
 
 import de.cau.cs.kieler.core.kgraph.KNode;
 import de.cau.cs.kieler.core.krendering.ViewSynthesisShared;
-import de.cau.cs.kieler.klighd.debug.visualization.AbstractDebugTransformation;
+import de.cau.cs.kieler.klighd.debug.AbstractDebugTransformation;
 
 
 /**

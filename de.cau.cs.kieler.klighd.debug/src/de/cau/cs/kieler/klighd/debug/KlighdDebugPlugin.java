@@ -20,63 +20,61 @@ import org.osgi.framework.BundleContext;
 import de.cau.cs.kieler.klighd.debug.selection.KlighdSelectionListener;
 
 /**
- * The activator class controls the plug-in life cycle
+ * The activator class controls the plug-in life cycle.
  * 
  * @author hwi
  */
 public class KlighdDebugPlugin extends AbstractUIPlugin implements IStartup {
 
-	/**
-	 *  The plug-in ID
-	 */
-	public static final String PLUGIN_ID = "de.cau.cs.kieler.klighd.debug"; //$NON-NLS-1$
-	
-	public static final String LAYOUT = "layoutRadioButtonGroup";
-	public static final String STANDARD_LAYOUT = "standardLayoutRadio";
-	public static final String FLAT_LAYOUT = "flatLayoutRadio";
-	public static final String HIERARCHY_LAYOUT = "hierarchyLayoutRadio";
-	public static final String HIERARCHY_DEPTH = "hierarchyDepthScale";
-	public static final String MAX_NODE_COUNT = "maxNodeCountScale";
+    /** The plug-in ID. */
+    public static final String PLUGIN_ID = "de.cau.cs.kieler.klighd.debug"; //$NON-NLS-1$
 
-	// The shared instance
-	private static KlighdDebugPlugin plugin;
+    public static final String LAYOUT = "layoutRadioButtonGroup";
+    public static final String STANDARD_LAYOUT = "standardLayoutRadio";
+    public static final String FLAT_LAYOUT = "flatLayoutRadio";
+    public static final String HIERARCHY_LAYOUT = "hierarchyLayoutRadio";
+    public static final String HIERARCHY_DEPTH = "hierarchyDepthScale";
+    public static final String MAX_NODE_COUNT = "maxNodeCountScale";
 
-	/**
-	 * The constructor
-	 */
-	public KlighdDebugPlugin() {
-	}
+    // The shared instance
+    private static KlighdDebugPlugin plugin;
 
-	/**
+    /**
+     * Create a new instance.
+     */
+    public KlighdDebugPlugin() {
+    }
+
+    /**
      * {@inheritDoc}
      */
-	public void start(BundleContext context) throws Exception {
-		super.start(context);
-		plugin = this;
-	}
+    public void start(BundleContext context) throws Exception {
+        super.start(context);
+        plugin = this;
+    }
 
-	/**
+    /**
      * {@inheritDoc}
      */
-	public void stop(BundleContext context) throws Exception {
-		//plugin = null;
-		super.stop(context);
-	}
+    public void stop(BundleContext context) throws Exception {
+        // plugin = null;
+        super.stop(context);
+    }
 
-	/**
-	 * Returns the shared instance
-	 * 
-	 * @return the shared instance
-	 */
-	public static KlighdDebugPlugin getDefault() {
-		return plugin;
-	}
+    /**
+     * Returns the shared instance
+     * 
+     * @return the shared instance
+     */
+    public static KlighdDebugPlugin getDefault() {
+        return plugin;
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public void earlyStartup() {
-		KlighdSelectionListener.INSTANCE.register();
-	}
+    /**
+     * {@inheritDoc}
+     */
+    public void earlyStartup() {
+        KlighdSelectionListener.INSTANCE.register();
+    }
 
 }
