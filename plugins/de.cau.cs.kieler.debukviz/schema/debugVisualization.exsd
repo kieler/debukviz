@@ -1,9 +1,9 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <!-- Schema file written by PDE -->
-<schema targetNamespace="de.cau.cs.kieler.klighd.debug" xmlns="http://www.w3.org/2001/XMLSchema">
+<schema targetNamespace="de.cau.cs.kieler.debukviz" xmlns="http://www.w3.org/2001/XMLSchema">
 <annotation>
       <appinfo>
-         <meta.schema plugin="de.cau.cs.kieler.klighd.debug" id="de.cau.cs.kieler.klighd.debugVisualization" name="Debug Visualization"/>
+         <meta.schema plugin="de.cau.cs.kieler.debukviz" id="de.cau.cs.kieler.klighd.debugVisualization" name="Debug Visualization"/>
       </appinfo>
       <documentation>
          [Enter description of this extension point.]
@@ -55,7 +55,7 @@
                   
                </documentation>
                <appinfo>
-                  <meta.attribute kind="java" basedOn="de.cau.cs.kieler.klighd.debug.visualization.AbstractDebugTransformation:"/>
+                  <meta.attribute kind="java" basedOn="de.cau.cs.kieler.debukviz.visualization.AbstractDebugTransformation:"/>
                </appinfo>
             </annotation>
          </attribute>

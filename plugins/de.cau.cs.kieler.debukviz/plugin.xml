@@ -5,7 +5,7 @@
    <extension
          point="org.eclipse.ui.startup">
       <startup
-            class="de.cau.cs.kieler.klighd.debug.KlighdDebugPlugin">
+            class="de.cau.cs.kieler.debukviz.KlighdDebugPlugin">
       </startup>
    </extension>
    <extension
@@ -19,93 +19,93 @@
          point="de.cau.cs.kieler.klighd.debugVisualization">
       <visualization
             class="java.util.ArrayDeque"
-            transformation="de.cau.cs.kieler.klighd.debug.transformations.ArrayDequeTransformation">
+            transformation="de.cau.cs.kieler.debukviz.transformations.ArrayDequeTransformation">
       </visualization>
       <visualization
             class="java.lang.Boolean"
-            transformation="de.cau.cs.kieler.klighd.debug.transformations.ObjectValueTransformation">
+            transformation="de.cau.cs.kieler.debukviz.transformations.ObjectValueTransformation">
       </visualization>
       <visualization
             class="java.lang.Character"
-            transformation="de.cau.cs.kieler.klighd.debug.transformations.ObjectValueTransformation">
+            transformation="de.cau.cs.kieler.debukviz.transformations.ObjectValueTransformation">
       </visualization>
       <visualization
             class="java.util.ArrayList"
-            transformation="de.cau.cs.kieler.klighd.debug.transformations.ArrayListTransformation">
+            transformation="de.cau.cs.kieler.debukviz.transformations.ArrayListTransformation">
       </visualization>
       <visualization
             class="java.util.BitSet"
-            transformation="de.cau.cs.kieler.klighd.debug.transformations.BitSetTransformation">
+            transformation="de.cau.cs.kieler.debukviz.transformations.BitSetTransformation">
       </visualization>
       <visualization
             class="java.util.EnumMap"
-            transformation="de.cau.cs.kieler.klighd.debug.transformations.EnumMapTransformation">
+            transformation="de.cau.cs.kieler.debukviz.transformations.EnumMapTransformation">
       </visualization>
       <visualization
             class="java.util.EnumSet"
-            transformation="de.cau.cs.kieler.klighd.debug.transformations.EnumSetTransformation">
+            transformation="de.cau.cs.kieler.debukviz.transformations.EnumSetTransformation">
       </visualization>
       <visualization
             class="java.util.HashMap"
-            transformation="de.cau.cs.kieler.klighd.debug.transformations.KeyValueTransformation">
+            transformation="de.cau.cs.kieler.debukviz.transformations.KeyValueTransformation">
       </visualization>
       <visualization
             class="java.util.HashSet"
-            transformation="de.cau.cs.kieler.klighd.debug.transformations.HashSetTransformation">
+            transformation="de.cau.cs.kieler.debukviz.transformations.HashSetTransformation">
       </visualization>
       <visualization
             class="java.util.IdentityHashMap"
-            transformation="de.cau.cs.kieler.klighd.debug.transformations.IdentityHashMapTransformation">
+            transformation="de.cau.cs.kieler.debukviz.transformations.IdentityHashMapTransformation">
       </visualization>
       <visualization
             class="java.util.Hashtable"
-            transformation="de.cau.cs.kieler.klighd.debug.transformations.KeyValueTransformation">
+            transformation="de.cau.cs.kieler.debukviz.transformations.KeyValueTransformation">
       </visualization>
       <visualization
             class="java.util.LinkedHashMap"
-            transformation="de.cau.cs.kieler.klighd.debug.transformations.LinkedHashMapTransformation">
+            transformation="de.cau.cs.kieler.debukviz.transformations.LinkedHashMapTransformation">
       </visualization>
       <visualization
             class="java.util.PriorityQueue"
-            transformation="de.cau.cs.kieler.klighd.debug.transformations.PriorityQueueTransformation">
+            transformation="de.cau.cs.kieler.debukviz.transformations.PriorityQueueTransformation">
       </visualization>
       <visualization
             class="java.util.TreeMap"
-            transformation="de.cau.cs.kieler.klighd.debug.transformations.TreeMapTransformation">
+            transformation="de.cau.cs.kieler.debukviz.transformations.TreeMapTransformation">
       </visualization>
       <visualization
             class="java.util.TreeSet"
-            transformation="de.cau.cs.kieler.klighd.debug.transformations.TreeSetTransformation">
+            transformation="de.cau.cs.kieler.debukviz.transformations.TreeSetTransformation">
       </visualization>
       <visualization
             class="java.util.Stack"
-            transformation="de.cau.cs.kieler.klighd.debug.transformations.VectorTransformation">
+            transformation="de.cau.cs.kieler.debukviz.transformations.VectorTransformation">
       </visualization>
       <visualization
             class="java.util.Vector"
-            transformation="de.cau.cs.kieler.klighd.debug.transformations.VectorTransformation">
+            transformation="de.cau.cs.kieler.debukviz.transformations.VectorTransformation">
       </visualization>
       <visualization
             class="java.util.WeakHashMap"
-            transformation="de.cau.cs.kieler.klighd.debug.transformations.WeakHashMapTransformation">
+            transformation="de.cau.cs.kieler.debukviz.transformations.WeakHashMapTransformation">
       </visualization>
       <visualization
             class="java.lang.Number"
-            transformation="de.cau.cs.kieler.klighd.debug.transformations.ObjectValueTransformation">
+            transformation="de.cau.cs.kieler.debukviz.transformations.ObjectValueTransformation">
       </visualization>
       <visualization
             class="java.lang.String"
-            transformation="de.cau.cs.kieler.klighd.debug.transformations.StringTransformation">
+            transformation="de.cau.cs.kieler.debukviz.transformations.StringTransformation">
       </visualization>
       <visualization
             class="java.util.LinkedHashSet"
-            transformation="de.cau.cs.kieler.klighd.debug.transformations.LinkedHashSetTransformation">
+            transformation="de.cau.cs.kieler.debukviz.transformations.LinkedHashSetTransformation">
       </visualization>
    </extension>
    <extension
          point="org.eclipse.ui.preferencePages">
       <page
-            class="de.cau.cs.kieler.klighd.debug.preferences.KlighdDebugPreferencePage"
+            class="de.cau.cs.kieler.debukviz.preferences.KlighdDebugPreferencePage"
             id="de.cau.cs.kieler.klighd.debug.preferencePage"
             name="KIELER Debug Visualization">
       </page>
@@ -113,7 +113,7 @@
    <extension
          point="org.eclipse.core.runtime.preferences">
       <initializer
-            class="de.cau.cs.kieler.klighd.debug.preferences.PreferenceInitializer">
+            class="de.cau.cs.kieler.debukviz.preferences.PreferenceInitializer">
       </initializer>
    </extension>
 
