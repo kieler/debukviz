@@ -1,7 +1,8 @@
 /*
- * KIELER - Kiel Integrated Environment for Layout Eclipse RichClient
- *
- * http://www.informatik.uni-kiel.de/rtsys/kieler/
+ * DebuKViz - Kieler Debug Visualization
+ * 
+ * A part of OpenKieler
+ * https://github.com/OpenKieler
  * 
  * Copyright 2014 by
  * + Christian-Albrechts-University of Kiel
@@ -23,8 +24,6 @@ import de.cau.cs.kieler.debukviz.KlighdDebugPlugin;
 
 /**
  * Preference page of the KLighD Debug plug-in.
- * 
- * @author hwi
  */
 public class KlighdDebugPreferencePage extends FieldEditorPreferencePage implements
         IWorkbenchPreferencePage {

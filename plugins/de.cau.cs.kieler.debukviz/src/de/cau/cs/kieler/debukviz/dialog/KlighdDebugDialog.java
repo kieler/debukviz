@@ -1,7 +1,8 @@
 /*
- * KIELER - Kiel Integrated Environment for Layout Eclipse RichClient
- *
- * http://www.informatik.uni-kiel.de/rtsys/kieler/
+ * DebuKViz - Kieler Debug Visualization
+ * 
+ * A part of OpenKieler
+ * https://github.com/OpenKieler
  * 
  * Copyright 2014 by
  * + Christian-Albrechts-University of Kiel
@@ -17,25 +18,35 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.ui.PlatformUI;
 
+/**
+ * A dialog helper class that opens a concrete dialog only if that dialog hasn't been opened yet.
+ */
 public class KlighdDebugDialog {
-
-    private static final MessageBox messageBox = 
-            new MessageBox(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(),
-                    SWT.ICON_ERROR | SWT.OK);
     
+    /** Whether the dialog has already been shown or not. */
     private static boolean shown = false;
-      
+    
+    /**
+     * Call to allow the dialog to be shown again.
+     */
     public static void resetShown() {
         shown = false;
     }
     
+    /**
+     * Shows the dialog if it hasn't been shown already.
+     */
     public static void open() {
-        // Only show once per main transformation
         if (!shown) {
+            MessageBox messageBox = new MessageBox(
+                    PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(),
+                    SWT.ICON_ERROR | SWT.OK);
             messageBox.setText("Maximal number of nodes exceeded");
             messageBox.setMessage("Maybe the visualization is incomplete and the layout algorithm fails!");
             messageBox.open();
+            
             shown = true;
         }
-    } 
+    }
+    
 }

@@ -1,9 +1,10 @@
 /*
- * KIELER - Kiel Integrated Environment for Layout Eclipse RichClient
- *
- * http://www.informatik.uni-kiel.de/rtsys/kieler/
+ * DebuKViz - Kieler Debug Visualization
  * 
- * Copyright 2013 by
+ * A part of OpenKieler
+ * https://github.com/OpenKieler
+ * 
+ * Copyright 2014 by
  * + Christian-Albrechts-University of Kiel
  *   + Department of Computer Science
  *     + Real-Time and Embedded Systems Group
@@ -20,8 +21,6 @@ import de.cau.cs.kieler.debukviz.KlighdDebugPlugin;
 
 /**
  * Preference initializer for the KlighdDebug plugin.
- * 
- * @author hwi
  */
 public class PreferenceInitializer extends AbstractPreferenceInitializer {
 

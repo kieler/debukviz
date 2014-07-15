@@ -1,9 +1,10 @@
 /*
- * KIELER - Kiel Integrated Environment for Layout Eclipse RichClient
- *
- * http://www.informatik.uni-kiel.de/rtsys/kieler/
+ * DebuKViz - Kieler Debug Visualization
  * 
- * Copyright 2013 by
+ * A part of OpenKieler
+ * https://github.com/OpenKieler
+ * 
+ * Copyright 2014 by
  * + Christian-Albrechts-University of Kiel
  *   + Department of Computer Science
  *     + Real-Time and Embedded Systems Group
@@ -13,16 +14,16 @@
  */
 package de.cau.cs.kieler.debukviz.transformations
 
+import com.google.inject.Inject
 import de.cau.cs.kieler.core.krendering.extensions.KLabelExtensions
 import de.cau.cs.kieler.core.krendering.extensions.KNodeExtensions
 import de.cau.cs.kieler.core.krendering.extensions.KPolylineExtensions
 import de.cau.cs.kieler.core.krendering.extensions.KRenderingExtensions
+import de.cau.cs.kieler.debukviz.AbstractDebugTransformation
 import de.cau.cs.kieler.kiml.options.Direction
 import de.cau.cs.kieler.kiml.options.EdgeLabelPlacement
 import de.cau.cs.kieler.kiml.options.LayoutOptions
 import de.cau.cs.kieler.kiml.util.KimlUtil
-import de.cau.cs.kieler.debukviz.AbstractDebugTransformation
-import javax.inject.Inject
 import org.eclipse.debug.core.model.IVariable
 
 /**

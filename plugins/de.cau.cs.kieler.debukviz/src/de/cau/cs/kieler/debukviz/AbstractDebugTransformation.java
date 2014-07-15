@@ -1,9 +1,10 @@
 /*
- * KIELER - Kiel Integrated Environment for Layout Eclipse RichClient
- *
- * http://www.informatik.uni-kiel.de/rtsys/kieler/
+ * DebuKViz - Kieler Debug Visualization
  * 
- * Copyright 2013 by
+ * A part of OpenKieler
+ * https://github.com/OpenKieler
+ * 
+ * Copyright 2014 by
  * + Christian-Albrechts-University of Kiel
  *   + Department of Computer Science
  *     + Real-Time and Embedded Systems Group
@@ -15,12 +16,12 @@ package de.cau.cs.kieler.debukviz;
 
 import java.util.HashMap;
 
-import javax.inject.Inject;
-
 import org.eclipse.debug.core.DebugException;
 import org.eclipse.debug.core.model.IVariable;
 import org.eclipse.jdt.debug.core.IJavaObject;
 import org.eclipse.jdt.debug.core.IJavaValue;
+
+import com.google.inject.Inject;
 
 import de.cau.cs.kieler.core.kgraph.KEdge;
 import de.cau.cs.kieler.core.kgraph.KNode;
@@ -43,8 +44,6 @@ import de.cau.cs.kieler.debukviz.transformations.ReinitializingTransformationPro
  * At this point Xtend2 is used for all transformations specializing this class So every
  * transformation make use of {@link ReinitializingTransformationProxy} to leverage <b>create
  * extensions</b> or <b>dependency injection</b> with Google Guice
- * 
- * @author hwi
  */
 public abstract class AbstractDebugTransformation implements IDebugTransformation {
 

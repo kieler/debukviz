@@ -1,9 +1,10 @@
 /*
- * KIELER - Kiel Integrated Environment for Layout Eclipse RichClient
- *
- * http://www.informatik.uni-kiel.de/rtsys/kieler/
+ * DebuKViz - Kieler Debug Visualization
  * 
- * Copyright 2013 by
+ * A part of OpenKieler
+ * https://github.com/OpenKieler
+ * 
+ * Copyright 2014 by
  * + Christian-Albrechts-University of Kiel
  *   + Department of Computer Science
  *     + Real-Time and Embedded Systems Group
@@ -32,6 +33,7 @@ import com.google.inject.TypeLiteral;
 import de.cau.cs.kieler.core.kgraph.KNode;
 import de.cau.cs.kieler.core.krendering.ViewSynthesisShared;
 import de.cau.cs.kieler.debukviz.AbstractDebugTransformation;
+import de.cau.cs.kieler.debukviz.transformations.ReinitializingTransformationProxy.ViewSynthesisScope;
 
 
 /**
@@ -39,12 +41,9 @@ import de.cau.cs.kieler.debukviz.AbstractDebugTransformation;
  * needed for Xtend2 based transformation leveraging "create extensions", for example. The
  * implementation cares about creating new transformation instances, as well as their proper
  * initialization by means of Guice.<br>
- * <br>
  * 
- * This class shall not be instantiated by any user program but only by the runtime.
- * This class is mostly copied from the plugin "de.cau.cs.kieler.klighd"
- * 
- * @author chsch, hwi
+ * <p>This class shall not be instantiated by any user program but only by the runtime.
+ * This class is mostly copied from the plugin "de.cau.cs.kieler.klighd"</p>
  */
 public class ReinitializingTransformationProxy extends AbstractDebugTransformation {
 
