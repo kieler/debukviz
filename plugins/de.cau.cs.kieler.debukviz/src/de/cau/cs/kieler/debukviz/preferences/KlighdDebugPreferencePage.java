@@ -20,7 +20,7 @@ import org.eclipse.jface.preference.RadioGroupFieldEditor;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 
-import de.cau.cs.kieler.debukviz.KlighdDebugPlugin;
+import de.cau.cs.kieler.debukviz.DebuKVizPlugin;
 
 /**
  * Preference page of this plug-in.
@@ -32,22 +32,22 @@ public class KlighdDebugPreferencePage extends FieldEditorPreferencePage impleme
     protected void createFieldEditors() {
         String[][] labelAndValues = new String[3][2];
         labelAndValues[0][0] = "Standard";
-        labelAndValues[0][1] = KlighdDebugPlugin.STANDARD_LAYOUT;
+        labelAndValues[0][1] = DebuKVizPlugin.STANDARD_LAYOUT;
         labelAndValues[1][0] = "Flat";
-        labelAndValues[1][1] = KlighdDebugPlugin.FLAT_LAYOUT;
+        labelAndValues[1][1] = DebuKVizPlugin.FLAT_LAYOUT;
         labelAndValues[2][0] = "Hierarchical";
-        labelAndValues[2][1] = KlighdDebugPlugin.HIERARCHY_LAYOUT;
+        labelAndValues[2][1] = DebuKVizPlugin.HIERARCHY_LAYOUT;
 
-        addField(new RadioGroupFieldEditor(KlighdDebugPlugin.LAYOUT, "Layout type:", 1,
+        addField(new RadioGroupFieldEditor(DebuKVizPlugin.LAYOUT, "Layout type:", 1,
                 labelAndValues, getFieldEditorParent()));
-        addField(new IntegerFieldEditor(KlighdDebugPlugin.MAX_NODE_COUNT,
+        addField(new IntegerFieldEditor(DebuKVizPlugin.MAX_NODE_COUNT,
                 "Maximal number of nodes:", getFieldEditorParent()));
-        addField(new IntegerFieldEditor(KlighdDebugPlugin.HIERARCHY_DEPTH,
+        addField(new IntegerFieldEditor(DebuKVizPlugin.HIERARCHY_DEPTH,
                 "Maximal hierarchy depth:", getFieldEditorParent()));
     }
 
     public void init(IWorkbench workbench) {
-        setPreferenceStore(KlighdDebugPlugin.getDefault().getPreferenceStore());
+        setPreferenceStore(DebuKVizPlugin.getDefault().getPreferenceStore());
     }
 
 }

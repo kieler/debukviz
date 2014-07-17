@@ -18,8 +18,8 @@ import org.eclipse.debug.core.model.IVariable;
 
 import de.cau.cs.kieler.core.kgraph.KNode;
 import de.cau.cs.kieler.debukviz.AbstractDebugTransformation;
-import de.cau.cs.kieler.debukviz.KlighdDebugExtension;
-import de.cau.cs.kieler.debukviz.dialog.KlighdDebugDialog;
+import de.cau.cs.kieler.debukviz.DebuKVizTransformationService;
+import de.cau.cs.kieler.debukviz.dialog.DebuKVizDialog;
 import de.cau.cs.kieler.klighd.debug.transformations.DefaultTransformation;
 import de.cau.cs.kieler.klighd.syntheses.AbstractDiagramSynthesis;
 
@@ -44,7 +44,7 @@ public class KlighdDebugTransformation extends AbstractDiagramSynthesis<IVariabl
         AbstractDebugTransformation.resetKNodeMap();
         AbstractDebugTransformation.resetDummyNodeMap();
         AbstractDebugTransformation.resetNodeCount();
-        KlighdDebugDialog.resetShown();
+        DebuKVizDialog.resetShown();
         return node;
     }
 
@@ -64,7 +64,7 @@ public class KlighdDebugTransformation extends AbstractDiagramSynthesis<IVariabl
     @SuppressWarnings("unchecked")
     public KNode transformation(IVariable model, Object transformationInfo) {
         // get transformation if registered for model, null instead
-        transformation = KlighdDebugExtension.INSTANCE.getTransformation(model);
+        transformation = DebuKVizTransformationService.INSTANCE.getTransformation(model);
 
         // use default transformation if no transformation was found
         if (transformation == null) {

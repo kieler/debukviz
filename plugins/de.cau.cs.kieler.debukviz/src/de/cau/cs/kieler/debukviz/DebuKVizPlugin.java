@@ -21,9 +21,9 @@ import org.osgi.framework.BundleContext;
 import de.cau.cs.kieler.debukviz.selection.KlighdSelectionListener;
 
 /**
- * The activator class controls the plug-in life cycle.
+ * The activator class controls the plug-in life cycle and holds constants used throughout the plug-in.
  */
-public class KlighdDebugPlugin extends AbstractUIPlugin implements IStartup {
+public class DebuKVizPlugin extends AbstractUIPlugin implements IStartup {
 
     /** The plug-in ID. */
     public static final String PLUGIN_ID = "de.cau.cs.kieler.debukviz"; //$NON-NLS-1$
@@ -36,12 +36,12 @@ public class KlighdDebugPlugin extends AbstractUIPlugin implements IStartup {
     public static final String MAX_NODE_COUNT = "maxNodeCountScale";
 
     // The shared instance
-    private static KlighdDebugPlugin plugin;
+    private static DebuKVizPlugin plugin;
 
     /**
      * Create a new instance.
      */
-    public KlighdDebugPlugin() {
+    public DebuKVizPlugin() {
     }
 
     /**
@@ -65,7 +65,7 @@ public class KlighdDebugPlugin extends AbstractUIPlugin implements IStartup {
      * 
      * @return the shared instance
      */
-    public static KlighdDebugPlugin getDefault() {
+    public static DebuKVizPlugin getDefault() {
         return plugin;
     }
 

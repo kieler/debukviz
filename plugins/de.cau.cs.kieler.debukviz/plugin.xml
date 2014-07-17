@@ -5,7 +5,7 @@
    <extension
          point="org.eclipse.ui.startup">
       <startup
-            class="de.cau.cs.kieler.debukviz.KlighdDebugPlugin">
+            class="de.cau.cs.kieler.debukviz.DebuKVizPlugin">
       </startup>
    </extension>
    <extension

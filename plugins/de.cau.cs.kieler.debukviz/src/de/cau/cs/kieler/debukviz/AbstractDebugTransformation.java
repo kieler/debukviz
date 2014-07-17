@@ -34,7 +34,7 @@ import de.cau.cs.kieler.core.krendering.extensions.KEdgeExtensions;
 import de.cau.cs.kieler.core.krendering.extensions.KNodeExtensions;
 import de.cau.cs.kieler.core.krendering.extensions.KPolylineExtensions;
 import de.cau.cs.kieler.core.krendering.extensions.KRenderingExtensions;
-import de.cau.cs.kieler.debukviz.dialog.KlighdDebugDialog;
+import de.cau.cs.kieler.debukviz.dialog.DebuKVizDialog;
 import de.cau.cs.kieler.debukviz.transformations.KlighdDebugTransformation;
 import de.cau.cs.kieler.debukviz.transformations.ReinitializingTransformationProxy;
 
@@ -69,15 +69,15 @@ public abstract class AbstractDebugTransformation implements IDebugTransformatio
     private static Integer depth = 0;
 
     /** maximal allowed depth */
-    private Integer maxDepth = KlighdDebugPlugin.getDefault().getPreferenceStore()
-            .getInt(KlighdDebugPlugin.HIERARCHY_DEPTH);
+    private Integer maxDepth = DebuKVizPlugin.getDefault().getPreferenceStore()
+            .getInt(DebuKVizPlugin.HIERARCHY_DEPTH);
     
     /** actual number of nodes */
     private static Integer nodeCount = 0;
 
     /** maximal number of nodes */
-    private Integer maxNodeCount = KlighdDebugPlugin.getDefault().getPreferenceStore()
-            .getInt(KlighdDebugPlugin.MAX_NODE_COUNT);
+    private Integer maxNodeCount = DebuKVizPlugin.getDefault().getPreferenceStore()
+            .getInt(DebuKVizPlugin.MAX_NODE_COUNT);
     
     private int primitiveId = -2;
 
@@ -145,7 +145,7 @@ public abstract class AbstractDebugTransformation implements IDebugTransformatio
             throws DebugException {
         KNode innerNode;  
         if (nodeCount > maxNodeCount) {
-            KlighdDebugDialog.open();
+            DebuKVizDialog.open();
             return null;
         } else {
             // If node already exists create a dummy node
@@ -473,6 +473,6 @@ public abstract class AbstractDebugTransformation implements IDebugTransformatio
      * @return whether the transformation exists
      */
     public boolean transformationExists(IVariable variable) {
-        return KlighdDebugExtension.INSTANCE.getTransformation(variable) != null;
+        return DebuKVizTransformationService.INSTANCE.getTransformation(variable) != null;
     }
 }

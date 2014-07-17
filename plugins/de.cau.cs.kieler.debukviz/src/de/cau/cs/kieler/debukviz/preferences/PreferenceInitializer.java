@@ -17,7 +17,7 @@ package de.cau.cs.kieler.debukviz.preferences;
 import org.eclipse.core.runtime.preferences.AbstractPreferenceInitializer;
 import org.eclipse.jface.preference.IPreferenceStore;
 
-import de.cau.cs.kieler.debukviz.KlighdDebugPlugin;
+import de.cau.cs.kieler.debukviz.DebuKVizPlugin;
 
 /**
  * Initializes preferences used by this plug-in.
@@ -29,11 +29,11 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
      */
     @Override
     public void initializeDefaultPreferences() {
-        IPreferenceStore preferenceStore = KlighdDebugPlugin.getDefault().getPreferenceStore();
+        IPreferenceStore preferenceStore = DebuKVizPlugin.getDefault().getPreferenceStore();
 
-        preferenceStore.setDefault(KlighdDebugPlugin.LAYOUT, KlighdDebugPlugin.STANDARD_LAYOUT);
-        preferenceStore.setDefault(KlighdDebugPlugin.HIERARCHY_DEPTH, 10);
-        preferenceStore.setDefault(KlighdDebugPlugin.MAX_NODE_COUNT, 100);
+        preferenceStore.setDefault(DebuKVizPlugin.LAYOUT, DebuKVizPlugin.STANDARD_LAYOUT);
+        preferenceStore.setDefault(DebuKVizPlugin.HIERARCHY_DEPTH, 10);
+        preferenceStore.setDefault(DebuKVizPlugin.MAX_NODE_COUNT, 100);
     }
 
 }

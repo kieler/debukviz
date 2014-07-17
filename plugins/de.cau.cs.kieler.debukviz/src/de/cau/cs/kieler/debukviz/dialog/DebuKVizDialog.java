@@ -21,7 +21,7 @@ import org.eclipse.ui.PlatformUI;
 /**
  * A dialog helper class that opens a concrete dialog only if that dialog hasn't been opened yet.
  */
-public class KlighdDebugDialog {
+public class DebuKVizDialog {
     
     /** Whether the dialog has already been shown or not. */
     private static boolean shown = false;
@@ -41,8 +41,12 @@ public class KlighdDebugDialog {
             MessageBox messageBox = new MessageBox(
                     PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(),
                     SWT.ICON_ERROR | SWT.OK);
+            
+            // TODO Internationalize and improve the error message
+            //      (hardly anyone will understand this message)
             messageBox.setText("Maximal number of nodes exceeded");
-            messageBox.setMessage("Maybe the visualization is incomplete and the layout algorithm fails!");
+            messageBox.setMessage(
+                    "Maybe the visualization is incomplete and the layout algorithm fails!");
             messageBox.open();
             
             shown = true;

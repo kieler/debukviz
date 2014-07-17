@@ -32,25 +32,25 @@ import org.eclipse.ui.statushandlers.StatusManager;
 import de.cau.cs.kieler.debukviz.transformations.ArrayTransformation;
 
 /**
- * Class that gathers extension data from the {@code de.cau.cs.kieler.klighd.debugVisualization}
- * extension point and publishes this data using the singleton pattern.
+ * Managers the debug transformations registered with the
+ * {@code de.cau.cs.kieler.klighd.debugVisualization} extension point.
  */
-public class KlighdDebugExtension {
+public class DebuKVizTransformationService {
     
     /** Extension point ID. */
     public final static String EXTENSION_POINT_ID = "de.cau.cs.kieler.klighd.debugVisualization";
     
     /** Singleton. */
-    public final static KlighdDebugExtension INSTANCE = new KlighdDebugExtension();
+    public final static DebuKVizTransformationService INSTANCE = new DebuKVizTransformationService();
     
-    /** map of visualization class name to the runtime instances of their transformation. */
+    /** Map of visualization class name to the runtime instances of their transformation. */
     private Map<String, AbstractDebugTransformation> transformationMap =
             new HashMap<String, AbstractDebugTransformation>();
 
     /**
-     * Creates an instance of this class and gathers extension data.
+     * Creates a new instance and initializes it with the extension point data.
      */
-    KlighdDebugExtension() {
+    private DebuKVizTransformationService() {
         IConfigurationElement[] elements =
                 Platform.getExtensionRegistry().getConfigurationElementsFor(EXTENSION_POINT_ID);
         
@@ -65,7 +65,7 @@ public class KlighdDebugExtension {
                                         "transformation");
                         transformationMap.put(clazz, klighdDebug);
                     } catch (CoreException exception) {
-                        StatusManager.getManager().handle(exception, KlighdDebugPlugin.PLUGIN_ID);
+                        StatusManager.getManager().handle(exception, DebuKVizPlugin.PLUGIN_ID);
                     }
                 }
             }
@@ -75,16 +75,17 @@ public class KlighdDebugExtension {
     /**
      * Returns the transformation instance for the given {@link IVariable}.
      * 
-     * @param model
-     *            IVariable to be transformed
-     * @return transformation instance for the given model
+     * @param variable variable to be transformed.
+     * @return transformation instance for the given variable.
      */
-    public AbstractDebugTransformation getTransformation(IVariable model) {
+    public AbstractDebugTransformation getTransformation(IVariable variable) {
         AbstractDebugTransformation result = null;
         try {
-            IJavaValue value = (IJavaValue) model.getValue();
+            IJavaValue value = (IJavaValue) variable.getValue();
+            
             if (value instanceof IJavaArray)
                 return new ArrayTransformation();
+            
             // If value doesn't represent an object or value represents the null object return null
             if (!(value instanceof IJavaObject) || value.isNull())
                 return null;
@@ -94,6 +95,7 @@ public class KlighdDebugExtension {
             IJavaType type = value.getJavaType();
             if (type instanceof IJavaClassType) {
                 IJavaClassType superClass = (IJavaClassType) type;
+                
                 while (result == null && superClass != null) {
                     // replace '$' by '.' to find inner classes
                     result = transformationMap.get(superClass.getName().replaceAll("\\$", "."));
@@ -101,8 +103,9 @@ public class KlighdDebugExtension {
                 }
             }
         } catch (DebugException exception) {
-            StatusManager.getManager().handle(exception, KlighdDebugPlugin.PLUGIN_ID);
+            StatusManager.getManager().handle(exception, DebuKVizPlugin.PLUGIN_ID);
         }
+        
         return result;
     }
 }

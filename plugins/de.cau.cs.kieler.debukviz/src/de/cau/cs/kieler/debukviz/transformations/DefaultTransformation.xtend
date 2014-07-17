@@ -24,8 +24,6 @@ import de.cau.cs.kieler.core.krendering.extensions.KNodeExtensions
 import de.cau.cs.kieler.core.krendering.extensions.KPolylineExtensions
 import de.cau.cs.kieler.core.krendering.extensions.KRenderingExtensions
 import de.cau.cs.kieler.debukviz.AbstractDebugTransformation
-import de.cau.cs.kieler.debukviz.KlighdDebugPlugin
-import de.cau.cs.kieler.debukviz.dialog.KlighdDebugDialog
 import de.cau.cs.kieler.kiml.options.Direction
 import de.cau.cs.kieler.kiml.options.EdgeLabelPlacement
 import de.cau.cs.kieler.kiml.options.LayoutOptions
@@ -36,6 +34,8 @@ import org.eclipse.jdt.debug.core.IJavaModifiers
 import org.eclipse.jdt.debug.core.IJavaObject
 import org.eclipse.jdt.debug.core.IJavaPrimitiveValue
 import org.eclipse.jdt.debug.core.IJavaValue
+import de.cau.cs.kieler.debukviz.DebuKVizPlugin
+import de.cau.cs.kieler.debukviz.dialog.DebuKVizDialog
 
 class DefaultTransformation extends AbstractDebugTransformation {
        
@@ -52,10 +52,10 @@ class DefaultTransformation extends AbstractDebugTransformation {
     @Inject
     extension KContainerRenderingExtensions
 
-    val store = KlighdDebugPlugin::getDefault().getPreferenceStore()
+    val store = DebuKVizPlugin::getDefault().getPreferenceStore()
 
-    val hierarchy = store.getString(KlighdDebugPlugin::LAYOUT).equals(KlighdDebugPlugin::HIERARCHY_LAYOUT)
-    val flat = store.getString(KlighdDebugPlugin::LAYOUT).equals(KlighdDebugPlugin::FLAT_LAYOUT)
+    val hierarchy = store.getString(DebuKVizPlugin::LAYOUT).equals(DebuKVizPlugin::HIERARCHY_LAYOUT)
+    val flat = store.getString(DebuKVizPlugin::LAYOUT).equals(DebuKVizPlugin::FLAT_LAYOUT)
 
    	/**
 	 * Transformation for a variable representing a runtime variable if no specific transformation is registered as an extension
@@ -215,7 +215,7 @@ class DefaultTransformation extends AbstractDebugTransformation {
             
         }
         else {
-            KlighdDebugDialog::open
+            DebuKVizDialog::open
         }
     }   
 
