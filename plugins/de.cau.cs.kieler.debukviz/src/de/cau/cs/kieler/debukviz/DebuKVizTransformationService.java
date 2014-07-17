@@ -35,7 +35,7 @@ import de.cau.cs.kieler.debukviz.transformations.ArrayTransformation;
  * Managers the debug transformations registered with the
  * {@code de.cau.cs.kieler.klighd.debugVisualization} extension point.
  */
-public class DebuKVizTransformationService {
+final class DebuKVizTransformationService {
     
     /** Extension point ID. */
     public final static String EXTENSION_POINT_ID = "de.cau.cs.kieler.klighd.debugVisualization";

@@ -25,7 +25,7 @@ import de.cau.cs.kieler.core.kgraph.KNode;
  * For implementing custom view synthesis transformation we suggest to take
  * {@link de.cau.cs.kieler.debukviz.visualization AbstractDebugTransformation} as super class.
  */
-public interface IDebugTransformation {
+public interface IVariableTransformation {
 
     /**
      * Performs a transformation from an IVariable to a KNode.

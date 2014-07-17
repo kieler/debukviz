@@ -22,7 +22,7 @@ import de.cau.cs.kieler.debukviz.DebuKVizPlugin;
 /**
  * Initializes preferences used by this plug-in.
  */
-public class PreferenceInitializer extends AbstractPreferenceInitializer {
+public final class PreferenceInitializer extends AbstractPreferenceInitializer {
 
     /**
      * {@inheritDoc}

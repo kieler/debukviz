@@ -35,8 +35,6 @@ import de.cau.cs.kieler.core.krendering.extensions.KNodeExtensions;
 import de.cau.cs.kieler.core.krendering.extensions.KPolylineExtensions;
 import de.cau.cs.kieler.core.krendering.extensions.KRenderingExtensions;
 import de.cau.cs.kieler.debukviz.dialog.DebuKVizDialog;
-import de.cau.cs.kieler.debukviz.transformations.KlighdDebugTransformation;
-import de.cau.cs.kieler.debukviz.transformations.ReinitializingTransformationProxy;
 
 /**
  * An abstract base class for transformations between {@link IVariable} and {@link KNode}.
@@ -45,7 +43,7 @@ import de.cau.cs.kieler.debukviz.transformations.ReinitializingTransformationPro
  * transformation should make use of {@link ReinitializingTransformationProxy} to leverage
  * <i>create extensions</i> or <i>dependency injection</i> with Google Guice.</p>
  */
-public abstract class AbstractDebugTransformation implements IDebugTransformation {
+public abstract class AbstractDebugTransformation implements IVariableTransformation {
 
     @Inject
     private KEdgeExtensions kEdgeExtensions;
@@ -157,7 +155,7 @@ public abstract class AbstractDebugTransformation implements IDebugTransformatio
                     // Perform transformation if maximal recursion depth wasn't
                     // exceeded
                     depth++;
-                    KlighdDebugTransformation transformation = new KlighdDebugTransformation();
+                    DebuKVizSynthesis transformation = new DebuKVizSynthesis();
                     innerNode = transformation.transformation(variable, transformationInfo);
                     depth--;
                     

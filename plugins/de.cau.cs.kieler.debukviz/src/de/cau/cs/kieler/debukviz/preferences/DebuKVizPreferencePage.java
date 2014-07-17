@@ -25,8 +25,8 @@ import de.cau.cs.kieler.debukviz.DebuKVizPlugin;
 /**
  * Preference page of this plug-in.
  */
-public class KlighdDebugPreferencePage extends FieldEditorPreferencePage implements
-        IWorkbenchPreferencePage {
+public final class DebuKVizPreferencePage extends FieldEditorPreferencePage
+    implements IWorkbenchPreferencePage {
 
     @Override
     protected void createFieldEditors() {

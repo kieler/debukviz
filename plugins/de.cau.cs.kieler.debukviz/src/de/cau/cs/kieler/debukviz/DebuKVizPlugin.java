@@ -23,7 +23,7 @@ import de.cau.cs.kieler.debukviz.selection.KlighdSelectionListener;
 /**
  * The activator class controls the plug-in life cycle and holds constants used throughout the plug-in.
  */
-public class DebuKVizPlugin extends AbstractUIPlugin implements IStartup {
+public final class DebuKVizPlugin extends AbstractUIPlugin implements IStartup {
 
     /** The plug-in ID. */
     public static final String PLUGIN_ID = "de.cau.cs.kieler.debukviz"; //$NON-NLS-1$

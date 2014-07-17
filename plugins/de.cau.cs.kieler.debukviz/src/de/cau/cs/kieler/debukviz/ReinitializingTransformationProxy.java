@@ -12,7 +12,7 @@
  * This code is provided under the terms of the Eclipse Public License (EPL).
  * See the file epl-v10.html for the license text.
  */
-package de.cau.cs.kieler.debukviz.transformations;
+package de.cau.cs.kieler.debukviz;
 
 import java.util.Set;
 
@@ -32,8 +32,7 @@ import com.google.inject.TypeLiteral;
 
 import de.cau.cs.kieler.core.kgraph.KNode;
 import de.cau.cs.kieler.core.krendering.ViewSynthesisShared;
-import de.cau.cs.kieler.debukviz.AbstractDebugTransformation;
-import de.cau.cs.kieler.debukviz.transformations.ReinitializingTransformationProxy.ViewSynthesisScope;
+import de.cau.cs.kieler.debukviz.ReinitializingTransformationProxy.ViewSynthesisScope;
 
 
 /**
@@ -45,7 +44,7 @@ import de.cau.cs.kieler.debukviz.transformations.ReinitializingTransformationPro
  * <p>This class shall not be instantiated by any user program but only by the runtime.
  * This class is mostly copied from the plugin "de.cau.cs.kieler.klighd"</p>
  */
-public class ReinitializingTransformationProxy extends AbstractDebugTransformation {
+final class ReinitializingTransformationProxy extends AbstractDebugTransformation {
 
     private Class<AbstractDebugTransformation> transformationClass = null;
     private AbstractDebugTransformation transformationDelegate = null;

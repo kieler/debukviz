@@ -12,29 +12,25 @@
  * This code is provided under the terms of the Eclipse Public License (EPL).
  * See the file epl-v10.html for the license text.
  */
-package de.cau.cs.kieler.debukviz.transformations;
+package de.cau.cs.kieler.debukviz;
 
 import org.eclipse.debug.core.model.IVariable;
 
 import de.cau.cs.kieler.core.kgraph.KNode;
-import de.cau.cs.kieler.debukviz.AbstractDebugTransformation;
-import de.cau.cs.kieler.debukviz.DebuKVizTransformationService;
 import de.cau.cs.kieler.debukviz.dialog.DebuKVizDialog;
-import de.cau.cs.kieler.klighd.debug.transformations.DefaultTransformation;
+import de.cau.cs.kieler.debukviz.transformations.DefaultTransformation;
 import de.cau.cs.kieler.klighd.syntheses.AbstractDiagramSynthesis;
 
 /**
- * Basic transformation used as an extension to the extensionPoint
- * "de.cau.cs.kieler.klighd.modelTransformations"
+ * KLighD synthesis that provides the entry point into DebuKViz. Invokes the transformations registered
+ * with DebuKViz to produce the visual representation of variables.
  */
-public class KlighdDebugTransformation extends AbstractDiagramSynthesis<IVariable> {
-
+public final class DebuKVizSynthesis extends AbstractDiagramSynthesis<IVariable> {
+    
     private AbstractDebugTransformation transformation = null;
 
     /**
      * {@inheritDoc}
-     * 
-     * Perform the transformation to the given model and reset stored informations
      */
     public KNode transform(IVariable model) {
         // perform Transformation

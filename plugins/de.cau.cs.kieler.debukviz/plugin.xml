@@ -105,7 +105,7 @@
    <extension
          point="org.eclipse.ui.preferencePages">
       <page
-            class="de.cau.cs.kieler.debukviz.preferences.KlighdDebugPreferencePage"
+            class="de.cau.cs.kieler.debukviz.preferences.DebuKVizPreferencePage"
             id="de.cau.cs.kieler.klighd.debug.preferencePage"
             name="KIELER Debug Visualization">
       </page>
