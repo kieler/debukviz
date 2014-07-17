@@ -18,7 +18,7 @@ import com.google.inject.Inject
 import de.cau.cs.kieler.core.krendering.extensions.KNodeExtensions
 import de.cau.cs.kieler.core.krendering.extensions.KPolylineExtensions
 import de.cau.cs.kieler.core.krendering.extensions.KRenderingExtensions
-import de.cau.cs.kieler.debukviz.AbstractVariableTransformation
+import de.cau.cs.kieler.debukviz.VariableTransformation
 import de.cau.cs.kieler.kiml.options.Direction
 import de.cau.cs.kieler.kiml.options.LayoutOptions
 import de.cau.cs.kieler.kiml.util.KimlUtil
@@ -27,7 +27,7 @@ import org.eclipse.debug.core.model.IVariable
 /**
  * Transformation for a variable which is representing a variable of type "Vector"
  */
-class VectorTransformation extends AbstractVariableTransformation {
+class VectorTransformation extends VariableTransformation {
     
     @Inject
     extension KNodeExtensions 

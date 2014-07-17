@@ -44,10 +44,10 @@ import de.cau.cs.kieler.debukviz.ReinitializingTransformationProxy.ViewSynthesis
  * <p>This class shall not be instantiated by any user program but only by the runtime.
  * This class is mostly copied from the plugin "de.cau.cs.kieler.klighd"</p>
  */
-final class ReinitializingTransformationProxy extends AbstractVariableTransformation {
+final class ReinitializingTransformationProxy extends VariableTransformation {
 
-    private Class<AbstractVariableTransformation> transformationClass = null;
-    private AbstractVariableTransformation transformationDelegate = null;
+    private Class<VariableTransformation> transformationClass = null;
+    private VariableTransformation transformationDelegate = null;
     private Module transformationClassBinding = null;
     
 
@@ -55,7 +55,7 @@ final class ReinitializingTransformationProxy extends AbstractVariableTransforma
      * Package protected constructor.
      * @param clazz the transformation class
      */
-    ReinitializingTransformationProxy(final Class<AbstractVariableTransformation> clazz) {
+    ReinitializingTransformationProxy(final Class<VariableTransformation> clazz) {
         this.transformationClass = clazz;
         
         // The following module definition provides the various features:
@@ -72,7 +72,7 @@ final class ReinitializingTransformationProxy extends AbstractVariableTransforma
         this.transformationClassBinding = new Module() {
             public void configure(final Binder binder) {
                 binder.bind(ResourceSet.class).to(ResourceSetImpl.class);
-                binder.bind(new TypeLiteral<AbstractVariableTransformation>() { }).to(clazz);
+                binder.bind(new TypeLiteral<VariableTransformation>() { }).to(clazz);
                 binder.bindScope(ViewSynthesisShared.class, new ViewSynthesisScope(clazz));
             }
         };
@@ -114,11 +114,11 @@ final class ReinitializingTransformationProxy extends AbstractVariableTransforma
          *              the main transformation class
          */
         public ViewSynthesisScope(
-                final Class<AbstractVariableTransformation> themainTransformationClazz) {
+                final Class<VariableTransformation> themainTransformationClazz) {
             this.mainTransformationClazz = themainTransformationClazz;
         }
         
-        private Class<AbstractVariableTransformation> mainTransformationClazz = null;
+        private Class<VariableTransformation> mainTransformationClazz = null;
         private Set<Object> instances = Sets.newHashSet();
 
         /**
@@ -155,7 +155,7 @@ final class ReinitializingTransformationProxy extends AbstractVariableTransforma
 
                     U instance = null;
                     if (theClazzToBeInjected != mainTransformationClazz
-                            && AbstractVariableTransformation.class.isAssignableFrom(theClazzToBeInjected)) {
+                            && VariableTransformation.class.isAssignableFrom(theClazzToBeInjected)) {
                         // in case an instance of another fully-fledged transformation class requested
                         //  the current provider makes the scope (!) to forget all its known class
                         //  instances as stated in the requirements description above.
@@ -197,7 +197,7 @@ final class ReinitializingTransformationProxy extends AbstractVariableTransforma
     }
     
     
-    private AbstractVariableTransformation getNewDelegateInstance() {
+    private VariableTransformation getNewDelegateInstance() {
         return Guice.createInjector(this.transformationClassBinding).getInstance(
                 this.transformationClass);
     }
@@ -222,7 +222,7 @@ final class ReinitializingTransformationProxy extends AbstractVariableTransforma
      * Getter for the delegate attribute.
      * @return the delegate
      */
-    public AbstractVariableTransformation getDelegate() {
+    public VariableTransformation getDelegate() {
         return this.transformationDelegate;
     }
 

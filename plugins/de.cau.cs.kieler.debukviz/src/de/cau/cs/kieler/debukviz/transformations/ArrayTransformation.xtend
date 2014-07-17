@@ -20,7 +20,7 @@ import de.cau.cs.kieler.core.krendering.extensions.KLabelExtensions
 import de.cau.cs.kieler.core.krendering.extensions.KNodeExtensions
 import de.cau.cs.kieler.core.krendering.extensions.KPolylineExtensions
 import de.cau.cs.kieler.core.krendering.extensions.KRenderingExtensions
-import de.cau.cs.kieler.debukviz.AbstractVariableTransformation
+import de.cau.cs.kieler.debukviz.VariableTransformation
 import de.cau.cs.kieler.kiml.options.Direction
 import de.cau.cs.kieler.kiml.options.EdgeLabelPlacement
 import de.cau.cs.kieler.kiml.options.LayoutOptions
@@ -33,7 +33,7 @@ import org.eclipse.jdt.debug.core.IJavaValue
 /**
  * Transformation for a variable representing a runtime variable which is an array
  */
-class ArrayTransformation extends AbstractVariableTransformation {
+class ArrayTransformation extends VariableTransformation {
        
     @Inject 
     extension KPolylineExtensions   

@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?eclipse version="3.4"?>
 <plugin>
-   <extension-point id="de.cau.cs.kieler.klighd.debugVisualization" name="Debug Visualization" schema="schema/debugVisualization.exsd"/>
+   <extension-point id="de.cau.cs.kieler.debukviz.transformations"
+         name="DebuKViz Transformations"
+         schema="schema/debugVisualization.exsd"/>
    <extension
          point="org.eclipse.ui.startup">
       <startup
@@ -11,12 +13,12 @@
    <extension
          point="de.cau.cs.kieler.klighd.diagramSyntheses">
       <diagramSynthesis
-            class="de.cau.cs.kieler.klighd.syntheses.GuiceBasedSynthesisFactory:de.cau.cs.kieler.klighd.debug.transformations.KlighdDebugTransformation"
-            id="de.cau.cs.kieler.klighd.debug.synthesis">
+            class="de.cau.cs.kieler.klighd.syntheses.GuiceBasedSynthesisFactory:de.cau.cs.kieler.debukviz.DebuKVizSynthesis"
+            id="de.cau.cs.kieler.debukviz.synthesis">
       </diagramSynthesis>
    </extension>
    <extension
-         point="de.cau.cs.kieler.klighd.debugVisualization">
+         point="de.cau.cs.kieler.debukviz.transformations">
       <visualization
             class="java.util.ArrayDeque"
             transformation="de.cau.cs.kieler.debukviz.transformations.ArrayDequeTransformation">

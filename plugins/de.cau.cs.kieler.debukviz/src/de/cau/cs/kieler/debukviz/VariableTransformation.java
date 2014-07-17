@@ -43,7 +43,7 @@ import de.cau.cs.kieler.debukviz.dialog.DebuKVizDialog;
  * transformation should make use of {@link ReinitializingTransformationProxy} to leverage
  * <i>create extensions</i> or <i>dependency injection</i> with Google Guice.</p>
  */
-public abstract class AbstractVariableTransformation implements IVariableTransformation {
+public abstract class VariableTransformation {
 
     @Inject
     private KEdgeExtensions kEdgeExtensions;
@@ -71,7 +71,7 @@ public abstract class AbstractVariableTransformation implements IVariableTransfo
             .getInt(DebuKVizPlugin.HIERARCHY_DEPTH);
     
     /** actual number of nodes */
-    private static Integer nodeCount = 0;
+    private static int nodeCount = 0;
 
     /** maximal number of nodes */
     private Integer maxNodeCount = DebuKVizPlugin.getDefault().getPreferenceStore()
@@ -111,6 +111,9 @@ public abstract class AbstractVariableTransformation implements IVariableTransfo
     public int getMaxNodeCount() {
         return maxNodeCount;
     }
+    
+    public abstract KNode transform(IVariable model, Object transformationInfo);
+    public abstract int getNodeCount(IVariable model);
 
     /**
      * Performs a transformation for a given variable. If a node already exists for the given
@@ -152,8 +155,7 @@ public abstract class AbstractVariableTransformation implements IVariableTransfo
                 innerNode = createDummyNode(variable);
             } else {
                 if (depth+1 <= maxDepth) {
-                    // Perform transformation if maximal recursion depth wasn't
-                    // exceeded
+                    // Perform transformation if maximal recursion depth wasn't exceeded
                     depth++;
                     DebuKVizSynthesis transformation = new DebuKVizSynthesis();
                     innerNode = transformation.transformation(variable, transformationInfo);

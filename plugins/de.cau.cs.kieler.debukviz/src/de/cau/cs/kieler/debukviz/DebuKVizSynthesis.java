@@ -27,7 +27,7 @@ import de.cau.cs.kieler.klighd.syntheses.AbstractDiagramSynthesis;
  */
 public final class DebuKVizSynthesis extends AbstractDiagramSynthesis<IVariable> {
     
-    private AbstractVariableTransformation transformation = null;
+    private VariableTransformation transformation = null;
 
     /**
      * {@inheritDoc}
@@ -37,9 +37,9 @@ public final class DebuKVizSynthesis extends AbstractDiagramSynthesis<IVariable>
         KNode node = transformation(model, null);
 
         // reset stored information
-        AbstractVariableTransformation.resetKNodeMap();
-        AbstractVariableTransformation.resetDummyNodeMap();
-        AbstractVariableTransformation.resetNodeCount();
+        VariableTransformation.resetKNodeMap();
+        VariableTransformation.resetDummyNodeMap();
+        VariableTransformation.resetNodeCount();
         DebuKVizDialog.resetShown();
         return node;
     }
@@ -69,7 +69,7 @@ public final class DebuKVizSynthesis extends AbstractDiagramSynthesis<IVariable>
 
         // use proxy for injection
         transformation = new ReinitializingTransformationProxy(
-                (Class<AbstractVariableTransformation>) transformation.getClass());
+                (Class<VariableTransformation>) transformation.getClass());
         
         if (transformation.getActualNodeCount() <= transformation.getMaxNodeCount()) {
             return transformation.transform(model, transformationInfo);

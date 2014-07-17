@@ -44,8 +44,8 @@ final class DebuKVizTransformationService {
     public final static DebuKVizTransformationService INSTANCE = new DebuKVizTransformationService();
     
     /** Map of visualization class name to the runtime instances of their transformation. */
-    private Map<String, AbstractVariableTransformation> transformationMap =
-            new HashMap<String, AbstractVariableTransformation>();
+    private Map<String, VariableTransformation> transformationMap =
+            new HashMap<String, VariableTransformation>();
 
     /**
      * Creates a new instance and initializes it with the extension point data.
@@ -60,8 +60,8 @@ final class DebuKVizTransformationService {
                 String clazz = element.getAttribute("class");
                 if (transformation != null && clazz != null) {
                     try {
-                        AbstractVariableTransformation klighdDebug =
-                                (AbstractVariableTransformation) element.createExecutableExtension(
+                        VariableTransformation klighdDebug =
+                                (VariableTransformation) element.createExecutableExtension(
                                         "transformation");
                         transformationMap.put(clazz, klighdDebug);
                     } catch (CoreException exception) {
@@ -78,8 +78,8 @@ final class DebuKVizTransformationService {
      * @param variable variable to be transformed.
      * @return transformation instance for the given variable.
      */
-    public AbstractVariableTransformation getTransformation(IVariable variable) {
-        AbstractVariableTransformation result = null;
+    public VariableTransformation getTransformation(IVariable variable) {
+        VariableTransformation result = null;
         try {
             IJavaValue value = (IJavaValue) variable.getValue();
             

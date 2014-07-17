@@ -23,8 +23,8 @@ import de.cau.cs.kieler.core.krendering.extensions.KLabelExtensions
 import de.cau.cs.kieler.core.krendering.extensions.KNodeExtensions
 import de.cau.cs.kieler.core.krendering.extensions.KPolylineExtensions
 import de.cau.cs.kieler.core.krendering.extensions.KRenderingExtensions
-import de.cau.cs.kieler.debukviz.AbstractVariableTransformation
 import de.cau.cs.kieler.debukviz.DebuKVizPlugin
+import de.cau.cs.kieler.debukviz.VariableTransformation
 import de.cau.cs.kieler.debukviz.dialog.DebuKVizDialog
 import de.cau.cs.kieler.kiml.options.Direction
 import de.cau.cs.kieler.kiml.options.EdgeLabelPlacement
@@ -37,7 +37,7 @@ import org.eclipse.jdt.debug.core.IJavaObject
 import org.eclipse.jdt.debug.core.IJavaPrimitiveValue
 import org.eclipse.jdt.debug.core.IJavaValue
 
-class DefaultTransformation extends AbstractVariableTransformation {
+class DefaultTransformation extends VariableTransformation {
        
     @Inject 
     extension KPolylineExtensions   
