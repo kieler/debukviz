@@ -20,7 +20,7 @@ import de.cau.cs.kieler.core.krendering.extensions.KLabelExtensions
 import de.cau.cs.kieler.core.krendering.extensions.KNodeExtensions
 import de.cau.cs.kieler.core.krendering.extensions.KPolylineExtensions
 import de.cau.cs.kieler.core.krendering.extensions.KRenderingExtensions
-import de.cau.cs.kieler.debukviz.AbstractDebugTransformation
+import de.cau.cs.kieler.debukviz.AbstractVariableTransformation
 import de.cau.cs.kieler.kiml.options.Direction
 import de.cau.cs.kieler.kiml.options.EdgeLabelPlacement
 import de.cau.cs.kieler.kiml.options.LayoutOptions
@@ -30,7 +30,7 @@ import org.eclipse.debug.core.model.IVariable
 /**
  * Transformation for a variable which is representing a variable of type "TreeSet"
  */
-class TreeSetTransformation extends AbstractDebugTransformation {
+class TreeSetTransformation extends AbstractVariableTransformation {
    
     @Inject
     extension KNodeExtensions

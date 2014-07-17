@@ -23,7 +23,9 @@ import de.cau.cs.kieler.core.krendering.extensions.KLabelExtensions
 import de.cau.cs.kieler.core.krendering.extensions.KNodeExtensions
 import de.cau.cs.kieler.core.krendering.extensions.KPolylineExtensions
 import de.cau.cs.kieler.core.krendering.extensions.KRenderingExtensions
-import de.cau.cs.kieler.debukviz.AbstractDebugTransformation
+import de.cau.cs.kieler.debukviz.AbstractVariableTransformation
+import de.cau.cs.kieler.debukviz.DebuKVizPlugin
+import de.cau.cs.kieler.debukviz.dialog.DebuKVizDialog
 import de.cau.cs.kieler.kiml.options.Direction
 import de.cau.cs.kieler.kiml.options.EdgeLabelPlacement
 import de.cau.cs.kieler.kiml.options.LayoutOptions
@@ -34,10 +36,8 @@ import org.eclipse.jdt.debug.core.IJavaModifiers
 import org.eclipse.jdt.debug.core.IJavaObject
 import org.eclipse.jdt.debug.core.IJavaPrimitiveValue
 import org.eclipse.jdt.debug.core.IJavaValue
-import de.cau.cs.kieler.debukviz.DebuKVizPlugin
-import de.cau.cs.kieler.debukviz.dialog.DebuKVizDialog
 
-class DefaultTransformation extends AbstractDebugTransformation {
+class DefaultTransformation extends AbstractVariableTransformation {
        
     @Inject 
     extension KPolylineExtensions   
@@ -153,7 +153,7 @@ class DefaultTransformation extends AbstractDebugTransformation {
     }
     
     def createObjectNode(KNode rootNode, IVariable choice) {
-        if (actualNodeCount <= maxNodeCount) {
+        if (actualNodeCount <= getMaxNodeCount) {
             val thisNode = rootNode.addNodeById(choice)
             if (thisNode != null) {
                 val primitiveList = new LinkedList<KText>()

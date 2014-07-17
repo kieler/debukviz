@@ -18,7 +18,7 @@ import com.google.inject.Inject
 import de.cau.cs.kieler.core.krendering.extensions.KColorExtensions
 import de.cau.cs.kieler.core.krendering.extensions.KContainerRenderingExtensions
 import de.cau.cs.kieler.core.krendering.extensions.KRenderingExtensions
-import de.cau.cs.kieler.debukviz.AbstractDebugTransformation
+import de.cau.cs.kieler.debukviz.AbstractVariableTransformation
 import de.cau.cs.kieler.kiml.util.KimlUtil
 import de.cau.cs.kieler.klighd.KlighdConstants
 import org.eclipse.debug.core.model.IVariable
@@ -26,7 +26,7 @@ import org.eclipse.debug.core.model.IVariable
 /**
  * Transformation for a variable representing a runtime variable if variable is of type "String"
  */
-class StringTransformation extends AbstractDebugTransformation {
+class StringTransformation extends AbstractVariableTransformation {
 
     @Inject extension KColorExtensions
     @Inject extension KContainerRenderingExtensions

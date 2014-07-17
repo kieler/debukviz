@@ -43,7 +43,7 @@ import de.cau.cs.kieler.debukviz.dialog.DebuKVizDialog;
  * transformation should make use of {@link ReinitializingTransformationProxy} to leverage
  * <i>create extensions</i> or <i>dependency injection</i> with Google Guice.</p>
  */
-public abstract class AbstractDebugTransformation implements IVariableTransformation {
+public abstract class AbstractVariableTransformation implements IVariableTransformation {
 
     @Inject
     private KEdgeExtensions kEdgeExtensions;

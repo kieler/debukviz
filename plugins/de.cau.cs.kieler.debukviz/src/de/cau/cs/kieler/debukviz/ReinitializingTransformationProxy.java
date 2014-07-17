@@ -44,10 +44,10 @@ import de.cau.cs.kieler.debukviz.ReinitializingTransformationProxy.ViewSynthesis
  * <p>This class shall not be instantiated by any user program but only by the runtime.
  * This class is mostly copied from the plugin "de.cau.cs.kieler.klighd"</p>
  */
-final class ReinitializingTransformationProxy extends AbstractDebugTransformation {
+final class ReinitializingTransformationProxy extends AbstractVariableTransformation {
 
-    private Class<AbstractDebugTransformation> transformationClass = null;
-    private AbstractDebugTransformation transformationDelegate = null;
+    private Class<AbstractVariableTransformation> transformationClass = null;
+    private AbstractVariableTransformation transformationDelegate = null;
     private Module transformationClassBinding = null;
     
 
@@ -55,7 +55,7 @@ final class ReinitializingTransformationProxy extends AbstractDebugTransformatio
      * Package protected constructor.
      * @param clazz the transformation class
      */
-    ReinitializingTransformationProxy(final Class<AbstractDebugTransformation> clazz) {
+    ReinitializingTransformationProxy(final Class<AbstractVariableTransformation> clazz) {
         this.transformationClass = clazz;
         
         // The following module definition provides the various features:
@@ -72,7 +72,7 @@ final class ReinitializingTransformationProxy extends AbstractDebugTransformatio
         this.transformationClassBinding = new Module() {
             public void configure(final Binder binder) {
                 binder.bind(ResourceSet.class).to(ResourceSetImpl.class);
-                binder.bind(new TypeLiteral<AbstractDebugTransformation>() { }).to(clazz);
+                binder.bind(new TypeLiteral<AbstractVariableTransformation>() { }).to(clazz);
                 binder.bindScope(ViewSynthesisShared.class, new ViewSynthesisScope(clazz));
             }
         };
@@ -114,11 +114,11 @@ final class ReinitializingTransformationProxy extends AbstractDebugTransformatio
          *              the main transformation class
          */
         public ViewSynthesisScope(
-                final Class<AbstractDebugTransformation> themainTransformationClazz) {
+                final Class<AbstractVariableTransformation> themainTransformationClazz) {
             this.mainTransformationClazz = themainTransformationClazz;
         }
         
-        private Class<AbstractDebugTransformation> mainTransformationClazz = null;
+        private Class<AbstractVariableTransformation> mainTransformationClazz = null;
         private Set<Object> instances = Sets.newHashSet();
 
         /**
@@ -155,7 +155,7 @@ final class ReinitializingTransformationProxy extends AbstractDebugTransformatio
 
                     U instance = null;
                     if (theClazzToBeInjected != mainTransformationClazz
-                            && AbstractDebugTransformation.class.isAssignableFrom(theClazzToBeInjected)) {
+                            && AbstractVariableTransformation.class.isAssignableFrom(theClazzToBeInjected)) {
                         // in case an instance of another fully-fledged transformation class requested
                         //  the current provider makes the scope (!) to forget all its known class
                         //  instances as stated in the requirements description above.
@@ -197,7 +197,7 @@ final class ReinitializingTransformationProxy extends AbstractDebugTransformatio
     }
     
     
-    private AbstractDebugTransformation getNewDelegateInstance() {
+    private AbstractVariableTransformation getNewDelegateInstance() {
         return Guice.createInjector(this.transformationClassBinding).getInstance(
                 this.transformationClass);
     }
@@ -222,7 +222,7 @@ final class ReinitializingTransformationProxy extends AbstractDebugTransformatio
      * Getter for the delegate attribute.
      * @return the delegate
      */
-    public AbstractDebugTransformation getDelegate() {
+    public AbstractVariableTransformation getDelegate() {
         return this.transformationDelegate;
     }
 
