@@ -29,7 +29,7 @@ import org.eclipse.jdt.debug.core.IJavaType;
 import org.eclipse.jdt.debug.core.IJavaValue;
 import org.eclipse.ui.statushandlers.StatusManager;
 
-import de.cau.cs.kieler.klighd.debug.transformations.ArrayTransformation;
+import de.cau.cs.kieler.debukviz.transformations.ArrayTransformation;
 
 /**
  * Class that gathers extension data from the {@code de.cau.cs.kieler.klighd.debugVisualization}
@@ -37,10 +37,10 @@ import de.cau.cs.kieler.klighd.debug.transformations.ArrayTransformation;
  */
 public class KlighdDebugExtension {
     
-    /** Identifier of the extension point */
+    /** Extension point ID. */
     public final static String EXTENSION_POINT_ID = "de.cau.cs.kieler.klighd.debugVisualization";
     
-    /** The singleton instance of the {@code KlighdDebugExtension} class */
+    /** Singleton. */
     public final static KlighdDebugExtension INSTANCE = new KlighdDebugExtension();
     
     /** map of visualization class name to the runtime instances of their transformation. */

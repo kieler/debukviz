@@ -23,7 +23,7 @@ import org.eclipse.ui.IWorkbenchPreferencePage;
 import de.cau.cs.kieler.debukviz.KlighdDebugPlugin;
 
 /**
- * Preference page of the KLighD Debug plug-in.
+ * Preference page of this plug-in.
  */
 public class KlighdDebugPreferencePage extends FieldEditorPreferencePage implements
         IWorkbenchPreferencePage {

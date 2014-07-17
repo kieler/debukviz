@@ -39,11 +39,11 @@ import de.cau.cs.kieler.debukviz.transformations.KlighdDebugTransformation;
 import de.cau.cs.kieler.debukviz.transformations.ReinitializingTransformationProxy;
 
 /**
- * An abstract base class for transformations between IVariable and KNode.<br>
- * <br>
- * At this point Xtend2 is used for all transformations specializing this class So every
- * transformation make use of {@link ReinitializingTransformationProxy} to leverage <b>create
- * extensions</b> or <b>dependency injection</b> with Google Guice
+ * An abstract base class for transformations between {@link IVariable} and {@link KNode}.
+ * 
+ * <p>At this point Xtend2 is used for all transformations extending this class. So every
+ * transformation should make use of {@link ReinitializingTransformationProxy} to leverage
+ * <i>create extensions</i> or <i>dependency injection</i> with Google Guice.</p>
  */
 public abstract class AbstractDebugTransformation implements IDebugTransformation {
 

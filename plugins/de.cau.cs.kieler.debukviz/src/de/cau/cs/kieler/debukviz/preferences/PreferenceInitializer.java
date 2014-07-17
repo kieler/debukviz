@@ -20,7 +20,7 @@ import org.eclipse.jface.preference.IPreferenceStore;
 import de.cau.cs.kieler.debukviz.KlighdDebugPlugin;
 
 /**
- * Preference initializer for the KlighdDebug plugin.
+ * Initializes preferences used by this plug-in.
  */
 public class PreferenceInitializer extends AbstractPreferenceInitializer {
 

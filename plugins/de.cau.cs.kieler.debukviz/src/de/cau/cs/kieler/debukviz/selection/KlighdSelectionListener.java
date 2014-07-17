@@ -28,14 +28,15 @@ import de.cau.cs.kieler.klighd.ui.parts.DiagramViewPart;
 /**
  * A listener that listens to selections.
  */
-public class KlighdSelectionListener implements ISelectionListener {
+public final class KlighdSelectionListener implements ISelectionListener {
 
     /** The singleton instance of the {@code KlighdSelectionListener} class */
     public final static KlighdSelectionListener INSTANCE = new KlighdSelectionListener();
 
-    /** last selected variable */
+    /** Last selected variable */
     private static IVariable lastSelectedVariable = null;
-
+    
+    
     /**
      * Hidden default constructor
      */
@@ -71,14 +72,13 @@ public class KlighdSelectionListener implements ISelectionListener {
                 DiagramViewPart view = null;
 
                 // Create a new view if none exists
-                if (DiagramViewManager.getInstance().getView("Variable") == null) {
-                    view = DiagramViewManager.getInstance().createView(
-                            "Variable", "Variable", var, null);
+                if (DiagramViewManager.getView("Variable") == null) {
+                    view = DiagramViewManager.createView("Variable", "Variable", var, null);
                     
                     // Only update the view if selection has changed
                 } else if (!var.equals(lastSelectedVariable)) {
                     lastSelectedVariable = var;
-                    view = (DiagramViewPart) DiagramViewManager.getInstance().updateView(
+                    view = (DiagramViewPart) DiagramViewManager.updateView(
                             "Variable", "Variable", var, null);
 
                     if (view != null && view.getViewer() != null) {
