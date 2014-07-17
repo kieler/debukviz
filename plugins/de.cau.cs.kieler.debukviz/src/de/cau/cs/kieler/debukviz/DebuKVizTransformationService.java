@@ -60,10 +60,10 @@ final class DebuKVizTransformationService {
                 String clazz = element.getAttribute("class");
                 if (transformation != null && clazz != null) {
                     try {
-                        VariableTransformation klighdDebug =
+                        VariableTransformation transformationInstance =
                                 (VariableTransformation) element.createExecutableExtension(
                                         "transformation");
-                        transformationMap.put(clazz, klighdDebug);
+                        transformationMap.put(clazz, transformationInstance);
                     } catch (CoreException exception) {
                         StatusManager.getManager().handle(exception, DebuKVizPlugin.PLUGIN_ID);
                     }
@@ -73,12 +73,17 @@ final class DebuKVizTransformationService {
     }
 
     /**
-     * Returns the transformation instance for the given {@link IVariable}.
+     * Returns a transformation that can handle the given {@link IVariable}. This method will always
+     * return a valid transformation, even if it is just a basic default transformation.
      * 
      * @param variable variable to be transformed.
      * @return transformation instance for the given variable.
      */
-    public VariableTransformation getTransformation(IVariable variable) {
+    public VariableTransformation transformationFor(IVariable variable) {
+        // TODO Handle transformations that require injection
+        // TODO Extend this method to look not only for superclasses, but also for interfaces
+        // TODO Make sure that this method always returns a valid transformation
+        
         VariableTransformation result = null;
         try {
             IJavaValue value = (IJavaValue) variable.getValue();

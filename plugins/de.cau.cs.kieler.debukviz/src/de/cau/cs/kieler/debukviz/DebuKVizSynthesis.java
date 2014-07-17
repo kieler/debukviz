@@ -18,7 +18,7 @@ import org.eclipse.debug.core.model.IVariable;
 
 import de.cau.cs.kieler.core.kgraph.KNode;
 import de.cau.cs.kieler.debukviz.dialog.DebuKVizDialog;
-import de.cau.cs.kieler.debukviz.transformations.DefaultTransformation;
+import de.cau.cs.kieler.kiml.util.KimlUtil;
 import de.cau.cs.kieler.klighd.syntheses.AbstractDiagramSynthesis;
 
 /**
@@ -27,58 +27,20 @@ import de.cau.cs.kieler.klighd.syntheses.AbstractDiagramSynthesis;
  */
 public final class DebuKVizSynthesis extends AbstractDiagramSynthesis<IVariable> {
     
-    private VariableTransformation transformation = null;
-
     /**
      * {@inheritDoc}
      */
-    public KNode transform(IVariable model) {
-        // perform Transformation
-        KNode node = transformation(model, null);
-
-        // reset stored information
-        VariableTransformation.resetKNodeMap();
-        VariableTransformation.resetDummyNodeMap();
-        VariableTransformation.resetNodeCount();
+    public KNode transform(final IVariable variable) {
         DebuKVizDialog.resetShown();
-        return node;
-    }
-
-    /**
-     * Search for a registered transformation, if none found DefaultTransformation is used
-     * transformationInfo is use to realize communication between two transformations. Perform the
-     * transformation
-     * 
-     * @param model
-     *            model to be transformed
-     * @param transformationContext
-     *            transformation context in which the transformation is done
-     * @param transformationInfo
-     *            further information used by transformation
-     * @return result of the transformation
-     */
-    @SuppressWarnings("unchecked")
-    public KNode transformation(IVariable model, Object transformationInfo) {
-        // get transformation if registered for model, null instead
-        transformation = DebuKVizTransformationService.INSTANCE.getTransformation(model);
-
-        // use default transformation if no transformation was found
-        if (transformation == null) {
-            transformation = new DefaultTransformation();
-        }
-
-        // use proxy for injection
-        transformation = new ReinitializingTransformationProxy(
-                (Class<VariableTransformation>) transformation.getClass());
         
-        if (transformation.getActualNodeCount() <= transformation.getMaxNodeCount()) {
-            return transformation.transform(model, transformationInfo);
-        } else {
-            return null;
-        }
+        // Generate a top-level KNode and a transformation context
+        KNode graph = KimlUtil.createInitializedNode();
+        VariableTransformationContext context = new VariableTransformationContext();
+        
+        // Start the mighty transformation!
+        VariableTransformation.invokeFor(variable, graph, context);
+        
+        return graph;
     }
-
-    public int getNodeCount(IVariable model) {
-        return transformation.getNodeCount(model);
-    }
+    
 }
