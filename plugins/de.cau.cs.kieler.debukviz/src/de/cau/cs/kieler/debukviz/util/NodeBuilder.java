@@ -46,8 +46,8 @@ import de.cau.cs.kieler.klighd.KlighdConstants;
  * {@link #build()} to obtain the configured node.
  * 
  * <p><em>Note:</em> The methods in this class will throw a {@link NullPointerException} if at least one
- * argument is {@code null}. Also, the node builder does not check if the configuration is valid while
- * the configuration methods are called. Instead, a validity check is done once the node is built.</p>
+ * argument is {@code null}. Also, the node builder will not check if the configuration is valid while
+ * the configuration methods are called. Instead, a validity check is done when the node is built.</p>
  */
 public final class NodeBuilder {
     
@@ -96,7 +96,6 @@ public final class NodeBuilder {
      * @param graph the graph the created node will be added to.
      * @param context the transformation context that will be updated as the node is created.
      * @return the node builder.
-     * @throws NullPointerException if one of the parameters is {@code null}.
      */
     public static NodeBuilder forPlainNode(final KNode graph,
             final VariableTransformationContext context) {
@@ -124,7 +123,6 @@ public final class NodeBuilder {
      * @param graph the graph the created node will be added to.
      * @param context the transformation context that will be updated as the node is created.
      * @return the node builder.
-     * @throws NullPointerException if one of the parameters is {@code null}.
      */
     public static NodeBuilder forVariable(final IVariable variable, final KNode graph,
             final VariableTransformationContext context) {
