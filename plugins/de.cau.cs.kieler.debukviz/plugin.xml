@@ -20,20 +20,12 @@
    <extension
          point="de.cau.cs.kieler.debukviz.transformations">
       <visualization
-            type="java.util.ArrayDeque"
-            transformation="de.cau.cs.kieler.debukviz.transformations.ArrayDequeTransformation">
-      </visualization>
-      <visualization
             type="java.lang.Boolean"
             transformation="de.cau.cs.kieler.debukviz.transformations.ObjectValueTransformation">
       </visualization>
       <visualization
             type="java.lang.Character"
             transformation="de.cau.cs.kieler.debukviz.transformations.ObjectValueTransformation">
-      </visualization>
-      <visualization
-            type="java.util.ArrayList"
-            transformation="de.cau.cs.kieler.debukviz.transformations.ArrayListTransformation">
       </visualization>
       <visualization
             type="java.util.BitSet"
@@ -68,8 +60,8 @@
             transformation="de.cau.cs.kieler.debukviz.transformations.LinkedHashMapTransformation">
       </visualization>
       <visualization
-            type="java.util.PriorityQueue"
-            transformation="de.cau.cs.kieler.debukviz.transformations.PriorityQueueTransformation">
+            type="java.util.List"
+            transformation="de.cau.cs.kieler.debukviz.transformations.ListTransformation">
       </visualization>
       <visualization
             type="java.util.TreeMap"
@@ -81,10 +73,6 @@
       </visualization>
       <visualization
             type="java.util.Stack"
-            transformation="de.cau.cs.kieler.debukviz.transformations.VectorTransformation">
-      </visualization>
-      <visualization
-            type="java.util.Vector"
             transformation="de.cau.cs.kieler.debukviz.transformations.VectorTransformation">
       </visualization>
       <visualization

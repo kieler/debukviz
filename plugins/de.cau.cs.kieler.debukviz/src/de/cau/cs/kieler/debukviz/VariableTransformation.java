@@ -60,6 +60,9 @@ public abstract class VariableTransformation {
      * the variable to be transformed might not actually have been associated with a visual
      * representation in the transformation context.
      * 
+     * <p>To find the node associated with the given variable (if any) after calling this method, use
+     * {@link VariableTransformationContext#findAssociation(IVariable)}.</p>
+     * 
      * @param variable the variable to transform.
      * @param graph the parent graph to add the transformed representation to.
      * @param context the transformation context to pass to the transformation.
