@@ -21,49 +21,55 @@ import de.cau.cs.kieler.core.krendering.extensions.KRenderingExtensions
 import de.cau.cs.kieler.kiml.util.KimlUtil
 import org.eclipse.debug.core.model.IVariable
 import de.cau.cs.kieler.debukviz.VariableTransformation
+import de.cau.cs.kieler.core.kgraph.KNode
+import de.cau.cs.kieler.debukviz.VariableTransformationContext
 
 /**
  * Transformation for a variable which is representing a variable of type "Number","Boolean" or "Character"
  */
 class ObjectValueTransformation extends VariableTransformation {
-   
-    @Inject
-    extension KNodeExtensions
-    @Inject
-    extension KRenderingExtensions
     
-    private static val KRenderingFactory renderingFactory = KRenderingFactory::eINSTANCE   
-    
-    /**
-	 * Transformation for a variable which is representing a variable of type "Number","Boolean" or "Character"
-	 * 
-	 * {@inheritDoc}
-	 */
-    override transform(IVariable model, Object transformationInfo) {
-        return 
-        KimlUtil::createInitializedNode() => [
-        	it.data += renderingFactory.createKRectangle()
-        	val node = it.addNodeById(model) 
-        	if (node != null)
-            	node => [
-    	            it.setNodeSize(80,80);
-    	            it.data += renderingFactory.createKRectangle() => [
-    	                it.childPlacement = renderingFactory.createKGridPlacement()
-    	                it.children += renderingFactory.createKText() => [
-                            it.text = "<<"+model.type+">>"
-                            it.setForegroundColor(120,120,120)
-                        ]
-                        it.children += renderingFactory.createKText() => [
-                            it.text = model.getValue("value")
-                        ]
-    	            ]
-                ]
-        ]
+    override transform(IVariable variable, KNode graph, VariableTransformationContext context) {
+        throw new UnsupportedOperationException("TODO: auto-generated method stub")
     }
    
-
-    override getNodeCount(IVariable model) {
-        return 1
-    }
+//    @Inject
+//    extension KNodeExtensions
+//    @Inject
+//    extension KRenderingExtensions
+//    
+//    private static val KRenderingFactory renderingFactory = KRenderingFactory::eINSTANCE   
+//    
+//    /**
+//	 * Transformation for a variable which is representing a variable of type "Number","Boolean" or "Character"
+//	 * 
+//	 * {@inheritDoc}
+//	 */
+//    override transform(IVariable model, Object transformationInfo) {
+//        return 
+//        KimlUtil::createInitializedNode() => [
+//        	it.data += renderingFactory.createKRectangle()
+//        	val node = it.addNodeById(model) 
+//        	if (node != null)
+//            	node => [
+//    	            it.setNodeSize(80,80);
+//    	            it.data += renderingFactory.createKRectangle() => [
+//    	                it.childPlacement = renderingFactory.createKGridPlacement()
+//    	                it.children += renderingFactory.createKText() => [
+//                            it.text = "<<"+model.type+">>"
+//                            it.setForegroundColor(120,120,120)
+//                        ]
+//                        it.children += renderingFactory.createKText() => [
+//                            it.text = model.getValue("value")
+//                        ]
+//    	            ]
+//                ]
+//        ]
+//    }
+//   
+//
+//    override getNodeCount(IVariable model) {
+//        return 1
+//    }
     
 }

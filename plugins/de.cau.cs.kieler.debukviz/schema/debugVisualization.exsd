@@ -55,11 +55,11 @@
                   
                </documentation>
                <appinfo>
-                  <meta.attribute kind="java" basedOn="de.cau.cs.kieler.debukviz.visualization.AbstractDebugTransformation:"/>
+                  <meta.attribute kind="java" basedOn="de.cau.cs.kieler.debukviz.VariableTransformation:"/>
                </appinfo>
             </annotation>
          </attribute>
-         <attribute name="class" type="string" use="required">
+         <attribute name="type" type="string" use="required">
             <annotation>
                <documentation>
                   Class to be transformed

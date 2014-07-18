@@ -14,6 +14,7 @@
  */
 package de.cau.cs.kieler.debukviz;
 
+import org.eclipse.debug.core.DebugException;
 import org.eclipse.debug.core.model.IVariable;
 
 import de.cau.cs.kieler.core.kgraph.KNode;
@@ -27,11 +28,12 @@ import de.cau.cs.kieler.core.kgraph.KNode;
  * {@link #transform(IVariable, KNode, VariableTransformationContext)}. It is the responsibility of
  * implementations to update the transformation context as they create new nodes and to pass the
  * context along to other transformation that may be called.</p>
+ * 
+ * <p>Transformations are encouraged to use {@link NodeBuilder} and {@link EdgeBuilder} to create nodes
+ * and edges. This will ensure a consistent look and the builders automatically take care of updating
+ * the transformation context.</p>
  */
 public abstract class VariableTransformation {
-    
-    ///////////////////////////////////////////////////////
-    // Transformation
     
     /**
      * Transforms the given variable into its visual representation. The created nodes are added to the
@@ -45,9 +47,11 @@ public abstract class VariableTransformation {
      * @param graph the graph transformed nodes should be added to.
      * @param context the transformation context that holds the state over multiple transformation
      *                invocations of the same DebuKViz synthesis run.
+     * @throws DebugException if anything goes wrong when accessing the Eclipse debug system.
      */
     public abstract void transform(final IVariable variable, final KNode graph,
-            final VariableTransformationContext context);
+            final VariableTransformationContext context)
+            throws DebugException;
 
     /**
      * Invokes a transformation that transforms the given variable into its visual representation. Does
@@ -59,9 +63,10 @@ public abstract class VariableTransformation {
      * @param variable the variable to transform.
      * @param graph the parent graph to add the transformed representation to.
      * @param context the transformation context to pass to the transformation.
+     * @throws DebugException if anything goes wrong when accessing the Eclipse debug system.
      */
-    public static void invokeFor(final IVariable variable, final KNode graph,
-            final VariableTransformationContext context) {
+    public static final void invokeFor(final IVariable variable, final KNode graph,
+            final VariableTransformationContext context) throws DebugException {
         
         // Check if the maximum node count or maximum transformation depth are already reached
         int maxDepth = DebuKVizPlugin.getDefault().getPreferenceStore().getInt(
@@ -75,7 +80,7 @@ public abstract class VariableTransformation {
         int maxNodeCount = DebuKVizPlugin.getDefault().getPreferenceStore().getInt(
                 DebuKVizPlugin.MAX_NODE_COUNT);
         if (context.getNodeCount() >= maxNodeCount) {
-            // TODO Originally, the synthesis opened an error message when this condition was hit
+            // TODO Originally, the synthesis opened an error message when this condition was triggered
             return;
         }
         

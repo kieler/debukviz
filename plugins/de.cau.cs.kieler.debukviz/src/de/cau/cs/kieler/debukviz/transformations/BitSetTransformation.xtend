@@ -19,56 +19,61 @@ import de.cau.cs.kieler.core.krendering.extensions.KRenderingExtensions
 import de.cau.cs.kieler.debukviz.VariableTransformation
 import de.cau.cs.kieler.kiml.util.KimlUtil
 import org.eclipse.debug.core.model.IVariable
+import de.cau.cs.kieler.core.kgraph.KNode
+import de.cau.cs.kieler.debukviz.VariableTransformationContext
 
 /**
  * Transformation for a variable which is representing a variable of type "BitSet"
  */
 class BitSetTransformation extends VariableTransformation {
     
-    @Inject
-    extension KRenderingExtensions
-    
-    /**
-     * Transformation for a variable which is representing a variable of type "BitSet"
-     * 
-     * {@inheritDoc}
-     */
-    override transform(IVariable model, Object transformationInfo) {
-        return KimlUtil::createInitializedNode() => [
-        	
-        	it.data += renderingFactory.createKRectangle()
-        	
-        	it.addNodeById(model) => [
-            	it.data += renderingFactory.createKRectangle() => [
-	                // Iterate over used words and put bit streams together
-	                var bitStream = ""
-	            	for (IVariable variable : model.getVariables("words"))
-	                	bitStream = bitStream + Integer::toBinaryString(Integer::parseInt(variable.value.valueString))
-					
-					it.childPlacement = renderingFactory.createKGridPlacement()
-	                // add type
-	                it.children += renderingFactory.createKText() => [
-	                    it.text = "<<BitSet>>"
-	                	it.setForegroundColor(120,120,120)
-	                ]
-	                    
-	                // add words in use
-	                it.children += renderingFactory.createKText() => [
-	                	it.text = "Words in use: "+model.getValue("wordsInUse")
-					]
-	                
-	                // add bitStream 
-	                val streamText = renderingFactory.createKText()
-	                streamText.text = bitStream
-	                it.children +=  streamText
-                ]        
-            ]
-        ]
+    override transform(IVariable variable, KNode graph, VariableTransformationContext context) {
+        throw new UnsupportedOperationException("TODO: auto-generated method stub")
     }
     
-
-    override getNodeCount(IVariable model) {
-        return 1
-    }
+//    @Inject
+//    extension KRenderingExtensions
+//    
+//    /**
+//     * Transformation for a variable which is representing a variable of type "BitSet"
+//     * 
+//     * {@inheritDoc}
+//     */
+//    override transform(IVariable model, Object transformationInfo) {
+//        return KimlUtil::createInitializedNode() => [
+//        	
+//        	it.data += renderingFactory.createKRectangle()
+//        	
+//        	it.addNodeById(model) => [
+//            	it.data += renderingFactory.createKRectangle() => [
+//	                // Iterate over used words and put bit streams together
+//	                var bitStream = ""
+//	            	for (IVariable variable : model.getVariables("words"))
+//	                	bitStream = bitStream + Integer::toBinaryString(Integer::parseInt(variable.value.valueString))
+//					
+//					it.childPlacement = renderingFactory.createKGridPlacement()
+//	                // add type
+//	                it.children += renderingFactory.createKText() => [
+//	                    it.text = "<<BitSet>>"
+//	                	it.setForegroundColor(120,120,120)
+//	                ]
+//	                    
+//	                // add words in use
+//	                it.children += renderingFactory.createKText() => [
+//	                	it.text = "Words in use: "+model.getValue("wordsInUse")
+//					]
+//	                
+//	                // add bitStream 
+//	                val streamText = renderingFactory.createKText()
+//	                streamText.text = bitStream
+//	                it.children +=  streamText
+//                ]        
+//            ]
+//        ]
+//    }
+//    
+//    override getNodeCount(IVariable model) {
+//        return 1
+//    }
     
 }

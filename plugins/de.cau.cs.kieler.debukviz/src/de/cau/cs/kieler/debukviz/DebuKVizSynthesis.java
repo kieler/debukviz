@@ -14,7 +14,10 @@
  */
 package de.cau.cs.kieler.debukviz;
 
+import org.eclipse.core.runtime.Status;
+import org.eclipse.debug.core.DebugException;
 import org.eclipse.debug.core.model.IVariable;
+import org.eclipse.ui.statushandlers.StatusManager;
 
 import de.cau.cs.kieler.core.kgraph.KNode;
 import de.cau.cs.kieler.debukviz.dialog.DebuKVizDialog;
@@ -38,7 +41,15 @@ public final class DebuKVizSynthesis extends AbstractDiagramSynthesis<IVariable>
         VariableTransformationContext context = new VariableTransformationContext();
         
         // Start the mighty transformation!
-        VariableTransformation.invokeFor(variable, graph, context);
+        try {
+            VariableTransformation.invokeFor(variable, graph, context);
+        } catch (DebugException e) {
+            StatusManager.getManager().handle(new Status(
+                    Status.ERROR,
+                    DebuKVizPlugin.PLUGIN_ID,
+                    "Error accessing the Eclipse debug framework.",
+                    e));
+        }
         
         return graph;
     }

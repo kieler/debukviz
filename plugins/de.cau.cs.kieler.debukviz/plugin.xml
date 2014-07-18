@@ -20,87 +20,87 @@
    <extension
          point="de.cau.cs.kieler.debukviz.transformations">
       <visualization
-            class="java.util.ArrayDeque"
+            type="java.util.ArrayDeque"
             transformation="de.cau.cs.kieler.debukviz.transformations.ArrayDequeTransformation">
       </visualization>
       <visualization
-            class="java.lang.Boolean"
+            type="java.lang.Boolean"
             transformation="de.cau.cs.kieler.debukviz.transformations.ObjectValueTransformation">
       </visualization>
       <visualization
-            class="java.lang.Character"
+            type="java.lang.Character"
             transformation="de.cau.cs.kieler.debukviz.transformations.ObjectValueTransformation">
       </visualization>
       <visualization
-            class="java.util.ArrayList"
+            type="java.util.ArrayList"
             transformation="de.cau.cs.kieler.debukviz.transformations.ArrayListTransformation">
       </visualization>
       <visualization
-            class="java.util.BitSet"
+            type="java.util.BitSet"
             transformation="de.cau.cs.kieler.debukviz.transformations.BitSetTransformation">
       </visualization>
       <visualization
-            class="java.util.EnumMap"
+            type="java.util.EnumMap"
             transformation="de.cau.cs.kieler.debukviz.transformations.EnumMapTransformation">
       </visualization>
       <visualization
-            class="java.util.EnumSet"
+            type="java.util.EnumSet"
             transformation="de.cau.cs.kieler.debukviz.transformations.EnumSetTransformation">
       </visualization>
       <visualization
-            class="java.util.HashMap"
+            type="java.util.HashMap"
             transformation="de.cau.cs.kieler.debukviz.transformations.KeyValueTransformation">
       </visualization>
       <visualization
-            class="java.util.HashSet"
+            type="java.util.HashSet"
             transformation="de.cau.cs.kieler.debukviz.transformations.HashSetTransformation">
       </visualization>
       <visualization
-            class="java.util.IdentityHashMap"
+            type="java.util.IdentityHashMap"
             transformation="de.cau.cs.kieler.debukviz.transformations.IdentityHashMapTransformation">
       </visualization>
       <visualization
-            class="java.util.Hashtable"
+            type="java.util.Hashtable"
             transformation="de.cau.cs.kieler.debukviz.transformations.KeyValueTransformation">
       </visualization>
       <visualization
-            class="java.util.LinkedHashMap"
+            type="java.util.LinkedHashMap"
             transformation="de.cau.cs.kieler.debukviz.transformations.LinkedHashMapTransformation">
       </visualization>
       <visualization
-            class="java.util.PriorityQueue"
+            type="java.util.PriorityQueue"
             transformation="de.cau.cs.kieler.debukviz.transformations.PriorityQueueTransformation">
       </visualization>
       <visualization
-            class="java.util.TreeMap"
+            type="java.util.TreeMap"
             transformation="de.cau.cs.kieler.debukviz.transformations.TreeMapTransformation">
       </visualization>
       <visualization
-            class="java.util.TreeSet"
+            type="java.util.TreeSet"
             transformation="de.cau.cs.kieler.debukviz.transformations.TreeSetTransformation">
       </visualization>
       <visualization
-            class="java.util.Stack"
+            type="java.util.Stack"
             transformation="de.cau.cs.kieler.debukviz.transformations.VectorTransformation">
       </visualization>
       <visualization
-            class="java.util.Vector"
+            type="java.util.Vector"
             transformation="de.cau.cs.kieler.debukviz.transformations.VectorTransformation">
       </visualization>
       <visualization
-            class="java.util.WeakHashMap"
+            type="java.util.WeakHashMap"
             transformation="de.cau.cs.kieler.debukviz.transformations.WeakHashMapTransformation">
       </visualization>
       <visualization
-            class="java.lang.Number"
+            type="java.lang.Number"
             transformation="de.cau.cs.kieler.debukviz.transformations.ObjectValueTransformation">
       </visualization>
       <visualization
-            class="java.lang.String"
+            type="java.lang.String"
             transformation="de.cau.cs.kieler.debukviz.transformations.StringTransformation">
       </visualization>
       <visualization
-            class="java.util.LinkedHashSet"
+            type="java.util.LinkedHashSet"
             transformation="de.cau.cs.kieler.debukviz.transformations.LinkedHashSetTransformation">
       </visualization>
    </extension>

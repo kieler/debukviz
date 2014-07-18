@@ -21,6 +21,8 @@ import org.eclipse.debug.core.model.IVariable;
 import org.eclipse.jdt.debug.core.IJavaObject;
 import org.eclipse.jdt.debug.core.IJavaValue;
 
+import com.google.common.collect.Maps;
+
 import de.cau.cs.kieler.core.kgraph.KNode;
 
 /**
@@ -31,7 +33,7 @@ import de.cau.cs.kieler.core.kgraph.KNode;
 public final class VariableTransformationContext {
     
     /** Maps variables to the nodes used to visualize them. */
-    private Map<IVariable, KNode> transformationMap;
+    private Map<Long, KNode> transformationMap = Maps.newHashMap();
     
     /**
      * The depth of recursive transformation calls. Only accessed by the {@link VariableTransformation}.
@@ -50,10 +52,11 @@ public final class VariableTransformationContext {
      * 
      * @param variable the variable.
      * @param node the node that is the main representative of the variable.
+     * @throws DebugException if anything goes wrong in the debugging framework.
      */
-    public void associateWith(final IVariable variable, final KNode node) {
+    public void associateWith(final IVariable variable, final KNode node) throws DebugException {
         // TODO Map to ID instead?
-        transformationMap.put(variable, node);
+        transformationMap.put(toId(variable), node);
     }
     
     /**
@@ -61,10 +64,10 @@ public final class VariableTransformationContext {
      * 
      * @param variable the variable whose visual representation to find.
      * @return the node that represents the variable, or {@code null} if there is none.
+     * @throws DebugException if anything goes wrong in the debugging framework.
      */
-    public KNode findAssociation(final IVariable variable) {
-        // TODO Fetch through ID instead?
-        return transformationMap.get(variable);
+    public KNode findAssociation(final IVariable variable) throws DebugException {
+        return transformationMap.get(toId(variable));
     }
 
     /**
