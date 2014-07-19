@@ -122,13 +122,15 @@ final class DebuKVizTransformationService {
                         if (type instanceof IJavaClassType) {
                             IJavaClassType classType = (IJavaClassType) type;
                             
+                            // Visit the interfaces before the superclass, so Object is visited last
+                            if (classType.getInterfaces() != null) {
+                                inheritanceQueue.addAll(Lists.newArrayList(classType.getInterfaces()));
+                            }
+
                             if (classType.getSuperclass() != null) {
                                 inheritanceQueue.add(classType.getSuperclass());
                             }
                             
-                            if (classType.getInterfaces() != null) {
-                                inheritanceQueue.addAll(Lists.newArrayList(classType.getInterfaces()));
-                            }
                         } else if (type instanceof IJavaInterfaceType) {
                             IJavaInterfaceType interfaceType = (IJavaInterfaceType) type;
                             
