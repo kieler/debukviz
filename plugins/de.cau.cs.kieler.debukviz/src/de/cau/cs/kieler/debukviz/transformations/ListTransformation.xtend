@@ -30,7 +30,7 @@ import de.cau.cs.kieler.debukviz.VariableTransformationContext
 import de.cau.cs.kieler.debukviz.util.NodeBuilder
 
 /**
- * Transformation for a variable which is representing a variable of type "ArrayList"
+ * Transformation for variables of type {@link List}.
  */
 class ListTransformation extends VariableTransformation {
     

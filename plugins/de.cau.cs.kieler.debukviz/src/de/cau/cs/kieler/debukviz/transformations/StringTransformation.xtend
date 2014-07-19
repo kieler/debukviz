@@ -21,7 +21,7 @@ import de.cau.cs.kieler.debukviz.util.NodeBuilder
 import org.eclipse.debug.core.model.IVariable
 
 /**
- * Transformation for a variable representing a runtime variable if variable is of type "String"
+ * Transformation for variables of type {@link String}.
  */
 class StringTransformation extends VariableTransformation {
     

@@ -24,6 +24,9 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 
 import de.cau.cs.kieler.core.kgraph.KNode;
+import de.cau.cs.kieler.core.krendering.HorizontalAlignment;
+import de.cau.cs.kieler.core.krendering.KChildArea;
+import de.cau.cs.kieler.core.krendering.KContainerRendering;
 import de.cau.cs.kieler.core.krendering.KGridPlacement;
 import de.cau.cs.kieler.core.krendering.KRenderingFactory;
 import de.cau.cs.kieler.core.krendering.KRoundedRectangle;
@@ -53,6 +56,10 @@ public final class NodeBuilder {
     
     /** Space to be left between the border of a node and its content. */
     public static int NODE_INSETS = 5;
+    /** Spacing between elements that belong to the same visual groups. (such as properties) */
+    public static int SMALL_SPACING = 2;
+    /** Spacing between elements that belong to different visual groups. (value and properties) */
+    public static int LARGE_SPACING = 6;
     
     /** The variable we're building a node for, if any. */
     private IVariable variable = null;
@@ -192,7 +199,8 @@ public final class NodeBuilder {
     }
     
     /**
-     * Adds a key-value property to be displayed in the node. Proxy nodes cannot have properties.
+     * Adds a key-value property to be displayed in the node. Properties will be rendered in the order in
+     * which they were added. Proxy nodes cannot have properties.
      * 
      * @param key the property's key.
      * @param value the property's value.
@@ -304,6 +312,23 @@ public final class NodeBuilder {
         injectExtensions();
 
         // Build the rendering
+        KContainerRendering container = addRegularNodeContainerRendering(node);
+        boolean nameAndTypeRendering = addRegularNodeNameAndTypeRendering(container);
+        addRegularNodeValueRendering(container, nameAndTypeRendering);
+        addRegularNodePropertiesRendering(container);
+        addRegularNodeHierarchyRendering(container);
+        
+        return node;
+    }
+
+    /**
+     * Builds the main container rendering used to render a regular node. The rendering has a
+     * one-column grid placement setup such that the node insets are respected.
+     * 
+     * @param node the node to add the rendering to.
+     * @return the container rendering.
+     */
+    private KContainerRendering addRegularNodeContainerRendering(final KNode node) {
         KRoundedRectangle rndRect = rendExt.addRoundedRectangle(node, 5, 5);
         rendExt.setForeground(rndRect, colExt.getColor("gray"));
         rendExt.setBackgroundGradient(
@@ -315,8 +340,16 @@ public final class NodeBuilder {
         KGridPlacement rndRectPlacement = contExt.setGridPlacement(rndRect, 1);
         rendExt.from(rndRectPlacement, rendExt.LEFT, NODE_INSETS, 0, rendExt.TOP, NODE_INSETS, 0);
         rendExt.to(rndRectPlacement, rendExt.RIGHT, NODE_INSETS, 0, rendExt.BOTTOM, NODE_INSETS, 0);
-        
-        // Name and type
+        return rndRect;
+    }
+
+    /**
+     * Adds the name and type rendering to the given container rendering if there is a name or a type.
+     * 
+     * @param container the container rendering to add the rendering to.
+     * @return {@code true} if a name and type rendering was added, {@code false} otherwise.
+     */
+    private boolean addRegularNodeNameAndTypeRendering(final KContainerRendering container) {
         String nameAndType = null;
         if (name != null && type != null) {
             nameAndType = name + " : " + type;
@@ -328,33 +361,133 @@ public final class NodeBuilder {
         
         if (nameAndType != null) {
             KText nameAndTypeText = renderingFactory.createKText();
-            rndRect.getChildren().add(nameAndTypeText);
+            container.getChildren().add(nameAndTypeText);
             
             nameAndTypeText.setText(nameAndType);
             rendExt.setFontSize(nameAndTypeText, KlighdConstants.DEFAULT_FONT_SIZE - 2);
             rendExt.setForeground(nameAndTypeText, colExt.getColor("#627090"));
+            
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * Adds the value rendering to the given container rendering if there is a value.
+     * 
+     * @param container the container rendering to add the rendering to.
+     * @param nameAndTypeRendering {@code true} if a name and type rendering was already added. This
+     *                             influences the spacing.
+     */
+    private void addRegularNodeValueRendering(final KContainerRendering container,
+            final boolean nameAndTypeRendering) {
+        
+        if (value == null) {
+            return;
         }
         
-        // Value
-        if (value != null) {
-            KText valueText = renderingFactory.createKText();
-            rndRect.getChildren().add(valueText);
+        KText valueText = renderingFactory.createKText();
+        container.getChildren().add(valueText);
+        
+        // If a name and type rendering is already present, we need a bit of spacing at the top
+        if (nameAndTypeRendering) {
+            rendExt.setGridPlacementData(valueText, 0, 0,
+                rendExt.createKPosition(
+                        rendExt.LEFT, 0, 0, rendExt.TOP, SMALL_SPACING, 0),
+                rendExt.createKPosition(
+                        rendExt.RIGHT, 0, 0, rendExt.BOTTOM, 0, 0));
+        }
+        
+        valueText.setText(value);
+        rendExt.setForeground(valueText, colExt.getColor("#323232"));
+    }
+
+    /**
+     * Adds the properties rendering to the given container rendering if there are properties.
+     * 
+     * @param container the container rendering to add the rendering to.
+     */
+    private void addRegularNodePropertiesRendering(final KContainerRendering container) {
+        if (properties.isEmpty()) {
+            return;
+        }
+        
+        // Create container rendering that will hold the properties
+        KContainerRendering propsContainer = renderingFactory.createKRectangle();
+        container.getChildren().add(propsContainer);
+        rendExt.setForegroundInvisible(propsContainer, true);
+        
+        // Setup grid placement
+        KGridPlacement propsContainerPlacement = contExt.setGridPlacement(propsContainer, 2);
+        rendExt.from(propsContainerPlacement, rendExt.LEFT, 0, 0, rendExt.TOP, LARGE_SPACING, 0);
+        rendExt.to(propsContainerPlacement, rendExt.RIGHT, 0, 0, rendExt.BOTTOM, 0, 0);
+        
+        // Iterate over the key-value pairs and add renderings for them
+        boolean firstProperty = true;
+        for (Pair<String, String> property : properties) {
+            int topSpacing = firstProperty ? 0 : SMALL_SPACING;
+            firstProperty = false;
             
-            valueText.setText(value);
+            // Key
+            KText keyText = renderingFactory.createKText();
+            propsContainer.getChildren().add(keyText);
+            
+            rendExt.setGridPlacementData(keyText, 0, 0,
+                    rendExt.createKPosition(
+                            rendExt.LEFT, 0, 0, rendExt.TOP, topSpacing, 0),
+                    rendExt.createKPosition(
+                            rendExt.RIGHT, SMALL_SPACING / 2, 0, rendExt.BOTTOM, 0, 0));
+            
+            keyText.setText(property.getFirst() + ":");
+            rendExt.setHorizontalAlignment(keyText, HorizontalAlignment.RIGHT);
+            rendExt.setFontSize(keyText, KlighdConstants.DEFAULT_FONT_SIZE - 2);
+            rendExt.setForeground(keyText, colExt.getColor("#707070"));
+            
+            
+            // Value
+            KText valueText = renderingFactory.createKText();
+            propsContainer.getChildren().add(valueText);
+            
+            rendExt.setGridPlacementData(valueText, 0, 0,
+                    rendExt.createKPosition(
+                            rendExt.LEFT, SMALL_SPACING / 2, 0, rendExt.TOP, topSpacing, 0),
+                    rendExt.createKPosition(
+                            rendExt.RIGHT, 0, 0, rendExt.BOTTOM, 0, 0));
+            
+            valueText.setText(property.getSecond());
+            rendExt.setHorizontalAlignment(valueText, HorizontalAlignment.LEFT);
+            rendExt.setFontSize(valueText, KlighdConstants.DEFAULT_FONT_SIZE - 2);
             rendExt.setForeground(valueText, colExt.getColor("#323232"));
         }
-        
-        // Properties
-        if (!properties.isEmpty()) {
-            
+    }
+
+    /**
+     * Adds the hierarchy rendering to the given container rendering if hierarchy was enabled.
+     * 
+     * @param container the container rendering to add the rendering to.
+     */
+    private void addRegularNodeHierarchyRendering(final KContainerRendering container) {
+        if (!hierarchical) {
+            return;
         }
         
-        // Hierachy
-        if (hierarchical) {
-            
-        }
+        // We need a container to put the child area in
+        KContainerRendering childAreaContainer = renderingFactory.createKRectangle();
+        container.getChildren().add(childAreaContainer);
         
-        return node;
+        rendExt.setGridPlacementData(childAreaContainer, 20, 20,
+                rendExt.createKPosition(
+                        rendExt.LEFT, 0, 0, rendExt.TOP, LARGE_SPACING, 0),
+                rendExt.createKPosition(
+                        rendExt.RIGHT, 0, 0, rendExt.BOTTOM, 0, 0));
+        
+        rendExt.setBackground(childAreaContainer, colExt.getColor("white"));
+        rendExt.setForeground(childAreaContainer, colExt.getColor("gray"));
+        
+        // Create the actual child area
+        KChildArea childArea = renderingFactory.createKChildArea();
+        childAreaContainer.getChildren().add(childArea);
     }
 
     
