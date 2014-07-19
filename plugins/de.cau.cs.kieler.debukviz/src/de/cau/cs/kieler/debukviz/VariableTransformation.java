@@ -15,6 +15,7 @@
 package de.cau.cs.kieler.debukviz;
 
 import org.eclipse.debug.core.DebugException;
+import org.eclipse.debug.core.model.IValue;
 import org.eclipse.debug.core.model.IVariable;
 
 import de.cau.cs.kieler.core.kgraph.KNode;
@@ -100,6 +101,124 @@ public abstract class VariableTransformation {
         context.increaseTransformationDepth();
         transformation.transform(variable, graph, context);
         context.decreaseTransformationDepth();
+    }
+    
+    
+    //--------------------- UTILITY METHODS FOR USE IN SUBCLASSES ---------------------
+    
+    /**
+     * Retrieve a variable with given name referenced from the given value.
+     * If there is no such variable, {@code null} is returned.
+     * 
+     * @param value a value
+     * @param name the name of a variable referenced by {@code value}
+     * @return the first variable matching the given name, or {@code null}
+     * @throws DebugException if accessing the debug model fails
+     */
+    protected final IVariable getNamedVariable(IValue value, String name) throws DebugException {
+        for (IVariable v : value.getVariables()) {
+            if (v.getName().equals(name)) {
+                return v;
+            }
+        }
+        return null;
+    }
+    
+    /**
+     * Return the value of a variable as a string.
+     * 
+     * @param variable a variable
+     * @return the value of the given variable interpreted as string
+     * @throws DebugException if accessing the debug model fails
+     */
+    protected final String getStringValue(IVariable variable) throws DebugException {
+        return variable.getValue().getValueString();
+    }
+    
+    /**
+     * Return the value of a variable as a Boolean.
+     * 
+     * @param variable a variable
+     * @return the value of the given variable interpreted as Boolean
+     * @throws DebugException if accessing the debug model fails
+     */
+    protected final boolean getBooleanValue(IVariable variable) throws DebugException {
+        return Boolean.parseBoolean(variable.getValue().getValueString());
+    }
+    
+    /**
+     * Return the value of a variable as an int number.
+     * 
+     * @param variable a variable
+     * @return the value of the given variable interpreted as int
+     * @throws DebugException if accessing the debug model fails
+     */
+    protected final int getIntValue(IVariable variable) throws DebugException {
+        try {
+            return Integer.parseInt(variable.getValue().getValueString());
+        } catch (NumberFormatException exception) {
+            throw new IllegalArgumentException(exception);
+        }
+    }
+    
+    /**
+     * Return the value of a variable as a byte number.
+     * 
+     * @param variable a variable
+     * @return the value of the given variable interpreted as byte
+     * @throws DebugException if accessing the debug model fails
+     */
+    protected final byte getByteValue(IVariable variable) throws DebugException {
+        try {
+            return Byte.parseByte(variable.getValue().getValueString());
+        } catch (NumberFormatException exception) {
+            throw new IllegalArgumentException(exception);
+        }
+    }
+    
+    /**
+     * Return the value of a variable as a long number.
+     * 
+     * @param variable a variable
+     * @return the value of the given variable interpreted as long
+     * @throws DebugException if accessing the debug model fails
+     */
+    protected final long getLongValue(IVariable variable) throws DebugException {
+        try {
+            return Long.parseLong(variable.getValue().getValueString());
+        } catch (NumberFormatException exception) {
+            throw new IllegalArgumentException(exception);
+        }
+    }
+    
+    /**
+     * Return the value of a variable as a float number.
+     * 
+     * @param variable a variable
+     * @return the value of the given variable interpreted as float
+     * @throws DebugException if accessing the debug model fails
+     */
+    protected final float getFloatValue(IVariable variable) throws DebugException {
+        try {
+            return Float.parseFloat(variable.getValue().getValueString());
+        } catch (NumberFormatException exception) {
+            throw new IllegalArgumentException(exception);
+        }
+    }
+    
+    /**
+     * Return the value of a variable as a double number.
+     * 
+     * @param variable a variable
+     * @return the value of the given variable interpreted as double
+     * @throws DebugException if accessing the debug model fails
+     */
+    protected final double getDoubleValue(IVariable variable) throws DebugException {
+        try {
+            return Double.parseDouble(variable.getValue().getValueString());
+        } catch (NumberFormatException exception) {
+            throw new IllegalArgumentException(exception);
+        }
     }
     
 }

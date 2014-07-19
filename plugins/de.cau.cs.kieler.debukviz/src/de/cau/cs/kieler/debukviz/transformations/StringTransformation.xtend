@@ -27,9 +27,8 @@ class StringTransformation extends VariableTransformation {
     
     override transform(IVariable variable, KNode graph, VariableTransformationContext context) {
         NodeBuilder.forVariable(variable, graph, context)
-            .name(variable.name)
             .type("String")
-            .value(variable.value.valueString)
+            .value(variable.stringValue)
             .build();
     }
     

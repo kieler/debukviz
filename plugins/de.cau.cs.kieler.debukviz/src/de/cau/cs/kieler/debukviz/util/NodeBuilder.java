@@ -24,20 +24,24 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 
 import de.cau.cs.kieler.core.kgraph.KNode;
+import de.cau.cs.kieler.core.kgraph.KPort;
 import de.cau.cs.kieler.core.krendering.HorizontalAlignment;
 import de.cau.cs.kieler.core.krendering.KChildArea;
 import de.cau.cs.kieler.core.krendering.KContainerRendering;
 import de.cau.cs.kieler.core.krendering.KGridPlacement;
 import de.cau.cs.kieler.core.krendering.KRenderingFactory;
+import de.cau.cs.kieler.core.krendering.KRenderingUtil;
 import de.cau.cs.kieler.core.krendering.KRoundedRectangle;
 import de.cau.cs.kieler.core.krendering.KText;
-import de.cau.cs.kieler.core.krendering.extensions.KColorExtensions;
 import de.cau.cs.kieler.core.krendering.extensions.KContainerRenderingExtensions;
 import de.cau.cs.kieler.core.krendering.extensions.KRenderingExtensions;
+import de.cau.cs.kieler.core.properties.IProperty;
+import de.cau.cs.kieler.core.properties.MapPropertyHolder;
 import de.cau.cs.kieler.core.util.Pair;
 import de.cau.cs.kieler.debukviz.VariableTransformationContext;
 import de.cau.cs.kieler.kiml.klayoutdata.KShapeLayout;
 import de.cau.cs.kieler.kiml.options.LayoutOptions;
+import de.cau.cs.kieler.kiml.options.PortSide;
 import de.cau.cs.kieler.kiml.options.SizeConstraint;
 import de.cau.cs.kieler.kiml.util.KimlUtil;
 import de.cau.cs.kieler.klighd.KlighdConstants;
@@ -79,10 +83,15 @@ public final class NodeBuilder {
     private boolean proxy = false;
     /** Whether the node will contain children or not. */
     private boolean hierarchical = false;
+    /** Whether the node will have a default input port.  */
+    private boolean defaultInputPort = false;
+    /** The port side to assign to the default input port. */
+    private PortSide defaultInputPortSide = null;
+    /** Properties to assign to the node. */
+    private MapPropertyHolder layoutOptions = new MapPropertyHolder();
     
     // KRendering extensions used to build the node rendering
     private KRenderingFactory renderingFactory = null;
-    private KColorExtensions colExt = null;
     private KContainerRenderingExtensions contExt = null;
     private KRenderingExtensions rendExt = null;
     
@@ -199,6 +208,28 @@ public final class NodeBuilder {
     }
     
     /**
+     * Adds an input port to the node that will be used whenever the {@link EdgeBuilder} is used
+     * to create a reference to this node and no particular target port is specified for that
+     * reference.
+     * <p>
+     * Call {@link VariableTransformationContext#findDefaultInputPort(KNode)} to get the default
+     * input port after the node has been built.
+     * </p>
+     * 
+     * @return this node builder.
+     */
+    public NodeBuilder addDefaultInputPort(final PortSide portSide) {
+        if (portSide == null) {
+            throw new NullPointerException("portSide cannot be null");
+        }
+        
+        defaultInputPort = true;
+        defaultInputPortSide = portSide;
+        
+        return this;
+    }
+    
+    /**
      * Adds a key-value property to be displayed in the node. Properties will be rendered in the order in
      * which they were added. Proxy nodes cannot have properties.
      * 
@@ -238,6 +269,18 @@ public final class NodeBuilder {
      */
     public NodeBuilder hierarchical() {
         hierarchical = true;
+        return this;
+    }
+    
+    /**
+     * Add a layout option to the node.
+     * 
+     * @param property the layout option to affect
+     * @param value the corresponding value
+     * @return this node builder.
+     */
+    public <T> NodeBuilder addLayoutOption(final IProperty<? super T> property, final T value) {
+        layoutOptions.setProperty(property, value);
         return this;
     }
 
@@ -285,11 +328,11 @@ public final class NodeBuilder {
         
         // Build the rendering
         KRoundedRectangle rndRect = rendExt.addRoundedRectangle(node, 10, 10);
-        rendExt.setForeground(rndRect, colExt.getColor("gray"));
+        rendExt.setForeground(rndRect, KRenderingUtil.getColor("gray"));
         rendExt.setBackgroundGradient(
-                rndRect, colExt.getColor("#FFFFFF"), colExt.getColor("#F0F0F0"), 90);
+                rndRect, KRenderingUtil.getColor("#FFFFFF"), KRenderingUtil.getColor("#F0F0F0"), 90);
         rendExt.setShadow(
-                rndRect, colExt.getColor("black"), 4, 4);
+                rndRect, KRenderingUtil.getColor("black"), 4, 4);
         
         // Set layout properties
         KShapeLayout shapeLayout = node.getData(KShapeLayout.class);
@@ -307,6 +350,15 @@ public final class NodeBuilder {
      */
     private KNode buildRegularNode() {
         KNode node = KimlUtil.createInitializedNode();
+        node.getData(KShapeLayout.class).copyProperties(layoutOptions);
+        
+        // Create default input port
+        if (defaultInputPort) {
+            KPort port = KimlUtil.createInitializedPort();
+            port.setNode(node);
+            port.getData(KShapeLayout.class).setProperty(LayoutOptions.PORT_SIDE, defaultInputPortSide);
+            context.setDefaultInputPort(node, port);
+        }
 
         // Prepare rendering extensions
         injectExtensions();
@@ -330,11 +382,11 @@ public final class NodeBuilder {
      */
     private KContainerRendering addRegularNodeContainerRendering(final KNode node) {
         KRoundedRectangle rndRect = rendExt.addRoundedRectangle(node, 5, 5);
-        rendExt.setForeground(rndRect, colExt.getColor("gray"));
+        rendExt.setForeground(rndRect, KRenderingUtil.getColor("gray"));
         rendExt.setBackgroundGradient(
-                rndRect, colExt.getColor("#FFFFFF"), colExt.getColor("#F0F0F0"), 90);
+                rndRect, KRenderingUtil.getColor("#FFFFFF"), KRenderingUtil.getColor("#F0F0F0"), 90);
         rendExt.setShadow(
-                rndRect, colExt.getColor("black"), 4, 4);
+                rndRect, KRenderingUtil.getColor("black"), 3, 3);
         
         // Setup grid placement
         KGridPlacement rndRectPlacement = contExt.setGridPlacement(rndRect, 1);
@@ -365,7 +417,7 @@ public final class NodeBuilder {
             
             nameAndTypeText.setText(nameAndType);
             rendExt.setFontSize(nameAndTypeText, KlighdConstants.DEFAULT_FONT_SIZE - 2);
-            rendExt.setForeground(nameAndTypeText, colExt.getColor("#627090"));
+            rendExt.setForeground(nameAndTypeText, KRenderingUtil.getColor("#627090"));
             
             return true;
         } else {
@@ -400,7 +452,7 @@ public final class NodeBuilder {
         }
         
         valueText.setText(value);
-        rendExt.setForeground(valueText, colExt.getColor("#323232"));
+        rendExt.setForeground(valueText, KRenderingUtil.getColor("#323232"));
     }
 
     /**
@@ -442,7 +494,7 @@ public final class NodeBuilder {
             keyText.setText(property.getFirst() + ":");
             rendExt.setHorizontalAlignment(keyText, HorizontalAlignment.RIGHT);
             rendExt.setFontSize(keyText, KlighdConstants.DEFAULT_FONT_SIZE - 2);
-            rendExt.setForeground(keyText, colExt.getColor("#707070"));
+            rendExt.setForeground(keyText, KRenderingUtil.getColor("#707070"));
             
             
             // Value
@@ -458,7 +510,7 @@ public final class NodeBuilder {
             valueText.setText(property.getSecond());
             rendExt.setHorizontalAlignment(valueText, HorizontalAlignment.LEFT);
             rendExt.setFontSize(valueText, KlighdConstants.DEFAULT_FONT_SIZE - 2);
-            rendExt.setForeground(valueText, colExt.getColor("#323232"));
+            rendExt.setForeground(valueText, KRenderingUtil.getColor("#323232"));
         }
     }
 
@@ -482,8 +534,8 @@ public final class NodeBuilder {
                 rendExt.createKPosition(
                         rendExt.RIGHT, 0, 0, rendExt.BOTTOM, 0, 0));
         
-        rendExt.setBackground(childAreaContainer, colExt.getColor("white"));
-        rendExt.setForeground(childAreaContainer, colExt.getColor("gray"));
+        rendExt.setBackground(childAreaContainer, KRenderingUtil.getColor("white"));
+        rendExt.setForeground(childAreaContainer, KRenderingUtil.getColor("gray"));
         
         // Create the actual child area
         KChildArea childArea = renderingFactory.createKChildArea();
@@ -521,7 +573,6 @@ public final class NodeBuilder {
         renderingFactory = KRenderingFactory.eINSTANCE;
         
         Injector injector = Guice.createInjector();
-        colExt = injector.getInstance(KColorExtensions.class);
         contExt = injector.getInstance(KContainerRenderingExtensions.class);
         rendExt = injector.getInstance(KRenderingExtensions.class);
     }

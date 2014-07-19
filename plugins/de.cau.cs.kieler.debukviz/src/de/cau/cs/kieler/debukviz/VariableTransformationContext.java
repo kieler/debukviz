@@ -24,6 +24,8 @@ import org.eclipse.jdt.debug.core.IJavaValue;
 import com.google.common.collect.Maps;
 
 import de.cau.cs.kieler.core.kgraph.KNode;
+import de.cau.cs.kieler.core.kgraph.KPort;
+import de.cau.cs.kieler.debukviz.util.EdgeBuilder;
 
 /**
  * Stores information relevant to a given DebuKViz synthesis run. Since each run can be composed of
@@ -34,6 +36,9 @@ public final class VariableTransformationContext {
     
     /** Maps variables to the nodes used to visualize them. */
     private Map<Long, KNode> transformationMap = Maps.newHashMap();
+    
+    /** Maps nodes to the default input port used to reference them. */
+    private Map<KNode, KPort> defaultInputMap = Maps.newHashMap();
     
     /**
      * The depth of recursive transformation calls. Only accessed by the {@link VariableTransformation}.
@@ -68,6 +73,29 @@ public final class VariableTransformationContext {
      */
     public KNode findAssociation(final IVariable variable) throws DebugException {
         return transformationMap.get(toId(variable));
+    }
+    
+    /**
+     * Set the given port as the default input port of the node. Whenever the {@link EdgeBuilder}
+     * is used to create a reference to the given node and no particular target port is specified
+     * for that reference, the default input port is used.
+     * 
+     * @param node a node
+     * @param port the port to set as default input port
+     */
+    public void setDefaultInputPort(final KNode node, final KPort port) {
+        defaultInputMap.put(node, port);
+    }
+    
+    /**
+     * Find the default input port associated with the given node. If no default input port
+     * has been set, {@code null} is returned.
+     * 
+     * @param node a node
+     * @return the associated default input port, or {@code null}
+     */
+    public KPort findDefaultInputPort(final KNode node) {
+        return defaultInputMap.get(node);
     }
 
     /**

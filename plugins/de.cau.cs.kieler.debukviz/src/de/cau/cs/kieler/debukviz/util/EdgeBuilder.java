@@ -24,11 +24,15 @@ import de.cau.cs.kieler.core.kgraph.KEdge;
 import de.cau.cs.kieler.core.kgraph.KNode;
 import de.cau.cs.kieler.core.kgraph.KPort;
 import de.cau.cs.kieler.core.krendering.KPolyline;
+import de.cau.cs.kieler.core.krendering.KRectangle;
 import de.cau.cs.kieler.core.krendering.KRenderingFactory;
-import de.cau.cs.kieler.core.krendering.extensions.KColorExtensions;
+import de.cau.cs.kieler.core.krendering.KRenderingUtil;
 import de.cau.cs.kieler.core.krendering.extensions.KPolylineExtensions;
 import de.cau.cs.kieler.core.krendering.extensions.KRenderingExtensions;
 import de.cau.cs.kieler.debukviz.VariableTransformationContext;
+import de.cau.cs.kieler.kiml.klayoutdata.KShapeLayout;
+import de.cau.cs.kieler.kiml.options.LayoutOptions;
+import de.cau.cs.kieler.kiml.options.PortSide;
 import de.cau.cs.kieler.kiml.util.KimlUtil;
 
 /**
@@ -49,10 +53,22 @@ public final class EdgeBuilder {
     private KNode sourceNode = null;
     /** The edge's source port. */
     private KPort sourcePort = null;
+    /** Whether to build a source port for the edge. */
+    private boolean addSourcePort = false;
+    /** The side of the source port to create. */
+    private PortSide sourcePortSide = null;
+    /** The index of the source port to create. */
+    private int sourcePortIndex = 0;
     /** The edge's target node. */
     private KNode targetNode = null;
     /** The edge's target port. */
     private KPort targetPort = null;
+    /** Whether to build a target port for the edge. */
+    private boolean addTargetPort = false;
+    /** The side of the target port to create. */
+    private PortSide targetPortSide = null;
+    /** The index of the target port to create. */
+    private int targetPortIndex = 0;
     /** A label displayed at the head of the edge. */
     private String headLabel = null;
     /** A label displayed along the edge. */
@@ -64,7 +80,6 @@ public final class EdgeBuilder {
 
     // KRendering extensions used to build the node rendering
     private KRenderingFactory renderingFactory = null;
-    private KColorExtensions colExt = null;
     private KPolylineExtensions lineExt = null;
     private KRenderingExtensions rendExt = null;
     
@@ -147,6 +162,50 @@ public final class EdgeBuilder {
         
         sourcePort = port;
         sourceNode = sourcePort.getNode();
+        return this;
+    }
+    
+    /**
+     * Adds a source port at the given side. This has no effect if a source port is specified
+     * explicitly. The port side is considered only if the port constraints of the source node
+     * are set to FIXED_SIDE or stricter. The index is considered only if they are set to
+     * FIXED_ORDER or stricter. 
+     * 
+     * @param portSide the node side on which the port shall be placed
+     * @param index the clockwise index of the port for ordering the node's ports
+     * @return this builder.
+     */
+    public EdgeBuilder addSourcePort(PortSide portSide, int index) {
+        if (portSide == null) {
+            throw new NullPointerException("portSide cannot be null");
+        }
+        
+        addSourcePort = true;
+        sourcePortSide = portSide;
+        sourcePortIndex = index;
+        
+        return this;
+    }
+    
+    /**
+     * Adds a target port at the given side. This has no effect if a target port is specified
+     * explicitly. The port side is considered only if the port constraints of the target node
+     * are set to FIXED_SIDE or stricter. The index is considered only if they are set to
+     * FIXED_ORDER or stricter. 
+     * 
+     * @param portSide the node side on which the port shall be placed
+     * @param index the clockwise index of the port for ordering the node's ports
+     * @return this builder.
+     */
+    public EdgeBuilder addTargetPort(PortSide portSide, int index) {
+        if (portSide == null) {
+            throw new NullPointerException("portSide cannot be null");
+        }
+        
+        addTargetPort = true;
+        targetPortSide = portSide;
+        targetPortIndex = index;
+        
         return this;
     }
     
@@ -268,23 +327,39 @@ public final class EdgeBuilder {
     public KEdge build() {
         checkConfiguration();
         
-        // Build the edge
-        KEdge edge = KimlUtil.createInitializedEdge();
-        edge.setSource(sourceNode);
-        edge.setSourcePort(sourcePort);
-        edge.setTarget(targetNode);
-        edge.setTargetPort(targetPort);
-        
-        // TODO Add labels
-        
         // Prepare rendering extensions
         injectExtensions();
+        
+        // Build the edge
+        KEdge edge = KimlUtil.createInitializedEdge();
+        
+        edge.setSource(sourceNode);
+        if (sourcePort != null) {
+            edge.setSourcePort(sourcePort);
+        } else if (addSourcePort) {
+            KPort port = buildPort(sourcePortSide, sourcePortIndex);
+            port.setNode(sourceNode);
+            edge.setSourcePort(port);
+        }
+        
+        edge.setTarget(targetNode);
+        if (targetPort != null) {
+            edge.setTargetPort(targetPort);
+        } else if (addTargetPort) {
+            KPort port = buildPort(targetPortSide, targetPortIndex);
+            port.setNode(targetNode);
+            edge.setTargetPort(port);
+        } else {
+            edge.setTargetPort(context.findDefaultInputPort(targetNode));
+        }
+        
+        // TODO Add labels
         
         // Configure the rendering
         KPolyline line = renderingFactory.createKPolyline();
         edge.getData().add(line);
         rendExt.setLineWidth(line, 2);
-        rendExt.setForeground(line, colExt.getColor("#323232"));
+        rendExt.setForeground(line, KRenderingUtil.getColor("#323232"));
         
         if (!undirected) {
             lineExt.addHeadArrowDecorator(line);
@@ -293,6 +368,29 @@ public final class EdgeBuilder {
         // TODO Add configuration for different line styles.
         
         return edge;
+    }
+    
+    /**
+     * Build a port.
+     * 
+     * @param portSide the side to assign to the new port
+     * @param index the index to assign to the new port
+     * @return a port
+     */
+    private KPort buildPort(PortSide portSide, int index) {
+        KPort port = KimlUtil.createInitializedPort();
+        
+        KShapeLayout portLayout = port.getData(KShapeLayout.class);
+        portLayout.setSize(5, 5);
+        portLayout.setProperty(LayoutOptions.PORT_SIDE, portSide);
+        portLayout.setProperty(LayoutOptions.PORT_INDEX, index);
+        
+        KRectangle rectangle = renderingFactory.createKRectangle();
+        port.getData().add(rectangle);
+        rendExt.setForegroundInvisible(rectangle, true);
+        rendExt.setBackground(rectangle, KRenderingUtil.getColor("#808080"));
+        
+        return port;
     }
 
     
@@ -318,7 +416,6 @@ public final class EdgeBuilder {
         renderingFactory = KRenderingFactory.eINSTANCE;
         
         Injector injector = Guice.createInjector();
-        colExt = injector.getInstance(KColorExtensions.class);
         lineExt = injector.getInstance(KPolylineExtensions.class);
         rendExt = injector.getInstance(KRenderingExtensions.class);
     }

@@ -72,10 +72,6 @@
             transformation="de.cau.cs.kieler.debukviz.transformations.TreeSetTransformation">
       </visualization>
       <visualization
-            type="java.util.Stack"
-            transformation="de.cau.cs.kieler.debukviz.transformations.VectorTransformation">
-      </visualization>
-      <visualization
             type="java.util.WeakHashMap"
             transformation="de.cau.cs.kieler.debukviz.transformations.WeakHashMapTransformation">
       </visualization>
