@@ -21,7 +21,12 @@ import org.eclipse.ui.statushandlers.StatusManager;
 
 import de.cau.cs.kieler.core.kgraph.KNode;
 import de.cau.cs.kieler.debukviz.dialog.DebuKVizDialog;
+import de.cau.cs.kieler.kiml.klayoutdata.KShapeLayout;
+import de.cau.cs.kieler.kiml.options.Direction;
+import de.cau.cs.kieler.kiml.options.LayoutOptions;
 import de.cau.cs.kieler.kiml.util.KimlUtil;
+import de.cau.cs.kieler.klay.layered.p4nodes.NodePlacementStrategy;
+import de.cau.cs.kieler.klay.layered.properties.Properties;
 import de.cau.cs.kieler.klighd.syntheses.AbstractDiagramSynthesis;
 
 /**
@@ -36,8 +41,13 @@ public final class DebuKVizSynthesis extends AbstractDiagramSynthesis<IVariable>
     public KNode transform(final IVariable variable) {
         DebuKVizDialog.resetShown();
         
-        // Generate a top-level KNode and a transformation context
+        // Generate a top-level KNode and set some layout options
         KNode graph = KimlUtil.createInitializedNode();
+        KShapeLayout graphLayout = graph.getData(KShapeLayout.class);
+        graphLayout.setProperty(LayoutOptions.DIRECTION, Direction.DOWN);
+        graphLayout.setProperty(Properties.NODE_PLACER, NodePlacementStrategy.LINEAR_SEGMENTS);
+        
+        // Generate a transformation context
         VariableTransformationContext context = new VariableTransformationContext();
         
         // Start the mighty transformation!

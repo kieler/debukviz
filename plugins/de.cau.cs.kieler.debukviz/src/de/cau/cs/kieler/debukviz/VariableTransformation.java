@@ -97,22 +97,40 @@ public abstract class VariableTransformation {
         VariableTransformation transformation =
                 DebuKVizTransformationService.INSTANCE.transformationFor(variable);
         
-        // Invoke transformation
-        context.increaseTransformationDepth();
-        transformation.transform(variable, graph, context);
-        context.decreaseTransformationDepth();
+        if (transformation != null) {
+            // Invoke transformation
+            context.increaseTransformationDepth();
+            transformation.transform(variable, graph, context);
+            context.decreaseTransformationDepth();
+        }
     }
     
     
     //--------------------- UTILITY METHODS FOR USE IN SUBCLASSES ---------------------
     
     /**
+     * Determine whether the given value contains a variable with the given name.
+     * 
+     * @param value a value
+     * @param name a variable name
+     * @return true if the value contains a variable with the given name
+     * @throws DebugException if accessing the debug model fails
+     */
+    protected final boolean hasNamedVariable(IValue value, String name) throws DebugException {
+        for (IVariable v : value.getVariables()) {
+            if (v.getName().equals(name)) {
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    /**
      * Retrieve a variable with given name referenced from the given value.
-     * If there is no such variable, {@code null} is returned.
      * 
      * @param value a value
      * @param name the name of a variable referenced by {@code value}
-     * @return the first variable matching the given name, or {@code null}
+     * @return the first variable matching the given name
      * @throws DebugException if accessing the debug model fails
      */
     protected final IVariable getNamedVariable(IValue value, String name) throws DebugException {
@@ -121,7 +139,7 @@ public abstract class VariableTransformation {
                 return v;
             }
         }
-        return null;
+        throw new IllegalArgumentException("The given variable name was not found: " + name);
     }
     
     /**
@@ -219,6 +237,28 @@ public abstract class VariableTransformation {
         } catch (NumberFormatException exception) {
             throw new IllegalArgumentException(exception);
         }
+    }
+
+    /**
+     * Determine whether the value of the given variable is null.
+     * 
+     * @param variable a variable
+     * @return true if the value of the variable is null
+     * @throws DebugException if accessing the debug model fails
+     */
+    protected final boolean isNull(IVariable variable) throws DebugException {
+        return "null".equals(variable.getValue().getValueString());
+    }
+
+    /**
+     * Determine whether the value of the given variable is non-null.
+     * 
+     * @param variable a variable
+     * @return true if the value of the variable is not null
+     * @throws DebugException if accessing the debug model fails
+     */
+    protected final boolean isNonNull(IVariable variable) throws DebugException {
+        return !isNull(variable);
     }
     
 }

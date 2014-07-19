@@ -21,6 +21,7 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 
 import de.cau.cs.kieler.core.kgraph.KEdge;
+import de.cau.cs.kieler.core.kgraph.KLabel;
 import de.cau.cs.kieler.core.kgraph.KNode;
 import de.cau.cs.kieler.core.kgraph.KPort;
 import de.cau.cs.kieler.core.krendering.KPolyline;
@@ -31,6 +32,7 @@ import de.cau.cs.kieler.core.krendering.extensions.KPolylineExtensions;
 import de.cau.cs.kieler.core.krendering.extensions.KRenderingExtensions;
 import de.cau.cs.kieler.debukviz.VariableTransformationContext;
 import de.cau.cs.kieler.kiml.klayoutdata.KShapeLayout;
+import de.cau.cs.kieler.kiml.options.EdgeLabelPlacement;
 import de.cau.cs.kieler.kiml.options.LayoutOptions;
 import de.cau.cs.kieler.kiml.options.PortSide;
 import de.cau.cs.kieler.kiml.util.KimlUtil;
@@ -109,6 +111,19 @@ public final class EdgeBuilder {
         builder.context = context;
         
         return builder;
+    }
+    
+    /**
+     * Make a port of the same style as used when building edges.
+     * 
+     * @param portSide the side to assign to the new port
+     * @param index the index to assign to the new port
+     * @return a new port
+     */
+    public static KPort makePort(PortSide portSide, int index) {
+        EdgeBuilder builder = new EdgeBuilder();
+        builder.injectExtensions();
+        return builder.buildPort(portSide, index);
     }
 
     
@@ -353,7 +368,25 @@ public final class EdgeBuilder {
             edge.setTargetPort(context.findDefaultInputPort(targetNode));
         }
         
-        // TODO Add labels
+        // Add labels
+        if (centerLabel != null) {
+            KLabel label = KimlUtil.createInitializedLabel(edge);
+            label.setText(centerLabel);
+            label.getData(KShapeLayout.class).setProperty(LayoutOptions.EDGE_LABEL_PLACEMENT,
+                    EdgeLabelPlacement.CENTER);
+        }
+        if (tailLabel != null) {
+            KLabel label = KimlUtil.createInitializedLabel(edge);
+            label.setText(tailLabel);
+            label.getData(KShapeLayout.class).setProperty(LayoutOptions.EDGE_LABEL_PLACEMENT,
+                    EdgeLabelPlacement.TAIL);
+        }
+        if (headLabel != null) {
+            KLabel label = KimlUtil.createInitializedLabel(edge);
+            label.setText(headLabel);
+            label.getData(KShapeLayout.class).setProperty(LayoutOptions.EDGE_LABEL_PLACEMENT,
+                    EdgeLabelPlacement.HEAD);
+        }
         
         // Configure the rendering
         KPolyline line = renderingFactory.createKPolyline();

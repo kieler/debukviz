@@ -20,6 +20,10 @@
    <extension
          point="de.cau.cs.kieler.debukviz.transformations">
       <visualization
+            type="java.lang.Object"
+            transformation="de.cau.cs.kieler.debukviz.transformations.DefaultTransformation">
+      </visualization>
+      <visualization
             type="java.lang.Boolean"
             transformation="de.cau.cs.kieler.debukviz.transformations.ObjectValueTransformation">
       </visualization>
@@ -28,24 +32,16 @@
             transformation="de.cau.cs.kieler.debukviz.transformations.ObjectValueTransformation">
       </visualization>
       <visualization
-            type="java.util.BitSet"
-            transformation="de.cau.cs.kieler.debukviz.transformations.BitSetTransformation">
+            type="java.lang.Enum"
+            transformation="de.cau.cs.kieler.debukviz.transformations.EnumTransformation">
       </visualization>
       <visualization
-            type="java.util.EnumMap"
-            transformation="de.cau.cs.kieler.debukviz.transformations.EnumMapTransformation">
-      </visualization>
-      <visualization
-            type="java.util.EnumSet"
-            transformation="de.cau.cs.kieler.debukviz.transformations.EnumSetTransformation">
+            type="java.util.Set"
+            transformation="de.cau.cs.kieler.debukviz.transformations.SetTransformation">
       </visualization>
       <visualization
             type="java.util.HashMap"
             transformation="de.cau.cs.kieler.debukviz.transformations.KeyValueTransformation">
-      </visualization>
-      <visualization
-            type="java.util.HashSet"
-            transformation="de.cau.cs.kieler.debukviz.transformations.HashSetTransformation">
       </visualization>
       <visualization
             type="java.util.IdentityHashMap"
