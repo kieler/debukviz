@@ -48,6 +48,10 @@
             transformation="de.cau.cs.kieler.debukviz.transformations.ListTransformation">
       </visualization>
       <visualization
+            type="java.util.Queue"
+            transformation="de.cau.cs.kieler.debukviz.transformations.QueueTransformation">
+      </visualization>
+      <visualization
             type="java.util.Set"
             transformation="de.cau.cs.kieler.debukviz.transformations.SetTransformation">
       </visualization>

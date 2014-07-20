@@ -62,6 +62,13 @@ class SetTransformation extends VariableTransformation {
                 case "java.util.HashSet": set.handleHashSet
                 case "java.util.RegularEnumSet": set.handleRegularEnumSet
                 case "java.util.JumboEnumSet": set.handleJumboEnumSet
+                case "java.util.Collections$UnmodifiableSet":
+                    set.getNamedVariable("c").value.getContent()
+                case "java.util.Collections$SynchronizedSet":
+                    set.getNamedVariable("c").value.getContent()
+                case "java.util.Collections$CheckedSet":
+                    set.getNamedVariable("c").value.getContent()
+                // TODO support java.util.TreeSet
                 default:
                     set.getContent(
                         if (type instanceof IJavaClassType)

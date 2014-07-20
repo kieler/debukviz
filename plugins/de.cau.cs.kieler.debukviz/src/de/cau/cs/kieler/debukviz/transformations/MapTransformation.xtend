@@ -80,6 +80,13 @@ class MapTransformation extends VariableTransformation {
                 case "java.util.IdentityHashMap": map.handleIdentityHashMap
                 case "java.util.WeakHashMap": map.handleWeakHashMap
                 case "java.util.EnumMap": map.handleEnumMap
+                case "java.util.Collections$UnmodifiableMap":
+                    map.getNamedVariable("m").value.getContent()
+                case "java.util.Collections$SynchronizedMap":
+                    map.getNamedVariable("m").value.getContent()
+                case "java.util.Collections$CheckedMap":
+                    map.getNamedVariable("m").value.getContent()
+                // TODO support java.util.TreeMap
                 default:
                     map.getContent(
                         if (type instanceof IJavaClassType)
