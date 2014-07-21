@@ -219,7 +219,7 @@ litigation.
    </url>
 
    <requires>
-      <import feature="de.cau.cs.kieler.klighd.feature" version="0.5.0.qualifier" match="greaterOrEqual"/>
+      <import feature="de.cau.cs.kieler.klighd.feature" version="0.5.0" match="greaterOrEqual"/>
    </requires>
 
    <plugin
