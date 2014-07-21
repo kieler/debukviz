@@ -29,15 +29,10 @@ public final class DebuKVizPlugin extends AbstractUIPlugin implements IStartup {
     public static final String PLUGIN_ID = "de.cau.cs.kieler.debukviz"; //$NON-NLS-1$
     /** ID of the transformations extension point. */
     public final static String EXTENSION_POINT_ID = "de.cau.cs.kieler.debukviz.transformations";
+    /** How far the transformation will follow and display references. */
+    final static int MAX_REFERENCES_FOLLOWED = 10;
 
-    public static final String LAYOUT = "layoutRadioButtonGroup";
-    public static final String STANDARD_LAYOUT = "standardLayoutRadio";
-    public static final String FLAT_LAYOUT = "flatLayoutRadio";
-    public static final String HIERARCHY_LAYOUT = "hierarchyLayoutRadio";
-    public static final String HIERARCHY_DEPTH = "hierarchyDepthScale";
-    public static final String MAX_NODE_COUNT = "maxNodeCountScale";
-
-    // The shared instance
+    /** Singleton. */
     private static DebuKVizPlugin plugin;
 
     /**

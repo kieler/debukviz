@@ -73,18 +73,9 @@ public abstract class VariableTransformation {
             final VariableTransformationContext context) throws DebugException {
         
         // Check if the maximum node count or maximum transformation depth are already reached
-        int maxDepth = DebuKVizPlugin.getDefault().getPreferenceStore().getInt(
-                DebuKVizPlugin.HIERARCHY_DEPTH);
-        if (context.getTransformationDepth() >= maxDepth) {
+        if (context.getTransformationDepth() >= DebuKVizPlugin.MAX_REFERENCES_FOLLOWED) {
             // TODO Perhaps create a certain kind of dummy node here?
             //      That would make it clear that the transformation stopped there
-            return;
-        }
-        
-        int maxNodeCount = DebuKVizPlugin.getDefault().getPreferenceStore().getInt(
-                DebuKVizPlugin.MAX_NODE_COUNT);
-        if (context.getNodeCount() >= maxNodeCount) {
-            // TODO Originally, the synthesis opened an error message when this condition was triggered
             return;
         }
         

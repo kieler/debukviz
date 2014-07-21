@@ -60,19 +60,5 @@
             transformation="de.cau.cs.kieler.debukviz.transformations.MapTransformation">
       </visualization>
    </extension>
-   <extension
-         point="org.eclipse.ui.preferencePages">
-      <page
-            class="de.cau.cs.kieler.debukviz.preferences.DebuKVizPreferencePage"
-            id="de.cau.cs.kieler.klighd.debug.preferencePage"
-            name="KIELER Debug Visualization">
-      </page>
-   </extension>
-   <extension
-         point="org.eclipse.core.runtime.preferences">
-      <initializer
-            class="de.cau.cs.kieler.debukviz.preferences.PreferenceInitializer">
-      </initializer>
-   </extension>
 
 </plugin>
