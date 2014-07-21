@@ -30,7 +30,7 @@ public final class DebuKVizPlugin extends AbstractUIPlugin implements IStartup {
     /** ID of the transformations extension point. */
     public final static String EXTENSION_POINT_ID = "de.cau.cs.kieler.debukviz.transformations";
     /** How far the transformation will follow and display references. */
-    final static int MAX_REFERENCES_FOLLOWED = 10;
+    final static int MAX_REFERENCES_FOLLOWED = 3;
 
     /** Singleton. */
     private static DebuKVizPlugin plugin;

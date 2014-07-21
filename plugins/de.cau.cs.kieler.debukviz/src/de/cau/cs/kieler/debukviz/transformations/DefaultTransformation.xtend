@@ -23,29 +23,43 @@ import org.eclipse.debug.core.model.IVariable
 
 class DefaultTransformation extends VariableTransformation {
     
-    val primitiveTypes = #[ "int", "short", "long", "byte", "float", "double" ]
+    /** Names of the primitive types. */
+    static val primitiveTypes = #[ "int", "short", "long", "byte", "float", "double" ]
     
     override transform(IVariable variable, KNode graph, VariableTransformationContext context) {
         val builder = NodeBuilder.forVariable(variable, graph, context)
             .type(variable.value.referenceTypeName)
         
         for (v : variable.value.variables) {
-            if (primitiveTypes.contains(v.referenceTypeName)) {
-                builder.addProperty(v.name, v.value.valueString)
+            // Stuff can go wrong while accessing reference type names of values whose class has not
+            // been loaded
+            try {
+                if (primitiveTypes.contains(v.referenceTypeName)) {
+                    builder.addProperty(v.name, v.value.valueString)
+                }
+            } catch (Exception e) {
+                // Just skip the variable
             }
         }
         val sourceNode = builder.build()
         
         for (v : variable.value.variables) {
-            if (!primitiveTypes.contains(v.referenceTypeName)) {
-                invokeFor(v, graph, context)
-                val targetNode = context.findAssociation(v)
-                if (targetNode != null) {
-                    EdgeBuilder.forContext(context)
-                            .from(sourceNode)
-                            .to(targetNode)
-                            .build()
+            // Stuff can go wrong while accessing reference type names of values whose class has not
+            // been loaded
+            try {
+                if (!primitiveTypes.contains(v.referenceTypeName)) {
+                    invokeFor(v, graph, context)
+                    val targetNode = context.findAssociation(v)
+                    if (targetNode != null) {
+                        EdgeBuilder.forContext(context)
+                                .from(sourceNode)
+                                .to(targetNode)
+                                .centerLabel(v.name)
+                                .build()
+                    }
                 }
+            } catch (Exception e) {
+                // Just skip the variable
             }
         }
     }

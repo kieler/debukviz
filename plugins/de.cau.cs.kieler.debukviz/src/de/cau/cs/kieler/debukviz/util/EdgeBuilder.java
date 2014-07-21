@@ -395,7 +395,7 @@ public final class EdgeBuilder {
         KPolyline line = renderingFactory.createKPolyline();
         edge.getData().add(line);
         rendExt.setLineWidth(line, 2);
-        rendExt.setForeground(line, colExt.getColor("#323232"));
+        rendExt.setForeground(line, colExt.getColor("#626262"));
         
         if (!undirected) {
             lineExt.addHeadArrowDecorator(line);
