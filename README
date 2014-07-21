@@ -1,7 +1,0 @@
-DebuKViz - KIELER Debug Visualization
-=====================================
-
-Visualization of memory states for debugging using KIELER Lightweight
-Diagrams (KLighD). The visualization is synchronized with the selection
-in the JDT Variables view. It can be extended with custom visualizations
-for your own data structures.
