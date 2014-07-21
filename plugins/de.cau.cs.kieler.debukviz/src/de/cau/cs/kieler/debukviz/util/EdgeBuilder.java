@@ -27,7 +27,7 @@ import de.cau.cs.kieler.core.kgraph.KPort;
 import de.cau.cs.kieler.core.krendering.KPolyline;
 import de.cau.cs.kieler.core.krendering.KRectangle;
 import de.cau.cs.kieler.core.krendering.KRenderingFactory;
-import de.cau.cs.kieler.core.krendering.KRenderingUtil;
+import de.cau.cs.kieler.core.krendering.extensions.KColorExtensions;
 import de.cau.cs.kieler.core.krendering.extensions.KPolylineExtensions;
 import de.cau.cs.kieler.core.krendering.extensions.KRenderingExtensions;
 import de.cau.cs.kieler.debukviz.VariableTransformationContext;
@@ -82,6 +82,7 @@ public final class EdgeBuilder {
 
     // KRendering extensions used to build the node rendering
     private KRenderingFactory renderingFactory = null;
+    private KColorExtensions colExt = null;
     private KPolylineExtensions lineExt = null;
     private KRenderingExtensions rendExt = null;
     
@@ -375,12 +376,14 @@ public final class EdgeBuilder {
             label.getData(KShapeLayout.class).setProperty(LayoutOptions.EDGE_LABEL_PLACEMENT,
                     EdgeLabelPlacement.CENTER);
         }
+        
         if (tailLabel != null) {
             KLabel label = KimlUtil.createInitializedLabel(edge);
             label.setText(tailLabel);
             label.getData(KShapeLayout.class).setProperty(LayoutOptions.EDGE_LABEL_PLACEMENT,
                     EdgeLabelPlacement.TAIL);
         }
+        
         if (headLabel != null) {
             KLabel label = KimlUtil.createInitializedLabel(edge);
             label.setText(headLabel);
@@ -392,7 +395,7 @@ public final class EdgeBuilder {
         KPolyline line = renderingFactory.createKPolyline();
         edge.getData().add(line);
         rendExt.setLineWidth(line, 2);
-        rendExt.setForeground(line, KRenderingUtil.getColor("#323232"));
+        rendExt.setForeground(line, colExt.getColor("#323232"));
         
         if (!undirected) {
             lineExt.addHeadArrowDecorator(line);
@@ -421,7 +424,7 @@ public final class EdgeBuilder {
         KRectangle rectangle = renderingFactory.createKRectangle();
         port.getData().add(rectangle);
         rendExt.setForegroundInvisible(rectangle, true);
-        rendExt.setBackground(rectangle, KRenderingUtil.getColor("#808080"));
+        rendExt.setBackground(rectangle, colExt.getColor("#808080"));
         
         return port;
     }
@@ -449,6 +452,7 @@ public final class EdgeBuilder {
         renderingFactory = KRenderingFactory.eINSTANCE;
         
         Injector injector = Guice.createInjector();
+        colExt = injector.getInstance(KColorExtensions.class);
         lineExt = injector.getInstance(KPolylineExtensions.class);
         rendExt = injector.getInstance(KRenderingExtensions.class);
     }

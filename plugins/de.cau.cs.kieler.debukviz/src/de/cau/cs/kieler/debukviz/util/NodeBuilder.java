@@ -30,9 +30,9 @@ import de.cau.cs.kieler.core.krendering.KChildArea;
 import de.cau.cs.kieler.core.krendering.KContainerRendering;
 import de.cau.cs.kieler.core.krendering.KGridPlacement;
 import de.cau.cs.kieler.core.krendering.KRenderingFactory;
-import de.cau.cs.kieler.core.krendering.KRenderingUtil;
 import de.cau.cs.kieler.core.krendering.KRoundedRectangle;
 import de.cau.cs.kieler.core.krendering.KText;
+import de.cau.cs.kieler.core.krendering.extensions.KColorExtensions;
 import de.cau.cs.kieler.core.krendering.extensions.KContainerRenderingExtensions;
 import de.cau.cs.kieler.core.krendering.extensions.KRenderingExtensions;
 import de.cau.cs.kieler.core.properties.IProperty;
@@ -92,6 +92,7 @@ public final class NodeBuilder {
     
     // KRendering extensions used to build the node rendering
     private KRenderingFactory renderingFactory = null;
+    private KColorExtensions colExt = null;
     private KContainerRenderingExtensions contExt = null;
     private KRenderingExtensions rendExt = null;
     
@@ -328,11 +329,11 @@ public final class NodeBuilder {
         
         // Build the rendering
         KRoundedRectangle rndRect = rendExt.addRoundedRectangle(node, 10, 10);
-        rendExt.setForeground(rndRect, KRenderingUtil.getColor("gray"));
+        rendExt.setForeground(rndRect, colExt.getColor("gray"));
         rendExt.setBackgroundGradient(
-                rndRect, KRenderingUtil.getColor("#FFFFFF"), KRenderingUtil.getColor("#F0F0F0"), 90);
+                rndRect, colExt.getColor("#FFFFFF"), colExt.getColor("#F0F0F0"), 90);
         rendExt.setShadow(
-                rndRect, KRenderingUtil.getColor("black"), 4, 4);
+                rndRect, colExt.getColor("black"), 4, 4);
         
         // Set layout properties
         KShapeLayout shapeLayout = node.getData(KShapeLayout.class);
@@ -382,11 +383,11 @@ public final class NodeBuilder {
      */
     private KContainerRendering addRegularNodeContainerRendering(final KNode node) {
         KRoundedRectangle rndRect = rendExt.addRoundedRectangle(node, 5, 5);
-        rendExt.setForeground(rndRect, KRenderingUtil.getColor("gray"));
+        rendExt.setForeground(rndRect, colExt.getColor("gray"));
         rendExt.setBackgroundGradient(
-                rndRect, KRenderingUtil.getColor("#FFFFFF"), KRenderingUtil.getColor("#F0F0F0"), 90);
+                rndRect, colExt.getColor("#FFFFFF"), colExt.getColor("#F0F0F0"), 90);
         rendExt.setShadow(
-                rndRect, KRenderingUtil.getColor("black"), 3, 3);
+                rndRect, colExt.getColor("black"), 3, 3);
         
         // Setup grid placement
         KGridPlacement rndRectPlacement = contExt.setGridPlacement(rndRect, 1);
@@ -417,7 +418,7 @@ public final class NodeBuilder {
             
             nameAndTypeText.setText(nameAndType);
             rendExt.setFontSize(nameAndTypeText, KlighdConstants.DEFAULT_FONT_SIZE - 2);
-            rendExt.setForeground(nameAndTypeText, KRenderingUtil.getColor("#627090"));
+            rendExt.setForeground(nameAndTypeText, colExt.getColor("#627090"));
             
             return true;
         } else {
@@ -452,7 +453,7 @@ public final class NodeBuilder {
         }
         
         valueText.setText(value);
-        rendExt.setForeground(valueText, KRenderingUtil.getColor("#323232"));
+        rendExt.setForeground(valueText, colExt.getColor("#323232"));
     }
 
     /**
@@ -494,7 +495,7 @@ public final class NodeBuilder {
             keyText.setText(property.getFirst() + ":");
             rendExt.setHorizontalAlignment(keyText, HorizontalAlignment.RIGHT);
             rendExt.setFontSize(keyText, KlighdConstants.DEFAULT_FONT_SIZE - 2);
-            rendExt.setForeground(keyText, KRenderingUtil.getColor("#707070"));
+            rendExt.setForeground(keyText, colExt.getColor("#707070"));
             
             
             // Value
@@ -510,7 +511,7 @@ public final class NodeBuilder {
             valueText.setText(property.getSecond());
             rendExt.setHorizontalAlignment(valueText, HorizontalAlignment.LEFT);
             rendExt.setFontSize(valueText, KlighdConstants.DEFAULT_FONT_SIZE - 2);
-            rendExt.setForeground(valueText, KRenderingUtil.getColor("#323232"));
+            rendExt.setForeground(valueText, colExt.getColor("#323232"));
         }
     }
 
@@ -534,8 +535,8 @@ public final class NodeBuilder {
                 rendExt.createKPosition(
                         rendExt.RIGHT, 0, 0, rendExt.BOTTOM, 0, 0));
         
-        rendExt.setBackground(childAreaContainer, KRenderingUtil.getColor("white"));
-        rendExt.setForeground(childAreaContainer, KRenderingUtil.getColor("gray"));
+        rendExt.setBackground(childAreaContainer, colExt.getColor("white"));
+        rendExt.setForeground(childAreaContainer, colExt.getColor("gray"));
         
         // Create the actual child area
         KChildArea childArea = renderingFactory.createKChildArea();
@@ -573,6 +574,7 @@ public final class NodeBuilder {
         renderingFactory = KRenderingFactory.eINSTANCE;
         
         Injector injector = Guice.createInjector();
+        colExt = injector.getInstance(KColorExtensions.class);
         contExt = injector.getInstance(KContainerRenderingExtensions.class);
         rendExt = injector.getInstance(KRenderingExtensions.class);
     }
