@@ -80,11 +80,11 @@ public final class EdgeBuilder {
     /** Whether the edge is undirected, which will omit the arrow. */
     private boolean undirected = false;
 
-    // KRendering extensions used to build the node rendering
-    private KRenderingFactory renderingFactory = null;
-    private KColorExtensions colExt = null;
-    private KPolylineExtensions lineExt = null;
-    private KRenderingExtensions rendExt = null;
+    // KRendering extensions used to build the node rendering; initialized lazily
+    private static KRenderingFactory renderingFactory = null;
+    private static KColorExtensions colExt = null;
+    private static KPolylineExtensions lineExt = null;
+    private static KRenderingExtensions rendExt = null;
     
     
     ///////////////////////////////////////////////////////
@@ -449,11 +449,13 @@ public final class EdgeBuilder {
      * Instantiates all KRendering extensions we need when adding a rendering to nodes.
      */
     private void injectExtensions() {
-        renderingFactory = KRenderingFactory.eINSTANCE;
-        
-        Injector injector = Guice.createInjector();
-        colExt = injector.getInstance(KColorExtensions.class);
-        lineExt = injector.getInstance(KPolylineExtensions.class);
-        rendExt = injector.getInstance(KRenderingExtensions.class);
+        if (renderingFactory == null) {
+            renderingFactory = KRenderingFactory.eINSTANCE;
+            
+            Injector injector = Guice.createInjector();
+            colExt = injector.getInstance(KColorExtensions.class);
+            lineExt = injector.getInstance(KPolylineExtensions.class);
+            rendExt = injector.getInstance(KRenderingExtensions.class);
+        }
     }
 }

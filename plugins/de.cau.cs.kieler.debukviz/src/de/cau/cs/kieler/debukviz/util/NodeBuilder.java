@@ -90,11 +90,11 @@ public final class NodeBuilder {
     /** Properties to assign to the node. */
     private MapPropertyHolder layoutOptions = new MapPropertyHolder();
     
-    // KRendering extensions used to build the node rendering
-    private KRenderingFactory renderingFactory = null;
-    private KColorExtensions colExt = null;
-    private KContainerRenderingExtensions contExt = null;
-    private KRenderingExtensions rendExt = null;
+    // KRendering extensions used to build the node rendering; initialized lazily
+    private static KRenderingFactory renderingFactory = null;
+    private static KColorExtensions colExt = null;
+    private static KContainerRenderingExtensions contExt = null;
+    private static KRenderingExtensions rendExt = null;
     
     
     ///////////////////////////////////////////////////////
@@ -571,12 +571,15 @@ public final class NodeBuilder {
      * Instantiates all KRendering extensions we need when adding a rendering to nodes.
      */
     private void injectExtensions() {
-        renderingFactory = KRenderingFactory.eINSTANCE;
-        
-        Injector injector = Guice.createInjector();
-        colExt = injector.getInstance(KColorExtensions.class);
-        contExt = injector.getInstance(KContainerRenderingExtensions.class);
-        rendExt = injector.getInstance(KRenderingExtensions.class);
+        // Lazy initialization
+        if (renderingFactory == null) {
+            renderingFactory = KRenderingFactory.eINSTANCE;
+            
+            Injector injector = Guice.createInjector();
+            colExt = injector.getInstance(KColorExtensions.class);
+            contExt = injector.getInstance(KContainerRenderingExtensions.class);
+            rendExt = injector.getInstance(KRenderingExtensions.class);
+        }
     }
     
 }
