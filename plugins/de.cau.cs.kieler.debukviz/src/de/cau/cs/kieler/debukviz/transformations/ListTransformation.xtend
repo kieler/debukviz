@@ -105,14 +105,16 @@ class ListTransformation extends VariableTransformation {
         val result = new LinkedList
         if (list.hasNamedVariable("header")) {
             // this is the old implementation of LinkedList
-            var entry = list.getNamedVariable("header")
-            val startId = (entry.value as IJavaObject).uniqueId
+            var entry = list.getNamedVariable("header").value
+            val startId = (entry as IJavaObject).uniqueId
+            var long currentId
             do {
-                entry = entry.value.getNamedVariable("next")
-                if ((entry.value as IJavaObject).uniqueId != startId) {
-                    result += entry.value.getNamedVariable("element")
+                entry = entry.getNamedVariable("next").value
+                currentId = (entry as IJavaObject).uniqueId
+                if (currentId != startId) {
+                    result += entry.getNamedVariable("element")
                 }
-            } while ((entry.value as IJavaObject).uniqueId != startId)
+            } while (currentId != startId)
         } else {
             // this is the new implementation of LinkedList
             var node = list.getNamedVariable("first")
