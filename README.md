@@ -23,9 +23,8 @@ Building Manually
 
 To build DebuKViz manually from the sources, make sure you have Maven installed. Change into the build directory and execute this command:
 
-```bash
-mvn clean package
-```
+    bash
+    mvn clean package
 
 
 Releases
