@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <modelVersion>4.0.0</modelVersion>
   <groupId>de.cau.cs.kieler.debukviz</groupId>
   <artifactId>parent</artifactId>
@@ -52,7 +51,7 @@
         <repository>
           <id>p2.kieler</id>
           <layout>p2</layout>
-          <url>http://rtsys.informatik.uni-kiel.de/~kieler/updatesite/release_pragmatics_2014-05/</url>
+          <url>http://rtsys.informatik.uni-kiel.de/~kieler/updatesite/release_pragmatics_2014-10/</url>
         </repository>
       </repositories>
       
