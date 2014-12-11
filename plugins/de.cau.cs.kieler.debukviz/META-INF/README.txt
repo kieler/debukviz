@@ -1,5 +1,5 @@
 Minimal version of
- de.cau.cs.kieler.core and
+ de.cau.cs.kieler.core.krendering and
  de.cau.cs.kieler.klighd
 
 is set as we changed the methods in
