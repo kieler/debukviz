@@ -20,7 +20,7 @@ import org.eclipse.debug.core.model.IVariable;
 import org.eclipse.ui.statushandlers.StatusManager;
 
 import de.cau.cs.kieler.core.kgraph.KNode;
-import de.cau.cs.kieler.debukviz.dialog.DebuKVizDialog;
+import de.cau.cs.kieler.debukviz.ui.DebuKVizDialog;
 import de.cau.cs.kieler.kiml.klayoutdata.KShapeLayout;
 import de.cau.cs.kieler.kiml.options.Direction;
 import de.cau.cs.kieler.kiml.options.LayoutOptions;

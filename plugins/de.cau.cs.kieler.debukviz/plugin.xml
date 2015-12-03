@@ -5,12 +5,6 @@
          name="DebuKViz Transformations"
          schema="schema/debugVisualization.exsd"/>
    <extension
-         point="org.eclipse.ui.startup">
-      <startup
-            class="de.cau.cs.kieler.debukviz.DebuKVizPlugin">
-      </startup>
-   </extension>
-   <extension
          point="de.cau.cs.kieler.klighd.diagramSyntheses">
       <diagramSynthesis
             class="de.cau.cs.kieler.klighd.syntheses.GuiceBasedSynthesisFactory:de.cau.cs.kieler.debukviz.DebuKVizSynthesis"
@@ -59,6 +53,18 @@
             type="java.util.Map"
             transformation="de.cau.cs.kieler.debukviz.transformations.MapTransformation">
       </visualization>
+   </extension>
+   <extension
+         point="org.eclipse.ui.views">
+      <view
+            allowMultiple="false"
+            category="org.eclipse.debug.ui"
+            class="de.cau.cs.kieler.debukviz.ui.VariablesDiagramViewPart"
+            icon="icons/view_icon.gif"
+            id="de.cau.cs.kieler.debukviz.variablesView"
+            name="Variables Diagram"
+            restorable="true">
+      </view>
    </extension>
 
 </plugin>
