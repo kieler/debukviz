@@ -18,33 +18,32 @@ import java.util.List;
 
 import org.eclipse.debug.core.DebugException;
 import org.eclipse.debug.core.model.IVariable;
+import org.eclipse.elk.core.options.CoreOptions;
+import org.eclipse.elk.core.options.PortSide;
+import org.eclipse.elk.core.options.SizeConstraint;
+import org.eclipse.elk.core.util.Pair;
+import org.eclipse.elk.graph.properties.IProperty;
+import org.eclipse.elk.graph.properties.MapPropertyHolder;
 
 import com.google.common.collect.Lists;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 
-import de.cau.cs.kieler.core.kgraph.KNode;
-import de.cau.cs.kieler.core.kgraph.KPort;
-import de.cau.cs.kieler.core.krendering.HorizontalAlignment;
-import de.cau.cs.kieler.core.krendering.KChildArea;
-import de.cau.cs.kieler.core.krendering.KContainerRendering;
-import de.cau.cs.kieler.core.krendering.KGridPlacement;
-import de.cau.cs.kieler.core.krendering.KRenderingFactory;
-import de.cau.cs.kieler.core.krendering.KRoundedRectangle;
-import de.cau.cs.kieler.core.krendering.KText;
-import de.cau.cs.kieler.core.krendering.extensions.KColorExtensions;
-import de.cau.cs.kieler.core.krendering.extensions.KContainerRenderingExtensions;
-import de.cau.cs.kieler.core.krendering.extensions.KRenderingExtensions;
-import de.cau.cs.kieler.core.properties.IProperty;
-import de.cau.cs.kieler.core.properties.MapPropertyHolder;
-import de.cau.cs.kieler.core.util.Pair;
 import de.cau.cs.kieler.debukviz.VariableTransformationContext;
-import de.cau.cs.kieler.kiml.klayoutdata.KShapeLayout;
-import de.cau.cs.kieler.kiml.options.LayoutOptions;
-import de.cau.cs.kieler.kiml.options.PortSide;
-import de.cau.cs.kieler.kiml.options.SizeConstraint;
-import de.cau.cs.kieler.kiml.util.KimlUtil;
 import de.cau.cs.kieler.klighd.KlighdConstants;
+import de.cau.cs.kieler.klighd.kgraph.KNode;
+import de.cau.cs.kieler.klighd.kgraph.KPort;
+import de.cau.cs.kieler.klighd.kgraph.util.KGraphUtil;
+import de.cau.cs.kieler.klighd.krendering.HorizontalAlignment;
+import de.cau.cs.kieler.klighd.krendering.KChildArea;
+import de.cau.cs.kieler.klighd.krendering.KContainerRendering;
+import de.cau.cs.kieler.klighd.krendering.KGridPlacement;
+import de.cau.cs.kieler.klighd.krendering.KRenderingFactory;
+import de.cau.cs.kieler.klighd.krendering.KRoundedRectangle;
+import de.cau.cs.kieler.klighd.krendering.KText;
+import de.cau.cs.kieler.klighd.krendering.extensions.KColorExtensions;
+import de.cau.cs.kieler.klighd.krendering.extensions.KContainerRenderingExtensions;
+import de.cau.cs.kieler.klighd.krendering.extensions.KRenderingExtensions;
 
 /**
  * A builder for creating nodes for visualizing variables. Transformations should use these to end up
@@ -322,7 +321,7 @@ public final class NodeBuilder {
         // TODO Change gradient colors
         // TODO Change size such that proxy nodes are big enough next to regular nodes
         
-        KNode node = KimlUtil.createInitializedNode();
+        KNode node = KGraphUtil.createInitializedNode();
         
         // Prepare rendering extensions
         injectExtensions();
@@ -336,10 +335,9 @@ public final class NodeBuilder {
                 rndRect, colExt.getColor("black"), 4, 4);
         
         // Set layout properties
-        KShapeLayout shapeLayout = node.getData(KShapeLayout.class);
-        shapeLayout.setWidth(20);
-        shapeLayout.setHeight(20);
-        shapeLayout.setProperty(LayoutOptions.SIZE_CONSTRAINT, SizeConstraint.fixed());
+        node.setWidth(20);
+        node.setHeight(20);
+        node.setProperty(CoreOptions.NODE_SIZE_CONSTRAINTS, SizeConstraint.fixed());
         
         return node;
     }
@@ -350,14 +348,14 @@ public final class NodeBuilder {
      * @return the regular node.
      */
     private KNode buildRegularNode() {
-        KNode node = KimlUtil.createInitializedNode();
-        node.getData(KShapeLayout.class).copyProperties(layoutOptions);
+        KNode node = KGraphUtil.createInitializedNode();
+        node.copyProperties(layoutOptions);
         
         // Create default input port
         if (defaultInputPort) {
-            KPort port = KimlUtil.createInitializedPort();
+            KPort port = KGraphUtil.createInitializedPort();
             port.setNode(node);
-            port.getData(KShapeLayout.class).setProperty(LayoutOptions.PORT_SIDE, defaultInputPortSide);
+            port.setProperty(CoreOptions.PORT_SIDE, defaultInputPortSide);
             context.setDefaultInputPort(node, port);
         }
 

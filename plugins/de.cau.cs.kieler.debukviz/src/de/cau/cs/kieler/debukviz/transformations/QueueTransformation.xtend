@@ -14,14 +14,11 @@
  */
 package de.cau.cs.kieler.debukviz.transformations
 
-import de.cau.cs.kieler.core.kgraph.KNode
 import de.cau.cs.kieler.debukviz.VariableTransformation
 import de.cau.cs.kieler.debukviz.VariableTransformationContext
 import de.cau.cs.kieler.debukviz.util.EdgeBuilder
 import de.cau.cs.kieler.debukviz.util.NodeBuilder
-import de.cau.cs.kieler.kiml.options.LayoutOptions
-import de.cau.cs.kieler.kiml.options.PortConstraints
-import de.cau.cs.kieler.kiml.options.PortSide
+import de.cau.cs.kieler.klighd.kgraph.KNode
 import java.util.ArrayList
 import java.util.Arrays
 import java.util.Collections
@@ -29,6 +26,9 @@ import java.util.LinkedList
 import org.eclipse.debug.core.model.IIndexedValue
 import org.eclipse.debug.core.model.IValue
 import org.eclipse.debug.core.model.IVariable
+import org.eclipse.elk.core.options.CoreOptions
+import org.eclipse.elk.core.options.PortConstraints
+import org.eclipse.elk.core.options.PortSide
 import org.eclipse.jdt.debug.core.IJavaClassType
 import org.eclipse.jdt.debug.core.IJavaType
 import org.eclipse.jdt.debug.core.IJavaValue
@@ -42,21 +42,21 @@ class QueueTransformation extends VariableTransformation {
     override transform(IVariable variable, KNode graph, VariableTransformationContext context) {
         val queueNode = NodeBuilder.forVariable(variable, graph, context)
                 .type(variable.value.referenceTypeName)
-                .addDefaultInputPort(PortSide::NORTH)
-                .addLayoutOption(LayoutOptions::PORT_CONSTRAINTS, PortConstraints::FIXED_ORDER)
+                .addDefaultInputPort(PortSide.NORTH)
+                .addLayoutOption(CoreOptions.PORT_CONSTRAINTS, PortConstraints.FIXED_ORDER)
                 .build()
         variable.value.getContent().forEach[ element, index |
             invokeFor(element, graph, context)
             val elementNode = context.findAssociation(element)
-            if (elementNode != null) {
+            if (elementNode !== null) {
                 EdgeBuilder.forContext(context)
                         .from(queueNode)
-                        .addSourcePort(PortSide::SOUTH, -index)
+                        .addSourcePort(PortSide.SOUTH, -index)
                         .to(elementNode)
                         .tailLabel(index.toString)
                         .build()
             } else {
-                EdgeBuilder.makePort(PortSide::SOUTH, -index).setNode(queueNode)
+                EdgeBuilder.makePort(PortSide.SOUTH, -index).setNode(queueNode)
             }
         ]
     }
@@ -66,7 +66,7 @@ class QueueTransformation extends VariableTransformation {
     }
     
     def Iterable<IVariable> getContent(IValue queue, IJavaType type) {
-        if (type != null) {
+        if (type !== null) {
             switch (type.name) {
                 case "java.util.ArrayDeque": queue.handleArrayDeque
                 case "java.util.concurrent.ArrayBlockingQueue": queue.handleArrayBlockingQueue

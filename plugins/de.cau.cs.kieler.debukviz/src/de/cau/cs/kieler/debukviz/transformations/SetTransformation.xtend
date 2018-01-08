@@ -14,20 +14,20 @@
  */
 package de.cau.cs.kieler.debukviz.transformations
 
-import de.cau.cs.kieler.core.kgraph.KNode
 import de.cau.cs.kieler.debukviz.VariableTransformation
 import de.cau.cs.kieler.debukviz.VariableTransformationContext
 import de.cau.cs.kieler.debukviz.util.EdgeBuilder
 import de.cau.cs.kieler.debukviz.util.NodeBuilder
+import de.cau.cs.kieler.klighd.kgraph.KNode
 import java.util.Collections
+import java.util.LinkedList
 import org.eclipse.debug.core.model.IValue
 import org.eclipse.debug.core.model.IVariable
-import de.cau.cs.kieler.kiml.options.LayoutOptions
-import de.cau.cs.kieler.kiml.options.PortConstraints
-import java.util.LinkedList
-import org.eclipse.jdt.debug.core.IJavaValue
+import org.eclipse.elk.core.options.CoreOptions
+import org.eclipse.elk.core.options.PortConstraints
 import org.eclipse.jdt.debug.core.IJavaClassType
 import org.eclipse.jdt.debug.core.IJavaType
+import org.eclipse.jdt.debug.core.IJavaValue
 
 /**
  * Transformation for Sets. One node is created for the set itself, with references to all
@@ -38,12 +38,12 @@ class SetTransformation extends VariableTransformation {
     override transform(IVariable variable, KNode graph, VariableTransformationContext context) {
         val setNode = NodeBuilder.forVariable(variable, graph, context)
                 .type(variable.value.referenceTypeName)
-                .addLayoutOption(LayoutOptions::PORT_CONSTRAINTS, PortConstraints::FREE)
+                .addLayoutOption(CoreOptions.PORT_CONSTRAINTS, PortConstraints.FREE)
                 .build()
         variable.value.getContent().forEach[ element |
             invokeFor(element, graph, context)
             val elementNode = context.findAssociation(element)
-            if (elementNode != null) {
+            if (elementNode !== null) {
                 EdgeBuilder.forContext(context)
                         .from(setNode)
                         .to(elementNode)
@@ -57,7 +57,7 @@ class SetTransformation extends VariableTransformation {
     }
     
     def Iterable<IVariable> getContent(IValue set, IJavaType type) {
-        if (type != null) {
+        if (type !== null) {
             switch (type.name) {
                 case "java.util.HashSet": set.handleHashSet
                 case "java.util.RegularEnumSet": set.handleRegularEnumSet

@@ -14,11 +14,11 @@
  */
 package de.cau.cs.kieler.debukviz.transformations
 
-import de.cau.cs.kieler.core.kgraph.KNode
 import de.cau.cs.kieler.debukviz.VariableTransformation
 import de.cau.cs.kieler.debukviz.VariableTransformationContext
 import de.cau.cs.kieler.debukviz.util.EdgeBuilder
 import de.cau.cs.kieler.debukviz.util.NodeBuilder
+import de.cau.cs.kieler.klighd.kgraph.KNode
 import org.eclipse.debug.core.model.IVariable
 
 class DefaultTransformation extends VariableTransformation {
@@ -50,7 +50,7 @@ class DefaultTransformation extends VariableTransformation {
                 if (!primitiveTypes.contains(v.referenceTypeName)) {
                     invokeFor(v, graph, context)
                     val targetNode = context.findAssociation(v)
-                    if (targetNode != null) {
+                    if (targetNode !== null) {
                         EdgeBuilder.forContext(context)
                                 .from(sourceNode)
                                 .to(targetNode)

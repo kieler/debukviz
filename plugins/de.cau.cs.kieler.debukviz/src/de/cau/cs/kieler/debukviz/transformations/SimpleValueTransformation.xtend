@@ -14,10 +14,10 @@
  */
 package de.cau.cs.kieler.debukviz.transformations
 
-import de.cau.cs.kieler.core.kgraph.KNode
 import de.cau.cs.kieler.debukviz.VariableTransformation
 import de.cau.cs.kieler.debukviz.VariableTransformationContext
 import de.cau.cs.kieler.debukviz.util.NodeBuilder
+import de.cau.cs.kieler.klighd.kgraph.KNode
 import org.eclipse.debug.core.model.IVariable
 
 /**

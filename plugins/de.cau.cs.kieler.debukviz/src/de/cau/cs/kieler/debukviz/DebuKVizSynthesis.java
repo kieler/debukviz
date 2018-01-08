@@ -17,16 +17,15 @@ package de.cau.cs.kieler.debukviz;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.debug.core.DebugException;
 import org.eclipse.debug.core.model.IVariable;
+import org.eclipse.elk.alg.layered.options.LayeredOptions;
+import org.eclipse.elk.alg.layered.options.NodePlacementStrategy;
+import org.eclipse.elk.core.options.CoreOptions;
+import org.eclipse.elk.core.options.Direction;
 import org.eclipse.ui.statushandlers.StatusManager;
 
-import de.cau.cs.kieler.core.kgraph.KNode;
 import de.cau.cs.kieler.debukviz.ui.DebuKVizDialog;
-import de.cau.cs.kieler.kiml.klayoutdata.KShapeLayout;
-import de.cau.cs.kieler.kiml.options.Direction;
-import de.cau.cs.kieler.kiml.options.LayoutOptions;
-import de.cau.cs.kieler.kiml.util.KimlUtil;
-import de.cau.cs.kieler.klay.layered.p4nodes.NodePlacementStrategy;
-import de.cau.cs.kieler.klay.layered.properties.Properties;
+import de.cau.cs.kieler.klighd.kgraph.KNode;
+import de.cau.cs.kieler.klighd.kgraph.util.KGraphUtil;
 import de.cau.cs.kieler.klighd.syntheses.AbstractDiagramSynthesis;
 
 /**
@@ -35,17 +34,13 @@ import de.cau.cs.kieler.klighd.syntheses.AbstractDiagramSynthesis;
  */
 public final class DebuKVizSynthesis extends AbstractDiagramSynthesis<IVariable> {
     
-    /**
-     * {@inheritDoc}
-     */
     public KNode transform(final IVariable variable) {
         DebuKVizDialog.resetShown();
         
         // Generate a top-level KNode and set some layout options
-        KNode graph = KimlUtil.createInitializedNode();
-        KShapeLayout graphLayout = graph.getData(KShapeLayout.class);
-        graphLayout.setProperty(LayoutOptions.DIRECTION, Direction.DOWN);
-        graphLayout.setProperty(Properties.NODE_PLACER, NodePlacementStrategy.LINEAR_SEGMENTS);
+        KNode graph = KGraphUtil.createInitializedNode();
+        graph.setProperty(CoreOptions.DIRECTION, Direction.DOWN);
+        graph.setProperty(LayeredOptions.NODE_PLACEMENT_STRATEGY, NodePlacementStrategy.LINEAR_SEGMENTS);
         
         // Generate a transformation context
         VariableTransformationContext context = new VariableTransformationContext();

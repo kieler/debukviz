@@ -2,18 +2,18 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: KIELER Debug State Visualization
 Bundle-SymbolicName: de.cau.cs.kieler.debukviz;singleton:=true
-Bundle-Version: 0.1.0.qualifier
+Bundle-Version: 0.2.0.qualifier
 Require-Bundle: org.eclipse.core.runtime;bundle-version="3.6.0",
  org.eclipse.ui;bundle-version="3.1.0",
  org.eclipse.debug.core;bundle-version="3.7.0",
  org.eclipse.jdt.debug;bundle-version="3.7.0",
  org.eclipse.xtext.xbase.lib;bundle-version="2.9.0",
  com.google.inject;bundle-version="3.0.0",
- de.cau.cs.kieler.core.krendering,
- de.cau.cs.kieler.core.krendering.extensions,
  de.cau.cs.kieler.klighd,
+ de.cau.cs.kieler.klighd.krendering.extensions,
  de.cau.cs.kieler.klighd.ui,
- de.cau.cs.kieler.klay.layered
+ org.eclipse.elk.core,
+ org.eclipse.elk.alg.layered
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-Activator: de.cau.cs.kieler.debukviz.DebuKVizPlugin
 Export-Package: de.cau.cs.kieler.debukviz

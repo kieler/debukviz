@@ -2,7 +2,7 @@
 <feature
       id="de.cau.cs.kieler.debukviz.feature"
       label="DebuKViz"
-      version="0.1.0.qualifier"
+      version="0.2.0.qualifier"
       provider-name="OpenKieler">
 
    <description url="OpenKieler Nightly Builds">

@@ -18,7 +18,9 @@ import org.eclipse.debug.core.DebugException;
 import org.eclipse.debug.core.model.IValue;
 import org.eclipse.debug.core.model.IVariable;
 
-import de.cau.cs.kieler.core.kgraph.KNode;
+import de.cau.cs.kieler.debukviz.util.EdgeBuilder;
+import de.cau.cs.kieler.debukviz.util.NodeBuilder;
+import de.cau.cs.kieler.klighd.kgraph.KNode;
 
 /**
  * Instances of this class can transform an {@link IVariable} into a visual representation. For

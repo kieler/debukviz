@@ -14,20 +14,20 @@
  */
 package de.cau.cs.kieler.debukviz.transformations
 
-import de.cau.cs.kieler.core.kgraph.KNode
 import de.cau.cs.kieler.debukviz.VariableTransformation
 import de.cau.cs.kieler.debukviz.VariableTransformationContext
 import de.cau.cs.kieler.debukviz.util.EdgeBuilder
 import de.cau.cs.kieler.debukviz.util.NodeBuilder
-import de.cau.cs.kieler.kiml.options.LayoutOptions
-import de.cau.cs.kieler.kiml.options.PortConstraints
-import de.cau.cs.kieler.kiml.options.PortSide
+import de.cau.cs.kieler.klighd.kgraph.KNode
 import java.util.Arrays
 import java.util.Collections
 import java.util.LinkedList
 import org.eclipse.debug.core.model.IIndexedValue
 import org.eclipse.debug.core.model.IValue
 import org.eclipse.debug.core.model.IVariable
+import org.eclipse.elk.core.options.CoreOptions
+import org.eclipse.elk.core.options.PortConstraints
+import org.eclipse.elk.core.options.PortSide
 import org.eclipse.jdt.debug.core.IJavaClassType
 import org.eclipse.jdt.debug.core.IJavaObject
 import org.eclipse.jdt.debug.core.IJavaType
@@ -42,21 +42,21 @@ class ListTransformation extends VariableTransformation {
     override transform(IVariable variable, KNode graph, VariableTransformationContext context) {
         val listNode = NodeBuilder.forVariable(variable, graph, context)
                 .type(variable.value.referenceTypeName)
-                .addDefaultInputPort(PortSide::NORTH)
-                .addLayoutOption(LayoutOptions::PORT_CONSTRAINTS, PortConstraints::FIXED_ORDER)
+                .addDefaultInputPort(PortSide.NORTH)
+                .addLayoutOption(CoreOptions.PORT_CONSTRAINTS, PortConstraints.FIXED_ORDER)
                 .build()
         variable.value.getContent().forEach[ element, index |
             invokeFor(element, graph, context)
             val elementNode = context.findAssociation(element)
-            if (elementNode != null) {
+            if (elementNode !== null) {
                 EdgeBuilder.forContext(context)
                         .from(listNode)
-                        .addSourcePort(PortSide::SOUTH, -index)
+                        .addSourcePort(PortSide.SOUTH, -index)
                         .to(elementNode)
                         .tailLabel(index.toString)
                         .build()
             } else {
-                EdgeBuilder.makePort(PortSide::SOUTH, -index).setNode(listNode)
+                EdgeBuilder.makePort(PortSide.SOUTH, -index).setNode(listNode)
             }
         ]
     }
@@ -66,7 +66,7 @@ class ListTransformation extends VariableTransformation {
     }
     
     def Iterable<IVariable> getContent(IValue list, IJavaType type) {
-        if (type != null) {
+        if (type !== null) {
             switch (type.name) {
                 case "java.util.ArrayList": list.handleArrayList
                 case "java.util.Arrays$ArrayList": list.handleArraysList

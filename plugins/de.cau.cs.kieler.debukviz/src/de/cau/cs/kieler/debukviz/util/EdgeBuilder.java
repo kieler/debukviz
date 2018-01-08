@@ -16,26 +16,25 @@ package de.cau.cs.kieler.debukviz.util;
 
 import org.eclipse.debug.core.DebugException;
 import org.eclipse.debug.core.model.IVariable;
+import org.eclipse.elk.core.options.CoreOptions;
+import org.eclipse.elk.core.options.EdgeLabelPlacement;
+import org.eclipse.elk.core.options.PortSide;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 
-import de.cau.cs.kieler.core.kgraph.KEdge;
-import de.cau.cs.kieler.core.kgraph.KLabel;
-import de.cau.cs.kieler.core.kgraph.KNode;
-import de.cau.cs.kieler.core.kgraph.KPort;
-import de.cau.cs.kieler.core.krendering.KPolyline;
-import de.cau.cs.kieler.core.krendering.KRectangle;
-import de.cau.cs.kieler.core.krendering.KRenderingFactory;
-import de.cau.cs.kieler.core.krendering.extensions.KColorExtensions;
-import de.cau.cs.kieler.core.krendering.extensions.KPolylineExtensions;
-import de.cau.cs.kieler.core.krendering.extensions.KRenderingExtensions;
 import de.cau.cs.kieler.debukviz.VariableTransformationContext;
-import de.cau.cs.kieler.kiml.klayoutdata.KShapeLayout;
-import de.cau.cs.kieler.kiml.options.EdgeLabelPlacement;
-import de.cau.cs.kieler.kiml.options.LayoutOptions;
-import de.cau.cs.kieler.kiml.options.PortSide;
-import de.cau.cs.kieler.kiml.util.KimlUtil;
+import de.cau.cs.kieler.klighd.kgraph.KEdge;
+import de.cau.cs.kieler.klighd.kgraph.KLabel;
+import de.cau.cs.kieler.klighd.kgraph.KNode;
+import de.cau.cs.kieler.klighd.kgraph.KPort;
+import de.cau.cs.kieler.klighd.kgraph.util.KGraphUtil;
+import de.cau.cs.kieler.klighd.krendering.KPolyline;
+import de.cau.cs.kieler.klighd.krendering.KRectangle;
+import de.cau.cs.kieler.klighd.krendering.KRenderingFactory;
+import de.cau.cs.kieler.klighd.krendering.extensions.KColorExtensions;
+import de.cau.cs.kieler.klighd.krendering.extensions.KPolylineExtensions;
+import de.cau.cs.kieler.klighd.krendering.extensions.KRenderingExtensions;
 
 /**
  * A builder that creates edges to visualizes relationships between variables. Transformations should
@@ -347,7 +346,7 @@ public final class EdgeBuilder {
         injectExtensions();
         
         // Build the edge
-        KEdge edge = KimlUtil.createInitializedEdge();
+        KEdge edge = KGraphUtil.createInitializedEdge();
         
         edge.setSource(sourceNode);
         if (sourcePort != null) {
@@ -371,24 +370,21 @@ public final class EdgeBuilder {
         
         // Add labels
         if (centerLabel != null) {
-            KLabel label = KimlUtil.createInitializedLabel(edge);
+            KLabel label = KGraphUtil.createInitializedLabel(edge);
             label.setText(centerLabel);
-            label.getData(KShapeLayout.class).setProperty(LayoutOptions.EDGE_LABEL_PLACEMENT,
-                    EdgeLabelPlacement.CENTER);
+            label.setProperty(CoreOptions.EDGE_LABELS_PLACEMENT, EdgeLabelPlacement.CENTER);
         }
         
         if (tailLabel != null) {
-            KLabel label = KimlUtil.createInitializedLabel(edge);
+            KLabel label = KGraphUtil.createInitializedLabel(edge);
             label.setText(tailLabel);
-            label.getData(KShapeLayout.class).setProperty(LayoutOptions.EDGE_LABEL_PLACEMENT,
-                    EdgeLabelPlacement.TAIL);
+            label.setProperty(CoreOptions.EDGE_LABELS_PLACEMENT, EdgeLabelPlacement.TAIL);
         }
         
         if (headLabel != null) {
-            KLabel label = KimlUtil.createInitializedLabel(edge);
+            KLabel label = KGraphUtil.createInitializedLabel(edge);
             label.setText(headLabel);
-            label.getData(KShapeLayout.class).setProperty(LayoutOptions.EDGE_LABEL_PLACEMENT,
-                    EdgeLabelPlacement.HEAD);
+            label.setProperty(CoreOptions.EDGE_LABELS_PLACEMENT, EdgeLabelPlacement.HEAD);
         }
         
         // Configure the rendering
@@ -414,12 +410,11 @@ public final class EdgeBuilder {
      * @return a port
      */
     private KPort buildPort(PortSide portSide, int index) {
-        KPort port = KimlUtil.createInitializedPort();
+        KPort port = KGraphUtil.createInitializedPort();
         
-        KShapeLayout portLayout = port.getData(KShapeLayout.class);
-        portLayout.setSize(5, 5);
-        portLayout.setProperty(LayoutOptions.PORT_SIDE, portSide);
-        portLayout.setProperty(LayoutOptions.PORT_INDEX, index);
+        port.setSize(5, 5);
+        port.setProperty(CoreOptions.PORT_SIDE, portSide);
+        port.setProperty(CoreOptions.PORT_INDEX, index);
         
         KRectangle rectangle = renderingFactory.createKRectangle();
         port.getData().add(rectangle);

@@ -23,9 +23,9 @@ import org.eclipse.jdt.debug.core.IJavaValue;
 
 import com.google.common.collect.Maps;
 
-import de.cau.cs.kieler.core.kgraph.KNode;
-import de.cau.cs.kieler.core.kgraph.KPort;
 import de.cau.cs.kieler.debukviz.util.EdgeBuilder;
+import de.cau.cs.kieler.klighd.kgraph.KNode;
+import de.cau.cs.kieler.klighd.kgraph.KPort;
 
 /**
  * Stores information relevant to a given DebuKViz synthesis run. Since each run can be composed of
