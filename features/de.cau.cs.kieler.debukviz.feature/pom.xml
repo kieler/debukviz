@@ -4,8 +4,9 @@
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>de.cau.cs.kieler.debukviz</groupId>
-    <artifactId>features</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <artifactId>parent</artifactId>
+    <version>0.2.0-SNAPSHOT</version>
+    <relativePath>../../build/pom.xml</relativePath>
   </parent>
   
   <groupId>de.cau.cs.kieler.debukviz</groupId>

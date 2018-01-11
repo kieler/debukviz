@@ -15,10 +15,10 @@
 
    <!-- DEBUKVIZ -->
 
-   <feature url="features/de.cau.cs.kieler.debukviz.1.0.qualifier.jar" id="de.cau.cs.kieler.debukviz.feature" version="0.1.0.qualifier">
+   <feature url="features/de.cau.cs.kieler.debukviz.0.2.0.qualifier.jar" id="de.cau.cs.kieler.debukviz.feature" version="0.2.0.qualifier">
       <category name="debukviz"/>
    </feature>
-   <feature url="features/de.cau.cs.kieler.debukviz.source_0.1.0.qualifier.jar" id="de.cau.cs.kieler.debukviz.feature.source" version="0.1.0.qualifier">
+   <feature url="features/de.cau.cs.kieler.debukviz.source_0.2.0.qualifier.jar" id="de.cau.cs.kieler.debukviz.feature.source" version="0.2.0.qualifier">
       <category name="debukviz"/>
    </feature>
 
