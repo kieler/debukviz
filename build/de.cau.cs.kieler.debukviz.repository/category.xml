@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<site associateSitesURL="associateSites.xml">
+<site>
 
    <description name="OpenKieler (Nightly Builds)" url="http://rtsys.informatik.uni-kiel.de/~kieler/updatesite/nightly-openkieler/">
       Update site for the OpenKieler nightly builds.
@@ -12,9 +12,7 @@
       </description>
    </category-def>
 
-
    <!-- DEBUKVIZ -->
-
    <feature url="features/de.cau.cs.kieler.debukviz.0.2.0.qualifier.jar" id="de.cau.cs.kieler.debukviz.feature" version="0.2.0.qualifier">
       <category name="debukviz"/>
    </feature>
