@@ -2,6 +2,8 @@
 
 Dynamically generates a graphical view of variables selected in the Eclipse Variables view while debugging. Ships with a number of specialized transformations that define how certain classes should be visualized. Can be easily extended with custom transformations for your own data structures.
 
+![Screenshot](doc/screenshot.png)
+
 
 ## Installing DebuKViz
 
